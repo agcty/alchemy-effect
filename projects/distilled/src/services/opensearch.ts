@@ -884,6 +884,7 @@ export interface AdvancedSecurityOptions {
   InternalUserDatabaseEnabled?: boolean;
   SAMLOptions?: SAMLOptionsOutput;
   JWTOptions?: JWTOptionsOutput;
+  IAMFederationOptions?: IAMFederationOptionsOutput;
   AnonymousAuthDisableDate?: Date | string;
   AnonymousAuthEnabled?: boolean;
 }
@@ -893,6 +894,7 @@ export interface AdvancedSecurityOptionsInput {
   MasterUserOptions?: MasterUserOptions;
   SAMLOptions?: SAMLOptionsInput;
   JWTOptions?: JWTOptionsInput;
+  IAMFederationOptions?: IAMFederationOptionsInput;
   AnonymousAuthEnabled?: boolean;
 }
 export interface AdvancedSecurityOptionsStatus {
@@ -901,9 +903,11 @@ export interface AdvancedSecurityOptionsStatus {
 }
 export interface AIMLOptionsInput {
   NaturalLanguageQueryGenerationOptions?: NaturalLanguageQueryGenerationOptionsInput;
+  S3VectorsEngine?: S3VectorsEngine;
 }
 export interface AIMLOptionsOutput {
   NaturalLanguageQueryGenerationOptions?: NaturalLanguageQueryGenerationOptionsOutput;
+  S3VectorsEngine?: S3VectorsEngine;
 }
 export interface AIMLOptionsStatus {
   Options?: AIMLOptionsOutput;
@@ -1830,6 +1834,20 @@ export type GUID = string;
 export type GUIDList = Array<string>;
 export type HostedZoneId = string;
 
+export interface IAMFederationOptionsInput {
+  Enabled?: boolean;
+  SubjectKey?: string;
+  RolesKey?: string;
+}
+export interface IAMFederationOptionsOutput {
+  Enabled?: boolean;
+  SubjectKey?: string;
+  RolesKey?: string;
+}
+export type IAMFederationRolesKey = string;
+
+export type IAMFederationSubjectKey = string;
+
 export interface IamIdentityCenterOptions {
   enabled?: boolean;
   iamIdentityCenterInstanceArn?: string;
@@ -2550,6 +2568,9 @@ export interface S3GlueDataCatalog {
 }
 export type S3Key = string;
 
+export interface S3VectorsEngine {
+  Enabled?: boolean;
+}
 export type SAMLEntityId = string;
 
 export interface SAMLIdp {

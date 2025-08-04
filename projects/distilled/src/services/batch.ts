@@ -33,6 +33,12 @@ export declare class Batch extends AWSServiceClient {
     CreateSchedulingPolicyResponse,
     ClientException | ServerException | CommonAwsError
   >;
+  createServiceEnvironment(
+    input: CreateServiceEnvironmentRequest,
+  ): Effect.Effect<
+    CreateServiceEnvironmentResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
   deleteComputeEnvironment(
     input: DeleteComputeEnvironmentRequest,
   ): Effect.Effect<
@@ -55,6 +61,12 @@ export declare class Batch extends AWSServiceClient {
     input: DeleteSchedulingPolicyRequest,
   ): Effect.Effect<
     DeleteSchedulingPolicyResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
+  deleteServiceEnvironment(
+    input: DeleteServiceEnvironmentRequest,
+  ): Effect.Effect<
+    DeleteServiceEnvironmentResponse,
     ClientException | ServerException | CommonAwsError
   >;
   deregisterJobDefinition(
@@ -99,6 +111,18 @@ export declare class Batch extends AWSServiceClient {
     DescribeSchedulingPoliciesResponse,
     ClientException | ServerException | CommonAwsError
   >;
+  describeServiceEnvironments(
+    input: DescribeServiceEnvironmentsRequest,
+  ): Effect.Effect<
+    DescribeServiceEnvironmentsResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
+  describeServiceJob(
+    input: DescribeServiceJobRequest,
+  ): Effect.Effect<
+    DescribeServiceJobResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
   getJobQueueSnapshot(
     input: GetJobQueueSnapshotRequest,
   ): Effect.Effect<
@@ -129,6 +153,12 @@ export declare class Batch extends AWSServiceClient {
     ListSchedulingPoliciesResponse,
     ClientException | ServerException | CommonAwsError
   >;
+  listServiceJobs(
+    input: ListServiceJobsRequest,
+  ): Effect.Effect<
+    ListServiceJobsResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
   listTagsForResource(
     input: ListTagsForResourceRequest,
   ): Effect.Effect<
@@ -147,6 +177,12 @@ export declare class Batch extends AWSServiceClient {
     SubmitJobResponse,
     ClientException | ServerException | CommonAwsError
   >;
+  submitServiceJob(
+    input: SubmitServiceJobRequest,
+  ): Effect.Effect<
+    SubmitServiceJobResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
   tagResource(
     input: TagResourceRequest,
   ): Effect.Effect<
@@ -157,6 +193,12 @@ export declare class Batch extends AWSServiceClient {
     input: TerminateJobRequest,
   ): Effect.Effect<
     TerminateJobResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
+  terminateServiceJob(
+    input: TerminateServiceJobRequest,
+  ): Effect.Effect<
+    TerminateServiceJobResponse,
     ClientException | ServerException | CommonAwsError
   >;
   untagResource(
@@ -187,6 +229,12 @@ export declare class Batch extends AWSServiceClient {
     input: UpdateSchedulingPolicyRequest,
   ): Effect.Effect<
     UpdateSchedulingPolicyResponse,
+    ClientException | ServerException | CommonAwsError
+  >;
+  updateServiceEnvironment(
+    input: UpdateServiceEnvironmentRequest,
+  ): Effect.Effect<
+    UpdateServiceEnvironmentResponse,
     ClientException | ServerException | CommonAwsError
   >;
 }
@@ -241,6 +289,11 @@ export interface CancelJobRequest {
   reason: string;
 }
 export interface CancelJobResponse {}
+export interface CapacityLimit {
+  maxCapacity?: number;
+  capacityUnit?: string;
+}
+export type CapacityLimits = Array<CapacityLimit>;
 export type CEState = "ENABLED" | "DISABLED";
 export type CEStatus =
   | "CREATING"
@@ -440,7 +493,9 @@ export interface CreateJobQueueRequest {
   state?: JQState;
   schedulingPolicyArn?: string;
   priority: number;
-  computeEnvironmentOrder: Array<ComputeEnvironmentOrder>;
+  computeEnvironmentOrder?: Array<ComputeEnvironmentOrder>;
+  serviceEnvironmentOrder?: Array<ServiceEnvironmentOrder>;
+  jobQueueType?: JobQueueType;
   tags?: Record<string, string>;
   jobStateTimeLimitActions?: Array<JobStateTimeLimitAction>;
 }
@@ -456,6 +511,17 @@ export interface CreateSchedulingPolicyRequest {
 export interface CreateSchedulingPolicyResponse {
   name: string;
   arn: string;
+}
+export interface CreateServiceEnvironmentRequest {
+  serviceEnvironmentName: string;
+  serviceEnvironmentType: ServiceEnvironmentType;
+  state?: ServiceEnvironmentState;
+  capacityLimits: Array<CapacityLimit>;
+  tags?: Record<string, string>;
+}
+export interface CreateServiceEnvironmentResponse {
+  serviceEnvironmentName: string;
+  serviceEnvironmentArn: string;
 }
 export type CRType = "EC2" | "SPOT" | "FARGATE" | "FARGATE_SPOT";
 export type CRUpdateAllocationStrategy =
@@ -478,6 +544,10 @@ export interface DeleteSchedulingPolicyRequest {
   arn: string;
 }
 export interface DeleteSchedulingPolicyResponse {}
+export interface DeleteServiceEnvironmentRequest {
+  serviceEnvironment: string;
+}
+export interface DeleteServiceEnvironmentResponse {}
 export interface DeregisterJobDefinitionRequest {
   jobDefinition: string;
 }
@@ -535,6 +605,39 @@ export interface DescribeSchedulingPoliciesRequest {
 }
 export interface DescribeSchedulingPoliciesResponse {
   schedulingPolicies?: Array<SchedulingPolicyDetail>;
+}
+export interface DescribeServiceEnvironmentsRequest {
+  serviceEnvironments?: Array<string>;
+  maxResults?: number;
+  nextToken?: string;
+}
+export interface DescribeServiceEnvironmentsResponse {
+  serviceEnvironments?: Array<ServiceEnvironmentDetail>;
+  nextToken?: string;
+}
+export interface DescribeServiceJobRequest {
+  jobId: string;
+}
+export interface DescribeServiceJobResponse {
+  attempts?: Array<ServiceJobAttemptDetail>;
+  createdAt?: number;
+  isTerminated?: boolean;
+  jobArn?: string;
+  jobId: string;
+  jobName: string;
+  jobQueue: string;
+  latestAttempt?: LatestServiceJobAttempt;
+  retryStrategy?: ServiceJobRetryStrategy;
+  schedulingPriority?: number;
+  serviceRequestPayload?: string;
+  serviceJobType: ServiceJobType;
+  shareIdentifier?: string;
+  startedAt: number;
+  status: ServiceJobStatus;
+  statusReason?: string;
+  stoppedAt?: number;
+  tags?: Record<string, string>;
+  timeoutConfig?: ServiceJobTimeout;
 }
 export interface Device {
   hostPath: string;
@@ -879,10 +982,13 @@ export interface JobQueueDetail {
   statusReason?: string;
   priority: number;
   computeEnvironmentOrder: Array<ComputeEnvironmentOrder>;
+  serviceEnvironmentOrder?: Array<ServiceEnvironmentOrder>;
+  jobQueueType?: JobQueueType;
   tags?: Record<string, string>;
   jobStateTimeLimitActions?: Array<JobStateTimeLimitAction>;
 }
 export type JobQueueDetailList = Array<JobQueueDetail>;
+export type JobQueueType = "EKS" | "ECS" | "ECS_FARGATE" | "SAGEMAKER_TRAINING";
 export interface JobStateTimeLimitAction {
   reason: string;
   state: JobStateTimeLimitActionsState;
@@ -890,7 +996,7 @@ export interface JobStateTimeLimitAction {
   action: JobStateTimeLimitActionsAction;
 }
 export type JobStateTimeLimitActions = Array<JobStateTimeLimitAction>;
-export type JobStateTimeLimitActionsAction = "CANCEL";
+export type JobStateTimeLimitActionsAction = "CANCEL" | "TERMINATE";
 export type JobStateTimeLimitActionsState = "RUNNABLE";
 export type JobStatus =
   | "SUBMITTED"
@@ -936,6 +1042,9 @@ export interface KeyValuesPair {
 }
 export type KubernetesVersion = string;
 
+export interface LatestServiceJobAttempt {
+  serviceResourceId?: ServiceResourceId;
+}
 export interface LaunchTemplateSpecification {
   launchTemplateId?: string;
   launchTemplateName?: string;
@@ -1021,6 +1130,17 @@ export interface ListSchedulingPoliciesRequest {
 }
 export interface ListSchedulingPoliciesResponse {
   schedulingPolicies?: Array<SchedulingPolicyListingDetail>;
+  nextToken?: string;
+}
+export interface ListServiceJobsRequest {
+  jobQueue?: string;
+  jobStatus?: ServiceJobStatus;
+  maxResults?: number;
+  nextToken?: string;
+  filters?: Array<KeyValuesPair>;
+}
+export interface ListServiceJobsResponse {
+  jobSummaryList: Array<ServiceJobSummary>;
   nextToken?: string;
 }
 export interface ListTagsForResourceRequest {
@@ -1168,6 +1288,79 @@ export declare class ServerException extends EffectData.TaggedError(
 )<{
   readonly message?: string;
 }> {}
+export interface ServiceEnvironmentDetail {
+  serviceEnvironmentName: string;
+  serviceEnvironmentArn: string;
+  serviceEnvironmentType: ServiceEnvironmentType;
+  state?: ServiceEnvironmentState;
+  status?: ServiceEnvironmentStatus;
+  capacityLimits: Array<CapacityLimit>;
+  tags?: Record<string, string>;
+}
+export type ServiceEnvironmentDetailList = Array<ServiceEnvironmentDetail>;
+export interface ServiceEnvironmentOrder {
+  order: number;
+  serviceEnvironment: string;
+}
+export type ServiceEnvironmentOrders = Array<ServiceEnvironmentOrder>;
+export type ServiceEnvironmentState = "ENABLED" | "DISABLED";
+export type ServiceEnvironmentStatus =
+  | "CREATING"
+  | "UPDATING"
+  | "DELETING"
+  | "DELETED"
+  | "VALID"
+  | "INVALID";
+export type ServiceEnvironmentType = "SAGEMAKER_TRAINING";
+export interface ServiceJobAttemptDetail {
+  serviceResourceId?: ServiceResourceId;
+  startedAt?: number;
+  stoppedAt?: number;
+  statusReason?: string;
+}
+export type ServiceJobAttemptDetails = Array<ServiceJobAttemptDetail>;
+export interface ServiceJobEvaluateOnExit {
+  action?: ServiceJobRetryAction;
+  onStatusReason?: string;
+}
+export type ServiceJobEvaluateOnExitList = Array<ServiceJobEvaluateOnExit>;
+export type ServiceJobRetryAction = "RETRY" | "EXIT";
+export interface ServiceJobRetryStrategy {
+  attempts: number;
+  evaluateOnExit?: Array<ServiceJobEvaluateOnExit>;
+}
+export type ServiceJobStatus =
+  | "SUBMITTED"
+  | "PENDING"
+  | "RUNNABLE"
+  | "SCHEDULED"
+  | "STARTING"
+  | "RUNNING"
+  | "SUCCEEDED"
+  | "FAILED";
+export interface ServiceJobSummary {
+  latestAttempt?: LatestServiceJobAttempt;
+  createdAt?: number;
+  jobArn?: string;
+  jobId: string;
+  jobName: string;
+  serviceJobType: ServiceJobType;
+  shareIdentifier?: string;
+  status?: ServiceJobStatus;
+  statusReason?: string;
+  startedAt?: number;
+  stoppedAt?: number;
+}
+export type ServiceJobSummaryList = Array<ServiceJobSummary>;
+export interface ServiceJobTimeout {
+  attemptDurationSeconds?: number;
+}
+export type ServiceJobType = "SAGEMAKER_TRAINING";
+export interface ServiceResourceId {
+  name: ServiceResourceIdName;
+  value: string;
+}
+export type ServiceResourceIdName = "SAGEMAKER_TRAINING_JOB_ARN";
 export interface ShareAttributes {
   shareIdentifier: string;
   weightFactor?: number;
@@ -1196,6 +1389,23 @@ export interface SubmitJobRequest {
   consumableResourcePropertiesOverride?: ConsumableResourceProperties;
 }
 export interface SubmitJobResponse {
+  jobArn?: string;
+  jobName: string;
+  jobId: string;
+}
+export interface SubmitServiceJobRequest {
+  jobName: string;
+  jobQueue: string;
+  retryStrategy?: ServiceJobRetryStrategy;
+  schedulingPriority?: number;
+  serviceRequestPayload: string;
+  serviceJobType: ServiceJobType;
+  shareIdentifier?: string;
+  timeoutConfig?: ServiceJobTimeout;
+  tags?: Record<string, string>;
+  clientToken?: string;
+}
+export interface SubmitServiceJobResponse {
   jobArn?: string;
   jobName: string;
   jobId: string;
@@ -1273,6 +1483,11 @@ export interface TerminateJobRequest {
   reason: string;
 }
 export interface TerminateJobResponse {}
+export interface TerminateServiceJobRequest {
+  jobId: string;
+  reason: string;
+}
+export interface TerminateServiceJobResponse {}
 export interface Tmpfs {
   containerPath: string;
   size: number;
@@ -1320,6 +1535,7 @@ export interface UpdateJobQueueRequest {
   schedulingPolicyArn?: string;
   priority?: number;
   computeEnvironmentOrder?: Array<ComputeEnvironmentOrder>;
+  serviceEnvironmentOrder?: Array<ServiceEnvironmentOrder>;
   jobStateTimeLimitActions?: Array<JobStateTimeLimitAction>;
 }
 export interface UpdateJobQueueResponse {
@@ -1335,6 +1551,15 @@ export interface UpdateSchedulingPolicyRequest {
   fairsharePolicy?: FairsharePolicy;
 }
 export interface UpdateSchedulingPolicyResponse {}
+export interface UpdateServiceEnvironmentRequest {
+  serviceEnvironment: string;
+  state?: ServiceEnvironmentState;
+  capacityLimits?: Array<CapacityLimit>;
+}
+export interface UpdateServiceEnvironmentResponse {
+  serviceEnvironmentName: string;
+  serviceEnvironmentArn: string;
+}
 export type UserdataType = "EKS_BOOTSTRAP_SH" | "EKS_NODEADM";
 export interface Volume {
   host?: Host;
@@ -1372,6 +1597,12 @@ export declare namespace CreateSchedulingPolicy {
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
+export declare namespace CreateServiceEnvironment {
+  export type Input = CreateServiceEnvironmentRequest;
+  export type Output = CreateServiceEnvironmentResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
 export declare namespace DeleteComputeEnvironment {
   export type Input = DeleteComputeEnvironmentRequest;
   export type Output = DeleteComputeEnvironmentResponse;
@@ -1393,6 +1624,12 @@ export declare namespace DeleteJobQueue {
 export declare namespace DeleteSchedulingPolicy {
   export type Input = DeleteSchedulingPolicyRequest;
   export type Output = DeleteSchedulingPolicyResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
+export declare namespace DeleteServiceEnvironment {
+  export type Input = DeleteServiceEnvironmentRequest;
+  export type Output = DeleteServiceEnvironmentResponse;
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
@@ -1438,6 +1675,18 @@ export declare namespace DescribeSchedulingPolicies {
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
+export declare namespace DescribeServiceEnvironments {
+  export type Input = DescribeServiceEnvironmentsRequest;
+  export type Output = DescribeServiceEnvironmentsResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
+export declare namespace DescribeServiceJob {
+  export type Input = DescribeServiceJobRequest;
+  export type Output = DescribeServiceJobResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
 export declare namespace GetJobQueueSnapshot {
   export type Input = GetJobQueueSnapshotRequest;
   export type Output = GetJobQueueSnapshotResponse;
@@ -1468,6 +1717,12 @@ export declare namespace ListSchedulingPolicies {
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
+export declare namespace ListServiceJobs {
+  export type Input = ListServiceJobsRequest;
+  export type Output = ListServiceJobsResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
 export declare namespace ListTagsForResource {
   export type Input = ListTagsForResourceRequest;
   export type Output = ListTagsForResourceResponse;
@@ -1486,6 +1741,12 @@ export declare namespace SubmitJob {
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
+export declare namespace SubmitServiceJob {
+  export type Input = SubmitServiceJobRequest;
+  export type Output = SubmitServiceJobResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
 export declare namespace TagResource {
   export type Input = TagResourceRequest;
   export type Output = TagResourceResponse;
@@ -1495,6 +1756,12 @@ export declare namespace TagResource {
 export declare namespace TerminateJob {
   export type Input = TerminateJobRequest;
   export type Output = TerminateJobResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
+export declare namespace TerminateServiceJob {
+  export type Input = TerminateServiceJobRequest;
+  export type Output = TerminateServiceJobResponse;
   export type Error = ClientException | ServerException | CommonAwsError;
 }
 
@@ -1525,5 +1792,11 @@ export declare namespace UpdateJobQueue {
 export declare namespace UpdateSchedulingPolicy {
   export type Input = UpdateSchedulingPolicyRequest;
   export type Output = UpdateSchedulingPolicyResponse;
+  export type Error = ClientException | ServerException | CommonAwsError;
+}
+
+export declare namespace UpdateServiceEnvironment {
+  export type Input = UpdateServiceEnvironmentRequest;
+  export type Output = UpdateServiceEnvironmentResponse;
   export type Error = ClientException | ServerException | CommonAwsError;
 }

@@ -138,9 +138,9 @@ putItem(
 
 ## How It Works
 
-We scrape all of the `@aws-sdk/client-*` packages from NPM and then scrape each Service's Smithy Spec from the aws-sdk-js-v3 Github repo.
+We use the official AWS API models from the [`aws/api-models-aws`](https://github.com/aws/api-models-aws) repository as a git submodule.
 
-The spec is then used to generate TypeScript types (types only, no runtime code) for each service in [src/services](src/services).
+The Smithy specifications are then used to generate TypeScript types (types only, no runtime code) for each service in [src/services](src/services).
 
 The [src/client.ts](src/client.ts) file contains the `AWS` proxy that is used to dynamically construct:
 1. the Client for a service.
@@ -149,5 +149,3 @@ The [src/client.ts](src/client.ts) file contains the `AWS` proxy that is used to
 The Service's Client is yet anothe Proxy that intercepts method calls to infer the API name and then submit the request to AWS via `aws4fetch` which signs the request.
 
 All of the Service's errors are modeled with TaggedErrors, except purely as `declare class` to avoid the code size cost of a physical class. The `AWS` proxy detects references ending with `Exception` and dynamically constructs the correct `TaggedError` type on the fly.
-
-This dynamic construction is possible because the AWS API has strict naming conventions and a RPC API implemented over REST with a compitable POST request.

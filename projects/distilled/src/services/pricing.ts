@@ -112,7 +112,12 @@ export interface Filter {
   Value: string;
 }
 export type Filters = Array<Filter>;
-export type FilterType = "TERM_MATCH";
+export type FilterType =
+  | "TERM_MATCH"
+  | "EQUALS"
+  | "CONTAINS"
+  | "ANY_OF"
+  | "NONE_OF";
 export type FormatVersion = string;
 
 export interface GetAttributeValuesRequest {

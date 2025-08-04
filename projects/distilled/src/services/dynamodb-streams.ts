@@ -77,6 +77,7 @@ export interface DescribeStreamInput {
   StreamArn: string;
   Limit?: number;
   ExclusiveStartShardId?: string;
+  ShardFilter?: ShardFilter;
 }
 export interface DescribeStreamOutput {
   StreamDescription?: StreamDescription;
@@ -175,6 +176,11 @@ export interface Shard {
   ParentShardId?: string;
 }
 export type ShardDescriptionList = Array<Shard>;
+export interface ShardFilter {
+  Type?: ShardFilterType;
+  ShardId?: string;
+}
+export type ShardFilterType = "CHILD_SHARDS";
 export type ShardId = string;
 
 export type ShardIterator = string;

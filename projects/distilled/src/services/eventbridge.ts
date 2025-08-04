@@ -784,6 +784,7 @@ export interface CreateEventBusRequest {
   Description?: string;
   KmsKeyIdentifier?: string;
   DeadLetterConfig?: DeadLetterConfig;
+  LogConfig?: LogConfig;
   Tags?: Array<Tag>;
 }
 export interface CreateEventBusResponse {
@@ -791,6 +792,7 @@ export interface CreateEventBusResponse {
   Description?: string;
   KmsKeyIdentifier?: string;
   DeadLetterConfig?: DeadLetterConfig;
+  LogConfig?: LogConfig;
 }
 export interface CreatePartnerEventSourceRequest {
   Name: string;
@@ -939,6 +941,7 @@ export interface DescribeEventBusResponse {
   KmsKeyIdentifier?: string;
   DeadLetterConfig?: DeadLetterConfig;
   Policy?: string;
+  LogConfig?: LogConfig;
   CreationTime?: Date | string;
   LastModifiedTime?: Date | string;
 }
@@ -1132,6 +1135,7 @@ export declare class IllegalStatusException extends EffectData.TaggedError(
 )<{
   readonly message?: string;
 }> {}
+export type IncludeDetail = "NONE" | "FULL";
 export interface InputTransformer {
   InputPathsMap?: Record<string, string>;
   InputTemplate: string;
@@ -1161,6 +1165,7 @@ export interface KinesisParameters {
 export type KmsKeyIdentifier = string;
 
 export type LaunchType = "EC2" | "FARGATE" | "EXTERNAL";
+export type Level = "OFF" | "ERROR" | "INFO" | "TRACE";
 export declare class LimitExceededException extends EffectData.TaggedError(
   "LimitExceededException",
 )<{
@@ -1293,6 +1298,10 @@ export interface ListTargetsByRuleRequest {
 export interface ListTargetsByRuleResponse {
   Targets?: Array<Target>;
   NextToken?: string;
+}
+export interface LogConfig {
+  IncludeDetail?: IncludeDetail;
+  Level?: Level;
 }
 export type Long = number;
 
@@ -1803,6 +1812,7 @@ export interface UpdateEventBusRequest {
   KmsKeyIdentifier?: string;
   Description?: string;
   DeadLetterConfig?: DeadLetterConfig;
+  LogConfig?: LogConfig;
 }
 export interface UpdateEventBusResponse {
   Arn?: string;
@@ -1810,6 +1820,7 @@ export interface UpdateEventBusResponse {
   KmsKeyIdentifier?: string;
   Description?: string;
   DeadLetterConfig?: DeadLetterConfig;
+  LogConfig?: LogConfig;
 }
 export declare namespace ActivateEventSource {
   export type Input = ActivateEventSourceRequest;

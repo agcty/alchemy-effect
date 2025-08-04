@@ -531,6 +531,10 @@ export type __integerMin1Max64 = number;
 
 export type __integerMin1Max8 = number;
 
+export type __integerMin2000Max30000 = number;
+
+export type __integerMin22050Max192000 = number;
+
 export type __integerMin22050Max48000 = number;
 
 export type __integerMin24Max60000 = number;
@@ -568,6 +572,8 @@ export type __integerMin50Max86400000 = number;
 export type __integerMin6000Max1024000 = number;
 
 export type __integerMin64000Max640000 = number;
+
+export type __integerMin6Max16 = number;
 
 export type __integerMin8000Max192000 = number;
 
@@ -744,6 +750,8 @@ export type __stringPattern010920405090509092 = string;
 
 export type __stringPattern010920405090509092090909 = string;
 
+export type __stringPattern019090190908019090190908 = string;
+
 export type __stringPattern01D20305D205D = string;
 
 export type __stringPattern0940191020191209301 = string;
@@ -751,6 +759,9 @@ export type __stringPattern0940191020191209301 = string;
 export type __stringPattern09aFAF809aFAF409aFAF409aFAF409aFAF12 = string;
 
 export type __stringPattern0xAFaF0908190908 = string;
+
+export type __stringPatternArnAwsAZ09EventsAZ090912ConnectionAZAZ09AF0936 =
+  string;
 
 export type __stringPatternArnAwsUsGovAcm = string;
 
@@ -796,13 +807,14 @@ export type __timestampUnix = Date | string;
 export type AacAudioDescriptionBroadcasterMix =
   | "BROADCASTER_MIXED_AD"
   | "NORMAL";
-export type AacCodecProfile = "LC" | "HEV1" | "HEV2";
+export type AacCodecProfile = "LC" | "HEV1" | "HEV2" | "XHE";
 export type AacCodingMode =
   | "AD_RECEIVER_MIX"
   | "CODING_MODE_1_0"
   | "CODING_MODE_1_1"
   | "CODING_MODE_2_0"
   | "CODING_MODE_5_1";
+export type AacLoudnessMeasurementMode = "PROGRAM" | "ANCHOR";
 export type AacRateControlMode = "CBR" | "VBR";
 export type AacRawFormat = "LATM_LOAS" | "NONE";
 export interface AacSettings {
@@ -810,10 +822,13 @@ export interface AacSettings {
   Bitrate?: number;
   CodecProfile?: AacCodecProfile;
   CodingMode?: AacCodingMode;
+  LoudnessMeasurementMode?: AacLoudnessMeasurementMode;
+  RapInterval?: number;
   RateControlMode?: AacRateControlMode;
   RawFormat?: AacRawFormat;
   SampleRate?: number;
   Specification?: AacSpecification;
+  TargetLoudnessRange?: number;
   VbrQuality?: AacVbrQuality;
 }
 export type AacSpecification = "MPEG2" | "MPEG4";
@@ -1421,6 +1436,7 @@ export type Codec =
   | "AV1"
   | "AVC"
   | "HEVC"
+  | "JPEG2000"
   | "MJPEG"
   | "MP4V"
   | "MPEG2"
@@ -1983,7 +1999,7 @@ export interface ForceIncludeRenditionSize {
   Height?: number;
   Width?: number;
 }
-export type Format = "mp4" | "quicktime" | "matroska" | "webm";
+export type Format = "mp4" | "quicktime" | "matroska" | "webm" | "mxf";
 export interface FrameCaptureSettings {
   FramerateDenominator?: number;
   FramerateNumerator?: number;
@@ -2457,6 +2473,7 @@ export interface Input {
   ProgramNumber?: number;
   PsiControl?: InputPsiControl;
   SupplementalImps?: Array<string>;
+  TamsSettings?: InputTamsSettings;
   TimecodeSource?: InputTimecodeSource;
   TimecodeStart?: string;
   VideoGenerator?: InputVideoGenerator;
@@ -2486,6 +2503,12 @@ export type InputRotate =
   | "AUTO";
 export type InputSampleRange = "FOLLOW" | "FULL_RANGE" | "LIMITED_RANGE";
 export type InputScanType = "AUTO" | "PSF";
+export interface InputTamsSettings {
+  AuthConnectionArn?: string;
+  GapHandling?: TamsGapHandling;
+  SourceId?: string;
+  Timerange?: string;
+}
 export interface InputTemplate {
   AdvancedInputFilter?: AdvancedInputFilter;
   AdvancedInputFilterSettings?: AdvancedInputFilterSettings;
@@ -3627,6 +3650,10 @@ export interface TagResourceRequest {
   Tags: Record<string, string>;
 }
 export interface TagResourceResponse {}
+export type TamsGapHandling =
+  | "SKIP_GAPS"
+  | "FILL_WITH_BLACK"
+  | "HOLD_LAST_FRAME";
 export interface TeletextDestinationSettings {
   PageNumber?: string;
   PageTypes?: Array<TeletextPageType>;

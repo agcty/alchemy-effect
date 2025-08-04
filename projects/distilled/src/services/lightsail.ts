@@ -12,6 +12,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -37,6 +38,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -50,6 +52,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -63,6 +66,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -76,6 +80,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -89,6 +94,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -102,6 +108,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -112,6 +119,7 @@ export declare class Lightsail extends AWSServiceClient {
     CreateBucketResult,
     | AccessDeniedException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -123,6 +131,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -134,6 +143,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -147,6 +157,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -159,6 +170,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -170,6 +182,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -181,6 +194,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -192,6 +206,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -205,6 +220,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -218,6 +234,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -231,6 +248,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -256,6 +274,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -269,6 +288,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -280,6 +300,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -293,6 +314,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -306,6 +328,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -319,6 +342,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -332,6 +356,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -345,6 +370,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -358,6 +384,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -371,6 +398,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -384,6 +412,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -397,6 +426,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -409,6 +439,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -421,6 +452,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -432,6 +464,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -443,6 +476,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -454,6 +488,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -466,6 +501,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -477,6 +513,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -488,6 +525,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -501,6 +539,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -514,6 +553,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -539,6 +579,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -552,6 +593,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -565,6 +607,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -578,6 +621,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -591,6 +635,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -604,6 +649,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -617,6 +663,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -630,6 +677,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -643,6 +691,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -656,6 +705,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -681,6 +731,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -694,6 +745,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -707,6 +759,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -719,6 +772,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -732,6 +786,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -744,6 +799,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -757,6 +813,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -770,6 +827,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -782,6 +840,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -794,6 +853,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -807,6 +867,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -818,6 +879,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -828,6 +890,7 @@ export declare class Lightsail extends AWSServiceClient {
     GetBucketBundlesResult,
     | AccessDeniedException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -839,6 +902,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -850,6 +914,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -863,6 +928,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -874,6 +940,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -887,6 +954,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -899,6 +967,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -908,6 +977,7 @@ export declare class Lightsail extends AWSServiceClient {
   ): Effect.Effect<
     GetContainerAPIMetadataResult,
     | AccessDeniedException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -919,6 +989,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -930,6 +1001,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -941,6 +1013,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -952,6 +1025,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -963,6 +1037,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -974,6 +1049,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -985,6 +1061,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -998,6 +1075,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1011,6 +1089,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1024,6 +1103,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1037,6 +1117,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1098,6 +1179,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1111,6 +1193,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1124,6 +1207,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1137,6 +1221,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1150,6 +1235,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1163,6 +1249,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1176,6 +1263,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1189,6 +1277,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1202,6 +1291,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1215,6 +1305,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1228,6 +1319,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1241,6 +1333,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1254,6 +1347,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1267,6 +1361,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1280,6 +1375,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1293,6 +1389,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1306,6 +1403,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1317,6 +1415,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | AccountSetupInProgressException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1330,6 +1429,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1343,6 +1443,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1356,6 +1457,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1369,6 +1471,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1382,6 +1485,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1395,6 +1499,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1408,6 +1513,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1421,6 +1527,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1434,6 +1541,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1447,6 +1555,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1460,6 +1569,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1473,6 +1583,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1486,6 +1597,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1499,6 +1611,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1512,6 +1625,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1525,6 +1639,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1536,6 +1651,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1549,6 +1665,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1562,6 +1679,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1575,6 +1693,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1588,6 +1707,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1601,6 +1721,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1614,6 +1735,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1626,6 +1748,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1639,6 +1762,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1652,6 +1776,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1665,6 +1790,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1676,6 +1802,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1689,6 +1816,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1713,6 +1841,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1726,6 +1855,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1737,6 +1867,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1748,6 +1879,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1759,6 +1891,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1772,6 +1905,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1785,6 +1919,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1796,6 +1931,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1809,6 +1945,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1822,6 +1959,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1835,6 +1973,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1847,6 +1986,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1860,6 +2000,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1873,6 +2014,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1884,6 +2026,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1895,6 +2038,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1906,6 +2050,7 @@ export declare class Lightsail extends AWSServiceClient {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1943,6 +2088,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1956,6 +2102,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1969,6 +2116,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1982,6 +2130,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -1995,6 +2144,7 @@ export declare class Lightsail extends AWSServiceClient {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError
@@ -4385,7 +4535,16 @@ export type RegionName =
   | "AP_SOUTHEAST_2"
   | "AP_NORTHEAST_1"
   | "AP_NORTHEAST_2"
-  | "EU_NORTH_1";
+  | "EU_NORTH_1"
+  | "AP_SOUTHEAST_3";
+export declare class RegionSetupInProgressException extends EffectData.TaggedError(
+  "RegionSetupInProgressException",
+)<{
+  readonly code?: string;
+  readonly docs?: string;
+  readonly message?: string;
+  readonly tip?: string;
+}> {}
 export interface RegisterContainerImageRequest {
   serviceName: string;
   label: string;
@@ -4916,6 +5075,7 @@ export declare namespace AllocateStaticIp {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -4943,6 +5103,7 @@ export declare namespace AttachDisk {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -4957,6 +5118,7 @@ export declare namespace AttachInstancesToLoadBalancer {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -4971,6 +5133,7 @@ export declare namespace AttachLoadBalancerTlsCertificate {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -4985,6 +5148,7 @@ export declare namespace AttachStaticIp {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -4999,6 +5163,7 @@ export declare namespace CloseInstancePublicPorts {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5013,6 +5178,7 @@ export declare namespace CopySnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5024,6 +5190,7 @@ export declare namespace CreateBucket {
   export type Error =
     | AccessDeniedException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5036,6 +5203,7 @@ export declare namespace CreateBucketAccessKey {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5048,6 +5216,7 @@ export declare namespace CreateCertificate {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5062,6 +5231,7 @@ export declare namespace CreateCloudFormationStack {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5075,6 +5245,7 @@ export declare namespace CreateContactMethod {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5087,6 +5258,7 @@ export declare namespace CreateContainerService {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5099,6 +5271,7 @@ export declare namespace CreateContainerServiceDeployment {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5111,6 +5284,7 @@ export declare namespace CreateContainerServiceRegistryLogin {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5125,6 +5299,7 @@ export declare namespace CreateDisk {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5139,6 +5314,7 @@ export declare namespace CreateDiskFromSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5153,6 +5329,7 @@ export declare namespace CreateDiskSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5180,6 +5357,7 @@ export declare namespace CreateDomain {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5194,6 +5372,7 @@ export declare namespace CreateDomainEntry {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5206,6 +5385,7 @@ export declare namespace CreateGUISessionAccessDetails {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5220,6 +5400,7 @@ export declare namespace CreateInstances {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5234,6 +5415,7 @@ export declare namespace CreateInstancesFromSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5248,6 +5430,7 @@ export declare namespace CreateInstanceSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5262,6 +5445,7 @@ export declare namespace CreateKeyPair {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5276,6 +5460,7 @@ export declare namespace CreateLoadBalancer {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5290,6 +5475,7 @@ export declare namespace CreateLoadBalancerTlsCertificate {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5304,6 +5490,7 @@ export declare namespace CreateRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5318,6 +5505,7 @@ export declare namespace CreateRelationalDatabaseFromSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5332,6 +5520,7 @@ export declare namespace CreateRelationalDatabaseSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5345,6 +5534,7 @@ export declare namespace DeleteAlarm {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5358,6 +5548,7 @@ export declare namespace DeleteAutoSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5370,6 +5561,7 @@ export declare namespace DeleteBucket {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5382,6 +5574,7 @@ export declare namespace DeleteBucketAccessKey {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5394,6 +5587,7 @@ export declare namespace DeleteCertificate {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5407,6 +5601,7 @@ export declare namespace DeleteContactMethod {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5419,6 +5614,7 @@ export declare namespace DeleteContainerImage {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5431,6 +5627,7 @@ export declare namespace DeleteContainerService {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5445,6 +5642,7 @@ export declare namespace DeleteDisk {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5459,6 +5657,7 @@ export declare namespace DeleteDiskSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5486,6 +5685,7 @@ export declare namespace DeleteDomain {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5500,6 +5700,7 @@ export declare namespace DeleteDomainEntry {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5514,6 +5715,7 @@ export declare namespace DeleteInstance {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5528,6 +5730,7 @@ export declare namespace DeleteInstanceSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5542,6 +5745,7 @@ export declare namespace DeleteKeyPair {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5556,6 +5760,7 @@ export declare namespace DeleteKnownHostKeys {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5570,6 +5775,7 @@ export declare namespace DeleteLoadBalancer {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5584,6 +5790,7 @@ export declare namespace DeleteLoadBalancerTlsCertificate {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5598,6 +5805,7 @@ export declare namespace DeleteRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5612,6 +5820,7 @@ export declare namespace DeleteRelationalDatabaseSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5639,6 +5848,7 @@ export declare namespace DetachDisk {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5653,6 +5863,7 @@ export declare namespace DetachInstancesFromLoadBalancer {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5667,6 +5878,7 @@ export declare namespace DetachStaticIp {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5680,6 +5892,7 @@ export declare namespace DisableAddOn {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5694,6 +5907,7 @@ export declare namespace DownloadDefaultKeyPair {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5707,6 +5921,7 @@ export declare namespace EnableAddOn {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5721,6 +5936,7 @@ export declare namespace ExportSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5735,6 +5951,7 @@ export declare namespace GetActiveNames {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5748,6 +5965,7 @@ export declare namespace GetAlarms {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5761,6 +5979,7 @@ export declare namespace GetAutoSnapshots {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5775,6 +5994,7 @@ export declare namespace GetBlueprints {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5787,6 +6007,7 @@ export declare namespace GetBucketAccessKeys {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5798,6 +6019,7 @@ export declare namespace GetBucketBundles {
   export type Error =
     | AccessDeniedException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5810,6 +6032,7 @@ export declare namespace GetBucketMetricData {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5822,6 +6045,7 @@ export declare namespace GetBuckets {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5836,6 +6060,7 @@ export declare namespace GetBundles {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5848,6 +6073,7 @@ export declare namespace GetCertificates {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5862,6 +6088,7 @@ export declare namespace GetCloudFormationStackRecords {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5875,6 +6102,7 @@ export declare namespace GetContactMethods {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5885,6 +6113,7 @@ export declare namespace GetContainerAPIMetadata {
   export type Output = GetContainerAPIMetadataResult;
   export type Error =
     | AccessDeniedException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5897,6 +6126,7 @@ export declare namespace GetContainerImages {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5909,6 +6139,7 @@ export declare namespace GetContainerLog {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5921,6 +6152,7 @@ export declare namespace GetContainerServiceDeployments {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5933,6 +6165,7 @@ export declare namespace GetContainerServiceMetricData {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5945,6 +6178,7 @@ export declare namespace GetContainerServicePowers {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5957,6 +6191,7 @@ export declare namespace GetContainerServices {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5969,6 +6204,7 @@ export declare namespace GetCostEstimate {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5983,6 +6219,7 @@ export declare namespace GetDisk {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -5997,6 +6234,7 @@ export declare namespace GetDisks {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6011,6 +6249,7 @@ export declare namespace GetDiskSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6025,6 +6264,7 @@ export declare namespace GetDiskSnapshots {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6091,6 +6331,7 @@ export declare namespace GetDomain {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6105,6 +6346,7 @@ export declare namespace GetDomains {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6119,6 +6361,7 @@ export declare namespace GetExportSnapshotRecords {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6133,6 +6376,7 @@ export declare namespace GetInstance {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6147,6 +6391,7 @@ export declare namespace GetInstanceAccessDetails {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6161,6 +6406,7 @@ export declare namespace GetInstanceMetricData {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6175,6 +6421,7 @@ export declare namespace GetInstancePortStates {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6189,6 +6436,7 @@ export declare namespace GetInstances {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6203,6 +6451,7 @@ export declare namespace GetInstanceSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6217,6 +6466,7 @@ export declare namespace GetInstanceSnapshots {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6231,6 +6481,7 @@ export declare namespace GetInstanceState {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6245,6 +6496,7 @@ export declare namespace GetKeyPair {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6259,6 +6511,7 @@ export declare namespace GetKeyPairs {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6273,6 +6526,7 @@ export declare namespace GetLoadBalancer {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6287,6 +6541,7 @@ export declare namespace GetLoadBalancerMetricData {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6301,6 +6556,7 @@ export declare namespace GetLoadBalancers {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6315,6 +6571,7 @@ export declare namespace GetLoadBalancerTlsCertificates {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6327,6 +6584,7 @@ export declare namespace GetLoadBalancerTlsPolicies {
     | AccessDeniedException
     | AccountSetupInProgressException
     | InvalidInputException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6341,6 +6599,7 @@ export declare namespace GetOperation {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6355,6 +6614,7 @@ export declare namespace GetOperations {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6369,6 +6629,7 @@ export declare namespace GetOperationsForResource {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6383,6 +6644,7 @@ export declare namespace GetRegions {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6397,6 +6659,7 @@ export declare namespace GetRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6411,6 +6674,7 @@ export declare namespace GetRelationalDatabaseBlueprints {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6425,6 +6689,7 @@ export declare namespace GetRelationalDatabaseBundles {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6439,6 +6704,7 @@ export declare namespace GetRelationalDatabaseEvents {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6453,6 +6719,7 @@ export declare namespace GetRelationalDatabaseLogEvents {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6467,6 +6734,7 @@ export declare namespace GetRelationalDatabaseLogStreams {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6481,6 +6749,7 @@ export declare namespace GetRelationalDatabaseMasterUserPassword {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6495,6 +6764,7 @@ export declare namespace GetRelationalDatabaseMetricData {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6509,6 +6779,7 @@ export declare namespace GetRelationalDatabaseParameters {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6523,6 +6794,7 @@ export declare namespace GetRelationalDatabases {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6537,6 +6809,7 @@ export declare namespace GetRelationalDatabaseSnapshot {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6551,6 +6824,7 @@ export declare namespace GetRelationalDatabaseSnapshots {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6563,6 +6837,7 @@ export declare namespace GetSetupHistory {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6577,6 +6852,7 @@ export declare namespace GetStaticIp {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6591,6 +6867,7 @@ export declare namespace GetStaticIps {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6605,6 +6882,7 @@ export declare namespace ImportKeyPair {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6619,6 +6897,7 @@ export declare namespace IsVpcPeered {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6633,6 +6912,7 @@ export declare namespace OpenInstancePublicPorts {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6647,6 +6927,7 @@ export declare namespace PeerVpc {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6660,6 +6941,7 @@ export declare namespace PutAlarm {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6674,6 +6956,7 @@ export declare namespace PutInstancePublicPorts {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6688,6 +6971,7 @@ export declare namespace RebootInstance {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6702,6 +6986,7 @@ export declare namespace RebootRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6714,6 +6999,7 @@ export declare namespace RegisterContainerImage {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6728,6 +7014,7 @@ export declare namespace ReleaseStaticIp {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6754,6 +7041,7 @@ export declare namespace SendContactMethodVerification {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6768,6 +7056,7 @@ export declare namespace SetIpAddressType {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6780,6 +7069,7 @@ export declare namespace SetResourceAccessForBucket {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6792,6 +7082,7 @@ export declare namespace SetupInstanceHttps {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6804,6 +7095,7 @@ export declare namespace StartGUISession {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6818,6 +7110,7 @@ export declare namespace StartInstance {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6832,6 +7125,7 @@ export declare namespace StartRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6844,6 +7138,7 @@ export declare namespace StopGUISession {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6858,6 +7153,7 @@ export declare namespace StopInstance {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6872,6 +7168,7 @@ export declare namespace StopRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6886,6 +7183,7 @@ export declare namespace TagResource {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6899,6 +7197,7 @@ export declare namespace TestAlarm {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6913,6 +7212,7 @@ export declare namespace UnpeerVpc {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6927,6 +7227,7 @@ export declare namespace UntagResource {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6939,6 +7240,7 @@ export declare namespace UpdateBucket {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6951,6 +7253,7 @@ export declare namespace UpdateBucketBundle {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -6963,6 +7266,7 @@ export declare namespace UpdateContainerService {
     | AccessDeniedException
     | InvalidInputException
     | NotFoundException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -7003,6 +7307,7 @@ export declare namespace UpdateDomainEntry {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -7017,6 +7322,7 @@ export declare namespace UpdateInstanceMetadataOptions {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -7031,6 +7337,7 @@ export declare namespace UpdateLoadBalancerAttribute {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -7045,6 +7352,7 @@ export declare namespace UpdateRelationalDatabase {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;
@@ -7059,6 +7367,7 @@ export declare namespace UpdateRelationalDatabaseParameters {
     | InvalidInputException
     | NotFoundException
     | OperationFailureException
+    | RegionSetupInProgressException
     | ServiceException
     | UnauthenticatedException
     | CommonAwsError;

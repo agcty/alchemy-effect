@@ -155,6 +155,19 @@ export declare class IoTSiteWise extends AWSServiceClient {
     | ThrottlingException
     | CommonAwsError
   >;
+  createComputationModel(
+    input: CreateComputationModelRequest,
+  ): Effect.Effect<
+    CreateComputationModelResponse,
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
+    | LimitExceededException
+    | ResourceAlreadyExistsException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
   createDashboard(
     input: CreateDashboardRequest,
   ): Effect.Effect<
@@ -253,6 +266,17 @@ export declare class IoTSiteWise extends AWSServiceClient {
     | InternalFailureException
     | InvalidRequestException
     | PreconditionFailedException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  deleteComputationModel(
+    input: DeleteComputationModelRequest,
+  ): Effect.Effect<
+    DeleteComputationModelResponse,
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
     | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError
@@ -401,6 +425,26 @@ export declare class IoTSiteWise extends AWSServiceClient {
     | ThrottlingException
     | CommonAwsError
   >;
+  describeComputationModel(
+    input: DescribeComputationModelRequest,
+  ): Effect.Effect<
+    DescribeComputationModelResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  describeComputationModelExecutionSummary(
+    input: DescribeComputationModelExecutionSummaryRequest,
+  ): Effect.Effect<
+    DescribeComputationModelExecutionSummaryResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
   describeDashboard(
     input: DescribeDashboardRequest,
   ): Effect.Effect<
@@ -427,6 +471,16 @@ export declare class IoTSiteWise extends AWSServiceClient {
     DescribeDefaultEncryptionConfigurationResponse,
     | InternalFailureException
     | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  describeExecution(
+    input: DescribeExecutionRequest,
+  ): Effect.Effect<
+    DescribeExecutionResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError
   >;
@@ -714,6 +768,34 @@ export declare class IoTSiteWise extends AWSServiceClient {
     | ThrottlingException
     | CommonAwsError
   >;
+  listComputationModelDataBindingUsages(
+    input: ListComputationModelDataBindingUsagesRequest,
+  ): Effect.Effect<
+    ListComputationModelDataBindingUsagesResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  listComputationModelResolveToResources(
+    input: ListComputationModelResolveToResourcesRequest,
+  ): Effect.Effect<
+    ListComputationModelResolveToResourcesResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  listComputationModels(
+    input: ListComputationModelsRequest,
+  ): Effect.Effect<
+    ListComputationModelsResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError
+  >;
   listDashboards(
     input: ListDashboardsRequest,
   ): Effect.Effect<
@@ -729,6 +811,16 @@ export declare class IoTSiteWise extends AWSServiceClient {
     ListDatasetsResponse,
     | InternalFailureException
     | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError
+  >;
+  listExecutions(
+    input: ListExecutionsRequest,
+  ): Effect.Effect<
+    ListExecutionsResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError
   >;
@@ -914,6 +1006,19 @@ export declare class IoTSiteWise extends AWSServiceClient {
     | ThrottlingException
     | CommonAwsError
   >;
+  updateComputationModel(
+    input: UpdateComputationModelRequest,
+  ): Effect.Effect<
+    UpdateComputationModelResponse,
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
+    | LimitExceededException
+    | ResourceAlreadyExistsException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError
+  >;
   updateDashboard(
     input: UpdateDashboardRequest,
   ): Effect.Effect<
@@ -1014,6 +1119,7 @@ export interface ActionSummary {
   actionId?: string;
   actionDefinitionId?: string;
   targetResource?: TargetResource;
+  resolveTo?: ResolveTo;
 }
 export type AdaptiveIngestion = boolean;
 
@@ -1049,6 +1155,9 @@ export type AmazonResourceName = string;
 
 export type ARN = string;
 
+export interface AssetBindingValueFilter {
+  assetId: string;
+}
 export interface AssetCompositeModel {
   name: string;
   description?: string;
@@ -1083,14 +1192,17 @@ export type AssetErrorMessage = string;
 export type AssetHierarchies = Array<AssetHierarchy>;
 export interface AssetHierarchy {
   id?: string;
-  name: string;
   externalId?: string;
+  name: string;
 }
 export interface AssetHierarchyInfo {
   parentAssetId?: string;
   childAssetId?: string;
 }
 export type AssetIDs = Array<string>;
+export interface AssetModelBindingValueFilter {
+  assetModelId: string;
+}
 export interface AssetModelCompositeModel {
   name: string;
   description?: string;
@@ -1152,6 +1264,14 @@ export interface AssetModelProperty {
   type: PropertyType;
   path?: Array<AssetModelPropertyPathSegment>;
 }
+export interface AssetModelPropertyBindingValue {
+  assetModelId: string;
+  propertyId: string;
+}
+export interface AssetModelPropertyBindingValueFilter {
+  assetModelId: string;
+  propertyId: string;
+}
 export interface AssetModelPropertyDefinition {
   id?: string;
   externalId?: string;
@@ -1210,6 +1330,7 @@ export type AssetModelVersionType = "LATEST" | "ACTIVE";
 export type AssetProperties = Array<AssetProperty>;
 export interface AssetProperty {
   id: string;
+  externalId?: string;
   name: string;
   alias?: string;
   notification?: PropertyNotification;
@@ -1217,10 +1338,17 @@ export interface AssetProperty {
   dataTypeSpec?: string;
   unit?: string;
   path?: Array<AssetPropertyPathSegment>;
-  externalId?: string;
 }
 export type AssetPropertyAlias = string;
 
+export interface AssetPropertyBindingValue {
+  assetId: string;
+  propertyId: string;
+}
+export interface AssetPropertyBindingValueFilter {
+  assetId: string;
+  propertyId: string;
+}
 export type AssetPropertyPath = Array<AssetPropertyPathSegment>;
 export interface AssetPropertyPathSegment {
   id?: string;
@@ -1229,12 +1357,12 @@ export interface AssetPropertyPathSegment {
 export type AssetPropertySummaries = Array<AssetPropertySummary>;
 export interface AssetPropertySummary {
   id: string;
+  externalId?: string;
   alias?: string;
   unit?: string;
   notification?: PropertyNotification;
   assetCompositeModelId?: string;
   path?: Array<AssetPropertyPathSegment>;
-  externalId?: string;
 }
 export interface AssetPropertyValue {
   value: Variant;
@@ -1262,6 +1390,7 @@ export interface AssetStatus {
 export type AssetSummaries = Array<AssetSummary>;
 export interface AssetSummary {
   id: string;
+  externalId?: string;
   arn: string;
   name: string;
   assetModelId: string;
@@ -1270,7 +1399,6 @@ export interface AssetSummary {
   status: AssetStatus;
   hierarchies: Array<AssetHierarchy>;
   description?: string;
-  externalId?: string;
 }
 export interface AssociateAssetsRequest {
   assetId: string;
@@ -1281,6 +1409,7 @@ export interface AssociateAssetsRequest {
 export type AssociatedAssetsSummaries = Array<AssociatedAssetsSummary>;
 export interface AssociatedAssetsSummary {
   id: string;
+  externalId?: string;
   arn: string;
   name: string;
   assetModelId: string;
@@ -1289,7 +1418,6 @@ export interface AssociatedAssetsSummary {
   status: AssetStatus;
   hierarchies: Array<AssetHierarchy>;
   description?: string;
-  externalId?: string;
 }
 export interface AssociateTimeSeriesToAssetPropertyRequest {
   alias: string;
@@ -1503,6 +1631,7 @@ export interface BatchPutAssetPropertyValueRequest {
 export interface BatchPutAssetPropertyValueResponse {
   errorEntries: Array<BatchPutAssetPropertyErrorEntry>;
 }
+export type BindingValueList = Array<ComputationModelDataBindingValue>;
 export type BooleanValue = boolean;
 
 export type Bucket = string;
@@ -1563,6 +1692,64 @@ export interface CompositionRelationshipSummary {
   assetModelCompositeModelId: string;
   assetModelCompositeModelType: string;
 }
+export interface ComputationModelAnomalyDetectionConfiguration {
+  inputProperties: string;
+  resultProperty: string;
+}
+export interface ComputationModelConfiguration {
+  anomalyDetection?: ComputationModelAnomalyDetectionConfiguration;
+}
+export type ComputationModelDataBinding = Record<
+  string,
+  ComputationModelDataBindingValue
+>;
+export type ComputationModelDataBindingUsageSummaries =
+  Array<ComputationModelDataBindingUsageSummary>;
+export interface ComputationModelDataBindingUsageSummary {
+  computationModelIds: Array<string>;
+  matchedDataBinding: MatchedDataBinding;
+}
+export interface ComputationModelDataBindingValue {
+  assetModelProperty?: AssetModelPropertyBindingValue;
+  assetProperty?: AssetPropertyBindingValue;
+  list?: Array<ComputationModelDataBindingValue>;
+}
+export type ComputationModelDataBindingVariable = string;
+
+export type ComputationModelExecutionSummary = Record<string, string>;
+export type ComputationModelExecutionSummaryKey = string;
+
+export type ComputationModelExecutionSummaryValue = string;
+
+export type ComputationModelIdList = Array<string>;
+export type ComputationModelResolveToResourceSummaries =
+  Array<ComputationModelResolveToResourceSummary>;
+export interface ComputationModelResolveToResourceSummary {
+  resolveTo?: ResolveTo;
+}
+export type ComputationModelState =
+  | "CREATING"
+  | "ACTIVE"
+  | "UPDATING"
+  | "DELETING"
+  | "FAILED";
+export interface ComputationModelStatus {
+  state: ComputationModelState;
+  error?: ErrorDetails;
+}
+export type ComputationModelSummaries = Array<ComputationModelSummary>;
+export interface ComputationModelSummary {
+  id: string;
+  arn: string;
+  name: string;
+  description?: string;
+  type: ComputationModelType;
+  creationDate: Date | string;
+  lastUpdateDate: Date | string;
+  status: ComputationModelStatus;
+  version: string;
+}
+export type ComputationModelType = "ANOMALY_DETECTION";
 export type ComputeLocation = "EDGE" | "CLOUD";
 export interface ConfigurationErrorDetails {
   code: ErrorCode;
@@ -1645,11 +1832,11 @@ export interface CreateAssetModelResponse {
 export interface CreateAssetRequest {
   assetName: string;
   assetModelId: string;
+  assetId?: string;
+  assetExternalId?: string;
   clientToken?: string;
   tags?: Record<string, string>;
   assetDescription?: string;
-  assetId?: string;
-  assetExternalId?: string;
 }
 export interface CreateAssetResponse {
   assetId: string;
@@ -1669,6 +1856,19 @@ export interface CreateBulkImportJobResponse {
   jobId: string;
   jobName: string;
   jobStatus: JobStatus;
+}
+export interface CreateComputationModelRequest {
+  computationModelName: string;
+  computationModelDescription?: string;
+  computationModelConfiguration: ComputationModelConfiguration;
+  computationModelDataBinding: Record<string, ComputationModelDataBindingValue>;
+  clientToken?: string;
+  tags?: Record<string, string>;
+}
+export interface CreateComputationModelResponse {
+  computationModelId: string;
+  computationModelArn: string;
+  computationModelStatus: ComputationModelStatus;
 }
 export interface CreateDashboardRequest {
   projectId: string;
@@ -1756,6 +1956,16 @@ export interface DashboardSummary {
   creationDate?: Date | string;
   lastUpdateDate?: Date | string;
 }
+export interface DataBindingValue {
+  assetModelProperty?: AssetModelPropertyBindingValue;
+  assetProperty?: AssetPropertyBindingValue;
+}
+export interface DataBindingValueFilter {
+  asset?: AssetBindingValueFilter;
+  assetModel?: AssetModelBindingValueFilter;
+  assetProperty?: AssetPropertyBindingValueFilter;
+  assetModelProperty?: AssetModelPropertyBindingValueFilter;
+}
 export interface DataSetReference {
   datasetArn?: string;
   source?: Source;
@@ -1829,6 +2039,13 @@ export interface DeleteAssetRequest {
 export interface DeleteAssetResponse {
   assetStatus: AssetStatus;
 }
+export interface DeleteComputationModelRequest {
+  computationModelId: string;
+  clientToken?: string;
+}
+export interface DeleteComputationModelResponse {
+  computationModelStatus: ComputationModelStatus;
+}
 export interface DeleteDashboardRequest {
   dashboardId: string;
   clientToken?: string;
@@ -1885,6 +2102,7 @@ export interface DescribeActionResponse {
   actionDefinitionId: string;
   actionPayload: ActionPayload;
   executionTime: Date | string;
+  resolveTo?: ResolveTo;
 }
 export interface DescribeAssetCompositeModelRequest {
   assetId: string;
@@ -1948,11 +2166,11 @@ export interface DescribeAssetPropertyRequest {
 }
 export interface DescribeAssetPropertyResponse {
   assetId: string;
+  assetExternalId?: string;
   assetName: string;
   assetModelId: string;
   assetProperty?: Property;
   compositeModel?: CompositeModelProperty;
-  assetExternalId?: string;
 }
 export interface DescribeAssetRequest {
   assetId: string;
@@ -1960,6 +2178,7 @@ export interface DescribeAssetRequest {
 }
 export interface DescribeAssetResponse {
   assetId: string;
+  assetExternalId?: string;
   assetArn: string;
   assetName: string;
   assetModelId: string;
@@ -1971,7 +2190,6 @@ export interface DescribeAssetResponse {
   assetStatus: AssetStatus;
   assetDescription?: string;
   assetCompositeModelSummaries?: Array<AssetCompositeModelSummary>;
-  assetExternalId?: string;
 }
 export interface DescribeBulkImportJobRequest {
   jobId: string;
@@ -1988,6 +2206,32 @@ export interface DescribeBulkImportJobResponse {
   jobLastUpdateDate: Date | string;
   adaptiveIngestion?: boolean;
   deleteFilesAfterImport?: boolean;
+}
+export interface DescribeComputationModelExecutionSummaryRequest {
+  computationModelId: string;
+  resolveToResourceType?: ResolveToResourceType;
+  resolveToResourceId?: string;
+}
+export interface DescribeComputationModelExecutionSummaryResponse {
+  computationModelId: string;
+  resolveTo?: ResolveTo;
+  computationModelExecutionSummary: Record<string, string>;
+}
+export interface DescribeComputationModelRequest {
+  computationModelId: string;
+}
+export interface DescribeComputationModelResponse {
+  computationModelId: string;
+  computationModelArn: string;
+  computationModelName: string;
+  computationModelDescription?: string;
+  computationModelConfiguration: ComputationModelConfiguration;
+  computationModelDataBinding: Record<string, ComputationModelDataBindingValue>;
+  computationModelCreationDate: Date | string;
+  computationModelLastUpdateDate: Date | string;
+  computationModelStatus: ComputationModelStatus;
+  computationModelVersion: string;
+  actionDefinitions: Array<ActionDefinition>;
 }
 export interface DescribeDashboardRequest {
   dashboardId: string;
@@ -2021,6 +2265,22 @@ export interface DescribeDefaultEncryptionConfigurationResponse {
   encryptionType: EncryptionType;
   kmsKeyArn?: string;
   configurationStatus: ConfigurationStatus;
+}
+export interface DescribeExecutionRequest {
+  executionId: string;
+}
+export interface DescribeExecutionResponse {
+  executionId: string;
+  actionType?: string;
+  targetResource: TargetResource;
+  targetResourceVersion: string;
+  resolveTo?: ResolveTo;
+  executionStartTime: Date | string;
+  executionEndTime?: Date | string;
+  executionStatus: ExecutionStatus;
+  executionResult?: Record<string, string>;
+  executionDetails?: Record<string, string>;
+  executionEntityVersion?: string;
 }
 export interface DescribeGatewayCapabilityConfigurationRequest {
   gatewayId: string;
@@ -2168,6 +2428,7 @@ export interface ExecuteActionRequest {
   actionDefinitionId: string;
   actionPayload: ActionPayload;
   clientToken?: string;
+  resolveTo?: ResolveTo;
 }
 export interface ExecuteActionResponse {
   actionId: string;
@@ -2186,6 +2447,32 @@ export interface ExecuteQueryResponse {
   columns?: Array<ColumnInfo>;
   rows?: Array<Row>;
   nextToken?: string;
+}
+export type ExecutionDetails = Record<string, string>;
+export type ExecutionDetailsKey = string;
+
+export type ExecutionDetailsValue = string;
+
+export type ExecutionResult = Record<string, string>;
+export type ExecutionResultKey = string;
+
+export type ExecutionResultValue = string;
+
+export type ExecutionState = "RUNNING" | "COMPLETED" | "FAILED";
+export interface ExecutionStatus {
+  state: ExecutionState;
+}
+export type ExecutionSummaries = Array<ExecutionSummary>;
+export interface ExecutionSummary {
+  executionId: string;
+  actionType?: string;
+  targetResource: TargetResource;
+  targetResourceVersion: string;
+  resolveTo?: ResolveTo;
+  executionStartTime: Date | string;
+  executionEndTime?: Date | string;
+  executionStatus: ExecutionStatus;
+  executionEntityVersion?: string;
 }
 export type Expression = string;
 
@@ -2342,6 +2629,8 @@ export interface ImageLocation {
   id: string;
   url: string;
 }
+export type InputProperties = string;
+
 export declare class InternalFailureException extends EffectData.TaggedError(
   "InternalFailureException",
 )<{
@@ -2426,6 +2715,8 @@ export interface ListActionsRequest {
   targetResourceId: string;
   nextToken?: string;
   maxResults?: number;
+  resolveToResourceType?: ResolveToResourceType;
+  resolveToResourceId?: string;
 }
 export interface ListActionsResponse {
   actionSummaries: Array<ActionSummary>;
@@ -2533,6 +2824,33 @@ export interface ListCompositionRelationshipsResponse {
   compositionRelationshipSummaries: Array<CompositionRelationshipSummary>;
   nextToken?: string;
 }
+export interface ListComputationModelDataBindingUsagesRequest {
+  dataBindingValueFilter: DataBindingValueFilter;
+  nextToken?: string;
+  maxResults?: number;
+}
+export interface ListComputationModelDataBindingUsagesResponse {
+  dataBindingUsageSummaries: Array<ComputationModelDataBindingUsageSummary>;
+  nextToken?: string;
+}
+export interface ListComputationModelResolveToResourcesRequest {
+  computationModelId: string;
+  nextToken?: string;
+  maxResults?: number;
+}
+export interface ListComputationModelResolveToResourcesResponse {
+  computationModelResolveToResourceSummaries: Array<ComputationModelResolveToResourceSummary>;
+  nextToken?: string;
+}
+export interface ListComputationModelsRequest {
+  computationModelType?: ComputationModelType;
+  nextToken?: string;
+  maxResults?: number;
+}
+export interface ListComputationModelsResponse {
+  computationModelSummaries: Array<ComputationModelSummary>;
+  nextToken?: string;
+}
 export interface ListDashboardsRequest {
   projectId: string;
   nextToken?: string;
@@ -2549,6 +2867,19 @@ export interface ListDatasetsRequest {
 }
 export interface ListDatasetsResponse {
   datasetSummaries: Array<DatasetSummary>;
+  nextToken?: string;
+}
+export interface ListExecutionsRequest {
+  targetResourceType: TargetResourceType;
+  targetResourceId: string;
+  resolveToResourceType?: ResolveToResourceType;
+  resolveToResourceId?: string;
+  nextToken?: string;
+  maxResults?: number;
+  actionType?: string;
+}
+export interface ListExecutionsResponse {
+  executionSummaries: Array<ExecutionSummary>;
   nextToken?: string;
 }
 export interface ListGatewaysRequest {
@@ -2612,6 +2943,9 @@ export interface LoggingOptions {
 }
 export type Macro = string;
 
+export interface MatchedDataBinding {
+  value: DataBindingValue;
+}
 export type MaxInterpolatedResults = number;
 
 export type MaxResults = number;
@@ -2719,6 +3053,7 @@ export interface ProjectSummary {
 }
 export interface Property {
   id: string;
+  externalId?: string;
   name: string;
   alias?: string;
   notification?: PropertyNotification;
@@ -2726,7 +3061,6 @@ export interface Property {
   unit?: string;
   type?: PropertyType;
   path?: Array<AssetPropertyPathSegment>;
-  externalId?: string;
 }
 export type PropertyAlias = string;
 
@@ -2822,6 +3156,10 @@ export interface Reference {
 }
 export type Resolution = string;
 
+export interface ResolveTo {
+  assetId: string;
+}
+export type ResolveToResourceType = "ASSET";
 export interface Resource {
   portal?: PortalResource;
   project?: ProjectResource;
@@ -2871,6 +3209,8 @@ export type RestrictedDescription = string;
 
 export type RestrictedName = string;
 
+export type ResultProperty = string;
+
 export interface RetentionPeriod {
   numberOfDays?: number;
   unlimited?: boolean;
@@ -2916,9 +3256,10 @@ export interface TagResourceResponse {}
 export type TagValue = string;
 
 export interface TargetResource {
-  assetId: string;
+  assetId?: string;
+  computationModelId?: string;
 }
-export type TargetResourceType = "ASSET";
+export type TargetResourceType = "ASSET" | "COMPUTATION_MODEL";
 export declare class ThrottlingException extends EffectData.TaggedError(
   "ThrottlingException",
 )<{
@@ -3034,13 +3375,24 @@ export interface UpdateAssetPropertyRequest {
 }
 export interface UpdateAssetRequest {
   assetId: string;
+  assetExternalId?: string;
   assetName: string;
   clientToken?: string;
   assetDescription?: string;
-  assetExternalId?: string;
 }
 export interface UpdateAssetResponse {
   assetStatus: AssetStatus;
+}
+export interface UpdateComputationModelRequest {
+  computationModelId: string;
+  computationModelName: string;
+  computationModelDescription?: string;
+  computationModelConfiguration: ComputationModelConfiguration;
+  computationModelDataBinding: Record<string, ComputationModelDataBindingValue>;
+  clientToken?: string;
+}
+export interface UpdateComputationModelResponse {
+  computationModelStatus: ComputationModelStatus;
 }
 export interface UpdateDashboardRequest {
   dashboardId: string;
@@ -3294,6 +3646,20 @@ export declare namespace CreateBulkImportJob {
     | CommonAwsError;
 }
 
+export declare namespace CreateComputationModel {
+  export type Input = CreateComputationModelRequest;
+  export type Output = CreateComputationModelResponse;
+  export type Error =
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
+    | LimitExceededException
+    | ResourceAlreadyExistsException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
 export declare namespace CreateDashboard {
   export type Input = CreateDashboardRequest;
   export type Output = CreateDashboardResponse;
@@ -3400,6 +3766,18 @@ export declare namespace DeleteAssetModelCompositeModel {
     | InternalFailureException
     | InvalidRequestException
     | PreconditionFailedException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace DeleteComputationModel {
+  export type Input = DeleteComputationModelRequest;
+  export type Output = DeleteComputationModelResponse;
+  export type Error =
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
     | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError;
@@ -3563,6 +3941,28 @@ export declare namespace DescribeBulkImportJob {
     | CommonAwsError;
 }
 
+export declare namespace DescribeComputationModel {
+  export type Input = DescribeComputationModelRequest;
+  export type Output = DescribeComputationModelResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace DescribeComputationModelExecutionSummary {
+  export type Input = DescribeComputationModelExecutionSummaryRequest;
+  export type Output = DescribeComputationModelExecutionSummaryResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
 export declare namespace DescribeDashboard {
   export type Input = DescribeDashboardRequest;
   export type Output = DescribeDashboardResponse;
@@ -3591,6 +3991,17 @@ export declare namespace DescribeDefaultEncryptionConfiguration {
   export type Error =
     | InternalFailureException
     | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace DescribeExecution {
+  export type Input = DescribeExecutionRequest;
+  export type Output = DescribeExecutionResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError;
 }
@@ -3906,6 +4317,37 @@ export declare namespace ListCompositionRelationships {
     | CommonAwsError;
 }
 
+export declare namespace ListComputationModelDataBindingUsages {
+  export type Input = ListComputationModelDataBindingUsagesRequest;
+  export type Output = ListComputationModelDataBindingUsagesResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace ListComputationModelResolveToResources {
+  export type Input = ListComputationModelResolveToResourcesRequest;
+  export type Output = ListComputationModelResolveToResourcesResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace ListComputationModels {
+  export type Input = ListComputationModelsRequest;
+  export type Output = ListComputationModelsResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
 export declare namespace ListDashboards {
   export type Input = ListDashboardsRequest;
   export type Output = ListDashboardsResponse;
@@ -3922,6 +4364,17 @@ export declare namespace ListDatasets {
   export type Error =
     | InternalFailureException
     | InvalidRequestException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace ListExecutions {
+  export type Input = ListExecutionsRequest;
+  export type Output = ListExecutionsResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError;
 }
@@ -4119,6 +4572,20 @@ export declare namespace UpdateAssetProperty {
     | ConflictingOperationException
     | InternalFailureException
     | InvalidRequestException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | CommonAwsError;
+}
+
+export declare namespace UpdateComputationModel {
+  export type Input = UpdateComputationModelRequest;
+  export type Output = UpdateComputationModelResponse;
+  export type Error =
+    | ConflictingOperationException
+    | InternalFailureException
+    | InvalidRequestException
+    | LimitExceededException
+    | ResourceAlreadyExistsException
     | ResourceNotFoundException
     | ThrottlingException
     | CommonAwsError;

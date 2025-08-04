@@ -614,6 +614,7 @@ export interface CreateDBClusterMessage {
   DeletionProtection?: boolean;
   GlobalClusterIdentifier?: string;
   StorageType?: string;
+  ServerlessV2ScalingConfiguration?: ServerlessV2ScalingConfiguration;
   ManageMasterUserPassword?: boolean;
   MasterUserSecretKmsKeyId?: string;
 }
@@ -722,6 +723,7 @@ export interface DBCluster {
   EnabledCloudwatchLogsExports?: Array<string>;
   DeletionProtection?: boolean;
   StorageType?: string;
+  ServerlessV2ScalingConfiguration?: ServerlessV2ScalingConfigurationInfo;
   MasterUserSecret?: ClusterMasterUserSecret;
 }
 export declare class DBClusterAlreadyExistsFault extends EffectData.TaggedError(
@@ -836,6 +838,7 @@ export interface DBEngineVersion {
   SupportsLogExportsToCloudwatchLogs?: boolean;
   SupportedCACertificateIdentifiers?: Array<string>;
   SupportsCertificateRotationWithoutRestart?: boolean;
+  ServerlessV2FeaturesSupport?: ServerlessV2FeaturesSupport;
 }
 export type DBEngineVersionList = Array<DBEngineVersion>;
 export interface DBEngineVersionMessage {
@@ -1123,6 +1126,8 @@ export interface DescribePendingMaintenanceActionsMessage {
   Marker?: string;
   MaxRecords?: number;
 }
+export type DoubleOptional = number;
+
 export interface Endpoint {
   Address?: string;
   Port?: number;
@@ -1357,6 +1362,7 @@ export interface ModifyDBClusterMessage {
   AllowMajorVersionUpgrade?: boolean;
   DeletionProtection?: boolean;
   StorageType?: string;
+  ServerlessV2ScalingConfiguration?: ServerlessV2ScalingConfiguration;
   ManageMasterUserPassword?: boolean;
   MasterUserSecretKmsKeyId?: string;
   RotateMasterUserPassword?: boolean;
@@ -1537,6 +1543,7 @@ export interface RestoreDBClusterFromSnapshotMessage {
   EnableCloudwatchLogsExports?: Array<string>;
   DeletionProtection?: boolean;
   DBClusterParameterGroupName?: string;
+  ServerlessV2ScalingConfiguration?: ServerlessV2ScalingConfiguration;
   StorageType?: string;
 }
 export interface RestoreDBClusterFromSnapshotResult {
@@ -1555,10 +1562,23 @@ export interface RestoreDBClusterToPointInTimeMessage {
   KmsKeyId?: string;
   EnableCloudwatchLogsExports?: Array<string>;
   DeletionProtection?: boolean;
+  ServerlessV2ScalingConfiguration?: ServerlessV2ScalingConfiguration;
   StorageType?: string;
 }
 export interface RestoreDBClusterToPointInTimeResult {
   DBCluster?: DBCluster;
+}
+export interface ServerlessV2FeaturesSupport {
+  MinCapacity?: number;
+  MaxCapacity?: number;
+}
+export interface ServerlessV2ScalingConfiguration {
+  MinCapacity?: number;
+  MaxCapacity?: number;
+}
+export interface ServerlessV2ScalingConfigurationInfo {
+  MinCapacity?: number;
+  MaxCapacity?: number;
 }
 export declare class SharedSnapshotQuotaExceededFault extends EffectData.TaggedError(
   "SharedSnapshotQuotaExceededFault",

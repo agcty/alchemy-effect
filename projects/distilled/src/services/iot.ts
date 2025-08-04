@@ -572,6 +572,7 @@ export declare class IoT extends AWSServiceClient {
     | ResourceAlreadyExistsException
     | ServiceUnavailableException
     | SqlParseException
+    | UnauthorizedException
     | CommonAwsError
   >;
   createTopicRuleDestination(
@@ -583,6 +584,7 @@ export declare class IoT extends AWSServiceClient {
     | InvalidRequestException
     | ResourceAlreadyExistsException
     | ServiceUnavailableException
+    | UnauthorizedException
     | CommonAwsError
   >;
   deleteAccountAuditConfiguration(
@@ -1152,6 +1154,17 @@ export declare class IoT extends AWSServiceClient {
     | InternalFailureException
     | InvalidRequestException
     | ResourceNotFoundException
+    | ServiceUnavailableException
+    | ThrottlingException
+    | UnauthorizedException
+    | CommonAwsError
+  >;
+  describeEncryptionConfiguration(
+    input: DescribeEncryptionConfigurationRequest,
+  ): Effect.Effect<
+    DescribeEncryptionConfigurationResponse,
+    | InternalFailureException
+    | InvalidRequestException
     | ServiceUnavailableException
     | ThrottlingException
     | UnauthorizedException
@@ -2333,6 +2346,7 @@ export declare class IoT extends AWSServiceClient {
     | InternalException
     | InvalidRequestException
     | ServiceUnavailableException
+    | UnauthorizedException
     | CommonAwsError
   >;
   listV2LoggingLevels(
@@ -2782,6 +2796,17 @@ export declare class IoT extends AWSServiceClient {
     | ResourceNotFoundException
     | ThrottlingException
     | VersionConflictException
+    | CommonAwsError
+  >;
+  updateEncryptionConfiguration(
+    input: UpdateEncryptionConfigurationRequest,
+  ): Effect.Effect<
+    UpdateEncryptionConfigurationResponse,
+    | InternalFailureException
+    | InvalidRequestException
+    | ServiceUnavailableException
+    | ThrottlingException
+    | UnauthorizedException
     | CommonAwsError
   >;
   updateEventConfigurations(
@@ -3827,6 +3852,12 @@ export type ConfigName =
 export interface Configuration {
   Enabled?: boolean;
 }
+export interface ConfigurationDetails {
+  configurationStatus?: ConfigurationStatus;
+  errorCode?: string;
+  errorMessage?: string;
+}
+export type ConfigurationStatus = "HEALTHY" | "UNHEALTHY";
 export type ConfigValue = string;
 
 export type ConfirmationToken = string;
@@ -4626,6 +4657,14 @@ export interface DescribeDomainConfigurationResponse {
   applicationProtocol?: ApplicationProtocol;
   clientCertificateConfig?: ClientCertificateConfig;
 }
+export interface DescribeEncryptionConfigurationRequest {}
+export interface DescribeEncryptionConfigurationResponse {
+  encryptionType?: EncryptionType;
+  kmsKeyArn?: string;
+  kmsAccessRoleArn?: string;
+  configurationDetails?: ConfigurationDetails;
+  lastModifiedDate?: Date | string;
+}
 export interface DescribeEndpointRequest {
   endpointType?: string;
 }
@@ -5053,6 +5092,7 @@ export type EnableOCSPCheck = boolean;
 export interface EnableTopicRuleRequest {
   ruleName: string;
 }
+export type EncryptionType = "CUSTOMER_MANAGED_KMS_KEY" | "AWS_OWNED_KMS_KEY";
 export type EndpointAddress = string;
 
 export type EndpointType = string;
@@ -5736,6 +5776,10 @@ export interface KinesisAction {
   streamName: string;
   partitionKey?: string;
 }
+export type KmsAccessRoleArn = string;
+
+export type KmsKeyArn = string;
+
 export interface LambdaAction {
   functionArn: string;
 }
@@ -7957,6 +8001,12 @@ export interface UpdateDynamicThingGroupRequest {
 export interface UpdateDynamicThingGroupResponse {
   version?: number;
 }
+export interface UpdateEncryptionConfigurationRequest {
+  encryptionType: EncryptionType;
+  kmsKeyArn?: string;
+  kmsAccessRoleArn?: string;
+}
+export interface UpdateEncryptionConfigurationResponse {}
 export interface UpdateEventConfigurationsRequest {
   eventConfigurations?: Record<EventType, Configuration>;
 }
@@ -8852,6 +8902,7 @@ export declare namespace CreateTopicRule {
     | ResourceAlreadyExistsException
     | ServiceUnavailableException
     | SqlParseException
+    | UnauthorizedException
     | CommonAwsError;
 }
 
@@ -8864,6 +8915,7 @@ export declare namespace CreateTopicRuleDestination {
     | InvalidRequestException
     | ResourceAlreadyExistsException
     | ServiceUnavailableException
+    | UnauthorizedException
     | CommonAwsError;
 }
 
@@ -9487,6 +9539,18 @@ export declare namespace DescribeDomainConfiguration {
     | InternalFailureException
     | InvalidRequestException
     | ResourceNotFoundException
+    | ServiceUnavailableException
+    | ThrottlingException
+    | UnauthorizedException
+    | CommonAwsError;
+}
+
+export declare namespace DescribeEncryptionConfiguration {
+  export type Input = DescribeEncryptionConfigurationRequest;
+  export type Output = DescribeEncryptionConfigurationResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
     | ServiceUnavailableException
     | ThrottlingException
     | UnauthorizedException
@@ -10783,6 +10847,7 @@ export declare namespace ListTopicRules {
     | InternalException
     | InvalidRequestException
     | ServiceUnavailableException
+    | UnauthorizedException
     | CommonAwsError;
 }
 
@@ -11271,6 +11336,18 @@ export declare namespace UpdateDynamicThingGroup {
     | ResourceNotFoundException
     | ThrottlingException
     | VersionConflictException
+    | CommonAwsError;
+}
+
+export declare namespace UpdateEncryptionConfiguration {
+  export type Input = UpdateEncryptionConfigurationRequest;
+  export type Output = UpdateEncryptionConfigurationResponse;
+  export type Error =
+    | InternalFailureException
+    | InvalidRequestException
+    | ServiceUnavailableException
+    | ThrottlingException
+    | UnauthorizedException
     | CommonAwsError;
 }
 

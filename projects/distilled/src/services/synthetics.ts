@@ -273,10 +273,12 @@ export interface CanaryCodeInput {
   S3Version?: string;
   ZipFile?: Uint8Array | string;
   Handler: string;
+  Dependencies?: Array<Dependency>;
 }
 export interface CanaryCodeOutput {
   SourceLocationArn?: string;
   Handler?: string;
+  Dependencies?: Array<Dependency>;
 }
 export interface CanaryDryRunConfigOutput {
   DryRunId?: string;
@@ -411,6 +413,12 @@ export interface DeleteGroupRequest {
   GroupIdentifier: string;
 }
 export interface DeleteGroupResponse {}
+export type Dependencies = Array<Dependency>;
+export interface Dependency {
+  Type?: DependencyType;
+  Reference: string;
+}
+export type DependencyType = "LambdaLayer";
 export type DescribeCanariesLastRunNameFilter = Array<string>;
 export interface DescribeCanariesLastRunRequest {
   NextToken?: string;

@@ -484,6 +484,7 @@ export declare class AuditManager extends AWSServiceClient {
     | AccessDeniedException
     | InternalServerException
     | ResourceNotFoundException
+    | ThrottlingException
     | ValidationException
     | CommonAwsError
   >;
@@ -554,6 +555,7 @@ export declare class AuditManager extends AWSServiceClient {
     | AccessDeniedException
     | InternalServerException
     | ResourceNotFoundException
+    | ServiceQuotaExceededException
     | ValidationException
     | CommonAwsError
   >;
@@ -2346,6 +2348,7 @@ export declare namespace RegisterOrganizationAdminAccount {
     | AccessDeniedException
     | InternalServerException
     | ResourceNotFoundException
+    | ThrottlingException
     | ValidationException
     | CommonAwsError;
 }
@@ -2423,6 +2426,7 @@ export declare namespace UpdateAssessmentFramework {
     | AccessDeniedException
     | InternalServerException
     | ResourceNotFoundException
+    | ServiceQuotaExceededException
     | ValidationException
     | CommonAwsError;
 }

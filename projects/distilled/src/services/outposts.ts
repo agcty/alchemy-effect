@@ -96,6 +96,7 @@ export declare class Outposts extends AWSServiceClient {
     input: GetCatalogItemInput,
   ): Effect.Effect<
     GetCatalogItemOutput,
+    | AccessDeniedException
     | InternalServerException
     | NotFoundException
     | ValidationException
@@ -128,6 +129,15 @@ export declare class Outposts extends AWSServiceClient {
     | InternalServerException
     | NotFoundException
     | ValidationException
+    | CommonAwsError
+  >;
+  getOutpostBillingInformation(
+    input: GetOutpostBillingInformationInput,
+  ): Effect.Effect<
+    GetOutpostBillingInformationOutput,
+    | AccessDeniedException
+    | InternalServerException
+    | NotFoundException
     | CommonAwsError
   >;
   getOutpostInstanceTypes(
@@ -214,6 +224,7 @@ export declare class Outposts extends AWSServiceClient {
     input: ListCatalogItemsInput,
   ): Effect.Effect<
     ListCatalogItemsOutput,
+    | AccessDeniedException
     | InternalServerException
     | NotFoundException
     | ValidationException
@@ -617,6 +628,16 @@ export interface GetOrderInput {
 export interface GetOrderOutput {
   Order?: Order;
 }
+export interface GetOutpostBillingInformationInput {
+  NextToken?: string;
+  MaxResults?: number;
+  OutpostIdentifier: string;
+}
+export interface GetOutpostBillingInformationOutput {
+  NextToken?: string;
+  Subscriptions?: Array<Subscription>;
+  ContractEndDate?: string;
+}
 export interface GetOutpostInput {
   OutpostId: string;
 }
@@ -849,6 +870,8 @@ export declare class NotFoundException extends EffectData.TaggedError(
 )<{
   readonly Message?: string;
 }> {}
+export type NullableDouble = number;
+
 export type OpticalStandard =
   | "OPTIC_10GBASE_SR"
   | "OPTIC_10GBASE_IR"
@@ -876,6 +899,7 @@ export interface Order {
 }
 export type OrderId = string;
 
+export type OrderIdList = Array<string>;
 export type OrderStatus =
   | "RECEIVED"
   | "PENDING"
@@ -1045,6 +1069,19 @@ export type StateOrRegionList = Array<string>;
 export type StatusList = Array<AssetState>;
 export type OutpostsString = string;
 
+export interface Subscription {
+  SubscriptionId?: string;
+  SubscriptionType?: SubscriptionType;
+  SubscriptionStatus?: SubscriptionStatus;
+  OrderIds?: Array<string>;
+  BeginDate?: Date | string;
+  EndDate?: Date | string;
+  MonthlyRecurringPrice?: number;
+  UpfrontPrice?: number;
+}
+export type SubscriptionList = Array<Subscription>;
+export type SubscriptionStatus = "ACTIVE" | "INACTIVE" | "CANCELLED";
+export type SubscriptionType = "ORIGINAL" | "RENEWAL" | "CAPACITY_INCREASE";
 export type SupportedHardwareType = "RACK" | "SERVER";
 export type SupportedStorageEnum = "EBS" | "S3";
 export type SupportedStorageList = Array<SupportedStorageEnum>;
@@ -1242,6 +1279,7 @@ export declare namespace GetCatalogItem {
   export type Input = GetCatalogItemInput;
   export type Output = GetCatalogItemOutput;
   export type Error =
+    | AccessDeniedException
     | InternalServerException
     | NotFoundException
     | ValidationException
@@ -1277,6 +1315,16 @@ export declare namespace GetOutpost {
     | InternalServerException
     | NotFoundException
     | ValidationException
+    | CommonAwsError;
+}
+
+export declare namespace GetOutpostBillingInformation {
+  export type Input = GetOutpostBillingInformationInput;
+  export type Output = GetOutpostBillingInformationOutput;
+  export type Error =
+    | AccessDeniedException
+    | InternalServerException
+    | NotFoundException
     | CommonAwsError;
 }
 
@@ -1372,6 +1420,7 @@ export declare namespace ListCatalogItems {
   export type Input = ListCatalogItemsInput;
   export type Output = ListCatalogItemsOutput;
   export type Error =
+    | AccessDeniedException
     | InternalServerException
     | NotFoundException
     | ValidationException

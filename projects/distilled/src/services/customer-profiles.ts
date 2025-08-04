@@ -1117,6 +1117,20 @@ export type ConnectorProfileName = string;
 export interface Consolidation {
   MatchingAttributesList: Array<Array<string>>;
 }
+export interface ContactPreference {
+  KeyName?: string;
+  KeyValue?: string;
+  ProfileId?: string;
+  ContactType?: ContactType;
+}
+export type ContactType =
+  | "PHONE_NUMBER"
+  | "MOBILE_PHONE_NUMBER"
+  | "HOME_PHONE_NUMBER"
+  | "BUSINESS_PHONE_NUMBER"
+  | "EMAIL_ADDRESS"
+  | "PERSONAL_EMAIL_ADDRESS"
+  | "BUSINESS_EMAIL_ADDRESS";
 export interface CreateCalculatedAttributeDefinitionRequest {
   DomainName: string;
   CalculatedAttributeName: string;
@@ -1254,6 +1268,8 @@ export interface CreateProfileRequest {
   Attributes?: Record<string, string>;
   PartyTypeString?: string;
   GenderString?: string;
+  ProfileType?: ProfileType;
+  EngagementPreferences?: EngagementPreferences;
 }
 export interface CreateProfileResponse {
   ProfileId: string;
@@ -1448,10 +1464,15 @@ export type Double = number;
 export type Double0To1 = number;
 
 export type EmailList = Array<string>;
+export type EmailPreferenceList = Array<ContactPreference>;
 export type encryptionKey = string;
 
 export type End = number;
 
+export interface EngagementPreferences {
+  Phone?: Array<ContactPreference>;
+  Email?: Array<ContactPreference>;
+}
 export type EstimateStatus = "RUNNING" | "SUCCEEDED" | "FAILED";
 export interface EventStreamDestinationDetails {
   Uri: string;
@@ -1542,6 +1563,8 @@ export interface FieldSourceProfileIds {
   MailingAddress?: string;
   BillingAddress?: string;
   Attributes?: Record<string, string>;
+  ProfileType?: string;
+  EngagementPreferences?: string;
 }
 export interface Filter {
   Include: Include;
@@ -2346,6 +2369,7 @@ export interface Period {
 export type Periods = Array<Period>;
 export type PeriodUnit = "HOURS" | "DAYS" | "WEEKS" | "MONTHS";
 export type PhoneNumberList = Array<string>;
+export type PhonePreferenceList = Array<ContactPreference>;
 export interface Profile {
   ProfileId?: string;
   AccountNumber?: string;
@@ -2372,6 +2396,8 @@ export interface Profile {
   FoundByItems?: Array<FoundByKeyValue>;
   PartyTypeString?: string;
   GenderString?: string;
+  ProfileType?: ProfileType;
+  EngagementPreferences?: EngagementPreferences;
 }
 export interface ProfileAttributes {
   AccountNumber?: ProfileDimension;
@@ -2395,6 +2421,7 @@ export interface ProfileAttributes {
   MailingAddress?: AddressDimension;
   BillingAddress?: AddressDimension;
   Attributes?: Record<string, AttributeDimension>;
+  ProfileType?: ProfileTypeDimension;
 }
 export interface ProfileAttributeValuesRequest {
   DomainName: string;
@@ -2431,6 +2458,13 @@ export interface ProfileQueryResult {
   Profile?: Profile;
 }
 export type Profiles = Array<ProfileQueryResult>;
+export type ProfileType = "ACCOUNT_PROFILE" | "PROFILE";
+export interface ProfileTypeDimension {
+  DimensionType: ProfileTypeDimensionType;
+  Values: Array<ProfileType>;
+}
+export type ProfileTypeDimensionType = "INCLUSIVE" | "EXCLUSIVE";
+export type ProfileTypeValues = Array<ProfileType>;
 export type Property = string;
 
 export interface PutIntegrationRequest {
@@ -2981,6 +3015,8 @@ export interface UpdateProfileRequest {
   Attributes?: Record<string, string>;
   PartyTypeString?: string;
   GenderString?: string;
+  ProfileType?: ProfileType;
+  EngagementPreferences?: EngagementPreferences;
 }
 export interface UpdateProfileResponse {
   ProfileId: string;

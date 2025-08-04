@@ -4348,6 +4348,7 @@ export interface CreateInstanceConnectEndpointRequest {
   PreserveClientIp?: boolean;
   ClientToken?: string;
   TagSpecifications?: Array<TagSpecification>;
+  IpAddressType?: IpAddressType;
 }
 export interface CreateInstanceConnectEndpointResult {
   InstanceConnectEndpoint?: Ec2InstanceConnectEndpoint;
@@ -8575,6 +8576,7 @@ export interface Ec2InstanceConnectEndpoint {
   PreserveClientIp?: boolean;
   SecurityGroupIds?: Array<string>;
   Tags?: Array<Tag>;
+  IpAddressType?: IpAddressType;
 }
 export type Ec2InstanceConnectEndpointState =
   | "create_in_progress"
@@ -10184,6 +10186,7 @@ export interface Image {
   ImageAllowed?: boolean;
   SourceImageId?: string;
   SourceImageRegion?: string;
+  FreeTierEligible?: boolean;
   ImageId?: string;
   ImageLocation?: string;
   State?: ImageState;
@@ -10486,6 +10489,12 @@ export type InferenceDeviceMemorySize = number;
 
 export type InferenceDeviceName = string;
 
+export interface InitializationStatusDetails {
+  InitializationType?: InitializationType;
+  Progress?: number;
+  EstimatedTimeToCompleteInSeconds?: number;
+}
+export type InitializationType = "default" | "provisioned_rate";
 export type InsideCidrBlocksStringList = Array<string>;
 export interface Instance {
   Architecture?: ArchitectureValues;
@@ -11953,7 +11962,21 @@ export type InstanceType =
   | "r8gd_24xlarge"
   | "r8gd_48xlarge"
   | "r8gd_metal_24xl"
-  | "r8gd_metal_48xl";
+  | "r8gd_metal_48xl"
+  | "c8gn_medium"
+  | "c8gn_large"
+  | "c8gn_xlarge"
+  | "c8gn_2xlarge"
+  | "c8gn_4xlarge"
+  | "c8gn_8xlarge"
+  | "c8gn_12xlarge"
+  | "c8gn_16xlarge"
+  | "c8gn_24xlarge"
+  | "c8gn_48xlarge"
+  | "c8gn_metal_24xl"
+  | "c8gn_metal_48xl"
+  | "f2_6xlarge"
+  | "p6e_gb200_36xlarge";
 export type InstanceTypeHypervisor = "NITRO" | "XEN";
 export interface InstanceTypeInfo {
   InstanceType?: InstanceType;
@@ -16088,6 +16111,7 @@ export interface Route {
   VpcPeeringConnectionId?: string;
   CoreNetworkArn?: string;
   OdbNetworkArn?: string;
+  IpAddress?: string;
 }
 export type RouteGatewayId = string;
 
@@ -17107,6 +17131,7 @@ export type StatusType =
 export interface StopInstancesRequest {
   InstanceIds: Array<string>;
   Hibernate?: boolean;
+  SkipOsShutdown?: boolean;
   DryRun?: boolean;
   Force?: boolean;
 }
@@ -17342,6 +17367,8 @@ export interface TerminateConnectionStatus {
 export type TerminateConnectionStatusSet = Array<TerminateConnectionStatus>;
 export interface TerminateInstancesRequest {
   InstanceIds: Array<string>;
+  Force?: boolean;
+  SkipOsShutdown?: boolean;
   DryRun?: boolean;
 }
 export interface TerminateInstancesResult {
@@ -17548,7 +17575,8 @@ export type TransitGatewayAttachmentResourceType =
   | "direct_connect_gateway"
   | "connect"
   | "peering"
-  | "tgw_peering";
+  | "tgw_peering"
+  | "network_function";
 export type TransitGatewayAttachmentState =
   | "initiating"
   | "initiatingRequest"
@@ -18484,10 +18512,14 @@ export interface VolumeStatusItem {
   VolumeId?: string;
   VolumeStatus?: VolumeStatusInfo;
   AttachmentStatuses?: Array<VolumeStatusAttachmentStatus>;
+  InitializationStatusDetails?: InitializationStatusDetails;
   AvailabilityZoneId?: string;
 }
 export type VolumeStatusList = Array<VolumeStatusItem>;
-export type VolumeStatusName = "io_enabled" | "io_performance";
+export type VolumeStatusName =
+  | "io_enabled"
+  | "io_performance"
+  | "initialization_state";
 export type VolumeType =
   | "standard"
   | "io1"

@@ -23,11 +23,7 @@ function extractErrorName(awsErrorType: string): string {
 }
 
 // Helper to parse response based on protocol
-export function parseAwsResponse(
-  responseText: string,
-  protocol: string,
-  serviceName?: string,
-): any {
+export function parseAwsResponse(responseText: string, protocol: string): any {
   if (!responseText) return {};
 
   if (protocol.includes("Json") || protocol === "restJson1") {
@@ -39,11 +35,6 @@ export function parseAwsResponse(
     // Use specialized EC2 parser with registry-based dynamic parsing
     return parseEC2Response(responseText);
   }
-  
-  // if (protocol === "awsQuery" || protocol === "restXml") {
-  //   // Use generic XML transformer for other XML protocols
-  //   return transformXmlToJson(responseText);
-  // }
 
   // Fallback to JSON for unknown protocols
   try {
@@ -54,13 +45,9 @@ export function parseAwsResponse(
 }
 
 // Helper to parse AWS error response
-function parseAwsError(
-  responseText: string,
-  protocol: string,
-  serviceName?: string,
-): any {
+function parseAwsError(responseText: string, protocol: string): any {
   try {
-    return parseAwsResponse(responseText, protocol, serviceName);
+    return parseAwsResponse(responseText, protocol);
   } catch {
     return { message: responseText };
   }
@@ -260,19 +247,11 @@ export function createServiceProxy<T>(
 
             if (statusCode >= 200 && statusCode < 300) {
               // Success
-              const data = parseAwsResponse(
-                responseText,
-                metadata.protocol,
-                normalizedServiceName,
-              );
+              const data = parseAwsResponse(responseText, metadata.protocol);
               return data;
             } else {
               // Error handling
-              const errorData = parseAwsError(
-                responseText,
-                metadata.protocol,
-                normalizedServiceName,
-              );
+              const errorData = parseAwsError(responseText, metadata.protocol);
 
               // Extract error info from different response formats
               let errorType = "UnknownError";

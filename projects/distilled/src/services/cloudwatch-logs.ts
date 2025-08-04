@@ -231,6 +231,7 @@ export declare class CloudWatchLogs extends AWSServiceClient {
   ): Effect.Effect<
     {},
     | InvalidParameterException
+    | OperationAbortedException
     | ResourceNotFoundException
     | ServiceUnavailableException
     | CommonAwsError
@@ -513,6 +514,17 @@ export declare class CloudWatchLogs extends AWSServiceClient {
     | ServiceUnavailableException
     | CommonAwsError
   >;
+  getLogObject(
+    input: GetLogObjectRequest,
+  ): Effect.Effect<
+    GetLogObjectResponse,
+    | AccessDeniedException
+    | InvalidOperationException
+    | InvalidParameterException
+    | LimitExceededException
+    | ResourceNotFoundException
+    | CommonAwsError
+  >;
   getLogRecord(
     input: GetLogRecordRequest,
   ): Effect.Effect<
@@ -733,6 +745,8 @@ export declare class CloudWatchLogs extends AWSServiceClient {
     PutResourcePolicyResponse,
     | InvalidParameterException
     | LimitExceededException
+    | OperationAbortedException
+    | ResourceNotFoundException
     | ServiceUnavailableException
     | CommonAwsError
   >;
@@ -1076,6 +1090,8 @@ export interface CSV {
   source?: string;
 }
 export type DashboardViewerPrincipals = Array<string>;
+export type Data = Uint8Array | string;
+
 export declare class DataAlreadyAcceptedException extends EffectData.TaggedError(
   "DataAlreadyAcceptedException",
 )<{
@@ -1158,6 +1174,8 @@ export interface DeleteQueryDefinitionResponse {
 }
 export interface DeleteResourcePolicyRequest {
   policyName?: string;
+  resourceArn?: string;
+  expectedRevisionId?: string;
 }
 export interface DeleteRetentionPolicyRequest {
   logGroupName: string;
@@ -1200,7 +1218,7 @@ export type DeliveryDestinationName = string;
 export type DeliveryDestinationPolicy = string;
 
 export type DeliveryDestinations = Array<DeliveryDestination>;
-export type DeliveryDestinationType = "S3" | "CWL" | "FH";
+export type DeliveryDestinationType = "S3" | "CWL" | "FH" | "XRAY";
 export type DeliveryDestinationTypes = Array<DeliveryDestinationType>;
 export type DeliveryId = string;
 
@@ -1370,6 +1388,8 @@ export interface DescribeQueryDefinitionsResponse {
 export interface DescribeResourcePoliciesRequest {
   nextToken?: string;
   limit?: number;
+  resourceArn?: string;
+  policyScope?: PolicyScope;
 }
 export interface DescribeResourcePoliciesResponse {
   resourcePolicies?: Array<ResourcePolicy>;
@@ -1466,6 +1486,8 @@ export type EventSource =
   | "VPC_FLOW"
   | "EKS_AUDIT"
   | "AWSWAF";
+export type ExpectedRevisionId = string;
+
 export type ExportDestinationBucket = string;
 
 export type ExportDestinationPrefix = string;
@@ -1520,6 +1542,9 @@ export interface FieldIndex {
 export type FieldIndexes = Array<FieldIndex>;
 export type FieldIndexName = string;
 
+export interface FieldsData {
+  data?: Uint8Array | string;
+}
 export type FilterCount = number;
 
 export interface FilteredLogEvent {
@@ -1640,6 +1665,23 @@ export interface GetLogGroupFieldsRequest {
 export interface GetLogGroupFieldsResponse {
   logGroupFields?: Array<LogGroupField>;
 }
+export interface GetLogObjectRequest {
+  unmask?: boolean;
+  logObjectPointer: string;
+}
+export interface GetLogObjectResponse {
+  fieldStream?: GetLogObjectResponseStream;
+}
+interface _GetLogObjectResponseStream {
+  fields?: FieldsData;
+  InternalStreamingException?: InternalStreamingException;
+}
+
+export type GetLogObjectResponseStream =
+  | (_GetLogObjectResponseStream & { fields: FieldsData })
+  | (_GetLogObjectResponseStream & {
+      InternalStreamingException: InternalStreamingException;
+    });
 export interface GetLogRecordRequest {
   logRecordPointer: string;
   unmask?: boolean;
@@ -1719,6 +1761,11 @@ export interface IntegrationSummary {
 export type IntegrationType = "OPENSEARCH";
 export type Interleaved = boolean;
 
+export declare class InternalStreamingException extends EffectData.TaggedError(
+  "InternalStreamingException",
+)<{
+  readonly message?: string;
+}> {}
 export declare class InvalidOperationException extends EffectData.TaggedError(
   "InvalidOperationException",
 )<{
@@ -1896,6 +1943,8 @@ export interface LogGroupSummary {
   logGroupArn?: string;
   logGroupClass?: LogGroupClass;
 }
+export type LogObjectPointer = string;
+
 export type LogRecord = Record<string, string>;
 export type LogRecordPointer = string;
 
@@ -2120,11 +2169,13 @@ export type PolicyDocument = string;
 
 export type PolicyName = string;
 
+export type PolicyScope = "ACCOUNT" | "RESOURCE";
 export type PolicyType =
   | "DATA_PROTECTION_POLICY"
   | "SUBSCRIPTION_FILTER_POLICY"
   | "FIELD_INDEX_POLICY"
-  | "TRANSFORMER_POLICY";
+  | "TRANSFORMER_POLICY"
+  | "METRIC_EXTRACTION_POLICY";
 export type Priority = string;
 
 export interface Processor {
@@ -2182,7 +2233,8 @@ export interface PutDeliveryDestinationPolicyResponse {
 export interface PutDeliveryDestinationRequest {
   name: string;
   outputFormat?: OutputFormat;
-  deliveryDestinationConfiguration: DeliveryDestinationConfiguration;
+  deliveryDestinationConfiguration?: DeliveryDestinationConfiguration;
+  deliveryDestinationType?: DeliveryDestinationType;
   tags?: Record<string, string>;
 }
 export interface PutDeliveryDestinationResponse {
@@ -2260,9 +2312,12 @@ export interface PutQueryDefinitionResponse {
 export interface PutResourcePolicyRequest {
   policyName?: string;
   policyDocument?: string;
+  resourceArn?: string;
+  expectedRevisionId?: string;
 }
 export interface PutResourcePolicyResponse {
   resourcePolicy?: ResourcePolicy;
+  revisionId?: string;
 }
 export interface PutRetentionPolicyRequest {
   logGroupName: string;
@@ -2390,6 +2445,9 @@ export interface ResourcePolicy {
   policyName?: string;
   policyDocument?: string;
   lastUpdatedTime?: number;
+  policyScope?: PolicyScope;
+  resourceArn?: string;
+  revisionId?: string;
 }
 export type ResourceType = string;
 
@@ -2945,6 +3003,7 @@ export declare namespace DeleteResourcePolicy {
   export type Output = {};
   export type Error =
     | InvalidParameterException
+    | OperationAbortedException
     | ResourceNotFoundException
     | ServiceUnavailableException
     | CommonAwsError;
@@ -3268,6 +3327,18 @@ export declare namespace GetLogGroupFields {
     | CommonAwsError;
 }
 
+export declare namespace GetLogObject {
+  export type Input = GetLogObjectRequest;
+  export type Output = GetLogObjectResponse;
+  export type Error =
+    | AccessDeniedException
+    | InvalidOperationException
+    | InvalidParameterException
+    | LimitExceededException
+    | ResourceNotFoundException
+    | CommonAwsError;
+}
+
 export declare namespace GetLogRecord {
   export type Input = GetLogRecordRequest;
   export type Output = GetLogRecordResponse;
@@ -3516,6 +3587,8 @@ export declare namespace PutResourcePolicy {
   export type Error =
     | InvalidParameterException
     | LimitExceededException
+    | OperationAbortedException
+    | ResourceNotFoundException
     | ServiceUnavailableException
     | CommonAwsError;
 }

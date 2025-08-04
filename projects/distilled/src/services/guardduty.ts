@@ -37,7 +37,10 @@ export declare class GuardDuty extends AWSServiceClient {
     input: CreateIPSetRequest,
   ): Effect.Effect<
     CreateIPSetResponse,
-    BadRequestException | InternalServerErrorException | CommonAwsError
+    | AccessDeniedException
+    | BadRequestException
+    | InternalServerErrorException
+    | CommonAwsError
   >;
   createMalwareProtectionPlan(
     input: CreateMalwareProtectionPlanRequest,
@@ -71,7 +74,10 @@ export declare class GuardDuty extends AWSServiceClient {
     input: CreateThreatIntelSetRequest,
   ): Effect.Effect<
     CreateThreatIntelSetResponse,
-    BadRequestException | InternalServerErrorException | CommonAwsError
+    | AccessDeniedException
+    | BadRequestException
+    | InternalServerErrorException
+    | CommonAwsError
   >;
   declineInvitations(
     input: DeclineInvitationsRequest,
@@ -434,7 +440,10 @@ export declare class GuardDuty extends AWSServiceClient {
     input: UpdateIPSetRequest,
   ): Effect.Effect<
     UpdateIPSetResponse,
-    BadRequestException | InternalServerErrorException | CommonAwsError
+    | AccessDeniedException
+    | BadRequestException
+    | InternalServerErrorException
+    | CommonAwsError
   >;
   updateMalwareProtectionPlan(
     input: UpdateMalwareProtectionPlanRequest,
@@ -474,7 +483,10 @@ export declare class GuardDuty extends AWSServiceClient {
     input: UpdateThreatIntelSetRequest,
   ): Effect.Effect<
     UpdateThreatIntelSetResponse,
-    BadRequestException | InternalServerErrorException | CommonAwsError
+    | AccessDeniedException
+    | BadRequestException
+    | InternalServerErrorException
+    | CommonAwsError
   >;
 }
 
@@ -829,6 +841,7 @@ export interface CreateIPSetRequest {
   Activate: boolean;
   ClientToken?: string;
   Tags?: Record<string, string>;
+  ExpectedBucketOwner?: string;
 }
 export interface CreateIPSetResponse {
   IpSetId: string;
@@ -879,6 +892,7 @@ export interface CreateThreatIntelSetRequest {
   Activate: boolean;
   ClientToken?: string;
   Tags?: Record<string, string>;
+  ExpectedBucketOwner?: string;
 }
 export interface CreateThreatIntelSetResponse {
   ThreatIntelSetId: string;
@@ -1392,6 +1406,7 @@ export interface GetIPSetResponse {
   Location: string;
   Status: IpSetStatus;
   Tags?: Record<string, string>;
+  ExpectedBucketOwner?: string;
 }
 export interface GetMalwareProtectionPlanRequest {
   MalwareProtectionPlanId: string;
@@ -1456,6 +1471,7 @@ export interface GetThreatIntelSetResponse {
   Location: string;
   Status: ThreatIntelSetStatus;
   Tags?: Record<string, string>;
+  ExpectedBucketOwner?: string;
 }
 export interface GetUsageStatisticsRequest {
   DetectorId: string;
@@ -2626,6 +2642,7 @@ export interface UpdateIPSetRequest {
   Name?: string;
   Location?: string;
   Activate?: boolean;
+  ExpectedBucketOwner?: string;
 }
 export interface UpdateIPSetResponse {}
 export interface UpdateMalwareProtectionPlanRequest {
@@ -2675,6 +2692,7 @@ export interface UpdateThreatIntelSetRequest {
   Name?: string;
   Location?: string;
   Activate?: boolean;
+  ExpectedBucketOwner?: string;
 }
 export interface UpdateThreatIntelSetResponse {}
 export interface UsageAccountResult {
@@ -2824,6 +2842,7 @@ export declare namespace CreateIPSet {
   export type Input = CreateIPSetRequest;
   export type Output = CreateIPSetResponse;
   export type Error =
+    | AccessDeniedException
     | BadRequestException
     | InternalServerErrorException
     | CommonAwsError;
@@ -2871,6 +2890,7 @@ export declare namespace CreateThreatIntelSet {
   export type Input = CreateThreatIntelSetRequest;
   export type Output = CreateThreatIntelSetResponse;
   export type Error =
+    | AccessDeniedException
     | BadRequestException
     | InternalServerErrorException
     | CommonAwsError;
@@ -3393,6 +3413,7 @@ export declare namespace UpdateIPSet {
   export type Input = UpdateIPSetRequest;
   export type Output = UpdateIPSetResponse;
   export type Error =
+    | AccessDeniedException
     | BadRequestException
     | InternalServerErrorException
     | CommonAwsError;
@@ -3449,6 +3470,7 @@ export declare namespace UpdateThreatIntelSet {
   export type Input = UpdateThreatIntelSetRequest;
   export type Output = UpdateThreatIntelSetResponse;
   export type Error =
+    | AccessDeniedException
     | BadRequestException
     | InternalServerErrorException
     | CommonAwsError;

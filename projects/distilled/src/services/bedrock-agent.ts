@@ -1365,6 +1365,10 @@ export type IncompatibleLoopNodeType =
   | "CONDITION"
   | "ITERATOR"
   | "COLLECTOR";
+export type IndexArn = string;
+
+export type IndexName = string;
+
 export interface InferenceConfiguration {
   temperature?: number;
   topP?: number;
@@ -1548,7 +1552,8 @@ export type KnowledgeBaseStorageType =
   | "RDS"
   | "MONGO_DB_ATLAS"
   | "NEPTUNE_ANALYTICS"
-  | "OPENSEARCH_MANAGED_CLUSTER";
+  | "OPENSEARCH_MANAGED_CLUSTER"
+  | "S3_VECTORS";
 export type KnowledgeBaseSummaries = Array<KnowledgeBaseSummary>;
 export interface KnowledgeBaseSummary {
   knowledgeBaseId: string;
@@ -2279,6 +2284,11 @@ export type S3ObjectUri = string;
 export type S3Prefix = string;
 
 export type S3Prefixes = Array<string>;
+export interface S3VectorsConfiguration {
+  vectorBucketArn?: string;
+  indexArn?: string;
+  indexName?: string;
+}
 export type SalesforceAuthType = "OAUTH2_CLIENT_CREDENTIALS";
 export interface SalesforceCrawlerConfiguration {
   filterConfiguration?: CrawlFilterConfiguration;
@@ -2376,6 +2386,7 @@ export interface StorageConfiguration {
   rdsConfiguration?: RdsConfiguration;
   mongoDbAtlasConfiguration?: MongoDbAtlasConfiguration;
   neptuneAnalyticsConfiguration?: NeptuneAnalyticsConfiguration;
+  s3VectorsConfiguration?: S3VectorsConfiguration;
 }
 export type StorageDays = number;
 
@@ -2712,6 +2723,8 @@ export interface ValidationExceptionField {
   message: string;
 }
 export type ValidationExceptionFieldList = Array<ValidationExceptionField>;
+export type VectorBucketArn = string;
+
 export interface VectorIngestionConfiguration {
   chunkingConfiguration?: ChunkingConfiguration;
   customTransformationConfiguration?: CustomTransformationConfiguration;

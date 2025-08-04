@@ -1152,6 +1152,7 @@ export interface GeofenceGeometry {
   Polygon?: Array<Array<Array<number>>>;
   Circle?: Circle;
   Geobuf?: Uint8Array | string;
+  MultiPolygon?: Array<Array<Array<Array<number>>>>;
 }
 export interface GetDevicePositionHistoryRequest {
   TrackerName: string;
@@ -1471,6 +1472,7 @@ export interface MapConfigurationUpdate {
 }
 export type MapStyle = string;
 
+export type MultiLinearRings = Array<Array<Array<Array<number>>>>;
 export type NearestDistance = number;
 
 export type OptimizationMode = string;
@@ -1648,6 +1650,8 @@ export interface SearchPlaceIndexForTextSummary {
   Language?: string;
   FilterCategories?: Array<string>;
 }
+export type SensitiveDouble = number;
+
 export type SensitiveString = string;
 
 export declare class ServiceQuotaExceededException extends EffectData.TaggedError(

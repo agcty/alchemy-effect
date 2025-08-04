@@ -1,7 +1,7 @@
 # AGENT.md - Project Knowledge for itty-aws
 
 ## Project Overview
-**itty-aws** is a lightweight (34KB) AWS SDK implementation for Effect.js, built with a single Proxy and types generated from AWS API specifications. It aims to provide the entire AWS API surface area in a much smaller package than the official AWS SDK v3.
+**itty-aws** is a lightweight AWS SDK implementation, built with a single Proxy and types generated from AWS API specifications. It aims to provide the entire AWS API surface area in a much smaller package than the official AWS SDK v3.
 
 ## Architecture
 
@@ -10,7 +10,7 @@
 - **`src/services/`**: Generated TypeScript service definitions from Smithy specs
 - **`src/metadata.ts`**: Service metadata including protocols and endpoints
 - **`scripts/`**: Code generation and build utilities
-- **`manifests/`**: AWS service specifications in JSON format
+- **`manifests/`**: AWS service specifications in Smithy JSON format
 
 ### Technology Stack
 - **Runtime**: Bun (primary), Node.js (compatible)

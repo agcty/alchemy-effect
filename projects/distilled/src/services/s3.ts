@@ -23,6 +23,9 @@ export declare class S3 extends AWSServiceClient {
     CreateBucketOutput,
     BucketAlreadyExists | BucketAlreadyOwnedByYou | CommonAwsError
   >;
+  createBucketMetadataConfiguration(
+    input: CreateBucketMetadataConfigurationRequest,
+  ): Effect.Effect<{}, CommonAwsError>;
   createBucketMetadataTableConfiguration(
     input: CreateBucketMetadataTableConfigurationRequest,
   ): Effect.Effect<{}, CommonAwsError>;
@@ -50,6 +53,9 @@ export declare class S3 extends AWSServiceClient {
   ): Effect.Effect<{}, CommonAwsError>;
   deleteBucketLifecycle(
     input: DeleteBucketLifecycleRequest,
+  ): Effect.Effect<{}, CommonAwsError>;
+  deleteBucketMetadataConfiguration(
+    input: DeleteBucketMetadataConfigurationRequest,
   ): Effect.Effect<{}, CommonAwsError>;
   deleteBucketMetadataTableConfiguration(
     input: DeleteBucketMetadataTableConfigurationRequest,
@@ -117,6 +123,9 @@ export declare class S3 extends AWSServiceClient {
   getBucketLogging(
     input: GetBucketLoggingRequest,
   ): Effect.Effect<GetBucketLoggingOutput, CommonAwsError>;
+  getBucketMetadataConfiguration(
+    input: GetBucketMetadataConfigurationRequest,
+  ): Effect.Effect<GetBucketMetadataConfigurationOutput, CommonAwsError>;
   getBucketMetadataTableConfiguration(
     input: GetBucketMetadataTableConfigurationRequest,
   ): Effect.Effect<GetBucketMetadataTableConfigurationOutput, CommonAwsError>;
@@ -315,6 +324,12 @@ export declare class S3 extends AWSServiceClient {
   selectObjectContent(
     input: SelectObjectContentRequest,
   ): Effect.Effect<SelectObjectContentOutput, CommonAwsError>;
+  updateBucketMetadataInventoryTableConfiguration(
+    input: UpdateBucketMetadataInventoryTableConfigurationRequest,
+  ): Effect.Effect<{}, CommonAwsError>;
+  updateBucketMetadataJournalTableConfiguration(
+    input: UpdateBucketMetadataJournalTableConfigurationRequest,
+  ): Effect.Effect<{}, CommonAwsError>;
   uploadPart(
     input: UploadPartRequest,
   ): Effect.Effect<UploadPartOutput, CommonAwsError>;
@@ -717,6 +732,13 @@ export interface CreateBucketConfiguration {
   Bucket?: BucketInfo;
   Tags?: Array<Tag>;
 }
+export interface CreateBucketMetadataConfigurationRequest {
+  Bucket: string;
+  ContentMD5?: string;
+  ChecksumAlgorithm?: ChecksumAlgorithm;
+  MetadataConfiguration: MetadataConfiguration;
+  ExpectedBucketOwner?: string;
+}
 export interface CreateBucketMetadataTableConfigurationRequest {
   Bucket: string;
   ContentMD5?: string;
@@ -865,6 +887,10 @@ export interface DeleteBucketLifecycleRequest {
   Bucket: string;
   ExpectedBucketOwner?: string;
 }
+export interface DeleteBucketMetadataConfigurationRequest {
+  Bucket: string;
+  ExpectedBucketOwner?: string;
+}
 export interface DeleteBucketMetadataTableConfigurationRequest {
   Bucket: string;
   ExpectedBucketOwner?: string;
@@ -978,6 +1004,11 @@ export interface Destination {
   ReplicationTime?: ReplicationTime;
   Metrics?: Metrics;
 }
+export interface DestinationResult {
+  TableBucketType?: S3TablesBucketType;
+  TableBucketArn?: string;
+  TableNamespace?: string;
+}
 export type DirectoryBucketToken = string;
 
 export type DisplayName = string;
@@ -1057,6 +1088,7 @@ export interface ExistingObjectReplication {
 export type ExistingObjectReplicationStatus = "Enabled" | "Disabled";
 export type Expiration = string;
 
+export type ExpirationState = "ENABLED" | "DISABLED";
 export type ExpirationStatus = "Enabled" | "Disabled";
 export type ExpiredObjectDeleteMarker = boolean;
 
@@ -1157,6 +1189,16 @@ export interface GetBucketLoggingOutput {
 export interface GetBucketLoggingRequest {
   Bucket: string;
   ExpectedBucketOwner?: string;
+}
+export interface GetBucketMetadataConfigurationOutput {
+  GetBucketMetadataConfigurationResult?: GetBucketMetadataConfigurationResult;
+}
+export interface GetBucketMetadataConfigurationRequest {
+  Bucket: string;
+  ExpectedBucketOwner?: string;
+}
+export interface GetBucketMetadataConfigurationResult {
+  MetadataConfigurationResult: MetadataConfigurationResult;
 }
 export interface GetBucketMetadataTableConfigurationOutput {
   GetBucketMetadataTableConfigurationResult?: GetBucketMetadataTableConfigurationResult;
@@ -1592,6 +1634,7 @@ export interface InventoryConfiguration {
   Schedule: InventorySchedule;
 }
 export type InventoryConfigurationList = Array<InventoryConfiguration>;
+export type InventoryConfigurationState = "ENABLED" | "DISABLED";
 export interface InventoryDestination {
   S3BucketDestination: InventoryS3BucketDestination;
 }
@@ -1634,6 +1677,21 @@ export interface InventoryS3BucketDestination {
 export interface InventorySchedule {
   Frequency: InventoryFrequency;
 }
+export interface InventoryTableConfiguration {
+  ConfigurationState: InventoryConfigurationState;
+  EncryptionConfiguration?: MetadataTableEncryptionConfiguration;
+}
+export interface InventoryTableConfigurationResult {
+  ConfigurationState: InventoryConfigurationState;
+  TableStatus?: string;
+  Error?: ErrorDetails;
+  TableName?: string;
+  TableArn?: string;
+}
+export interface InventoryTableConfigurationUpdates {
+  ConfigurationState: InventoryConfigurationState;
+  EncryptionConfiguration?: MetadataTableEncryptionConfiguration;
+}
 export type IsEnabled = boolean;
 
 export type IsLatest = boolean;
@@ -1644,6 +1702,20 @@ export type IsRestoreInProgress = boolean;
 
 export type IsTruncated = boolean;
 
+export interface JournalTableConfiguration {
+  RecordExpiration: RecordExpiration;
+  EncryptionConfiguration?: MetadataTableEncryptionConfiguration;
+}
+export interface JournalTableConfigurationResult {
+  TableStatus: string;
+  Error?: ErrorDetails;
+  TableName: string;
+  TableArn?: string;
+  RecordExpiration: RecordExpiration;
+}
+export interface JournalTableConfigurationUpdates {
+  RecordExpiration: RecordExpiration;
+}
 export interface JSONInput {
   Type?: JSONType;
 }
@@ -1658,6 +1730,8 @@ export type KeyMarker = string;
 export type KeyPrefixEquals = string;
 
 export type KMSContext = string;
+
+export type KmsKeyArn = string;
 
 export type LambdaFunctionArn = string;
 
@@ -1937,6 +2011,15 @@ export type MaxUploads = number;
 export type Message = string;
 
 export type Metadata = Record<string, string>;
+export interface MetadataConfiguration {
+  JournalTableConfiguration: JournalTableConfiguration;
+  InventoryTableConfiguration?: InventoryTableConfiguration;
+}
+export interface MetadataConfigurationResult {
+  DestinationResult: DestinationResult;
+  JournalTableConfigurationResult?: JournalTableConfigurationResult;
+  InventoryTableConfigurationResult?: InventoryTableConfigurationResult;
+}
 export type MetadataDirective = "COPY" | "REPLACE";
 export interface MetadataEntry {
   Name?: string;
@@ -1949,6 +2032,10 @@ export interface MetadataTableConfiguration {
 }
 export interface MetadataTableConfigurationResult {
   S3TablesDestinationResult: S3TablesDestinationResult;
+}
+export interface MetadataTableEncryptionConfiguration {
+  SseAlgorithm: TableSseAlgorithm;
+  KmsKeyArn?: string;
 }
 export type MetadataTableStatus = string;
 
@@ -2534,6 +2621,12 @@ export type Range = string;
 
 export type RecordDelimiter = string;
 
+export interface RecordExpiration {
+  Expiration: ExpirationState;
+  Days?: number;
+}
+export type RecordExpirationDays = number;
+
 export interface RecordsEvent {
   Payload?: Uint8Array | string | Stream.Stream<Uint8Array>;
 }
@@ -2708,6 +2801,7 @@ export type S3TablesArn = string;
 
 export type S3TablesBucketArn = string;
 
+export type S3TablesBucketType = "aws" | "customer";
 export interface S3TablesDestination {
   TableBucketArn: string;
   TableName: string;
@@ -2857,6 +2951,7 @@ export type StreamingBlob = Uint8Array | string;
 
 export type Suffix = string;
 
+export type TableSseAlgorithm = "aws_kms" | "AES256";
 export interface Tag {
   Key: string;
   Value: string;
@@ -2920,6 +3015,20 @@ export type TransitionStorageClass =
   | "DEEP_ARCHIVE"
   | "GLACIER_IR";
 export type Type = "CanonicalUser" | "AmazonCustomerByEmail" | "Group";
+export interface UpdateBucketMetadataInventoryTableConfigurationRequest {
+  Bucket: string;
+  ContentMD5?: string;
+  ChecksumAlgorithm?: ChecksumAlgorithm;
+  InventoryTableConfiguration: InventoryTableConfigurationUpdates;
+  ExpectedBucketOwner?: string;
+}
+export interface UpdateBucketMetadataJournalTableConfigurationRequest {
+  Bucket: string;
+  ContentMD5?: string;
+  ChecksumAlgorithm?: ChecksumAlgorithm;
+  JournalTableConfiguration: JournalTableConfigurationUpdates;
+  ExpectedBucketOwner?: string;
+}
 export type UploadIdMarker = string;
 
 export interface UploadPartCopyOutput {
@@ -3082,6 +3191,12 @@ export declare namespace CreateBucket {
     | CommonAwsError;
 }
 
+export declare namespace CreateBucketMetadataConfiguration {
+  export type Input = CreateBucketMetadataConfigurationRequest;
+  export type Output = {};
+  export type Error = CommonAwsError;
+}
+
 export declare namespace CreateBucketMetadataTableConfiguration {
   export type Input = CreateBucketMetadataTableConfigurationRequest;
   export type Output = {};
@@ -3138,6 +3253,12 @@ export declare namespace DeleteBucketInventoryConfiguration {
 
 export declare namespace DeleteBucketLifecycle {
   export type Input = DeleteBucketLifecycleRequest;
+  export type Output = {};
+  export type Error = CommonAwsError;
+}
+
+export declare namespace DeleteBucketMetadataConfiguration {
+  export type Input = DeleteBucketMetadataConfigurationRequest;
   export type Output = {};
   export type Error = CommonAwsError;
 }
@@ -3265,6 +3386,12 @@ export declare namespace GetBucketLocation {
 export declare namespace GetBucketLogging {
   export type Input = GetBucketLoggingRequest;
   export type Output = GetBucketLoggingOutput;
+  export type Error = CommonAwsError;
+}
+
+export declare namespace GetBucketMetadataConfiguration {
+  export type Input = GetBucketMetadataConfigurationRequest;
+  export type Output = GetBucketMetadataConfigurationOutput;
   export type Error = CommonAwsError;
 }
 
@@ -3636,6 +3763,18 @@ export declare namespace RestoreObject {
 export declare namespace SelectObjectContent {
   export type Input = SelectObjectContentRequest;
   export type Output = SelectObjectContentOutput;
+  export type Error = CommonAwsError;
+}
+
+export declare namespace UpdateBucketMetadataInventoryTableConfiguration {
+  export type Input = UpdateBucketMetadataInventoryTableConfigurationRequest;
+  export type Output = {};
+  export type Error = CommonAwsError;
+}
+
+export declare namespace UpdateBucketMetadataJournalTableConfiguration {
+  export type Input = UpdateBucketMetadataJournalTableConfigurationRequest;
+  export type Output = {};
   export type Error = CommonAwsError;
 }
 

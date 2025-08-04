@@ -2761,7 +2761,10 @@ export interface Action {
 }
 export type ActionList = Array<Action>;
 export type AdditionalContextMap = Record<string, string>;
-export type AdditionalOptionKeys = "CacheOption" | "ObservationsOption";
+export type AdditionalOptionKeys =
+  | "CacheOption"
+  | "ObservationsOption"
+  | "CompositeOption";
 export type AdditionalOptions = Record<string, string>;
 export type AdditionalPlanOptionsMap = Record<string, string>;
 export type AggFunction =
@@ -2914,6 +2917,10 @@ export interface AuthorizationCodeProperties {
 }
 export type AuthTokenString = string;
 
+export interface AutoDataQuality {
+  IsEnabled?: boolean;
+  EvaluationContext?: string;
+}
 export type AWSManagedClientApplicationReference = string;
 
 export interface BackfillError {
@@ -3281,6 +3288,13 @@ export interface CatalogHudiSource {
   AdditionalHudiOptions?: Record<string, string>;
   OutputSchemas?: Array<GlueSchema>;
 }
+export interface CatalogIcebergSource {
+  Name: string;
+  Database: string;
+  Table: string;
+  AdditionalIcebergOptions?: Record<string, string>;
+  OutputSchemas?: Array<GlueSchema>;
+}
 export type CatalogIdString = string;
 
 export interface CatalogImportStatus {
@@ -3335,6 +3349,8 @@ export interface CatalogSource {
   Name: string;
   Database: string;
   Table: string;
+  PartitionPredicate?: string;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export type CatalogTablesList = Array<string>;
 export interface CatalogTarget {
@@ -3382,7 +3398,6 @@ export interface CodeGenConfigurationNode {
   RedshiftSource?: RedshiftSource;
   S3CatalogSource?: S3CatalogSource;
   S3CsvSource?: S3CsvSource;
-  S3ExcelSource?: S3ExcelSource;
   S3JsonSource?: S3JsonSource;
   S3ParquetSource?: S3ParquetSource;
   RelationalCatalogSource?: RelationalCatalogSource;
@@ -3393,9 +3408,7 @@ export interface CodeGenConfigurationNode {
   RedshiftTarget?: RedshiftTarget;
   S3CatalogTarget?: S3CatalogTarget;
   S3GlueParquetTarget?: S3GlueParquetTarget;
-  S3HyperDirectTarget?: S3HyperDirectTarget;
   S3DirectTarget?: S3DirectTarget;
-  S3IcebergDirectTarget?: S3IcebergDirectTarget;
   ApplyMapping?: ApplyMapping;
   SelectFields?: SelectFields;
   DropFields?: DropFields;
@@ -3428,6 +3441,7 @@ export interface CodeGenConfigurationNode {
   MySQLCatalogTarget?: MySQLCatalogTarget;
   OracleSQLCatalogTarget?: OracleSQLCatalogTarget;
   PostgreSQLCatalogTarget?: PostgreSQLCatalogTarget;
+  Route?: Route;
   DynamicTransform?: DynamicTransform;
   EvaluateDataQuality?: EvaluateDataQuality;
   S3CatalogHudiSource?: S3CatalogHudiSource;
@@ -3449,6 +3463,13 @@ export interface CodeGenConfigurationNode {
   SnowflakeTarget?: SnowflakeTarget;
   ConnectorDataSource?: ConnectorDataSource;
   ConnectorDataTarget?: ConnectorDataTarget;
+  S3CatalogIcebergSource?: S3CatalogIcebergSource;
+  CatalogIcebergSource?: CatalogIcebergSource;
+  S3IcebergCatalogTarget?: S3IcebergCatalogTarget;
+  S3IcebergDirectTarget?: S3IcebergDirectTarget;
+  S3ExcelSource?: S3ExcelSource;
+  S3HyperDirectTarget?: S3HyperDirectTarget;
+  DynamoDBELTConnectorSource?: DynamoDBELTConnectorSource;
 }
 export type CodeGenConfigurationNodes = Record<
   string,
@@ -4316,7 +4337,7 @@ export interface CreateTableRequest {
   CatalogId?: string;
   DatabaseName: string;
   Name?: string;
-  TableInput: TableInput;
+  TableInput?: TableInput;
   PartitionIndexes?: Array<PartitionIndex>;
   TransactionId?: string;
   OpenTableFormatInput?: OpenTableFormatInput;
@@ -4639,6 +4660,20 @@ export interface DateColumnStatisticsData {
   NumberOfNulls: number;
   NumberOfDistinctValues: number;
 }
+export interface DDBELTCatalogAdditionalOptions {
+  DynamodbExport?: string;
+  DynamodbUnnestDDBJson?: boolean;
+}
+export interface DDBELTConnectionOptions {
+  DynamodbExport?: DdbExportType;
+  DynamodbUnnestDDBJson?: boolean;
+  DynamodbTableArn: string;
+  DynamodbS3Bucket?: string;
+  DynamodbS3Prefix?: string;
+  DynamodbS3BucketOwner?: string;
+  DynamodbStsRoleArn?: string;
+}
+export type DdbExportType = "ddb" | "s3";
 export interface DecimalColumnStatisticsData {
   MinimumValue?: DecimalNumber;
   MaximumValue?: DecimalNumber;
@@ -4951,6 +4986,7 @@ export interface DirectJDBCSource {
   ConnectionName: string;
   ConnectionType: JDBCConnectionType;
   RedshiftTmpDir?: string;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface DirectKafkaSource {
   Name: string;
@@ -5036,6 +5072,13 @@ export interface DynamoDBCatalogSource {
   Name: string;
   Database: string;
   Table: string;
+  PitrEnabled?: boolean;
+  AdditionalOptions?: DDBELTCatalogAdditionalOptions;
+}
+export interface DynamoDBELTConnectorSource {
+  Name: string;
+  ConnectionOptions?: DDBELTConnectionOptions;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface DynamoDBTarget {
   Path?: string;
@@ -6156,6 +6199,7 @@ export type GlueStudioPathList = Array<Array<string>>;
 export interface GlueStudioSchemaColumn {
   Name: string;
   Type?: string;
+  GlueStudioType?: string;
 }
 export type GlueStudioSchemaColumnList = Array<GlueStudioSchemaColumn>;
 export interface GlueTable {
@@ -6195,6 +6239,12 @@ export interface GrokClassifier {
 }
 export type GrokPattern = string;
 
+export interface GroupFilters {
+  GroupName: string;
+  Filters: Array<FilterExpression>;
+  LogicalOperator: FilterLogicalOperator;
+}
+export type GroupFiltersList = Array<GroupFilters>;
 export type HashString = string;
 
 export interface HudiTarget {
@@ -6641,6 +6691,7 @@ export interface JobRun {
   MaintenanceWindow?: string;
   ProfileName?: string;
   StateDetail?: string;
+  ExecutionRoleSessionPolicy?: string;
 }
 export type JobRunList = Array<JobRun>;
 export type JobRunState =
@@ -6761,6 +6812,7 @@ export interface KinesisStreamingSourceOptions {
   AddRecordTimestamp?: string;
   EmitConsumerLagMetrics?: string;
   StartingTimestamp?: Date | string;
+  FanoutConsumerARN?: string;
 }
 export type KmsKeyArn = string;
 
@@ -7360,6 +7412,8 @@ export type OrchestrationPageSize200 = number;
 
 export type OrchestrationPageSize25 = number;
 
+export type OrchestrationPolicyJsonString = string;
+
 export type OrchestrationRoleArn = string;
 
 export type OrchestrationS3Location = string;
@@ -7499,11 +7553,21 @@ export interface PIIDetection {
   SampleFraction?: number;
   ThresholdFraction?: number;
   MaskValue?: string;
+  RedactText?: string;
+  RedactChar?: string;
+  MatchPattern?: string;
+  NumLeftCharsToExclude?: number;
+  NumRightCharsToExclude?: number;
+  DetectionParameters?: string;
+  DetectionSensitivity?: string;
 }
 export type PiiType =
   | "RowAudit"
+  | "RowHashing"
   | "RowMasking"
+  | "RowPartialMasking"
   | "ColumnAudit"
+  | "ColumnHashing"
   | "ColumnMasking";
 export type PolicyJsonString = string;
 
@@ -7815,6 +7879,11 @@ export type RoleArn = string;
 
 export type RoleString = string;
 
+export interface Route {
+  Name: string;
+  Inputs: Array<string>;
+  GroupFiltersList: Array<GroupFilters>;
+}
 export type RowTag = string;
 
 export type RuleMetricsMap = Record<string, number>;
@@ -7855,6 +7924,13 @@ export interface S3CatalogHudiSource {
   AdditionalHudiOptions?: Record<string, string>;
   OutputSchemas?: Array<GlueSchema>;
 }
+export interface S3CatalogIcebergSource {
+  Name: string;
+  Database: string;
+  Table: string;
+  AdditionalIcebergOptions?: Record<string, string>;
+  OutputSchemas?: Array<GlueSchema>;
+}
 export interface S3CatalogSource {
   Name: string;
   Database: string;
@@ -7869,6 +7945,7 @@ export interface S3CatalogTarget {
   Table: string;
   Database: string;
   SchemaChangePolicy?: CatalogSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
 }
 export interface S3CsvSource {
   Name: string;
@@ -7899,6 +7976,8 @@ export interface S3DeltaCatalogTarget {
   Database: string;
   AdditionalOptions?: Record<string, string>;
   SchemaChangePolicy?: CatalogSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface S3DeltaDirectTarget {
   Name: string;
@@ -7910,6 +7989,7 @@ export interface S3DeltaDirectTarget {
   Format: TargetFormat;
   AdditionalOptions?: Record<string, string>;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
 }
 export interface S3DeltaSource {
   Name: string;
@@ -7933,6 +8013,8 @@ export interface S3DirectTarget {
   NumberTargetPartitions?: string;
   Format: TargetFormat;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface S3Encryption {
   S3EncryptionMode?: S3EncryptionMode;
@@ -7963,6 +8045,7 @@ export interface S3GlueParquetTarget {
   Compression?: ParquetCompressionType;
   NumberTargetPartitions?: string;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
 }
 export interface S3HudiCatalogTarget {
   Name: string;
@@ -7972,6 +8055,8 @@ export interface S3HudiCatalogTarget {
   Database: string;
   AdditionalOptions: Record<string, string>;
   SchemaChangePolicy?: CatalogSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface S3HudiDirectTarget {
   Name: string;
@@ -7983,6 +8068,7 @@ export interface S3HudiDirectTarget {
   Format: TargetFormat;
   AdditionalOptions: Record<string, string>;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
 }
 export interface S3HudiSource {
   Name: string;
@@ -7994,10 +8080,23 @@ export interface S3HudiSource {
 export interface S3HyperDirectTarget {
   Name: string;
   Inputs: Array<string>;
+  Format?: TargetFormat;
   PartitionKeys?: Array<Array<string>>;
   Path: string;
   Compression?: HyperTargetCompressionType;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
+  OutputSchemas?: Array<GlueSchema>;
+}
+export interface S3IcebergCatalogTarget {
+  Name: string;
+  Inputs: Array<string>;
+  PartitionKeys?: Array<Array<string>>;
+  Table: string;
+  Database: string;
+  AdditionalOptions?: Record<string, string>;
+  SchemaChangePolicy?: CatalogSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
 }
 export interface S3IcebergDirectTarget {
   Name: string;
@@ -8007,8 +8106,10 @@ export interface S3IcebergDirectTarget {
   Format: TargetFormat;
   AdditionalOptions?: Record<string, string>;
   SchemaChangePolicy?: DirectSchemaChangePolicy;
+  AutoDataQuality?: AutoDataQuality;
   Compression: IcebergTargetCompressionType;
   NumberTargetPartitions?: string;
+  OutputSchemas?: Array<GlueSchema>;
 }
 export interface S3JsonSource {
   Name: string;
@@ -8438,6 +8539,7 @@ export interface StartJobRunRequest {
   WorkerType?: WorkerType;
   NumberOfWorkers?: number;
   ExecutionClass?: ExecutionClass;
+  ExecutionRoleSessionPolicy?: string;
 }
 export interface StartJobRunResponse {
   JobRunId?: string;

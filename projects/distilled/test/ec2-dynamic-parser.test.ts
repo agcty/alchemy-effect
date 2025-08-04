@@ -1,5 +1,5 @@
 import { expect, test } from "@effect/vitest";
-import { parseEC2Response } from "../src/ec2-parsers";
+import { parseEC2Response } from "../src/ec2-parsers.ts";
 
 test("parseEC2Response - DescribeRegions", () => {
   const sampleResponse = `<?xml version="1.0" encoding="UTF-8"?>
@@ -29,7 +29,7 @@ test("parseEC2Response - DescribeRegions", () => {
         OptInStatus: "opt-in-not-required",
       },
       {
-        RegionName: "eu-north-1", 
+        RegionName: "eu-north-1",
         Endpoint: "ec2.eu-north-1.amazonaws.com",
         OptInStatus: "opt-in-not-required",
       },

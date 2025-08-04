@@ -1,5 +1,4 @@
 import type { Effect, Stream, Data as EffectData } from "effect";
-import type { ResponseError } from "@effect/platform/HttpClientError";
 import type { CommonAwsError } from "../error.ts";
 import { AWSServiceClient } from "../client.ts";
 
@@ -4403,6 +4402,7 @@ export interface CreateTopicRequest {
   Topic: TopicDetails;
   Tags?: Array<Tag>;
   FolderArns?: Array<string>;
+  CustomInstructions?: CustomInstructions;
 }
 export interface CreateTopicResponse {
   Arn?: string;
@@ -4517,6 +4517,11 @@ export interface CustomFilterListConfiguration {
   SelectAllOptions?: CategoryFilterSelectAllOptions;
   NullOption: FilterNullOption;
 }
+export interface CustomInstructions {
+  CustomInstructionsString: string;
+}
+export type CustomInstructionsString = string;
+
 export type CustomLabel = string;
 
 export interface CustomNarrativeOptions {
@@ -4956,6 +4961,7 @@ interface _DataSourceParameters {
   StarburstParameters?: StarburstParameters;
   TrinoParameters?: TrinoParameters;
   BigQueryParameters?: BigQueryParameters;
+  ImpalaParameters?: ImpalaParameters;
 }
 
 export type DataSourceParameters =
@@ -4992,7 +4998,8 @@ export type DataSourceParameters =
   | (_DataSourceParameters & { DatabricksParameters: DatabricksParameters })
   | (_DataSourceParameters & { StarburstParameters: StarburstParameters })
   | (_DataSourceParameters & { TrinoParameters: TrinoParameters })
-  | (_DataSourceParameters & { BigQueryParameters: BigQueryParameters });
+  | (_DataSourceParameters & { BigQueryParameters: BigQueryParameters })
+  | (_DataSourceParameters & { ImpalaParameters: ImpalaParameters });
 export type DataSourceParametersList = Array<DataSourceParameters>;
 export interface DataSourceSearchFilter {
   Operator: FilterOperator;
@@ -6115,6 +6122,7 @@ export interface DescribeTopicResponse {
   Topic?: TopicDetails;
   RequestId?: string;
   Status?: number;
+  CustomInstructions?: CustomInstructions;
 }
 export interface DescribeUserRequest {
   UserName: string;
@@ -7288,6 +7296,12 @@ export type ImageSource =
 export interface ImageStaticFile {
   StaticFileId: string;
   Source?: StaticFileSource;
+}
+export interface ImpalaParameters {
+  Host: string;
+  Port: number;
+  Database?: string;
+  SqlEndpointPath: string;
 }
 export type IncludeFolderMembers = "RECURSE" | "ONE_LEVEL" | "NONE";
 export type IncludeGeneratedAnswer = "INCLUDE" | "EXCLUDE";
@@ -11560,6 +11574,7 @@ export interface UpdateTopicRequest {
   AwsAccountId: string;
   TopicId: string;
   Topic: TopicDetails;
+  CustomInstructions?: CustomInstructions;
 }
 export interface UpdateTopicResponse {
   TopicId?: string;

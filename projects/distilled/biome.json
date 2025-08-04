@@ -6,7 +6,12 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["./src/**/*.ts", "./test/**/*.ts", "!node_modules"],
+    "includes": [
+      "./src/**/*.ts",
+      "./test/**/*.ts",
+      "./scripts/**/*.ts",
+      "!node_modules"
+    ],
     "maxSize": 10000000
   },
   "assist": {

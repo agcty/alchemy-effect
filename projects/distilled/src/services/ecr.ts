@@ -638,6 +638,7 @@ export interface CreateRepositoryCreationTemplateRequest {
   encryptionConfiguration?: EncryptionConfigurationForRepositoryCreationTemplate;
   resourceTags?: Array<Tag>;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
   repositoryPolicy?: string;
   lifecyclePolicy?: string;
   appliedFor: Array<RCTAppliedFor>;
@@ -652,6 +653,7 @@ export interface CreateRepositoryRequest {
   repositoryName: string;
   tags?: Array<Tag>;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
   imageScanningConfiguration?: ImageScanningConfiguration;
   encryptionConfiguration?: EncryptionConfiguration;
 }
@@ -1059,7 +1061,20 @@ export declare class ImageTagAlreadyExistsException extends EffectData.TaggedErr
   readonly message?: string;
 }> {}
 export type ImageTagList = Array<string>;
-export type ImageTagMutability = "MUTABLE" | "IMMUTABLE";
+export type ImageTagMutability =
+  | "MUTABLE"
+  | "IMMUTABLE"
+  | "IMMUTABLE_WITH_EXCLUSION"
+  | "MUTABLE_WITH_EXCLUSION";
+export interface ImageTagMutabilityExclusionFilter {
+  filterType: ImageTagMutabilityExclusionFilterType;
+  filter: string;
+}
+export type ImageTagMutabilityExclusionFilters =
+  Array<ImageTagMutabilityExclusionFilter>;
+export type ImageTagMutabilityExclusionFilterType = "WILDCARD";
+export type ImageTagMutabilityExclusionFilterValue = string;
+
 export type ImageTagsList = Array<string>;
 export interface InitiateLayerUploadRequest {
   registryId?: string;
@@ -1318,11 +1333,13 @@ export interface PutImageTagMutabilityRequest {
   registryId?: string;
   repositoryName: string;
   imageTagMutability: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
 }
 export interface PutImageTagMutabilityResponse {
   registryId?: string;
   repositoryName?: string;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
 }
 export interface PutLifecyclePolicyRequest {
   registryId?: string;
@@ -1423,6 +1440,7 @@ export interface Repository {
   repositoryUri?: string;
   createdAt?: Date | string;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
   imageScanningConfiguration?: ImageScanningConfiguration;
   encryptionConfiguration?: EncryptionConfiguration;
 }
@@ -1437,6 +1455,7 @@ export interface RepositoryCreationTemplate {
   encryptionConfiguration?: EncryptionConfigurationForRepositoryCreationTemplate;
   resourceTags?: Array<Tag>;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
   repositoryPolicy?: string;
   lifecyclePolicy?: string;
   appliedFor?: Array<RCTAppliedFor>;
@@ -1692,6 +1711,7 @@ export interface UpdateRepositoryCreationTemplateRequest {
   encryptionConfiguration?: EncryptionConfigurationForRepositoryCreationTemplate;
   resourceTags?: Array<Tag>;
   imageTagMutability?: ImageTagMutability;
+  imageTagMutabilityExclusionFilters?: Array<ImageTagMutabilityExclusionFilter>;
   repositoryPolicy?: string;
   lifecyclePolicy?: string;
   appliedFor?: Array<RCTAppliedFor>;

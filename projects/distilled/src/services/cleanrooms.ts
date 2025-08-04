@@ -2204,6 +2204,8 @@ export interface UpdateConfiguredTableInput {
   configuredTableIdentifier: string;
   name?: string;
   description?: string;
+  tableReference?: TableReference;
+  allowedColumns?: Array<string>;
   analysisMethod?: AnalysisMethod;
   selectedAnalysisMethods?: Array<SelectedAnalysisMethod>;
 }

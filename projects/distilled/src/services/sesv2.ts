@@ -164,6 +164,26 @@ export declare class SESv2 extends AWSServiceClient {
     | TooManyRequestsException
     | CommonAwsError
   >;
+  createTenant(
+    input: CreateTenantRequest,
+  ): Effect.Effect<
+    CreateTenantResponse,
+    | AlreadyExistsException
+    | BadRequestException
+    | LimitExceededException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  createTenantResourceAssociation(
+    input: CreateTenantResourceAssociationRequest,
+  ): Effect.Effect<
+    CreateTenantResourceAssociationResponse,
+    | AlreadyExistsException
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
   deleteConfigurationSet(
     input: DeleteConfigurationSetRequest,
   ): Effect.Effect<
@@ -263,6 +283,24 @@ export declare class SESv2 extends AWSServiceClient {
     input: DeleteSuppressedDestinationRequest,
   ): Effect.Effect<
     DeleteSuppressedDestinationResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  deleteTenant(
+    input: DeleteTenantRequest,
+  ): Effect.Effect<
+    DeleteTenantResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  deleteTenantResourceAssociation(
+    input: DeleteTenantResourceAssociationRequest,
+  ): Effect.Effect<
+    DeleteTenantResourceAssociationResponse,
     | BadRequestException
     | NotFoundException
     | TooManyRequestsException
@@ -454,10 +492,28 @@ export declare class SESv2 extends AWSServiceClient {
     | TooManyRequestsException
     | CommonAwsError
   >;
+  getReputationEntity(
+    input: GetReputationEntityRequest,
+  ): Effect.Effect<
+    GetReputationEntityResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
   getSuppressedDestination(
     input: GetSuppressedDestinationRequest,
   ): Effect.Effect<
     GetSuppressedDestinationResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  getTenant(
+    input: GetTenantRequest,
+  ): Effect.Effect<
+    GetTenantResponse,
     | BadRequestException
     | NotFoundException
     | TooManyRequestsException
@@ -553,6 +609,21 @@ export declare class SESv2 extends AWSServiceClient {
     | TooManyRequestsException
     | CommonAwsError
   >;
+  listReputationEntities(
+    input: ListReputationEntitiesRequest,
+  ): Effect.Effect<
+    ListReputationEntitiesResponse,
+    BadRequestException | TooManyRequestsException | CommonAwsError
+  >;
+  listResourceTenants(
+    input: ListResourceTenantsRequest,
+  ): Effect.Effect<
+    ListResourceTenantsResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
   listSuppressedDestinations(
     input: ListSuppressedDestinationsRequest,
   ): Effect.Effect<
@@ -570,6 +641,21 @@ export declare class SESv2 extends AWSServiceClient {
     | NotFoundException
     | TooManyRequestsException
     | CommonAwsError
+  >;
+  listTenantResources(
+    input: ListTenantResourcesRequest,
+  ): Effect.Effect<
+    ListTenantResourcesResponse,
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  listTenants(
+    input: ListTenantsRequest,
+  ): Effect.Effect<
+    ListTenantsResponse,
+    BadRequestException | TooManyRequestsException | CommonAwsError
   >;
   putAccountDedicatedIpWarmupAttributes(
     input: PutAccountDedicatedIpWarmupAttributesRequest,
@@ -883,6 +969,24 @@ export declare class SESv2 extends AWSServiceClient {
     | TooManyRequestsException
     | CommonAwsError
   >;
+  updateReputationEntityCustomerManagedStatus(
+    input: UpdateReputationEntityCustomerManagedStatusRequest,
+  ): Effect.Effect<
+    UpdateReputationEntityCustomerManagedStatusResponse,
+    | BadRequestException
+    | ConflictException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
+  updateReputationEntityPolicy(
+    input: UpdateReputationEntityPolicyRequest,
+  ): Effect.Effect<
+    UpdateReputationEntityPolicyResponse,
+    | BadRequestException
+    | ConflictException
+    | TooManyRequestsException
+    | CommonAwsError
+  >;
 }
 
 export declare class Sesv2 extends SESv2 {}
@@ -1188,6 +1292,23 @@ export interface CreateMultiRegionEndpointResponse {
   Status?: Status;
   EndpointId?: string;
 }
+export interface CreateTenantRequest {
+  TenantName: string;
+  Tags?: Array<Tag>;
+}
+export interface CreateTenantResourceAssociationRequest {
+  TenantName: string;
+  ResourceArn: string;
+}
+export interface CreateTenantResourceAssociationResponse {}
+export interface CreateTenantResponse {
+  TenantName?: string;
+  TenantId?: string;
+  TenantArn?: string;
+  CreatedTimestamp?: Date | string;
+  Tags?: Array<Tag>;
+  SendingStatus?: SendingStatus;
+}
 export type CustomRedirectDomain = string;
 
 export interface CustomVerificationEmailTemplateMetadata {
@@ -1274,6 +1395,15 @@ export interface DeleteSuppressedDestinationRequest {
   EmailAddress: string;
 }
 export interface DeleteSuppressedDestinationResponse {}
+export interface DeleteTenantRequest {
+  TenantName: string;
+}
+export interface DeleteTenantResourceAssociationRequest {
+  TenantName: string;
+  ResourceArn: string;
+}
+export interface DeleteTenantResourceAssociationResponse {}
+export interface DeleteTenantResponse {}
 export type DeliverabilityDashboardAccountStatus =
   | "ACTIVE"
   | "PENDING_EXPIRATION"
@@ -1750,11 +1880,24 @@ export interface GetMultiRegionEndpointResponse {
   CreatedTimestamp?: Date | string;
   LastUpdatedTimestamp?: Date | string;
 }
+export interface GetReputationEntityRequest {
+  ReputationEntityReference: string;
+  ReputationEntityType: ReputationEntityType;
+}
+export interface GetReputationEntityResponse {
+  ReputationEntity?: ReputationEntity;
+}
 export interface GetSuppressedDestinationRequest {
   EmailAddress: string;
 }
 export interface GetSuppressedDestinationResponse {
   SuppressedDestination: SuppressedDestination;
+}
+export interface GetTenantRequest {
+  TenantName: string;
+}
+export interface GetTenantResponse {
+  Tenant?: Tenant;
 }
 export interface GuardianAttributes {
   OptimizedSharedDelivery?: FeatureStatus;
@@ -1985,6 +2128,24 @@ export interface ListRecommendationsResponse {
   Recommendations?: Array<Recommendation>;
   NextToken?: string;
 }
+export interface ListReputationEntitiesRequest {
+  Filter?: Record<ReputationEntityFilterKey, string>;
+  NextToken?: string;
+  PageSize?: number;
+}
+export interface ListReputationEntitiesResponse {
+  ReputationEntities?: Array<ReputationEntity>;
+  NextToken?: string;
+}
+export interface ListResourceTenantsRequest {
+  ResourceArn: string;
+  PageSize?: number;
+  NextToken?: string;
+}
+export interface ListResourceTenantsResponse {
+  ResourceTenants?: Array<ResourceTenantMetadata>;
+  NextToken?: string;
+}
 export interface ListSuppressedDestinationsRequest {
   Reasons?: Array<SuppressionListReason>;
   StartDate?: Date | string;
@@ -2001,6 +2162,31 @@ export interface ListTagsForResourceRequest {
 }
 export interface ListTagsForResourceResponse {
   Tags: Array<Tag>;
+}
+export type ListTenantResourcesFilter = Record<
+  ListTenantResourcesFilterKey,
+  string
+>;
+export type ListTenantResourcesFilterKey = "RESOURCE_TYPE";
+export type ListTenantResourcesFilterValue = string;
+
+export interface ListTenantResourcesRequest {
+  TenantName: string;
+  Filter?: Record<ListTenantResourcesFilterKey, string>;
+  PageSize?: number;
+  NextToken?: string;
+}
+export interface ListTenantResourcesResponse {
+  TenantResources?: Array<TenantResource>;
+  NextToken?: string;
+}
+export interface ListTenantsRequest {
+  NextToken?: string;
+  PageSize?: number;
+}
+export interface ListTenantsResponse {
+  Tenants?: Array<TenantInfo>;
+  NextToken?: string;
 }
 export interface MailFromAttributes {
   MailFromDomain: string;
@@ -2322,7 +2508,10 @@ export type RecommendationType =
   | "DMARC"
   | "SPF"
   | "BIMI"
-  | "COMPLAINT";
+  | "COMPLAINT"
+  | "BOUNCE"
+  | "FEEDBACK_3P"
+  | "IP_LISTING";
 export type Region = string;
 
 export type Regions = Array<string>;
@@ -2338,10 +2527,42 @@ export type ReportId = string;
 
 export type ReportName = string;
 
+export type ReputationEntitiesList = Array<ReputationEntity>;
+export interface ReputationEntity {
+  ReputationEntityReference?: string;
+  ReputationEntityType?: ReputationEntityType;
+  ReputationManagementPolicy?: string;
+  CustomerManagedStatus?: StatusRecord;
+  AwsSesManagedStatus?: StatusRecord;
+  SendingStatusAggregate?: SendingStatus;
+  ReputationImpact?: RecommendationImpact;
+}
+export type ReputationEntityFilter = Record<ReputationEntityFilterKey, string>;
+export type ReputationEntityFilterKey =
+  | "ENTITY_TYPE"
+  | "REPUTATION_IMPACT"
+  | "STATUS"
+  | "ENTITY_REFERENCE_PREFIX";
+export type ReputationEntityFilterValue = string;
+
+export type ReputationEntityReference = string;
+
+export type ReputationEntityType = "RESOURCE";
 export interface ReputationOptions {
   ReputationMetricsEnabled?: boolean;
   LastFreshStart?: Date | string;
 }
+export interface ResourceTenantMetadata {
+  TenantName?: string;
+  TenantId?: string;
+  ResourceArn?: string;
+  AssociatedTimestamp?: Date | string;
+}
+export type ResourceTenantMetadataList = Array<ResourceTenantMetadata>;
+export type ResourceType =
+  | "EMAIL_IDENTITY"
+  | "CONFIGURATION_SET"
+  | "EMAIL_TEMPLATE";
 export interface ReviewDetails {
   Status?: ReviewStatus;
   CaseId?: string;
@@ -2371,6 +2592,7 @@ export interface SendBulkEmailRequest {
   BulkEmailEntries: Array<BulkEmailEntry>;
   ConfigurationSetName?: string;
   EndpointId?: string;
+  TenantName?: string;
 }
 export interface SendBulkEmailResponse {
   BulkEmailEntryResults: Array<BulkEmailEntryResult>;
@@ -2394,6 +2616,7 @@ export interface SendEmailRequest {
   EmailTags?: Array<MessageTag>;
   ConfigurationSetName?: string;
   EndpointId?: string;
+  TenantName?: string;
   ListManagementOptions?: ListManagementOptions;
 }
 export interface SendEmailResponse {
@@ -2409,6 +2632,7 @@ export declare class SendingPausedException extends EffectData.TaggedError(
 }> {}
 export type SendingPoolName = string;
 
+export type SendingStatus = "ENABLED" | "REINSTATED" | "DISABLED";
 export interface SendQuota {
   Max24HourSend?: number;
   MaxSendRate?: number;
@@ -2427,6 +2651,13 @@ export interface SOARecord {
   SerialNumber?: number;
 }
 export type Status = "CREATING" | "READY" | "FAILED" | "DELETING";
+export type StatusCause = string;
+
+export interface StatusRecord {
+  Status?: SendingStatus;
+  Cause?: string;
+  LastUpdatedTimestamp?: Date | string;
+}
 export type Subject = string;
 
 export type SubscriptionStatus = "OPT_IN" | "OPT_OUT";
@@ -2486,6 +2717,30 @@ export interface Template {
 }
 export type TemplateContent = string;
 
+export interface Tenant {
+  TenantName?: string;
+  TenantId?: string;
+  TenantArn?: string;
+  CreatedTimestamp?: Date | string;
+  Tags?: Array<Tag>;
+  SendingStatus?: SendingStatus;
+}
+export type TenantId = string;
+
+export interface TenantInfo {
+  TenantName?: string;
+  TenantId?: string;
+  TenantArn?: string;
+  CreatedTimestamp?: Date | string;
+}
+export type TenantInfoList = Array<TenantInfo>;
+export type TenantName = string;
+
+export interface TenantResource {
+  ResourceType?: ResourceType;
+  ResourceArn?: string;
+}
+export type TenantResourceList = Array<TenantResource>;
 export interface TestRenderEmailTemplateRequest {
   TemplateName: string;
   TemplateData: string;
@@ -2571,6 +2826,18 @@ export interface UpdateEmailTemplateRequest {
   TemplateContent: EmailTemplateContent;
 }
 export interface UpdateEmailTemplateResponse {}
+export interface UpdateReputationEntityCustomerManagedStatusRequest {
+  ReputationEntityType: ReputationEntityType;
+  ReputationEntityReference: string;
+  SendingStatus: SendingStatus;
+}
+export interface UpdateReputationEntityCustomerManagedStatusResponse {}
+export interface UpdateReputationEntityPolicyRequest {
+  ReputationEntityType: ReputationEntityType;
+  ReputationEntityReference: string;
+  ReputationEntityPolicy: string;
+}
+export interface UpdateReputationEntityPolicyResponse {}
 export type UseCaseDescription = string;
 
 export type UseDefaultIfPreferenceUnavailable = boolean;
@@ -2615,7 +2882,7 @@ export interface VolumeStatistics {
   ProjectedInbox?: number;
   ProjectedSpam?: number;
 }
-export type WarmupStatus = "IN_PROGRESS" | "DONE";
+export type WarmupStatus = "IN_PROGRESS" | "DONE" | "NOT_APPLICABLE";
 export type WebsiteURL = string;
 
 export declare namespace BatchGetMetricData {
@@ -2794,6 +3061,28 @@ export declare namespace CreateMultiRegionEndpoint {
     | CommonAwsError;
 }
 
+export declare namespace CreateTenant {
+  export type Input = CreateTenantRequest;
+  export type Output = CreateTenantResponse;
+  export type Error =
+    | AlreadyExistsException
+    | BadRequestException
+    | LimitExceededException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace CreateTenantResourceAssociation {
+  export type Input = CreateTenantResourceAssociationRequest;
+  export type Output = CreateTenantResourceAssociationResponse;
+  export type Error =
+    | AlreadyExistsException
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
 export declare namespace DeleteConfigurationSet {
   export type Input = DeleteConfigurationSetRequest;
   export type Output = DeleteConfigurationSetResponse;
@@ -2902,6 +3191,26 @@ export declare namespace DeleteMultiRegionEndpoint {
 export declare namespace DeleteSuppressedDestination {
   export type Input = DeleteSuppressedDestinationRequest;
   export type Output = DeleteSuppressedDestinationResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace DeleteTenant {
+  export type Input = DeleteTenantRequest;
+  export type Output = DeleteTenantResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace DeleteTenantResourceAssociation {
+  export type Input = DeleteTenantResourceAssociationRequest;
+  export type Output = DeleteTenantResourceAssociationResponse;
   export type Error =
     | BadRequestException
     | NotFoundException
@@ -3118,9 +3427,29 @@ export declare namespace GetMultiRegionEndpoint {
     | CommonAwsError;
 }
 
+export declare namespace GetReputationEntity {
+  export type Input = GetReputationEntityRequest;
+  export type Output = GetReputationEntityResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
 export declare namespace GetSuppressedDestination {
   export type Input = GetSuppressedDestinationRequest;
   export type Output = GetSuppressedDestinationResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace GetTenant {
+  export type Input = GetTenantRequest;
+  export type Output = GetTenantResponse;
   export type Error =
     | BadRequestException
     | NotFoundException
@@ -3249,6 +3578,25 @@ export declare namespace ListRecommendations {
     | CommonAwsError;
 }
 
+export declare namespace ListReputationEntities {
+  export type Input = ListReputationEntitiesRequest;
+  export type Output = ListReputationEntitiesResponse;
+  export type Error =
+    | BadRequestException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace ListResourceTenants {
+  export type Input = ListResourceTenantsRequest;
+  export type Output = ListResourceTenantsResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
 export declare namespace ListSuppressedDestinations {
   export type Input = ListSuppressedDestinationsRequest;
   export type Output = ListSuppressedDestinationsResponse;
@@ -3265,6 +3613,25 @@ export declare namespace ListTagsForResource {
   export type Error =
     | BadRequestException
     | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace ListTenantResources {
+  export type Input = ListTenantResourcesRequest;
+  export type Output = ListTenantResourcesResponse;
+  export type Error =
+    | BadRequestException
+    | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace ListTenants {
+  export type Input = ListTenantsRequest;
+  export type Output = ListTenantsResponse;
+  export type Error =
+    | BadRequestException
     | TooManyRequestsException
     | CommonAwsError;
 }
@@ -3621,6 +3988,26 @@ export declare namespace UpdateEmailTemplate {
   export type Error =
     | BadRequestException
     | NotFoundException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace UpdateReputationEntityCustomerManagedStatus {
+  export type Input = UpdateReputationEntityCustomerManagedStatusRequest;
+  export type Output = UpdateReputationEntityCustomerManagedStatusResponse;
+  export type Error =
+    | BadRequestException
+    | ConflictException
+    | TooManyRequestsException
+    | CommonAwsError;
+}
+
+export declare namespace UpdateReputationEntityPolicy {
+  export type Input = UpdateReputationEntityPolicyRequest;
+  export type Output = UpdateReputationEntityPolicyResponse;
+  export type Error =
+    | BadRequestException
+    | ConflictException
     | TooManyRequestsException
     | CommonAwsError;
 }

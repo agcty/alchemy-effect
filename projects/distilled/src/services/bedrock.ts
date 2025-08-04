@@ -29,6 +29,19 @@ export declare class Bedrock extends AWSServiceClient {
     | ValidationException
     | CommonAwsError
   >;
+  createCustomModelDeployment(
+    input: CreateCustomModelDeploymentRequest,
+  ): Effect.Effect<
+    CreateCustomModelDeploymentResponse,
+    | AccessDeniedException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ServiceQuotaExceededException
+    | ThrottlingException
+    | TooManyTagsException
+    | ValidationException
+    | CommonAwsError
+  >;
   createEvaluationJob(
     input: CreateEvaluationJobRequest,
   ): Effect.Effect<
@@ -198,6 +211,18 @@ export declare class Bedrock extends AWSServiceClient {
     | ValidationException
     | CommonAwsError
   >;
+  deleteCustomModelDeployment(
+    input: DeleteCustomModelDeploymentRequest,
+  ): Effect.Effect<
+    DeleteCustomModelDeploymentResponse,
+    | AccessDeniedException
+    | ConflictException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError
+  >;
   deleteFoundationModelAgreement(
     input: DeleteFoundationModelAgreementRequest,
   ): Effect.Effect<
@@ -305,6 +330,17 @@ export declare class Bedrock extends AWSServiceClient {
     input: GetCustomModelRequest,
   ): Effect.Effect<
     GetCustomModelResponse,
+    | AccessDeniedException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError
+  >;
+  getCustomModelDeployment(
+    input: GetCustomModelDeploymentRequest,
+  ): Effect.Effect<
+    GetCustomModelDeploymentResponse,
     | AccessDeniedException
     | InternalServerException
     | ResourceNotFoundException
@@ -470,6 +506,16 @@ export declare class Bedrock extends AWSServiceClient {
     GetUseCaseForModelAccessResponse,
     | InternalServerException
     | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError
+  >;
+  listCustomModelDeployments(
+    input: ListCustomModelDeploymentsRequest,
+  ): Effect.Effect<
+    ListCustomModelDeploymentsResponse,
+    | AccessDeniedException
+    | InternalServerException
     | ThrottlingException
     | ValidationException
     | CommonAwsError
@@ -863,6 +909,16 @@ export declare class ConflictException extends EffectData.TaggedError(
 }> {}
 export type ContentType = string;
 
+export interface CreateCustomModelDeploymentRequest {
+  modelDeploymentName: string;
+  modelArn: string;
+  description?: string;
+  tags?: Array<Tag>;
+  clientRequestToken?: string;
+}
+export interface CreateCustomModelDeploymentResponse {
+  customModelDeploymentArn: string;
+}
 export interface CreateCustomModelRequest {
   modelName: string;
   modelSourceConfig: ModelDataSource;
@@ -1058,6 +1114,24 @@ export type CustomMetricInstructions = string;
 
 export type CustomModelArn = string;
 
+export type CustomModelDeploymentArn = string;
+
+export type CustomModelDeploymentDescription = string;
+
+export type CustomModelDeploymentIdentifier = string;
+
+export type CustomModelDeploymentStatus = "CREATING" | "ACTIVE" | "FAILED";
+export interface CustomModelDeploymentSummary {
+  customModelDeploymentArn: string;
+  customModelDeploymentName: string;
+  modelArn: string;
+  createdAt: Date | string;
+  status: CustomModelDeploymentStatus;
+  lastUpdatedAt?: Date | string;
+  failureMessage?: string;
+}
+export type CustomModelDeploymentSummaryList =
+  Array<CustomModelDeploymentSummary>;
 export type CustomModelName = string;
 
 export interface CustomModelSummary {
@@ -1082,6 +1156,10 @@ export interface DataProcessingDetails {
   creationTime?: Date | string;
   lastModifiedTime?: Date | string;
 }
+export interface DeleteCustomModelDeploymentRequest {
+  customModelDeploymentIdentifier: string;
+}
+export interface DeleteCustomModelDeploymentResponse {}
 export interface DeleteCustomModelRequest {
   modelIdentifier: string;
 }
@@ -1369,6 +1447,19 @@ export interface GenerationConfiguration {
   guardrailConfiguration?: GuardrailConfiguration;
   kbInferenceConfig?: KbInferenceConfig;
   additionalModelRequestFields?: Record<string, unknown>;
+}
+export interface GetCustomModelDeploymentRequest {
+  customModelDeploymentIdentifier: string;
+}
+export interface GetCustomModelDeploymentResponse {
+  customModelDeploymentArn: string;
+  modelDeploymentName: string;
+  modelArn: string;
+  createdAt: Date | string;
+  status: CustomModelDeploymentStatus;
+  description?: string;
+  failureMessage?: string;
+  lastUpdatedAt?: Date | string;
 }
 export interface GetCustomModelRequest {
   modelIdentifier: string;
@@ -2068,6 +2159,21 @@ export interface KnowledgeBaseVectorSearchConfiguration {
 export interface LegalTerm {
   url?: string;
 }
+export interface ListCustomModelDeploymentsRequest {
+  createdBefore?: Date | string;
+  createdAfter?: Date | string;
+  nameContains?: string;
+  maxResults?: number;
+  nextToken?: string;
+  sortBy?: SortModelsBy;
+  sortOrder?: SortOrder;
+  statusEquals?: CustomModelDeploymentStatus;
+  modelArnEquals?: string;
+}
+export interface ListCustomModelDeploymentsResponse {
+  nextToken?: string;
+  modelDeploymentSummaries?: Array<CustomModelDeploymentSummary>;
+}
 export interface ListCustomModelsRequest {
   creationTimeBefore?: Date | string;
   creationTimeAfter?: Date | string;
@@ -2353,6 +2459,8 @@ interface _ModelDataSource {
 }
 
 export type ModelDataSource = _ModelDataSource & { s3DataSource: S3DataSource };
+export type ModelDeploymentName = string;
+
 export type ModelId = string;
 
 export type ModelIdentifier = string;
@@ -2904,6 +3012,20 @@ export declare namespace CreateCustomModel {
     | CommonAwsError;
 }
 
+export declare namespace CreateCustomModelDeployment {
+  export type Input = CreateCustomModelDeploymentRequest;
+  export type Output = CreateCustomModelDeploymentResponse;
+  export type Error =
+    | AccessDeniedException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ServiceQuotaExceededException
+    | ThrottlingException
+    | TooManyTagsException
+    | ValidationException
+    | CommonAwsError;
+}
+
 export declare namespace CreateEvaluationJob {
   export type Input = CreateEvaluationJobRequest;
   export type Output = CreateEvaluationJobResponse;
@@ -3086,6 +3208,19 @@ export declare namespace DeleteCustomModel {
     | CommonAwsError;
 }
 
+export declare namespace DeleteCustomModelDeployment {
+  export type Input = DeleteCustomModelDeploymentRequest;
+  export type Output = DeleteCustomModelDeploymentResponse;
+  export type Error =
+    | AccessDeniedException
+    | ConflictException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError;
+}
+
 export declare namespace DeleteFoundationModelAgreement {
   export type Input = DeleteFoundationModelAgreementRequest;
   export type Output = DeleteFoundationModelAgreementResponse;
@@ -3201,6 +3336,18 @@ export declare namespace DeregisterMarketplaceModelEndpoint {
 export declare namespace GetCustomModel {
   export type Input = GetCustomModelRequest;
   export type Output = GetCustomModelResponse;
+  export type Error =
+    | AccessDeniedException
+    | InternalServerException
+    | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError;
+}
+
+export declare namespace GetCustomModelDeployment {
+  export type Input = GetCustomModelDeploymentRequest;
+  export type Output = GetCustomModelDeploymentResponse;
   export type Error =
     | AccessDeniedException
     | InternalServerException
@@ -3382,6 +3529,17 @@ export declare namespace GetUseCaseForModelAccess {
   export type Error =
     | InternalServerException
     | ResourceNotFoundException
+    | ThrottlingException
+    | ValidationException
+    | CommonAwsError;
+}
+
+export declare namespace ListCustomModelDeployments {
+  export type Input = ListCustomModelDeploymentsRequest;
+  export type Output = ListCustomModelDeploymentsResponse;
+  export type Error =
+    | AccessDeniedException
+    | InternalServerException
     | ThrottlingException
     | ValidationException
     | CommonAwsError;

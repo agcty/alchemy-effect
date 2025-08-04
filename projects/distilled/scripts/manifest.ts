@@ -1,5 +1,6 @@
-import { HttpClient, HttpClientResponse } from "@effect/platform";
+import { FileSystem } from "@effect/platform";
 import { Effect, Schema } from "effect";
+import { join } from "node:path";
 
 // Base trait schema for common Smithy traits
 const TraitValue = Schema.Union(
@@ -31,7 +32,9 @@ const OperationShape = Schema.Struct({
   type: Schema.Literal("operation"),
   input: Schema.optional(Schema.Struct({ target: Schema.String })),
   output: Schema.optional(Schema.Struct({ target: Schema.String })),
-  errors: Schema.optional(Schema.Array(Schema.Struct({ target: Schema.String }))),
+  errors: Schema.optional(
+    Schema.Array(Schema.Struct({ target: Schema.String })),
+  ),
   traits: Schema.optional(Traits),
 });
 
@@ -73,43 +76,43 @@ const MapShape = Schema.Struct({
 });
 
 // Simple shapes with traits support
-const BooleanShape = Schema.Struct({ 
+const BooleanShape = Schema.Struct({
   type: Schema.Literal("boolean"),
   traits: Schema.optional(Traits),
 });
-const IntegerShape = Schema.Struct({ 
+const IntegerShape = Schema.Struct({
   type: Schema.Literal("integer"),
   traits: Schema.optional(Traits),
 });
-const DoubleShape = Schema.Struct({ 
+const DoubleShape = Schema.Struct({
   type: Schema.Literal("double"),
   traits: Schema.optional(Traits),
 });
-const FloatShape = Schema.Struct({ 
+const FloatShape = Schema.Struct({
   type: Schema.Literal("float"),
   traits: Schema.optional(Traits),
 });
-const LongShape = Schema.Struct({ 
+const LongShape = Schema.Struct({
   type: Schema.Literal("long"),
   traits: Schema.optional(Traits),
 });
-const StringShape = Schema.Struct({ 
+const StringShape = Schema.Struct({
   type: Schema.Literal("string"),
   traits: Schema.optional(Traits),
 });
-const TimestampShape = Schema.Struct({ 
+const TimestampShape = Schema.Struct({
   type: Schema.Literal("timestamp"),
   traits: Schema.optional(Traits),
 });
-const ResourceShape = Schema.Struct({ 
+const ResourceShape = Schema.Struct({
   type: Schema.Literal("resource"),
   traits: Schema.optional(Traits),
 });
-const BlobShape = Schema.Struct({ 
+const BlobShape = Schema.Struct({
   type: Schema.Literal("blob"),
   traits: Schema.optional(Traits),
 });
-const DocumentShape = Schema.Struct({ 
+const DocumentShape = Schema.Struct({
   type: Schema.Literal("document"),
   traits: Schema.optional(Traits),
 });
@@ -151,13 +154,73 @@ export class Manifest extends Schema.Class<Manifest>("Manifest")({
   shapes: Schema.Record({ key: Schema.String, value: Shape }),
 }) {}
 
+// Find all JSON files recursively in a directory
+const findJsonFiles = (dirPath: string): Effect.Effect<string[], Error> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const entries = yield* fs.readDirectory(dirPath);
+    const results: string[] = [];
+
+    for (const entry of entries) {
+      const fullPath = join(dirPath, entry);
+      const stat = yield* fs.stat(fullPath);
+
+      if (stat.type === "Directory") {
+        const nestedFiles = yield* findJsonFiles(fullPath);
+        results.push(...nestedFiles);
+      } else if (entry.endsWith(".json")) {
+        results.push(fullPath);
+      }
+    }
+
+    return results;
+  });
+
+// Load manifest from local aws-models directory
+export const loadLocalManifest = (filePath: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const content = yield* fs.readFileString(filePath);
+    const parsed = yield* Effect.try(() => JSON.parse(content));
+    return yield* Schema.decodeUnknown(Manifest)(parsed);
+  });
+
+// Find and load all AWS service manifests from local directory
+export const loadAllLocalManifests = () =>
+  Effect.gen(function* () {
+    const modelsDir = join(process.cwd(), "aws-models", "models");
+    const jsonFiles = yield* findJsonFiles(modelsDir);
+
+    const manifests: Array<{ serviceName: string; manifest: Manifest }> = [];
+
+    for (const filePath of jsonFiles) {
+      const manifest = yield* loadLocalManifest(filePath);
+      // Extract service name from file path (e.g., "s3-2006-03-01.json" -> "s3")
+      const fileName = filePath.split("/").pop() || "";
+      const serviceName = fileName.split("-").slice(0, -3).join("-"); // Remove date parts
+      manifests.push({ serviceName, manifest });
+    }
+
+    return manifests;
+  });
+
+// Legacy function for backward compatibility - now loads from local files
 export const fetchSdkManifest = (awsServiceName: string) =>
-  Effect.gen(function*() {
-    const client = yield* HttpClient.HttpClient;
-    return yield* client.get(
-      `https://raw.githubusercontent.com/aws/aws-sdk-js-v3/main/codegen/sdk-codegen/aws-models/${awsServiceName}.json`,
-    ).pipe(
-      Effect.flatMap(HttpClientResponse.schemaBodyJson(Manifest)),
-      Effect.scoped,
-    );
+  Effect.gen(function* () {
+    const modelsDir = join(process.cwd(), "aws-models", "models");
+    const jsonFiles = yield* findJsonFiles(modelsDir);
+
+    // Find the JSON file that matches the service name
+    const matchingFile = jsonFiles.find((filePath) => {
+      const fileName = filePath.split("/").pop() || "";
+      return fileName.startsWith(`${awsServiceName}-`);
+    });
+
+    if (!matchingFile) {
+      return yield* Effect.fail(
+        new Error(`No manifest found for service: ${awsServiceName}`),
+      );
+    }
+
+    return yield* loadLocalManifest(matchingFile);
   });

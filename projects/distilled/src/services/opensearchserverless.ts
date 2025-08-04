@@ -279,6 +279,7 @@ export interface CreateSecurityConfigRequest {
   description?: string;
   samlOptions?: SamlConfigOptions;
   iamIdentityCenterOptions?: CreateIamIdentityCenterConfigOptions;
+  iamFederationOptions?: IamFederationConfigOptions;
   clientToken?: string;
 }
 export interface CreateSecurityConfigResponse {
@@ -406,6 +407,14 @@ export interface GetSecurityPolicyRequest {
 export interface GetSecurityPolicyResponse {
   securityPolicyDetail?: SecurityPolicyDetail;
 }
+export interface IamFederationConfigOptions {
+  groupAttribute?: string;
+  userAttribute?: string;
+}
+export type iamFederationGroupAttribute = string;
+
+export type iamFederationUserAttribute = string;
+
 export type IamIdentityCenterApplicationArn = string;
 
 export interface IamIdentityCenterConfigOptions {
@@ -586,6 +595,7 @@ export interface SecurityConfigDetail {
   description?: string;
   samlOptions?: SamlConfigOptions;
   iamIdentityCenterOptions?: IamIdentityCenterConfigOptions;
+  iamFederationOptions?: IamFederationConfigOptions;
   createdDate?: number;
   lastModifiedDate?: number;
 }
@@ -722,6 +732,7 @@ export interface UpdateSecurityConfigRequest {
   description?: string;
   samlOptions?: SamlConfigOptions;
   iamIdentityCenterOptionsUpdates?: UpdateIamIdentityCenterConfigOptions;
+  iamFederationOptions?: IamFederationConfigOptions;
   clientToken?: string;
 }
 export interface UpdateSecurityConfigResponse {

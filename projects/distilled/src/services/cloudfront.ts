@@ -3752,6 +3752,7 @@ export interface Origin {
   VpcOriginConfig?: VpcOriginConfig;
   ConnectionAttempts?: number;
   ConnectionTimeout?: number;
+  ResponseCompletionTimeout?: number;
   OriginShield?: OriginShield;
   OriginAccessControlId?: string;
 }
@@ -4213,10 +4214,13 @@ export interface S3Origin {
 }
 export interface S3OriginConfig {
   OriginAccessIdentity: string;
+  OriginReadTimeout?: number;
 }
 export type SamplingRate = number;
 
 export type sensitiveStringType = string;
+
+export type ServerCertificateId = string;
 
 export interface SessionStickinessConfig {
   IdleTTL: number;

@@ -590,6 +590,7 @@ export interface CreateAccessPointRequest {
   PublicAccessBlockConfiguration?: PublicAccessBlockConfiguration;
   BucketAccountId?: string;
   Scope?: Scope;
+  Tags?: Array<Tag>;
 }
 export interface CreateAccessPointResult {
   AccessPointArn?: string;

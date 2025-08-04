@@ -1203,6 +1203,12 @@ export declare class SageMaker extends AWSServiceClient {
   listPipelines(
     input: ListPipelinesRequest,
   ): Effect.Effect<ListPipelinesResponse, CommonAwsError>;
+  listPipelineVersions(
+    input: ListPipelineVersionsRequest,
+  ): Effect.Effect<
+    ListPipelineVersionsResponse,
+    ResourceNotFound | CommonAwsError
+  >;
   listProcessingJobs(
     input: ListProcessingJobsRequest,
   ): Effect.Effect<ListProcessingJobsResponse, CommonAwsError>;
@@ -1612,6 +1618,12 @@ export declare class SageMaker extends AWSServiceClient {
     input: UpdatePipelineExecutionRequest,
   ): Effect.Effect<
     UpdatePipelineExecutionResponse,
+    ConflictException | ResourceNotFound | CommonAwsError
+  >;
+  updatePipelineVersion(
+    input: UpdatePipelineVersionRequest,
+  ): Effect.Effect<
+    UpdatePipelineVersionResponse,
     ConflictException | ResourceNotFound | CommonAwsError
   >;
   updateProject(
@@ -2480,7 +2492,7 @@ export type BatchDeleteClusterNodesErrorList =
   Array<BatchDeleteClusterNodesError>;
 export interface BatchDeleteClusterNodesRequest {
   ClusterName: string;
-  NodeIds: Array<string>;
+  NodeIds?: Array<string>;
 }
 export interface BatchDeleteClusterNodesResponse {
   Failed?: Array<BatchDeleteClusterNodesError>;
@@ -2883,7 +2895,7 @@ export type ClusterAvailabilityZone = string;
 export type ClusterAvailabilityZoneId = string;
 
 export interface ClusterEbsVolumeConfig {
-  VolumeSizeInGB: number;
+  VolumeSizeInGB?: number;
 }
 export type ClusterEbsVolumeSizeInGB = number;
 
@@ -3114,6 +3126,39 @@ export type ClusterPrivatePrimaryIp = string;
 
 export type ClusterPrivatePrimaryIpv6 = string;
 
+export interface ClusterRestrictedInstanceGroupDetails {
+  CurrentCount?: number;
+  TargetCount?: number;
+  InstanceGroupName?: string;
+  InstanceType?: ClusterInstanceType;
+  ExecutionRole?: string;
+  ThreadsPerCore?: number;
+  InstanceStorageConfigs?: Array<ClusterInstanceStorageConfig>;
+  OnStartDeepHealthChecks?: Array<DeepHealthCheckType>;
+  Status?: InstanceGroupStatus;
+  TrainingPlanArn?: string;
+  TrainingPlanStatus?: string;
+  OverrideVpcConfig?: VpcConfig;
+  ScheduledUpdateConfig?: ScheduledUpdateConfig;
+  EnvironmentConfig?: EnvironmentConfigDetails;
+}
+export type ClusterRestrictedInstanceGroupDetailsList =
+  Array<ClusterRestrictedInstanceGroupDetails>;
+export interface ClusterRestrictedInstanceGroupSpecification {
+  InstanceCount: number;
+  InstanceGroupName: string;
+  InstanceType: ClusterInstanceType;
+  ExecutionRole: string;
+  ThreadsPerCore?: number;
+  InstanceStorageConfigs?: Array<ClusterInstanceStorageConfig>;
+  OnStartDeepHealthChecks?: Array<DeepHealthCheckType>;
+  TrainingPlanArn?: string;
+  OverrideVpcConfig?: VpcConfig;
+  ScheduledUpdateConfig?: ScheduledUpdateConfig;
+  EnvironmentConfig: EnvironmentConfig;
+}
+export type ClusterRestrictedInstanceGroupSpecifications =
+  Array<ClusterRestrictedInstanceGroupSpecification>;
 export type ClusterSchedulerConfigArn = string;
 
 export type ClusterSchedulerConfigId = string;
@@ -3255,7 +3300,7 @@ export type ComputeQuotaId = string;
 
 export interface ComputeQuotaResourceConfig {
   InstanceType: ClusterInstanceType;
-  Count: number;
+  Count?: number;
 }
 export type ComputeQuotaResourceConfigList = Array<ComputeQuotaResourceConfig>;
 export interface ComputeQuotaSummary {
@@ -3461,6 +3506,7 @@ export interface CreateAutoMLJobV2Response {
 export interface CreateClusterRequest {
   ClusterName: string;
   InstanceGroups?: Array<ClusterInstanceGroupSpecification>;
+  RestrictedInstanceGroups?: Array<ClusterRestrictedInstanceGroupSpecification>;
   VpcConfig?: VpcConfig;
   Tags?: Array<Tag>;
   Orchestrator?: ClusterOrchestrator;
@@ -4184,6 +4230,7 @@ export interface CreateWorkforceRequest {
   WorkforceName: string;
   Tags?: Array<Tag>;
   WorkforceVpcConfig?: WorkforceVpcConfigRequest;
+  IpAddressType?: WorkforceIpAddressType;
 }
 export interface CreateWorkforceResponse {
   WorkforceArn: string;
@@ -4219,21 +4266,25 @@ export type CustomerMetadataValue = string;
 interface _CustomFileSystem {
   EFSFileSystem?: EFSFileSystem;
   FSxLustreFileSystem?: FSxLustreFileSystem;
+  S3FileSystem?: S3FileSystem;
 }
 
 export type CustomFileSystem =
   | (_CustomFileSystem & { EFSFileSystem: EFSFileSystem })
-  | (_CustomFileSystem & { FSxLustreFileSystem: FSxLustreFileSystem });
+  | (_CustomFileSystem & { FSxLustreFileSystem: FSxLustreFileSystem })
+  | (_CustomFileSystem & { S3FileSystem: S3FileSystem });
 interface _CustomFileSystemConfig {
   EFSFileSystemConfig?: EFSFileSystemConfig;
   FSxLustreFileSystemConfig?: FSxLustreFileSystemConfig;
+  S3FileSystemConfig?: S3FileSystemConfig;
 }
 
 export type CustomFileSystemConfig =
   | (_CustomFileSystemConfig & { EFSFileSystemConfig: EFSFileSystemConfig })
   | (_CustomFileSystemConfig & {
       FSxLustreFileSystemConfig: FSxLustreFileSystemConfig;
-    });
+    })
+  | (_CustomFileSystemConfig & { S3FileSystemConfig: S3FileSystemConfig });
 export type CustomFileSystemConfigs = Array<CustomFileSystemConfig>;
 export type CustomFileSystems = Array<CustomFileSystem>;
 export interface CustomImage {
@@ -4780,7 +4831,7 @@ export interface DescribeAutoMLJobV2Response {
 }
 export interface DescribeClusterNodeRequest {
   ClusterName: string;
-  NodeId: string;
+  NodeId?: string;
 }
 export interface DescribeClusterNodeResponse {
   NodeDetails: ClusterNodeDetails;
@@ -4795,6 +4846,7 @@ export interface DescribeClusterResponse {
   CreationTime?: Date | string;
   FailureMessage?: string;
   InstanceGroups: Array<ClusterInstanceGroupDetails>;
+  RestrictedInstanceGroups?: Array<ClusterRestrictedInstanceGroupDetails>;
   VpcConfig?: VpcConfig;
   Orchestrator?: ClusterOrchestrator;
   NodeRecovery?: ClusterNodeRecovery;
@@ -5592,9 +5644,11 @@ export interface DescribePipelineExecutionResponse {
   LastModifiedBy?: UserContext;
   ParallelismConfiguration?: ParallelismConfiguration;
   SelectiveExecutionConfig?: SelectiveExecutionConfig;
+  PipelineVersionId?: number;
 }
 export interface DescribePipelineRequest {
   PipelineName: string;
+  PipelineVersionId?: number;
 }
 export interface DescribePipelineResponse {
   PipelineArn?: string;
@@ -5610,6 +5664,8 @@ export interface DescribePipelineResponse {
   CreatedBy?: UserContext;
   LastModifiedBy?: UserContext;
   ParallelismConfiguration?: ParallelismConfiguration;
+  PipelineVersionDisplayName?: string;
+  PipelineVersionDescription?: string;
 }
 export interface DescribeProcessingJobRequest {
   ProcessingJobName: string;
@@ -6303,6 +6359,13 @@ export type EntityDescription = string;
 
 export type EntityName = string;
 
+export interface EnvironmentConfig {
+  FSxLustreConfig?: FSxLustreConfig;
+}
+export interface EnvironmentConfigDetails {
+  FSxLustreConfig?: FSxLustreConfig;
+  S3OutputPath?: string;
+}
 export type EnvironmentKey = string;
 
 export type EnvironmentMap = Record<string, string>;
@@ -6592,6 +6655,10 @@ export type Framework =
   | "SKLEARN";
 export type FrameworkVersion = string;
 
+export interface FSxLustreConfig {
+  SizeInGiB: number;
+  PerUnitStorageThroughput: number;
+}
 export interface FSxLustreFileSystem {
   FileSystemId: string;
 }
@@ -6599,6 +6666,10 @@ export interface FSxLustreFileSystemConfig {
   FileSystemId: string;
   FileSystemPath?: string;
 }
+export type FSxLustrePerUnitStorageThroughput = number;
+
+export type FSxLustreSizeInGiB = number;
+
 export type GenerateCandidateDefinitionsOnly = boolean;
 
 export interface GenerativeAiSettings {
@@ -8674,6 +8745,18 @@ export interface ListPipelinesResponse {
   PipelineSummaries?: Array<PipelineSummary>;
   NextToken?: string;
 }
+export interface ListPipelineVersionsRequest {
+  PipelineName: string;
+  CreatedAfter?: Date | string;
+  CreatedBefore?: Date | string;
+  SortOrder?: SortOrder;
+  NextToken?: string;
+  MaxResults?: number;
+}
+export interface ListPipelineVersionsResponse {
+  PipelineVersionSummaries?: Array<PipelineVersionSummary>;
+  NextToken?: string;
+}
 export interface ListProcessingJobsRequest {
   CreationTimeAfter?: Date | string;
   CreationTimeBefore?: Date | string;
@@ -10171,6 +10254,8 @@ export interface PipelineExecution {
   ParallelismConfiguration?: ParallelismConfiguration;
   SelectiveExecutionConfig?: SelectiveExecutionConfig;
   PipelineParameters?: Array<Parameter>;
+  PipelineVersionId?: number;
+  PipelineVersionDisplayName?: string;
 }
 export type PipelineExecutionArn = string;
 
@@ -10249,6 +10334,34 @@ export interface PipelineSummary {
   LastExecutionTime?: Date | string;
 }
 export type PipelineSummaryList = Array<PipelineSummary>;
+export interface PipelineVersion {
+  PipelineArn?: string;
+  PipelineVersionId?: number;
+  PipelineVersionDisplayName?: string;
+  PipelineVersionDescription?: string;
+  CreationTime?: Date | string;
+  LastModifiedTime?: Date | string;
+  CreatedBy?: UserContext;
+  LastModifiedBy?: UserContext;
+  LastExecutedPipelineExecutionArn?: string;
+  LastExecutedPipelineExecutionDisplayName?: string;
+  LastExecutedPipelineExecutionStatus?: PipelineExecutionStatus;
+}
+export type PipelineVersionDescription = string;
+
+export type PipelineVersionId = number;
+
+export type PipelineVersionName = string;
+
+export interface PipelineVersionSummary {
+  PipelineArn?: string;
+  PipelineVersionId?: number;
+  CreationTime?: Date | string;
+  PipelineVersionDescription?: string;
+  PipelineVersionDisplayName?: string;
+  LastExecutionPipelineExecutionArn?: string;
+}
+export type PipelineVersionSummaryList = Array<PipelineVersionSummary>;
 export type PlatformIdentifier = string;
 
 export type PolicyString = string;
@@ -11242,7 +11355,8 @@ export type ReservedCapacityInstanceType =
   | "ML_P5EN_48XLARGE"
   | "ML_TRN1_32XLARGE"
   | "ML_TRN2_48XLARGE"
-  | "ML_P6_B200_48XLARGE";
+  | "ML_P6_B200_48XLARGE"
+  | "ML_P4DE_24XLARGE";
 export interface ReservedCapacityOffering {
   InstanceType: ReservedCapacityInstanceType;
   InstanceCount: number;
@@ -11364,7 +11478,8 @@ export type ResourceType =
   | "IMAGE_VERSION"
   | "PROJECT"
   | "HYPER_PARAMETER_TUNING_JOB"
-  | "MODEL_CARD";
+  | "MODEL_CARD"
+  | "PIPELINE_VERSION";
 export type ResponseMIMEType = string;
 
 export type ResponseMIMETypes = Array<string>;
@@ -11444,6 +11559,13 @@ export type S3DataType =
   | "S3_PREFIX"
   | "AUGMENTED_MANIFEST_FILE"
   | "CONVERSE";
+export interface S3FileSystem {
+  S3Uri?: string;
+}
+export interface S3FileSystemConfig {
+  MountPath?: string;
+  S3Uri?: string;
+}
 export interface S3ModelDataSource {
   S3Uri: string;
   S3DataType: S3ModelDataType;
@@ -11462,6 +11584,8 @@ export type S3OutputPath = string;
 export interface S3Presign {
   IamPolicyConstraints?: IamPolicyConstraints;
 }
+export type S3SchemaUri = string;
+
 export interface S3StorageConfig {
   S3Uri: string;
   KmsKeyId?: string;
@@ -11546,6 +11670,7 @@ export interface SearchRecord {
   ModelPackageGroup?: ModelPackageGroup;
   Pipeline?: Pipeline;
   PipelineExecution?: PipelineExecution;
+  PipelineVersion?: PipelineVersion;
   FeatureGroup?: FeatureGroup;
   FeatureMetadata?: FeatureMetadata;
   Project?: Project;
@@ -11850,6 +11975,7 @@ export interface StartPipelineExecutionRequest {
   ClientRequestToken: string;
   ParallelismConfiguration?: ParallelismConfiguration;
   SelectiveExecutionConfig?: SelectiveExecutionConfig;
+  PipelineVersionId?: number;
 }
 export interface StartPipelineExecutionResponse {
   PipelineExecutionArn?: string;
@@ -13016,6 +13142,7 @@ export interface UpdateArtifactResponse {
 export interface UpdateClusterRequest {
   ClusterName: string;
   InstanceGroups?: Array<ClusterInstanceGroupSpecification>;
+  RestrictedInstanceGroups?: Array<ClusterRestrictedInstanceGroupSpecification>;
   NodeRecovery?: ClusterNodeRecovery;
   InstanceGroupsToDelete?: Array<string>;
 }
@@ -13333,6 +13460,17 @@ export interface UpdatePipelineRequest {
 }
 export interface UpdatePipelineResponse {
   PipelineArn?: string;
+  PipelineVersionId?: number;
+}
+export interface UpdatePipelineVersionRequest {
+  PipelineArn: string;
+  PipelineVersionId: number;
+  PipelineVersionDisplayName?: string;
+  PipelineVersionDescription?: string;
+}
+export interface UpdatePipelineVersionResponse {
+  PipelineArn?: string;
+  PipelineVersionId?: number;
 }
 export interface UpdateProjectInput {
   ProjectName: string;
@@ -13403,6 +13541,7 @@ export interface UpdateWorkforceRequest {
   SourceIpConfig?: SourceIpConfig;
   OidcConfig?: OidcConfig;
   WorkforceVpcConfig?: WorkforceVpcConfigRequest;
+  IpAddressType?: WorkforceIpAddressType;
 }
 export interface UpdateWorkforceResponse {
   Workforce: Workforce;
@@ -13570,11 +13709,13 @@ export interface Workforce {
   WorkforceVpcConfig?: WorkforceVpcConfigResponse;
   Status?: WorkforceStatus;
   FailureReason?: string;
+  IpAddressType?: WorkforceIpAddressType;
 }
 export type WorkforceArn = string;
 
 export type WorkforceFailureReason = string;
 
+export type WorkforceIpAddressType = "ipv4" | "dualstack";
 export type WorkforceName = string;
 
 export type Workforces = Array<Workforce>;
@@ -15286,6 +15427,12 @@ export declare namespace ListPipelines {
   export type Error = CommonAwsError;
 }
 
+export declare namespace ListPipelineVersions {
+  export type Input = ListPipelineVersionsRequest;
+  export type Output = ListPipelineVersionsResponse;
+  export type Error = ResourceNotFound | CommonAwsError;
+}
+
 export declare namespace ListProcessingJobs {
   export type Input = ListProcessingJobsRequest;
   export type Output = ListProcessingJobsResponse;
@@ -15827,6 +15974,12 @@ export declare namespace UpdatePipeline {
 export declare namespace UpdatePipelineExecution {
   export type Input = UpdatePipelineExecutionRequest;
   export type Output = UpdatePipelineExecutionResponse;
+  export type Error = ConflictException | ResourceNotFound | CommonAwsError;
+}
+
+export declare namespace UpdatePipelineVersion {
+  export type Input = UpdatePipelineVersionRequest;
+  export type Output = UpdatePipelineVersionResponse;
   export type Error = ConflictException | ResourceNotFound | CommonAwsError;
 }
 

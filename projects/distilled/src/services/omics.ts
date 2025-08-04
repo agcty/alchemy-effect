@@ -1,5 +1,4 @@
 import type { Effect, Stream, Data as EffectData } from "effect";
-import type { ResponseError } from "@effect/platform/HttpClientError";
 import type { CommonAwsError } from "../error.ts";
 import { AWSServiceClient } from "../client.ts";
 
@@ -192,6 +191,8 @@ export declare class ConflictException extends EffectData.TaggedError(
 )<{
   readonly message: string;
 }> {}
+export type ConnectionArn = string;
+
 export interface CreateAnnotationStoreRequest {
   reference?: ReferenceItem;
   name?: string;
@@ -359,6 +360,12 @@ export interface CreateWorkflowRequest {
   requestId: string;
   accelerators?: string;
   storageType?: string;
+  readmeMarkdown?: string;
+  parameterTemplatePath?: string;
+  readmePath?: string;
+  definitionRepository?: DefinitionRepository;
+  workflowBucketOwnerId?: string;
+  readmeUri?: string;
 }
 export interface CreateWorkflowResponse {
   arn?: string;
@@ -382,6 +389,11 @@ export interface CreateWorkflowVersionRequest {
   storageCapacity?: number;
   tags?: Record<string, string>;
   workflowBucketOwnerId?: string;
+  readmeMarkdown?: string;
+  parameterTemplatePath?: string;
+  readmePath?: string;
+  definitionRepository?: DefinitionRepository;
+  readmeUri?: string;
 }
 export interface CreateWorkflowVersionResponse {
   arn?: string;
@@ -397,6 +409,19 @@ export type CreationTime = Date | string;
 
 export type CreationType = string;
 
+export interface DefinitionRepository {
+  connectionArn: string;
+  fullRepositoryId: string;
+  sourceReference?: SourceReference;
+  excludeFilePatterns?: Array<string>;
+}
+export interface DefinitionRepositoryDetails {
+  connectionArn?: string;
+  fullRepositoryId?: string;
+  sourceReference?: SourceReference;
+  providerType?: string;
+  providerEndpoint?: string;
+}
 export interface DeleteAnnotationStoreRequest {
   name: string;
   force?: boolean;
@@ -481,6 +506,7 @@ export type ETagAlgorithm = string;
 
 export type ETagAlgorithmFamily = string;
 
+export type ExcludeFilePatternList = Array<string>;
 export type ExportJobId = string;
 
 export interface ExportReadSet {
@@ -532,6 +558,8 @@ export type FormatOptions =
   | (_FormatOptions & { vcfOptions: VcfOptions });
 export type FormatToHeader = Record<string, string>;
 export type FormatToHeaderKey = string;
+
+export type FullRepositoryId = string;
 
 export type GeneratedFrom = string;
 
@@ -903,6 +931,9 @@ export interface GetWorkflowResponse {
   accelerators?: string;
   storageType?: string;
   uuid?: string;
+  readme?: string;
+  definitionRepositoryDetails?: DefinitionRepositoryDetails;
+  readmePath?: string;
 }
 export interface GetWorkflowVersionRequest {
   workflowId: string;
@@ -932,6 +963,9 @@ export interface GetWorkflowVersionResponse {
   tags?: Record<string, string>;
   uuid?: string;
   workflowBucketOwnerId?: string;
+  readme?: string;
+  definitionRepositoryDetails?: DefinitionRepositoryDetails;
+  readmePath?: string;
 }
 export type Header = boolean;
 
@@ -1272,6 +1306,8 @@ export declare class NotSupportedOperationException extends EffectData.TaggedErr
 }> {}
 export type NumericIdInArn = string;
 
+export type ParameterTemplatePath = string;
+
 export type PropagatedSetLevelTags = Array<string>;
 export interface PutS3AccessPolicyRequest {
   s3AccessPointArn: string;
@@ -1293,6 +1329,12 @@ export declare class RangeNotSatisfiableException extends EffectData.TaggedError
 )<{
   readonly message: string;
 }> {}
+export type ReadmeMarkdown = string;
+
+export type ReadmePath = string;
+
+export type ReadmeS3PresignedUrl = string;
+
 export interface ReadOptions {
   sep?: string;
   encoding?: string;
@@ -1601,6 +1643,8 @@ export type S3Uri = string;
 
 export type S3UriForBucketOrObject = string;
 
+export type S3UriForObject = string;
+
 export type SampleId = string;
 
 export type Schema = Array<Record<string, string>>;
@@ -1682,6 +1726,14 @@ export interface SourceFiles {
   source1: string;
   source2?: string;
 }
+export interface SourceReference {
+  type: string;
+  value: string;
+}
+export type SourceReferenceType = string;
+
+export type SourceReferenceValue = string;
+
 export interface SseConfig {
   type: string;
   keyArn?: string;
@@ -1994,6 +2046,7 @@ export interface UpdateWorkflowRequest {
   description?: string;
   storageType?: string;
   storageCapacity?: number;
+  readmeMarkdown?: string;
 }
 export interface UpdateWorkflowVersionRequest {
   workflowId: string;
@@ -2001,6 +2054,7 @@ export interface UpdateWorkflowVersionRequest {
   description?: string;
   storageType?: string;
   storageCapacity?: number;
+  readmeMarkdown?: string;
 }
 export type UploadId = string;
 

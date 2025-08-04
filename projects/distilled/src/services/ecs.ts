@@ -663,6 +663,12 @@ export declare class AccessDeniedException extends EffectData.TaggedError(
 )<{
   readonly message?: string;
 }> {}
+export interface AdvancedConfiguration {
+  alternateTargetGroupArn?: string;
+  productionListenerRule?: string;
+  testListenerRule?: string;
+  roleArn?: string;
+}
 export type AgentUpdateStatus =
   | "PENDING"
   | "STAGING"
@@ -1128,6 +1134,9 @@ export interface DeploymentConfiguration {
   maximumPercent?: number;
   minimumHealthyPercent?: number;
   alarms?: DeploymentAlarms;
+  strategy?: DeploymentStrategy;
+  bakeTimeInMinutes?: number;
+  lifecycleHooks?: Array<DeploymentLifecycleHook>;
 }
 export interface DeploymentController {
   type: DeploymentControllerType;
@@ -1136,8 +1145,25 @@ export type DeploymentControllerType = "ECS" | "CODE_DEPLOY" | "EXTERNAL";
 export interface DeploymentEphemeralStorage {
   kmsKeyId?: string;
 }
+export interface DeploymentLifecycleHook {
+  hookTargetArn?: string;
+  roleArn?: string;
+  lifecycleStages?: Array<DeploymentLifecycleHookStage>;
+}
+export type DeploymentLifecycleHookList = Array<DeploymentLifecycleHook>;
+export type DeploymentLifecycleHookStage =
+  | "RECONCILE_SERVICE"
+  | "PRE_SCALE_UP"
+  | "POST_SCALE_UP"
+  | "TEST_TRAFFIC_SHIFT"
+  | "POST_TEST_TRAFFIC_SHIFT"
+  | "PRODUCTION_TRAFFIC_SHIFT"
+  | "POST_PRODUCTION_TRAFFIC_SHIFT";
+export type DeploymentLifecycleHookStageList =
+  Array<DeploymentLifecycleHookStage>;
 export type DeploymentRolloutState = "COMPLETED" | "FAILED" | "IN_PROGRESS";
 export type Deployments = Array<Deployment>;
+export type DeploymentStrategy = "ROLLING" | "BLUE_GREEN";
 export interface DeregisterContainerInstanceRequest {
   cluster?: string;
   containerInstance: string;
@@ -1551,6 +1577,7 @@ export interface LoadBalancer {
   loadBalancerName?: string;
   containerName?: string;
   containerPort?: number;
+  advancedConfiguration?: AdvancedConfiguration;
 }
 export type LoadBalancers = Array<LoadBalancer>;
 export interface LogConfiguration {
@@ -1782,6 +1809,9 @@ export interface RepositoryCredentials {
   credentialsParameter: string;
 }
 export type RequiresAttributes = Array<Attribute>;
+export interface ResolvedConfiguration {
+  loadBalancers?: Array<ServiceRevisionLoadBalancer>;
+}
 export interface Resource {
   name?: string;
   type?: string;
@@ -1898,6 +1928,7 @@ export interface Service {
 export interface ServiceConnectClientAlias {
   port: number;
   dnsName?: string;
+  testTrafficRules?: ServiceConnectTestTrafficRules;
 }
 export type ServiceConnectClientAliasList = Array<ServiceConnectClientAlias>;
 export interface ServiceConnectConfiguration {
@@ -1921,6 +1952,16 @@ export interface ServiceConnectServiceResource {
 }
 export type ServiceConnectServiceResourceList =
   Array<ServiceConnectServiceResource>;
+export interface ServiceConnectTestTrafficHeaderMatchRules {
+  exact: string;
+}
+export interface ServiceConnectTestTrafficHeaderRules {
+  name: string;
+  value?: ServiceConnectTestTrafficHeaderMatchRules;
+}
+export interface ServiceConnectTestTrafficRules {
+  header: ServiceConnectTestTrafficHeaderRules;
+}
 export interface ServiceConnectTlsCertificateAuthority {
   awsPcaAuthorityArn?: string;
 }
@@ -1942,6 +1983,7 @@ export interface ServiceDeployment {
   targetServiceRevision?: ServiceRevisionSummary;
   status?: ServiceDeploymentStatus;
   statusReason?: string;
+  lifecycleStage?: ServiceDeploymentLifecycleStage;
   deploymentConfiguration?: DeploymentConfiguration;
   rollback?: Rollback;
   deploymentCircuitBreaker?: ServiceDeploymentCircuitBreaker;
@@ -1968,6 +2010,17 @@ export interface ServiceDeploymentCircuitBreaker {
   failureCount?: number;
   threshold?: number;
 }
+export type ServiceDeploymentLifecycleStage =
+  | "RECONCILE_SERVICE"
+  | "PRE_SCALE_UP"
+  | "SCALE_UP"
+  | "POST_SCALE_UP"
+  | "TEST_TRAFFIC_SHIFT"
+  | "POST_TEST_TRAFFIC_SHIFT"
+  | "PRODUCTION_TRAFFIC_SHIFT"
+  | "POST_PRODUCTION_TRAFFIC_SHIFT"
+  | "BAKE_TIME"
+  | "CLEAN_UP";
 export declare class ServiceDeploymentNotFoundException extends EffectData.TaggedError(
   "ServiceDeploymentNotFoundException",
 )<{
@@ -2048,7 +2101,13 @@ export interface ServiceRevision {
   fargateEphemeralStorage?: DeploymentEphemeralStorage;
   createdAt?: Date | string;
   vpcLatticeConfigurations?: Array<VpcLatticeConfiguration>;
+  resolvedConfiguration?: ResolvedConfiguration;
 }
+export interface ServiceRevisionLoadBalancer {
+  targetGroupArn?: string;
+  productionListenerRule?: string;
+}
+export type ServiceRevisionLoadBalancers = Array<ServiceRevisionLoadBalancer>;
 export type ServiceRevisions = Array<ServiceRevision>;
 export type ServiceRevisionsSummaryList = Array<ServiceRevisionSummary>;
 export interface ServiceRevisionSummary {
@@ -2465,6 +2524,7 @@ export interface UpdateServiceRequest {
   platformVersion?: string;
   forceNewDeployment?: boolean;
   healthCheckGracePeriodSeconds?: number;
+  deploymentController?: DeploymentController;
   enableExecuteCommand?: boolean;
   enableECSManagedTags?: boolean;
   loadBalancers?: Array<LoadBalancer>;

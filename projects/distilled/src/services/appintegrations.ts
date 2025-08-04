@@ -272,6 +272,9 @@ export interface ApplicationAssociationSummary {
   ApplicationArn?: string;
   ClientId?: string;
 }
+export interface ApplicationConfig {
+  ContactHandling?: ContactHandling;
+}
 export type ApplicationName = string;
 
 export type ApplicationNamespace = string;
@@ -287,6 +290,7 @@ export interface ApplicationSummary {
   Namespace?: string;
   CreatedTime?: Date | string;
   LastModifiedTime?: Date | string;
+  IsService?: boolean;
 }
 export type ApplicationTrustedSource = string;
 
@@ -294,9 +298,15 @@ export type Arn = string;
 
 export type ArnOrUUID = string;
 
+export type AppintegrationsBoolean = boolean;
+
 export type ClientAssociationMetadata = Record<string, string>;
 export type ClientId = string;
 
+export interface ContactHandling {
+  Scope?: ContactHandlingScope;
+}
+export type ContactHandlingScope = "CROSS_CONTACTS" | "PER_CONTACT";
 export interface CreateApplicationRequest {
   Name: string;
   Namespace: string;
@@ -307,6 +317,10 @@ export interface CreateApplicationRequest {
   ClientToken?: string;
   Tags?: Record<string, string>;
   Permissions?: Array<string>;
+  IsService?: boolean;
+  InitializationTimeout?: number;
+  ApplicationConfig?: ApplicationConfig;
+  IframeConfig?: IframeConfig;
 }
 export interface CreateApplicationResponse {
   Arn?: string;
@@ -463,6 +477,10 @@ export interface GetApplicationResponse {
   LastModifiedTime?: Date | string;
   Tags?: Record<string, string>;
   Permissions?: Array<string>;
+  IsService?: boolean;
+  InitializationTimeout?: number;
+  ApplicationConfig?: ApplicationConfig;
+  IframeConfig?: IframeConfig;
 }
 export interface GetDataIntegrationRequest {
   Identifier: string;
@@ -493,6 +511,15 @@ export interface GetEventIntegrationResponse {
 export type IdempotencyToken = string;
 
 export type Identifier = string;
+
+export interface IframeConfig {
+  Allow?: Array<string>;
+  Sandbox?: Array<string>;
+}
+export type IframePermission = string;
+
+export type IframePermissionList = Array<string>;
+export type InitializationTimeout = number;
 
 export declare class InternalServiceError extends EffectData.TaggedError(
   "InternalServiceError",
@@ -653,6 +680,10 @@ export interface UpdateApplicationRequest {
   Subscriptions?: Array<Subscription>;
   Publications?: Array<Publication>;
   Permissions?: Array<string>;
+  IsService?: boolean;
+  InitializationTimeout?: number;
+  ApplicationConfig?: ApplicationConfig;
+  IframeConfig?: IframeConfig;
 }
 export interface UpdateApplicationResponse {}
 export interface UpdateDataIntegrationAssociationRequest {

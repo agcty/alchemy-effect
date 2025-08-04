@@ -485,6 +485,7 @@ export interface Cluster {
   OSReleaseLabel?: string;
   EbsRootVolumeIops?: number;
   EbsRootVolumeThroughput?: number;
+  ExtendedSupport?: boolean;
 }
 export type ClusterId = string;
 
@@ -1292,9 +1293,11 @@ export type MetricDimensionList = Array<MetricDimension>;
 export interface ModifyClusterInput {
   ClusterId: string;
   StepConcurrencyLevel?: number;
+  ExtendedSupport?: boolean;
 }
 export interface ModifyClusterOutput {
   StepConcurrencyLevel?: number;
+  ExtendedSupport?: boolean;
 }
 export interface ModifyInstanceFleetInput {
   ClusterId: string;
@@ -1515,6 +1518,7 @@ export interface RunJobFlowInput {
   OSReleaseLabel?: string;
   EbsRootVolumeIops?: number;
   EbsRootVolumeThroughput?: number;
+  ExtendedSupport?: boolean;
 }
 export interface RunJobFlowOutput {
   JobFlowId?: string;
