@@ -2,7 +2,6 @@ import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import { AwsClient } from "aws4fetch";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import { parseEC2Response } from "./ec2-parsers.js";
 import {
   AccessDeniedException,
   RequestTimeout,
@@ -13,6 +12,7 @@ import {
   type AwsErrorMeta,
 } from "./error.ts";
 import { serviceMetadata } from "./metadata.ts";
+import { ProtocolRegistry } from "./protocols/index.ts";
 
 // Helper function to extract simple error name from AWS namespaced error type
 function extractErrorName(awsErrorType: string): string {
@@ -22,36 +22,8 @@ function extractErrorName(awsErrorType: string): string {
   return parts.length > 1 ? parts[1] : awsErrorType;
 }
 
-// Helper to parse response based on protocol
-export function parseAwsResponse(responseText: string, protocol: string): any {
-  if (!responseText) return {};
-
-  if (protocol.includes("Json") || protocol === "restJson1") {
-    return JSON.parse(responseText);
-  }
-
-  // Handle XML protocols with service-specific parsers
-  if (protocol === "ec2Query") {
-    // Use specialized EC2 parser with registry-based dynamic parsing
-    return parseEC2Response(responseText);
-  }
-
-  // Fallback to JSON for unknown protocols
-  try {
-    return JSON.parse(responseText);
-  } catch {
-    return { data: responseText };
-  }
-}
-
-// Helper to parse AWS error response
-function parseAwsError(responseText: string, protocol: string): any {
-  try {
-    return parseAwsResponse(responseText, protocol);
-  } catch {
-    return { message: responseText };
-  }
-}
+// Global protocol registry instance
+const protocolRegistry = ProtocolRegistry.createDefault();
 
 // Helper to create service-specific error dynamically
 function createServiceError(
@@ -152,87 +124,19 @@ export function createServiceProxy<T>(
             const action =
               methodName.charAt(0).toUpperCase() + methodName.slice(1);
 
-            // Determine Content-Type based on protocol
-            let contentType = "application/json"; // default
-            switch (metadata.protocol) {
-              case "awsJson1_0":
-                contentType = "application/x-amz-json-1.0";
-                break;
-              case "awsJson1_1":
-                contentType = "application/x-amz-json-1.1";
-                break;
-              case "restJson1":
-                contentType = "application/json";
-                break;
-              case "awsQuery":
-              case "ec2Query":
-                contentType = "application/x-www-form-urlencoded";
-                break;
-              case "restXml":
-                contentType = "application/xml";
-                break;
-            }
+            // Get protocol handler for this service
+            const protocolHandler = protocolRegistry.get(metadata.protocol);
 
-            const headers: Record<string, string> = {
-              "Content-Type": contentType,
-              "X-Amz-Target": `${metadata.targetPrefix}.${action}`,
-              "User-Agent": "itty-aws",
-            };
+            // Serialize request body using protocol handler
+            const body = protocolHandler.buildRequest(input, action, metadata);
+
+            // Get headers from protocol handler (with body for Content-Length)
+            const headers = protocolHandler.getHeaders(action, metadata, body);
 
             // Use custom endpoint or construct AWS endpoint
             const endpoint = resolvedConfig.endpoint
               ? resolvedConfig.endpoint
               : `https://${metadata.endpointPrefix}.${resolvedConfig.region}.amazonaws.com/`;
-
-            // Prepare request body based on protocol
-            let body: string;
-            if (
-              metadata.protocol === "ec2Query" ||
-              metadata.protocol === "awsQuery"
-            ) {
-              // For Query protocols, format as form data
-              const params = new URLSearchParams();
-              params.append("Action", action);
-              params.append("Version", "2016-11-15"); // EC2 API version
-
-              // Flatten the input object into query parameters
-              const flattenObject = (obj: any, prefix = "") => {
-                for (const key in obj) {
-                  if (Object.hasOwn(obj, key)) {
-                    const value = obj[key];
-                    const paramKey = prefix ? `${prefix}.${key}` : key;
-
-                    if (value !== null && value !== undefined) {
-                      if (Array.isArray(value)) {
-                        value.forEach((item, index) => {
-                          if (typeof item === "object") {
-                            flattenObject(item, `${paramKey}.${index + 1}`);
-                          } else {
-                            params.append(
-                              `${paramKey}.${index + 1}`,
-                              String(item),
-                            );
-                          }
-                        });
-                      } else if (typeof value === "object") {
-                        flattenObject(value, paramKey);
-                      } else {
-                        params.append(paramKey, String(value));
-                      }
-                    }
-                  }
-                }
-              };
-
-              if (input && typeof input === "object") {
-                flattenObject(input);
-              }
-
-              body = params.toString();
-            } else {
-              // For JSON protocols, stringify the input
-              body = JSON.stringify(input);
-            }
 
             const response = yield* Effect.promise(() =>
               client.fetch(endpoint, {
@@ -247,34 +151,20 @@ export function createServiceProxy<T>(
 
             if (statusCode >= 200 && statusCode < 300) {
               // Success
-              const data = parseAwsResponse(responseText, metadata.protocol);
-              return data;
+              if (!responseText) return {};
+              return protocolHandler.parseResponse(responseText, 200);
             } else {
               // Error handling
-              const errorData = parseAwsError(responseText, metadata.protocol);
+              const _errorData = protocolHandler.parseError(
+                responseText,
+                statusCode,
+                response.headers,
+              );
 
               // Extract error info from different response formats
               let errorType = "UnknownError";
               let errorMessage = "Unknown error";
 
-              if (
-                metadata.protocol === "ec2Query" ||
-                metadata.protocol === "awsQuery"
-              ) {
-                // EC2 XML error format: <Response><Errors><Error><Code>...</Code><Message>...</Message></Error></Errors></Response>
-                const error =
-                  errorData?.Response?.Errors?.Error || errorData?.Error;
-                if (error) {
-                  errorType = error.Code || "UnknownError";
-                  errorMessage = error.Message || "Unknown error";
-                }
-              } else {
-                // JSON error format
-                errorType =
-                  errorData.__type || errorData.code || "UnknownError";
-                errorMessage =
-                  errorData.message || errorData.Message || "Unknown error";
-              }
               const requestId =
                 response.headers.get("x-amzn-requestid") ||
                 response.headers.get("x-amz-request-id");

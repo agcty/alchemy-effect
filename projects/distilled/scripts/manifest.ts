@@ -41,6 +41,7 @@ const OperationShape = Schema.Struct({
 const ServiceShape = Schema.Struct({
   type: Schema.Literal("service"),
   operations: Schema.optional(Schema.Array(OperationReference)),
+  version: Schema.String,
   traits: Schema.optional(Traits),
 });
 

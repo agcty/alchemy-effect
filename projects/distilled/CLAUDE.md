@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`itty-aws` is a lightweight (34KB) AWS SDK implementation for [Effect](https://effect.website) that provides type-safe AWS service clients generated from official AWS API specifications. It uses a single Proxy pattern to dynamically create service clients and implements aws4fetch for request signing.
+`itty-aws` is a lightweight AWS SDK implementation for [Effect](https://effect.website) that provides type-safe AWS service clients generated from official AWS API specifications. It uses a single Proxy pattern to dynamically create service clients and implements aws4fetch for request signing.
 
 ## Development Commands
 
@@ -73,7 +73,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Uses Effect.js for functional error handling and composable operations
 - All operations return `Effect<Success, Error, Requirements>` values
 - Credentials are resolved automatically using AWS credential chain
-- Bundle size is fixed at 34KB regardless of services used
 - XML protocols (S3) are not fully supported yet
 - Service generation requires the aws-models git submodule to be present
 
