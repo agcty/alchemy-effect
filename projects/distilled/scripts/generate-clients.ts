@@ -660,6 +660,7 @@ const generateServiceCode = (serviceName: string, manifest: Manifest) =>
     }
 
     // For AWS JSON protocols, the targetPrefix is the service name itself
+    // FIXME: this should be in the protocol handlers
     const targetPrefix =
       protocol === "awsJson1_0" || protocol === "awsJson1_1"
         ? serviceShapeName
@@ -1069,8 +1070,12 @@ export const serviceMetadata = {\n`;
 
   Object.entries(servicesMetadata)
     .sort(([a], [b]) => a.localeCompare(b)) // Sort alphabetically by service name
-    .forEach(([service, meta]) => {
-      code += `  "${service}": {\n`;
+    .forEach(([_service, meta]) => {
+      // Use the consistent interface name as the key, same as service class generation
+      let consistentInterfaceName = meta.sdkId.replace(/\s+/g, ""); // Remove spaces to make valid TS identifier
+      // Convert to lowercase for metadata key to match client.ts lookup pattern
+      const metadataKey = consistentInterfaceName.toLowerCase();
+      code += `  ${metadataKey}: {\n`;
       code += `    sdkId: "${meta.sdkId}",\n`;
       code += `    version: "${meta.version}",\n`;
       code += `    arnNamespace: "${meta.arnNamespace}",\n`;

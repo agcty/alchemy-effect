@@ -27,7 +27,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "CertificateManager",
   },
-  "acm-pca": {
+  acmpca: {
     sdkId: "ACM PCA",
     version: "2017-08-22",
     arnNamespace: "acm-pca",
@@ -81,7 +81,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "api-gateway": {
+  apigateway: {
     sdkId: "API Gateway",
     version: "2015-07-09",
     arnNamespace: "apigateway",
@@ -108,7 +108,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "app-mesh": {
+  appmesh: {
     sdkId: "App Mesh",
     version: "2019-01-25",
     arnNamespace: "appmesh",
@@ -162,7 +162,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "application-auto-scaling": {
+  applicationautoscaling: {
     sdkId: "Application Auto Scaling",
     version: "2016-02-06",
     arnNamespace: "application-autoscaling",
@@ -171,7 +171,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AnyScaleFrontendService",
   },
-  "application-discovery-service": {
+  applicationdiscoveryservice: {
     sdkId: "Application Discovery Service",
     version: "2015-11-01",
     arnNamespace: "discovery",
@@ -180,7 +180,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSPoseidonService_V2015_11_01",
   },
-  "application-insights": {
+  applicationinsights: {
     sdkId: "Application Insights",
     version: "2018-11-25",
     arnNamespace: "applicationinsights",
@@ -189,7 +189,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "EC2WindowsBarleyService",
   },
-  "application-signals": {
+  applicationsignals: {
     sdkId: "Application Signals",
     version: "2024-04-15",
     arnNamespace: "application-signals",
@@ -243,7 +243,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "arc-region-switch": {
+  arcregionswitch: {
     sdkId: "ARC Region switch",
     version: "2022-07-26",
     arnNamespace: "arc-region-switch",
@@ -252,7 +252,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "ArcRegionSwitch",
   },
-  "arc-zonal-shift": {
+  arczonalshift: {
     sdkId: "ARC Zonal Shift",
     version: "2022-10-30",
     arnNamespace: "",
@@ -288,7 +288,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "auto-scaling": {
+  autoscaling: {
     sdkId: "Auto Scaling",
     version: "2011-01-01",
     arnNamespace: "autoscaling",
@@ -297,7 +297,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "auto-scaling-plans": {
+  autoscalingplans: {
     sdkId: "Auto Scaling Plans",
     version: "2018-01-06",
     arnNamespace: "autoscaling-plans",
@@ -324,7 +324,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "backup-gateway": {
+  backupgateway: {
     sdkId: "Backup Gateway",
     version: "2021-01-01",
     arnNamespace: "backup-gateway",
@@ -351,7 +351,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bcm-data-exports": {
+  bcmdataexports: {
     sdkId: "BCM Data Exports",
     version: "2023-11-26",
     arnNamespace: "bcm-data-exports",
@@ -360,7 +360,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSBillingAndCostManagementDataExports",
   },
-  "bcm-pricing-calculator": {
+  bcmpricingcalculator: {
     sdkId: "BCM Pricing Calculator",
     version: "2024-06-19",
     arnNamespace: "bcm-pricing-calculator",
@@ -378,7 +378,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-agent": {
+  bedrockagent: {
     sdkId: "Bedrock Agent",
     version: "2023-06-05",
     arnNamespace: "bedrock",
@@ -387,7 +387,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-agent-runtime": {
+  bedrockagentruntime: {
     sdkId: "Bedrock Agent Runtime",
     version: "2023-07-26",
     arnNamespace: "bedrock",
@@ -396,7 +396,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-agentcore": {
+  bedrockagentcore: {
     sdkId: "Bedrock AgentCore",
     version: "2024-02-28",
     arnNamespace: "bedrock-agentcore",
@@ -405,7 +405,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-agentcore-control": {
+  bedrockagentcorecontrol: {
     sdkId: "Bedrock AgentCore Control",
     version: "2023-06-05",
     arnNamespace: "bedrock-agentcore",
@@ -414,7 +414,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-data-automation": {
+  bedrockdataautomation: {
     sdkId: "Bedrock Data Automation",
     version: "2023-07-26",
     arnNamespace: "bedrock",
@@ -423,7 +423,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "bedrock-data-automation-runtime": {
+  bedrockdataautomationruntime: {
     sdkId: "Bedrock Data Automation Runtime",
     version: "2024-06-13",
     arnNamespace: "bedrock",
@@ -432,7 +432,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AmazonBedrockKeystoneRuntimeService",
   },
-  "bedrock-runtime": {
+  bedrockruntime: {
     sdkId: "Bedrock Runtime",
     version: "2023-09-30",
     arnNamespace: "",
@@ -495,7 +495,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "chime-sdk-identity": {
+  chimesdkidentity: {
     sdkId: "Chime SDK Identity",
     version: "2021-04-20",
     arnNamespace: "chime",
@@ -504,7 +504,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "chime-sdk-media-pipelines": {
+  chimesdkmediapipelines: {
     sdkId: "Chime SDK Media Pipelines",
     version: "2021-07-15",
     arnNamespace: "chime",
@@ -513,7 +513,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "chime-sdk-meetings": {
+  chimesdkmeetings: {
     sdkId: "Chime SDK Meetings",
     version: "2021-07-15",
     arnNamespace: "chime",
@@ -522,7 +522,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "chime-sdk-messaging": {
+  chimesdkmessaging: {
     sdkId: "Chime SDK Messaging",
     version: "2021-05-15",
     arnNamespace: "chime",
@@ -531,7 +531,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "chime-sdk-voice": {
+  chimesdkvoice: {
     sdkId: "Chime SDK Voice",
     version: "2022-08-03",
     arnNamespace: "chime",
@@ -603,7 +603,7 @@ export const serviceMetadata = {
     protocol: "restXml",
     targetPrefix: "",
   },
-  "cloudfront-keyvaluestore": {
+  cloudfrontkeyvaluestore: {
     sdkId: "CloudFront KeyValueStore",
     version: "2022-07-26",
     arnNamespace: "key-value-store",
@@ -621,7 +621,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "CloudHsmFrontendService",
   },
-  "cloudhsm-v2": {
+  cloudhsmv2: {
     sdkId: "CloudHSM V2",
     version: "2017-04-28",
     arnNamespace: "cloudhsm",
@@ -639,7 +639,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "cloudsearch-domain": {
+  cloudsearchdomain: {
     sdkId: "CloudSearch Domain",
     version: "2013-01-01",
     arnNamespace: "cloudsearch",
@@ -657,7 +657,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "CloudTrail_20131101",
   },
-  "cloudtrail-data": {
+  cloudtraildata: {
     sdkId: "CloudTrail Data",
     version: "2021-08-11",
     arnNamespace: "",
@@ -675,7 +675,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "cloudwatch-events": {
+  cloudwatchevents: {
     sdkId: "CloudWatch Events",
     version: "2015-10-07",
     arnNamespace: "events",
@@ -684,7 +684,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSEvents",
   },
-  "cloudwatch-logs": {
+  cloudwatchlogs: {
     sdkId: "CloudWatch Logs",
     version: "2014-03-28",
     arnNamespace: "logs",
@@ -747,7 +747,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "CodeDeploy_20141006",
   },
-  "codeguru-reviewer": {
+  codegurureviewer: {
     sdkId: "CodeGuru Reviewer",
     version: "2019-09-19",
     arnNamespace: "codeguru-reviewer",
@@ -756,7 +756,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "codeguru-security": {
+  codegurusecurity: {
     sdkId: "CodeGuru Security",
     version: "2018-05-10",
     arnNamespace: "codeguru-security",
@@ -783,7 +783,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "CodePipeline_20150709",
   },
-  "codestar-connections": {
+  codestarconnections: {
     sdkId: "CodeStar connections",
     version: "2019-12-01",
     arnNamespace: "codestar-connections",
@@ -792,7 +792,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "CodeStar_connections_20191201",
   },
-  "codestar-notifications": {
+  codestarnotifications: {
     sdkId: "codestar notifications",
     version: "2019-10-15",
     arnNamespace: "codestar-notifications",
@@ -801,7 +801,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "cognito-identity": {
+  cognitoidentity: {
     sdkId: "Cognito Identity",
     version: "2014-06-30",
     arnNamespace: "cognito-identity",
@@ -810,7 +810,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSCognitoIdentityService",
   },
-  "cognito-identity-provider": {
+  cognitoidentityprovider: {
     sdkId: "Cognito Identity Provider",
     version: "2016-04-18",
     arnNamespace: "cognito-idp",
@@ -819,7 +819,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSCognitoIdentityProviderService",
   },
-  "cognito-sync": {
+  cognitosync: {
     sdkId: "Cognito Sync",
     version: "2014-06-30",
     arnNamespace: "cognito-sync",
@@ -846,7 +846,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "ComprehendMedical_20181030",
   },
-  "compute-optimizer": {
+  computeoptimizer: {
     sdkId: "Compute Optimizer",
     version: "2019-11-01",
     arnNamespace: "compute-optimizer",
@@ -855,7 +855,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "ComputeOptimizerService",
   },
-  "config-service": {
+  configservice: {
     sdkId: "Config Service",
     version: "2014-11-12",
     arnNamespace: "config",
@@ -873,7 +873,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "connect-contact-lens": {
+  connectcontactlens: {
     sdkId: "Connect Contact Lens",
     version: "2020-08-21",
     arnNamespace: "connect",
@@ -936,7 +936,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "cost-and-usage-report-service": {
+  costandusagereportservice: {
     sdkId: "Cost and Usage Report Service",
     version: "2017-01-06",
     arnNamespace: "cur",
@@ -945,7 +945,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSOrigamiServiceGatewayService",
   },
-  "cost-explorer": {
+  costexplorer: {
     sdkId: "Cost Explorer",
     version: "2017-10-25",
     arnNamespace: "ce",
@@ -954,7 +954,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSInsightsIndexService",
   },
-  "cost-optimization-hub": {
+  costoptimizationhub: {
     sdkId: "Cost Optimization Hub",
     version: "2022-07-26",
     arnNamespace: "",
@@ -963,7 +963,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "CostOptimizationHubService",
   },
-  "customer-profiles": {
+  customerprofiles: {
     sdkId: "Customer Profiles",
     version: "2020-08-15",
     arnNamespace: "profile",
@@ -972,7 +972,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "data-pipeline": {
+  datapipeline: {
     sdkId: "Data Pipeline",
     version: "2012-10-29",
     arnNamespace: "datapipeline",
@@ -981,7 +981,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "DataPipeline",
   },
-  "database-migration-service": {
+  databasemigrationservice: {
     sdkId: "Database Migration Service",
     version: "2016-01-01",
     arnNamespace: "dms",
@@ -1053,7 +1053,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "device-farm": {
+  devicefarm: {
     sdkId: "Device Farm",
     version: "2015-06-23",
     arnNamespace: "devicefarm",
@@ -1062,7 +1062,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "DeviceFarm_20150623",
   },
-  "devops-guru": {
+  devopsguru: {
     sdkId: "DevOps Guru",
     version: "2020-12-01",
     arnNamespace: "devops-guru",
@@ -1071,7 +1071,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "direct-connect": {
+  directconnect: {
     sdkId: "Direct Connect",
     version: "2012-10-25",
     arnNamespace: "directconnect",
@@ -1080,7 +1080,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "OvertureService",
   },
-  "directory-service": {
+  directoryservice: {
     sdkId: "Directory Service",
     version: "2015-04-16",
     arnNamespace: "ds",
@@ -1089,7 +1089,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "DirectoryService_20150416",
   },
-  "directory-service-data": {
+  directoryservicedata: {
     sdkId: "Directory Service Data",
     version: "2023-05-31",
     arnNamespace: "ds",
@@ -1116,7 +1116,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "docdb-elastic": {
+  docdbelastic: {
     sdkId: "DocDB Elastic",
     version: "2022-11-28",
     arnNamespace: "docdb-elastic",
@@ -1152,7 +1152,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "DynamoDB_20120810",
   },
-  "dynamodb-streams": {
+  dynamodbstreams: {
     sdkId: "DynamoDB Streams",
     version: "2012-08-10",
     arnNamespace: "dynamodb",
@@ -1179,7 +1179,7 @@ export const serviceMetadata = {
     protocol: "ec2Query",
     targetPrefix: "",
   },
-  "ec2-instance-connect": {
+  ec2instanceconnect: {
     sdkId: "EC2 Instance Connect",
     version: "2018-04-02",
     arnNamespace: "ec2-instance-connect",
@@ -1197,7 +1197,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AmazonEC2ContainerRegistry_V20150921",
   },
-  "ecr-public": {
+  ecrpublic: {
     sdkId: "ECR PUBLIC",
     version: "2020-10-30",
     arnNamespace: "ecr-public",
@@ -1233,7 +1233,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "eks-auth": {
+  eksauth: {
     sdkId: "EKS Auth",
     version: "2023-11-26",
     arnNamespace: "eks-auth",
@@ -1242,7 +1242,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "elastic-beanstalk": {
+  elasticbeanstalk: {
     sdkId: "Elastic Beanstalk",
     version: "2010-12-01",
     arnNamespace: "elasticbeanstalk",
@@ -1251,7 +1251,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "elastic-load-balancing": {
+  elasticloadbalancing: {
     sdkId: "Elastic Load Balancing",
     version: "2012-06-01",
     arnNamespace: "elasticloadbalancing",
@@ -1260,7 +1260,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "elastic-load-balancing-v2": {
+  elasticloadbalancingv2: {
     sdkId: "Elastic Load Balancing v2",
     version: "2015-12-01",
     arnNamespace: "elasticloadbalancing",
@@ -1269,7 +1269,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "elastic-transcoder": {
+  elastictranscoder: {
     sdkId: "Elastic Transcoder",
     version: "2012-09-25",
     arnNamespace: "elastictranscoder",
@@ -1287,7 +1287,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "elasticsearch-service": {
+  elasticsearchservice: {
     sdkId: "Elasticsearch Service",
     version: "2015-01-01",
     arnNamespace: "es",
@@ -1305,7 +1305,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "ElasticMapReduce",
   },
-  "emr-containers": {
+  emrcontainers: {
     sdkId: "EMR containers",
     version: "2020-10-01",
     arnNamespace: "emr-containers",
@@ -1314,7 +1314,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "emr-serverless": {
+  emrserverless: {
     sdkId: "EMR Serverless",
     version: "2021-07-13",
     arnNamespace: "emr-serverless",
@@ -1368,7 +1368,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "finspace-data": {
+  finspacedata: {
     sdkId: "finspace data",
     version: "2020-07-13",
     arnNamespace: "finspace-api",
@@ -1467,7 +1467,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "geo-maps": {
+  geomaps: {
     sdkId: "Geo Maps",
     version: "2020-11-19",
     arnNamespace: "geo-maps",
@@ -1476,7 +1476,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "geo-places": {
+  geoplaces: {
     sdkId: "Geo Places",
     version: "2020-11-19",
     arnNamespace: "geo-places",
@@ -1485,7 +1485,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "geo-routes": {
+  georoutes: {
     sdkId: "Geo Routes",
     version: "2020-11-19",
     arnNamespace: "geo-routes",
@@ -1503,7 +1503,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "global-accelerator": {
+  globalaccelerator: {
     sdkId: "Global Accelerator",
     version: "2018-08-08",
     arnNamespace: "globalaccelerator",
@@ -1620,7 +1620,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "InspectorService",
   },
-  "inspector-scan": {
+  inspectorscan: {
     sdkId: "Inspector Scan",
     version: "2023-08-08",
     arnNamespace: "inspector-scan",
@@ -1665,7 +1665,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-data-plane": {
+  iotdataplane: {
     sdkId: "IoT Data Plane",
     version: "2015-05-28",
     arnNamespace: "iotdata",
@@ -1674,7 +1674,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-events": {
+  iotevents: {
     sdkId: "IoT Events",
     version: "2018-07-27",
     arnNamespace: "iotevents",
@@ -1683,7 +1683,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-events-data": {
+  ioteventsdata: {
     sdkId: "IoT Events Data",
     version: "2018-10-23",
     arnNamespace: "ioteventsdata",
@@ -1692,7 +1692,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-jobs-data-plane": {
+  iotjobsdataplane: {
     sdkId: "IoT Jobs Data Plane",
     version: "2017-09-29",
     arnNamespace: "iot-jobs-data",
@@ -1701,7 +1701,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-managed-integrations": {
+  iotmanagedintegrations: {
     sdkId: "IoT Managed Integrations",
     version: "2025-03-03",
     arnNamespace: "iotmanagedintegrations",
@@ -1710,7 +1710,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "iot-wireless": {
+  iotwireless: {
     sdkId: "IoT Wireless",
     version: "2020-11-22",
     arnNamespace: "iotwireless",
@@ -1800,7 +1800,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "ivs-realtime": {
+  ivsrealtime: {
     sdkId: "IVS RealTime",
     version: "2020-07-14",
     arnNamespace: "ivs",
@@ -1845,7 +1845,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSKendraFrontendService",
   },
-  "kendra-ranking": {
+  kendraranking: {
     sdkId: "Kendra Ranking",
     version: "2022-10-19",
     arnNamespace: "kendra-ranking",
@@ -1881,7 +1881,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "Kinesis_20131202",
   },
-  "kinesis-analytics": {
+  kinesisanalytics: {
     sdkId: "Kinesis Analytics",
     version: "2015-08-14",
     arnNamespace: "kinesisanalytics",
@@ -1890,7 +1890,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "KinesisAnalytics_20150814",
   },
-  "kinesis-analytics-v2": {
+  kinesisanalyticsv2: {
     sdkId: "Kinesis Analytics V2",
     version: "2018-05-23",
     arnNamespace: "kinesisanalytics",
@@ -1899,7 +1899,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "KinesisAnalytics_20180523",
   },
-  "kinesis-video": {
+  kinesisvideo: {
     sdkId: "Kinesis Video",
     version: "2017-09-30",
     arnNamespace: "kinesisvideo",
@@ -1908,7 +1908,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "kinesis-video-archived-media": {
+  kinesisvideoarchivedmedia: {
     sdkId: "Kinesis Video Archived Media",
     version: "2017-09-30",
     arnNamespace: "kinesisvideo",
@@ -1917,7 +1917,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "kinesis-video-media": {
+  kinesisvideomedia: {
     sdkId: "Kinesis Video Media",
     version: "2017-09-30",
     arnNamespace: "kinesisvideo",
@@ -1926,7 +1926,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "kinesis-video-signaling": {
+  kinesisvideosignaling: {
     sdkId: "Kinesis Video Signaling",
     version: "2019-12-04",
     arnNamespace: "kinesisvideo",
@@ -1935,7 +1935,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "kinesis-video-webrtc-storage": {
+  kinesisvideowebrtcstorage: {
     sdkId: "Kinesis Video WebRTC Storage",
     version: "2018-05-10",
     arnNamespace: "kinesisvideo",
@@ -1971,7 +1971,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "launch-wizard": {
+  launchwizard: {
     sdkId: "Launch Wizard",
     version: "2018-05-10",
     arnNamespace: "launchwizard",
@@ -1980,7 +1980,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "lex-model-building-service": {
+  lexmodelbuildingservice: {
     sdkId: "Lex Model Building Service",
     version: "2017-04-19",
     arnNamespace: "lex",
@@ -1989,7 +1989,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "lex-models-v2": {
+  lexmodelsv2: {
     sdkId: "Lex Models V2",
     version: "2020-08-07",
     arnNamespace: "lex",
@@ -1998,7 +1998,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "lex-runtime-service": {
+  lexruntimeservice: {
     sdkId: "Lex Runtime Service",
     version: "2016-11-28",
     arnNamespace: "lex",
@@ -2007,7 +2007,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "lex-runtime-v2": {
+  lexruntimev2: {
     sdkId: "Lex Runtime V2",
     version: "2020-08-07",
     arnNamespace: "lex",
@@ -2016,7 +2016,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "license-manager": {
+  licensemanager: {
     sdkId: "License Manager",
     version: "2018-08-01",
     arnNamespace: "license-manager",
@@ -2025,7 +2025,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSLicenseManager",
   },
-  "license-manager-linux-subscriptions": {
+  licensemanagerlinuxsubscriptions: {
     sdkId: "License Manager Linux Subscriptions",
     version: "2018-05-10",
     arnNamespace: "license-manager-linux-subscriptions",
@@ -2034,7 +2034,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "license-manager-user-subscriptions": {
+  licensemanagerusersubscriptions: {
     sdkId: "License Manager User Subscriptions",
     version: "2018-05-10",
     arnNamespace: "license-manager-user-subscriptions",
@@ -2097,7 +2097,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "machine-learning": {
+  machinelearning: {
     sdkId: "Machine Learning",
     version: "2014-12-12",
     arnNamespace: "machinelearning",
@@ -2133,7 +2133,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "managedblockchain-query": {
+  managedblockchainquery: {
     sdkId: "ManagedBlockchain Query",
     version: "2023-05-04",
     arnNamespace: "managedblockchain-query",
@@ -2142,7 +2142,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "marketplace-agreement": {
+  marketplaceagreement: {
     sdkId: "Marketplace Agreement",
     version: "2020-03-01",
     arnNamespace: "",
@@ -2151,7 +2151,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "AWSMPCommerceService_v20200301",
   },
-  "marketplace-catalog": {
+  marketplacecatalog: {
     sdkId: "Marketplace Catalog",
     version: "2018-09-17",
     arnNamespace: "aws-marketplace",
@@ -2160,7 +2160,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "marketplace-commerce-analytics": {
+  marketplacecommerceanalytics: {
     sdkId: "Marketplace Commerce Analytics",
     version: "2015-07-01",
     arnNamespace: "marketplacecommerceanalytics",
@@ -2169,7 +2169,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "MarketplaceCommerceAnalytics20150701",
   },
-  "marketplace-deployment": {
+  marketplacedeployment: {
     sdkId: "Marketplace Deployment",
     version: "2023-01-25",
     arnNamespace: "aws-marketplace",
@@ -2178,7 +2178,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "marketplace-entitlement-service": {
+  marketplaceentitlementservice: {
     sdkId: "Marketplace Entitlement Service",
     version: "2017-01-11",
     arnNamespace: "aws-marketplace",
@@ -2187,7 +2187,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSMPEntitlementService",
   },
-  "marketplace-metering": {
+  marketplacemetering: {
     sdkId: "Marketplace Metering",
     version: "2016-01-14",
     arnNamespace: "aws-marketplace",
@@ -2196,7 +2196,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSMPMeteringService",
   },
-  "marketplace-reporting": {
+  marketplacereporting: {
     sdkId: "Marketplace Reporting",
     version: "2018-05-10",
     arnNamespace: "aws-marketplace",
@@ -2241,7 +2241,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "mediapackage-vod": {
+  mediapackagevod: {
     sdkId: "MediaPackage Vod",
     version: "2018-11-07",
     arnNamespace: "mediapackage-vod",
@@ -2268,7 +2268,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "MediaStore_20170901",
   },
-  "mediastore-data": {
+  mediastoredata: {
     sdkId: "MediaStore Data",
     version: "2017-09-01",
     arnNamespace: "mediastore",
@@ -2286,7 +2286,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "medical-imaging": {
+  medicalimaging: {
     sdkId: "Medical Imaging",
     version: "2023-07-19",
     arnNamespace: "medical-imaging",
@@ -2313,7 +2313,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "migration-hub": {
+  migrationhub: {
     sdkId: "Migration Hub",
     version: "2017-05-31",
     arnNamespace: "mgh",
@@ -2322,7 +2322,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSMigrationHub",
   },
-  "migration-hub-refactor-spaces": {
+  migrationhubrefactorspaces: {
     sdkId: "Migration Hub Refactor Spaces",
     version: "2021-10-26",
     arnNamespace: "refactor-spaces",
@@ -2331,7 +2331,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "migrationhub-config": {
+  migrationhubconfig: {
     sdkId: "MigrationHub Config",
     version: "2019-06-30",
     arnNamespace: "mgh",
@@ -2403,7 +2403,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "neptune-graph": {
+  neptunegraph: {
     sdkId: "Neptune Graph",
     version: "2023-11-29",
     arnNamespace: "neptune-graph",
@@ -2421,7 +2421,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "network-firewall": {
+  networkfirewall: {
     sdkId: "Network Firewall",
     version: "2020-11-12",
     arnNamespace: "network-firewall",
@@ -2583,7 +2583,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "partnercentral-selling": {
+  partnercentralselling: {
     sdkId: "PartnerCentral Selling",
     version: "2022-07-26",
     arnNamespace: "partnercentral",
@@ -2592,7 +2592,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "AWSPartnerCentralSelling",
   },
-  "payment-cryptography": {
+  paymentcryptography: {
     sdkId: "Payment Cryptography",
     version: "2021-09-14",
     arnNamespace: "payment-cryptography",
@@ -2601,7 +2601,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "PaymentCryptographyControlPlane",
   },
-  "payment-cryptography-data": {
+  paymentcryptographydata: {
     sdkId: "Payment Cryptography Data",
     version: "2022-02-03",
     arnNamespace: "",
@@ -2610,7 +2610,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "pca-connector-ad": {
+  pcaconnectorad: {
     sdkId: "Pca Connector Ad",
     version: "2018-05-10",
     arnNamespace: "pca-connector-ad",
@@ -2619,7 +2619,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "pca-connector-scep": {
+  pcaconnectorscep: {
     sdkId: "Pca Connector Scep",
     version: "2018-05-10",
     arnNamespace: "pca-connector-scep",
@@ -2646,7 +2646,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AmazonPersonalize",
   },
-  "personalize-events": {
+  personalizeevents: {
     sdkId: "Personalize Events",
     version: "2018-03-22",
     arnNamespace: "personalize",
@@ -2655,7 +2655,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "personalize-runtime": {
+  personalizeruntime: {
     sdkId: "Personalize Runtime",
     version: "2018-05-22",
     arnNamespace: "personalize",
@@ -2682,7 +2682,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "pinpoint-email": {
+  pinpointemail: {
     sdkId: "Pinpoint Email",
     version: "2018-07-26",
     arnNamespace: "ses",
@@ -2691,7 +2691,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "pinpoint-sms-voice": {
+  pinpointsmsvoice: {
     sdkId: "Pinpoint SMS Voice",
     version: "2018-09-05",
     arnNamespace: "sms-voice",
@@ -2700,7 +2700,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "pinpoint-sms-voice-v2": {
+  pinpointsmsvoicev2: {
     sdkId: "Pinpoint SMS Voice V2",
     version: "2022-03-31",
     arnNamespace: "sms-voice",
@@ -2790,7 +2790,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "qldb-session": {
+  qldbsession: {
     sdkId: "QLDB Session",
     version: "2019-07-11",
     arnNamespace: "qldb",
@@ -2835,7 +2835,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "rds-data": {
+  rdsdata: {
     sdkId: "RDS Data",
     version: "2018-08-01",
     arnNamespace: "rds-data",
@@ -2853,7 +2853,7 @@ export const serviceMetadata = {
     protocol: "awsQuery",
     targetPrefix: "",
   },
-  "redshift-data": {
+  redshiftdata: {
     sdkId: "Redshift Data",
     version: "2019-12-20",
     arnNamespace: "redshift-data",
@@ -2862,7 +2862,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "RedshiftData",
   },
-  "redshift-serverless": {
+  redshiftserverless: {
     sdkId: "Redshift Serverless",
     version: "2021-04-21",
     arnNamespace: "redshift-serverless",
@@ -2898,7 +2898,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "resource-explorer-2": {
+  resourceexplorer2: {
     sdkId: "Resource Explorer 2",
     version: "2022-07-28",
     arnNamespace: "resource-explorer-2",
@@ -2907,7 +2907,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "resource-groups": {
+  resourcegroups: {
     sdkId: "Resource Groups",
     version: "2017-11-27",
     arnNamespace: "resource-groups",
@@ -2916,7 +2916,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "resource-groups-tagging-api": {
+  resourcegroupstaggingapi: {
     sdkId: "Resource Groups Tagging API",
     version: "2017-01-26",
     arnNamespace: "tagging",
@@ -2943,7 +2943,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "route-53": {
+  route53: {
     sdkId: "Route 53",
     version: "2013-04-01",
     arnNamespace: "route53",
@@ -2952,7 +2952,7 @@ export const serviceMetadata = {
     protocol: "restXml",
     targetPrefix: "",
   },
-  "route-53-domains": {
+  route53domains: {
     sdkId: "Route 53 Domains",
     version: "2014-05-15",
     arnNamespace: "route53domains",
@@ -2961,7 +2961,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "Route53Domains_v20140515",
   },
-  "route53-recovery-cluster": {
+  route53recoverycluster: {
     sdkId: "Route53 Recovery Cluster",
     version: "2019-12-02",
     arnNamespace: "route53-recovery-cluster",
@@ -2970,7 +2970,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "ToggleCustomerAPI",
   },
-  "route53-recovery-control-config": {
+  route53recoverycontrolconfig: {
     sdkId: "Route53 Recovery Control Config",
     version: "2020-11-02",
     arnNamespace: "route53-recovery-control-config",
@@ -2979,7 +2979,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "route53-recovery-readiness": {
+  route53recoveryreadiness: {
     sdkId: "Route53 Recovery Readiness",
     version: "2019-12-02",
     arnNamespace: "route53-recovery-readiness",
@@ -3024,7 +3024,7 @@ export const serviceMetadata = {
     protocol: "restXml",
     targetPrefix: "",
   },
-  "s3-control": {
+  s3control: {
     sdkId: "S3 Control",
     version: "2018-08-20",
     arnNamespace: "s3",
@@ -3069,7 +3069,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "SageMaker",
   },
-  "sagemaker-a2i-runtime": {
+  sagemakera2iruntime: {
     sdkId: "SageMaker A2I Runtime",
     version: "2019-11-07",
     arnNamespace: "sagemaker",
@@ -3078,7 +3078,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sagemaker-edge": {
+  sagemakeredge: {
     sdkId: "Sagemaker Edge",
     version: "2020-09-23",
     arnNamespace: "sagemaker",
@@ -3087,7 +3087,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sagemaker-featurestore-runtime": {
+  sagemakerfeaturestoreruntime: {
     sdkId: "SageMaker FeatureStore Runtime",
     version: "2020-07-01",
     arnNamespace: "sagemaker",
@@ -3096,7 +3096,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sagemaker-geospatial": {
+  sagemakergeospatial: {
     sdkId: "SageMaker Geospatial",
     version: "2020-05-27",
     arnNamespace: "sagemaker-geospatial",
@@ -3105,7 +3105,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sagemaker-metrics": {
+  sagemakermetrics: {
     sdkId: "SageMaker Metrics",
     version: "2022-09-30",
     arnNamespace: "sagemaker",
@@ -3114,7 +3114,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sagemaker-runtime": {
+  sagemakerruntime: {
     sdkId: "SageMaker Runtime",
     version: "2017-05-13",
     arnNamespace: "sagemaker",
@@ -3150,7 +3150,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "secrets-manager": {
+  secretsmanager: {
     sdkId: "Secrets Manager",
     version: "2017-10-17",
     arnNamespace: "secretsmanager",
@@ -3159,7 +3159,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "secretsmanager",
   },
-  "security-ir": {
+  securityir: {
     sdkId: "Security IR",
     version: "2018-05-10",
     arnNamespace: "security-ir",
@@ -3195,7 +3195,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "service-catalog": {
+  servicecatalog: {
     sdkId: "Service Catalog",
     version: "2015-12-10",
     arnNamespace: "servicecatalog",
@@ -3204,7 +3204,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWS242ServiceCatalogService",
   },
-  "service-catalog-appregistry": {
+  servicecatalogappregistry: {
     sdkId: "Service Catalog AppRegistry",
     version: "2020-06-24",
     arnNamespace: "servicecatalog",
@@ -3213,7 +3213,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "service-quotas": {
+  servicequotas: {
     sdkId: "Service Quotas",
     version: "2019-06-24",
     arnNamespace: "servicequotas",
@@ -3294,7 +3294,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSServerMigrationService_V2016_10_24",
   },
-  "snow-device-management": {
+  snowdevicemanagement: {
     sdkId: "Snow Device Management",
     version: "2021-08-04",
     arnNamespace: "snow-device-management",
@@ -3348,7 +3348,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AmazonSSM",
   },
-  "ssm-contacts": {
+  ssmcontacts: {
     sdkId: "SSM Contacts",
     version: "2021-05-03",
     arnNamespace: "ssm-contacts",
@@ -3357,7 +3357,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "SSMContacts",
   },
-  "ssm-guiconnect": {
+  ssmguiconnect: {
     sdkId: "SSM GuiConnect",
     version: "2021-05-01",
     arnNamespace: "ssm-guiconnect",
@@ -3366,7 +3366,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "ssm-incidents": {
+  ssmincidents: {
     sdkId: "SSM Incidents",
     version: "2018-05-10",
     arnNamespace: "ssm-incidents",
@@ -3375,7 +3375,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "ssm-quicksetup": {
+  ssmquicksetup: {
     sdkId: "SSM QuickSetup",
     version: "2018-05-10",
     arnNamespace: "ssm-quicksetup",
@@ -3384,7 +3384,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "ssm-sap": {
+  ssmsap: {
     sdkId: "Ssm Sap",
     version: "2018-05-10",
     arnNamespace: "ssm-sap",
@@ -3402,7 +3402,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "sso-admin": {
+  ssoadmin: {
     sdkId: "SSO Admin",
     version: "2020-07-20",
     arnNamespace: "sso",
@@ -3411,7 +3411,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "SWBExternalService",
   },
-  "sso-oidc": {
+  ssooidc: {
     sdkId: "SSO OIDC",
     version: "2019-06-10",
     arnNamespace: "sso-oauth",
@@ -3420,7 +3420,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "storage-gateway": {
+  storagegateway: {
     sdkId: "Storage Gateway",
     version: "2013-06-30",
     arnNamespace: "storagegateway",
@@ -3456,7 +3456,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSSupport_20130415",
   },
-  "support-app": {
+  supportapp: {
     sdkId: "Support App",
     version: "2021-08-20",
     arnNamespace: "supportapp",
@@ -3501,7 +3501,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "Textract",
   },
-  "timestream-influxdb": {
+  timestreaminfluxdb: {
     sdkId: "Timestream InfluxDB",
     version: "2023-01-27",
     arnNamespace: "timestream-influxdb",
@@ -3510,7 +3510,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "AmazonTimestreamInfluxDB",
   },
-  "timestream-query": {
+  timestreamquery: {
     sdkId: "Timestream Query",
     version: "2018-11-01",
     arnNamespace: "timestream",
@@ -3519,7 +3519,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "Timestream_20181101",
   },
-  "timestream-write": {
+  timestreamwrite: {
     sdkId: "Timestream Write",
     version: "2018-11-01",
     arnNamespace: "timestream",
@@ -3546,7 +3546,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "Transcribe",
   },
-  "transcribe-streaming": {
+  transcribestreaming: {
     sdkId: "Transcribe Streaming",
     version: "2017-10-26",
     arnNamespace: "transcribe",
@@ -3591,7 +3591,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "VerifiedPermissions",
   },
-  "voice-id": {
+  voiceid: {
     sdkId: "Voice ID",
     version: "2021-09-27",
     arnNamespace: "voiceid",
@@ -3600,7 +3600,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "VoiceID",
   },
-  "vpc-lattice": {
+  vpclattice: {
     sdkId: "VPC Lattice",
     version: "2022-11-30",
     arnNamespace: "vpc-lattice",
@@ -3618,7 +3618,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "AWSWAF_20150824",
   },
-  "waf-regional": {
+  wafregional: {
     sdkId: "WAF Regional",
     version: "2016-11-28",
     arnNamespace: "waf-regional",
@@ -3690,7 +3690,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_1",
     targetPrefix: "WorkspacesService",
   },
-  "workspaces-instances": {
+  workspacesinstances: {
     sdkId: "Workspaces Instances",
     version: "2022-07-26",
     arnNamespace: "workspaces-instances",
@@ -3699,7 +3699,7 @@ export const serviceMetadata = {
     protocol: "awsJson1_0",
     targetPrefix: "EUCMIFrontendAPIService",
   },
-  "workspaces-thin-client": {
+  workspacesthinclient: {
     sdkId: "WorkSpaces Thin Client",
     version: "2023-08-22",
     arnNamespace: "thinclient",
@@ -3708,7 +3708,7 @@ export const serviceMetadata = {
     protocol: "restJson1",
     targetPrefix: "",
   },
-  "workspaces-web": {
+  workspacesweb: {
     sdkId: "WorkSpaces Web",
     version: "2020-07-08",
     arnNamespace: "workspaces-web",
