@@ -8,12 +8,12 @@ This document provides an overview of AWS services supported by itty-aws.
 
 ### By Protocol
 
-- **restJson1**: 245 services
-- **awsJson1_1**: 105 services
-- **awsJson1_0**: 43 services
-- **awsQuery**: 16 services
-- **restXml**: 4 services
-- **ec2Query**: 1 services
+- **restJson1**: 245 services (e.g., Lambda, API Gateway, EKS, EFS)
+- **awsJson1_1**: 105 services (e.g., CloudTrail, Secrets Manager, WAFv2, CloudWatch Events, CloudWatch Logs)
+- **awsJson1_0**: 43 services (e.g., DynamoDB, SQS, Step Functions (SFN))
+- **awsQuery**: 16 services (e.g., IAM, CloudWatch, RDS, DocDB)
+- **restXml**: 4 services (e.g., S3, CloudFront, Route 53, S3 Control)
+- **ec2Query**: 1 services (EC2)
 
 ## Full Service Details
 
