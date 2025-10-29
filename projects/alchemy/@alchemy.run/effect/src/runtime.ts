@@ -1,7 +1,7 @@
 import type { Types } from "effect";
 import * as Context from "effect/Context";
 import type { Effect } from "effect/Effect";
-import { bind, type Bind } from "./bind.ts";
+import { bind } from "./bind.ts";
 import type { Capability } from "./capability.ts";
 import type { Policy } from "./policy.ts";
 
@@ -30,6 +30,19 @@ export declare namespace Runtime {
         readonly F: F;
         readonly cap: Types.Contravariant<Cap>;
       };
+
+  export type Instance<
+    R extends Runtime,
+    Handler extends RuntimeHandler,
+    Props,
+  > = Extract<
+    (R & {
+      handler: Handler;
+      props: Props;
+      cap: Extract<Effect.Context<ReturnType<Handler>>, Capability>;
+    })["Instance"],
+    Runtime
+  >;
 }
 
 export type AnyRuntime = Runtime<string>;
@@ -43,24 +56,29 @@ export interface Runtime<
   Handler = unknown,
   Props = unknown,
 > {
+  Provider: unknown;
+  Instance: unknown;
+
   type: Type;
   props: Props;
   handler: Handler;
   /** @internal phantom */
-  cap: Handler extends unknown
-    ? unknown
-    : Extract<
-        Effect.Context<ReturnType<Extract<Handler, RuntimeHandler<any>>>>,
-        Capability
-      >;
+  cap: unknown;
   capability: Extract<this["cap"], Capability>;
-  Provider: unknown;
-  <const ID extends string, Inputs extends any[], Output, Err, Req>(
+  new (): {};
+  <
+    const ID extends string,
+    Inputs extends any[],
+    Output,
+    Err,
+    Req,
+    Handler extends RuntimeHandler<Inputs, Output, Err, Req>,
+  >(
     id: ID,
-    { handle }: { handle: RuntimeHandler<Inputs, Output, Err, Req> },
-  ): <const Props extends this["props"] & RuntimeProps<this, Req>>(
+    { handle }: { handle: Handler },
+  ): <const Props extends this["props"]>(
     props: Props,
-  ) => Bind<this, ID, (...args: Inputs) => Effect<Output, Err, Req>, Props>;
+  ) => Runtime.Instance<this, Handler, Props>;
 }
 
 export const Runtime =
@@ -83,24 +101,17 @@ export const Runtime =
           };
         } else {
           const [id, { handle }] = args;
-          return (<const Props extends RuntimeProps<Self, any>>(
-            props: Props,
-          ) => {
-            return bind(
-              self as Runtime,
-              Service(id, handle, props.bindings as any),
-              props,
-            );
-          }) as Self;
+          return <const Props extends RuntimeProps<Self, any>>(props: Props) =>
+            bind(self as Runtime, id, handle, props) as unknown as Self;
         }
       },
       {
         kind: "Runtime",
         type: type,
-        service: undefined! as Service,
+        id: undefined! as string,
         capability: undefined! as Capability[],
         toString() {
-          return `${this.type}(${this.service?.id}${this.capability?.length ? `, ${this.capability.map((c) => `${c}`).join(", ")}` : ""})`;
+          return `${this.type}(${this.id}${this.capability?.length ? `, ${this.capability.map((c) => `${c}`).join(", ")}` : ""})`;
         },
       },
     ) as unknown as Self;

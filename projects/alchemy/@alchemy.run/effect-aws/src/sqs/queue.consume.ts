@@ -1,7 +1,7 @@
-import type { Capability, Declared } from "@alchemy.run/effect";
+import { Binding, Capability, type From } from "@alchemy.run/effect";
 import type * as lambda from "aws-lambda";
 import * as Effect from "effect/Effect";
-import { Function, type FunctionBinding } from "../lambda/index.ts";
+import { Function } from "../lambda/index.ts";
 import { Queue } from "./queue.ts";
 
 export type QueueRecord<Data> = Omit<lambda.SQSRecord, "body"> & {
@@ -12,22 +12,22 @@ export type QueueEvent<Data> = Omit<lambda.SQSEvent, "Records"> & {
   Records: QueueRecord<Data>[];
 };
 
-export interface Consume<Q> extends Capability<"AWS.SQS.Consume", Q> {}
+export interface Consume<Q = Queue> extends Capability<"AWS.SQS.Consume", Q> {}
 
-export const Consume = Function.binding<
+export const QueueEventSource = Binding<
   <Q extends Queue>(
-    queue: Declared<Q>,
+    queue: Q,
     props?: {
       batchSize?: number;
       maxBatchingWindow?: number;
       maxConcurrency?: number;
       reportBatchItemFailures?: boolean;
     },
-  ) => FunctionBinding<Consume<Q>>
->("AWS.SQS.Consume", Queue);
+  ) => Binding<Function, Consume<From<Q>>>
+>(Function, Queue, "AWS.SQS.Consume");
 
 export const consumeFromLambdaFunction = () =>
-  Consume.layer.succeed({
+  QueueEventSource.layer.succeed({
     // oxlint-disable-next-line require-yield
     attach: Effect.fn(function* (queue, _props, _target) {
       return {

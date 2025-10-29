@@ -4,7 +4,6 @@ export * from "./approve.ts";
 export * from "./bind.ts";
 export * from "./binding.ts";
 export * from "./capability.ts";
-export * from "./declared.ts";
 export * from "./destroy.ts";
 export * from "./dot-alchemy.ts";
 export * from "./event.ts";

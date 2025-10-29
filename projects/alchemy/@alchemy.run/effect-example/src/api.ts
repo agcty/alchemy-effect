@@ -5,14 +5,6 @@ import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { Message, Messages } from "./messages.ts";
 
-// SQS.SendMessage<Messages>
-// -> FunctionBinding<SQS.SendMessage<Messages>>
-//   -> FunctionBinding<SQS.SendMessage<Queue>>
-//   -> "AWS.Lambda.Function(SQS.SendMessage(AWS.SQS.Queue))"
-
-const ____ = $(SQS.SendMessage(Messages));
-const _____ = $(SQS.SendMessage2(Messages));
-
 const ___ = Lambda.serve("Api", {
   fetch: Effect.fn(function* (event) {
     const msg = yield* S.validate(Message)(event.body).pipe(

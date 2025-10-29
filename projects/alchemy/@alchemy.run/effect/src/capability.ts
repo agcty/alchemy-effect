@@ -19,4 +19,5 @@ export interface Capability<
   sid: string;
   action: string;
   label: string;
+  new (): {};
 }

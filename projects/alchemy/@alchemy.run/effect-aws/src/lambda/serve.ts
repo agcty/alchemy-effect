@@ -1,10 +1,14 @@
-import type {
-  Context as LambdaContext,
-  LambdaFunctionURLEvent,
-  LambdaFunctionURLResult,
-} from "aws-lambda";
 import * as Effect from "effect/Effect";
 import * as Lambda from "./function.ts";
+
+import type {
+  LambdaFunctionURLEvent as FunctionURLEvent,
+  LambdaFunctionURLResult as FunctionURLResult,
+} from "aws-lambda";
+export type {
+  LambdaFunctionURLEvent as FunctionURLEvent,
+  LambdaFunctionURLResult as FunctionURLResult,
+} from "aws-lambda";
 
 export const serve =
   <const ID extends string, Req>(
@@ -13,9 +17,9 @@ export const serve =
       fetch,
     }: {
       fetch: (
-        event: LambdaFunctionURLEvent,
-        context: LambdaContext,
-      ) => Effect.Effect<LambdaFunctionURLResult, never, Req>;
+        event: FunctionURLEvent,
+        context: Lambda.Context,
+      ) => Effect.Effect<FunctionURLResult, never, Req>;
     },
   ) =>
   <const Props extends Lambda.FunctionProps<Req>>(props: Props) =>

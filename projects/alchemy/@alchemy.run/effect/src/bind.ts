@@ -1,6 +1,6 @@
 import * as Effect from "effect/Effect";
 import type { Capability } from "./capability.ts";
-import type { Runtime, RuntimeHandler } from "./runtime.ts";
+import type { Runtime, RuntimeHandler, RuntimeProps } from "./runtime.ts";
 
 export const isBound = (value: any): value is Bound =>
   value && typeof value === "object" && value.type === "bound";
@@ -28,7 +28,8 @@ export const bind = <
   handler: Handler,
   props: Props,
 ) => {
-  type Cap = Extract<Effect.Effect.Context<ReturnType<Handler>>, Capability>;
+  type Req = Effect.Effect.Context<ReturnType<Handler>>;
+  type Cap = Extract<Req, Capability>;
 
   type Plan = {
     [id in ID]: Bound<
@@ -64,15 +65,14 @@ export const bind = <
     };
     return {
       ...(Object.fromEntries(
-        service.policy?.capabilities.map((cap: any) => [
-          cap.resource.id,
-          cap.resource,
-        ]) ?? [],
+        (props as RuntimeProps<Run, Req>).bindings.capabilities.map(
+          (cap: any) => [cap.resource.id, cap.resource],
+        ) ?? [],
       ) as {
         // @ts-expect-error
         [id in Cap["resource"]["id"]]: Extract<Cap["resource"], { id: id }>;
       }),
-      [service.id]: {
+      [id]: {
         runtime: self,
         type: "bound",
         toString() {

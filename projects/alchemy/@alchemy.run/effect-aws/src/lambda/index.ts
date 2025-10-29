@@ -9,4 +9,4 @@ export * from "./serve.ts";
 export type * from "../account.ts";
 export type * from "../region.ts";
 
-export type * as lambda from "aws-lambda";
+// export type * as lambda from "aws-lambda";

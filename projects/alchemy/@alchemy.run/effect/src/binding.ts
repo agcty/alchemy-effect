@@ -37,13 +37,13 @@ export interface BindingTag<
     >
   > {
   /** @internal phantom */
-  tagName: Tag;
+  name: Tag;
 }
 
 export const Binding = <F extends (resource: any, props?: any) => AnyBinding>(
   runtime: ReturnType<F>["runtime"],
   resource: new () => ReturnType<F>["capability"]["resource"],
-  tag: ReturnType<F>["tag"]["tagName"],
+  tag: ReturnType<F>["tag"]["name"],
   // _tag: ReturnType<F>,
 ): F & BindingDeclaration<ReturnType<F>["runtime"], F> => {
   type Runtime = ReturnType<F>["runtime"];

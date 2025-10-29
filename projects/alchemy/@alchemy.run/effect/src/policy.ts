@@ -3,10 +3,18 @@ import { type AnyBinding } from "./binding.ts";
 import type { Capability } from "./capability.ts";
 import type { Runtime } from "./runtime.ts";
 
-// A policy is invariant over its allowed actions
+/**
+ * A Policy binds a set of Capbilities (e.g SQS.SendMessage, SQS.Consume, etc.) to a
+ * specific Runtime (e.g. AWS Lambda Function, Cloudflare Worker, etc.).
+ *
+ * It brings with it a set of upstream Tags containing the required Provider services
+ * to deploy the infrastructure, e.g. (BindingTag<AWS.Lambda.Function, SendMessage<Queue>>)
+ *
+ * A Policy is invariant over the set of Capabilities to ensure least-privilege.
+ */
 export interface Policy<
-  in out F extends Runtime,
-  in out Capabilities = any,
+  F extends Runtime,
+  in out Capabilities,
   Tags = unknown,
 > {
   readonly runtime: F;
@@ -34,8 +42,15 @@ export function Policy(...bindings: AnyBinding[]) {
   };
 }
 
-export namespace Policy {
-  /** declare a Policy requiring Capabilities in some context */
-  export const declare = <S extends Capability>() =>
-    Effect.gen(function* () {}) as Effect.Effect<void, never, S>;
-}
+/** declare a Policy requiring Capabilities in some context */
+export const declare = <S extends Capability>() =>
+  Effect.gen(function* () {}) as Effect.Effect<void, never, S>;
+
+type Instance<T> = T extends new (...args: any) => infer I ? I : never;
+// syntactic sugar for mapping `typeof Messages` -> Messages, e.g. so it's SQS.SendMessage<Messages> instead of SQS.SendMessage<typeof Messages>
+// e.g. <Q extends SQS.Queue>(queue: Q) => SQS.SendMessage<To<Q>>
+export type From<T> = Instance<T>;
+export type To<T> = Instance<T>;
+export type In<T> = Instance<T>;
+export type Into<T> = Instance<T>;
+export type On<T> = Instance<T>;
