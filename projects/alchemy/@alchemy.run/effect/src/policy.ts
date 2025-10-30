@@ -46,7 +46,11 @@ export function Policy(...bindings: AnyBinding[]) {
 export const declare = <S extends Capability>() =>
   Effect.gen(function* () {}) as Effect.Effect<void, never, S>;
 
-type Instance<T> = T extends new (...args: any) => infer I ? I : never;
+type Instance<T> = { id: string } extends T
+  ? T
+  : T extends new (...args: any) => infer I
+    ? I
+    : never;
 // syntactic sugar for mapping `typeof Messages` -> Messages, e.g. so it's SQS.SendMessage<Messages> instead of SQS.SendMessage<typeof Messages>
 // e.g. <Q extends SQS.Queue>(queue: Q) => SQS.SendMessage<To<Q>>
 export type From<T> = Instance<T>;
