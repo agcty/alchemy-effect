@@ -34,22 +34,19 @@ export const sendMessage = <Q extends Queue>(
 
 export const sendMessageFromLambdaFunction = () =>
   SendMessage.provider.succeed({
-    // oxlint-disable-next-line require-yield
-    attach: Effect.fn(function* (queue) {
-      return {
-        env: {
-          // ask what attribute is needed to interact? e.g. is it the Queue ARN or the Queue URL?
-          [`${queue.id.toUpperCase().replace(/-/g, "_")}_QUEUE_URL`]:
-            queue.attr.queueUrl,
+    attach: (queue) => ({
+      env: {
+        // ask what attribute is needed to interact? e.g. is it the Queue ARN or the Queue URL?
+        [`${queue.id.toUpperCase().replace(/-/g, "_")}_QUEUE_URL`]:
+          queue.attr.queueUrl,
+      },
+      policyStatements: [
+        {
+          Sid: "SendMessage",
+          Effect: "Allow",
+          Action: ["sqs:SendMessage"], // <- ask LLM how to generate this
+          Resource: [queue.attr.queueArn],
         },
-        policyStatements: [
-          {
-            Sid: "AWS.SQS.SendMessage",
-            Effect: "Allow",
-            Action: ["sqs:SendMessage"], // <- ask LLM how to generate this
-            Resource: [queue.attr.queueArn],
-          },
-        ],
-      };
+      ],
     }),
   });

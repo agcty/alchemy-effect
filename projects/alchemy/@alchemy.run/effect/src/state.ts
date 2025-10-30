@@ -6,7 +6,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import path from "node:path";
 import { App } from "./app.ts";
-import type { SerializedCapability } from "./capability.ts";
+import type { SerializedBinding } from "./binding.ts";
 
 // SQL only?? no
 // DynamoDB is faster but bounded to 400KB (<10ms minimum latency)
@@ -64,7 +64,7 @@ export type ResourceState = {
     | "deleted";
   props: any;
   output: any;
-  capabilities?: SerializedCapability[];
+  bindings?: SerializedBinding[];
 };
 
 export class StateStoreError extends Data.TaggedError("StateStoreError")<{

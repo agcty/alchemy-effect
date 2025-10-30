@@ -6,15 +6,18 @@ import { NodeContext } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
 import { Api } from "./src/index.ts";
 
+const phase = process.argv.includes("--destroy") ? "destroy" : "update";
+
 const plan = Alchemy.plan({
-  // phase: process.argv.includes("--destroy") ? "destroy" : "update",
-  phase: "update",
+  phase,
+  // phase: "update",
+  // phase: "destroy",
   services: [Api],
 });
 
 const stack = await plan.pipe(
   Alchemy.apply,
-  Effect.catchTag("PlanRejected", () => Effect.void),
+  Effect.catchTag("PlanRejected", () => Effect.die("Plan rejected")),
   Effect.provide(AlchemyCLI.layer),
   Effect.provide(AWS.live),
   Effect.provide(Alchemy.State.localFs),

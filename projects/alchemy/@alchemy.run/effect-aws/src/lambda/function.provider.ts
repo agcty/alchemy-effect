@@ -5,13 +5,7 @@ import { FileSystem } from "@effect/platform";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
-import {
-  App,
-  DotAlchemy,
-  type BindingService,
-  type BindNode,
-  type ProviderService,
-} from "@alchemy.run/effect";
+import { App, DotAlchemy, type ProviderService } from "@alchemy.run/effect";
 
 import type {
   CreateFunctionUrlConfigRequest,
@@ -47,50 +41,26 @@ export const functionProvider = () =>
       const attachBindings = Effect.fn(function* ({
         roleName,
         policyName,
-        functionArn,
-        functionName,
+        // functionArn,
+        // functionName,
         bindings,
       }: {
         roleName: string;
         policyName: string;
         functionArn: string;
         functionName: string;
-        bindings: BindNode[];
+        bindings: Function["binding"][];
       }) {
-        let env: Record<string, string> = {};
-        const policyStatements: IAM.PolicyStatement[] = [];
-
-        for (const binding of bindings) {
-          if (binding.action === "attach") {
-            const binder = yield* Function(
-              binding.capability,
-              // erase the Lambda(Capability) requirement
-              // TODO(sam): move bindings into the core engine instead of replicating them here
-            ) as unknown as Effect.Effect<BindingService, never, never>;
-            const bound = yield* binder.attach(
-              {
-                id: binding.capability.resource.id,
-                attr: binding.attributes,
-                props: binding.capability.resource.props,
-              },
-              binding.capability,
-              {
-                env,
-                policyStatements,
-              },
-            );
-            env = { ...env, ...(bound?.env ?? {}) };
-
-            policyStatements.push(
-              ...bound?.policyStatements?.map((stmt: IAM.PolicyStatement) => ({
-                ...stmt,
-                Sid: stmt.Sid?.replace(/[^A-Za-z0-9]+/gi, ""),
-              })),
-            );
-          } else if (binding.action === "detach") {
-            // no-op: PutRolePolicy will remove the removed statements
-          }
-        }
+        const env = bindings.reduce(
+          (acc, binding) => ({ ...acc, ...binding?.env }),
+          {},
+        );
+        const policyStatements = bindings.flatMap((binding) =>
+          binding?.policyStatements?.map((stmt: IAM.PolicyStatement) => ({
+            ...stmt,
+            Sid: stmt.Sid?.replace(/[^A-Za-z0-9]+/gi, ""),
+          })),
+        );
 
         if (policyStatements.length > 0) {
           yield* iam.putRolePolicy({

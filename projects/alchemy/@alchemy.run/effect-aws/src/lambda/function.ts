@@ -25,13 +25,13 @@ export type FunctionAttr<Props extends FunctionProps = FunctionProps> = {
 };
 
 export interface Function extends Runtime<"AWS.Lambda.Function"> {
+  props: FunctionProps;
+  attr: FunctionAttr<Extract<this["props"], FunctionProps>>;
   binding: {
     env: {
       [key: string]: string;
     };
     policyStatements: IAM.PolicyStatement[];
   };
-  props: FunctionProps;
-  attr: FunctionAttr<Extract<this["props"], FunctionProps>>;
 }
 export const Function = Runtime("AWS.Lambda.Function")<Function>();

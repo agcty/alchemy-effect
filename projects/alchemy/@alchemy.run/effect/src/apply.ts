@@ -32,7 +32,7 @@ export class PlanStatusReporter extends Context.Tag("PlanStatusReporter")<
   }
 >() {}
 
-export const apply = <const P extends Plan, Err, Req>(
+export const apply = <P extends Plan, Err, Req>(
   plan: Effect.Effect<P, Err, Req>,
 ) =>
   plan.pipe(
@@ -66,7 +66,7 @@ export const apply = <const P extends Plan, Err, Req>(
                   const resourceId = isBindNode(node)
                     ? node.binding.capability.resource.id
                     : node.resource.id;
-                  const resource = plan[resourceId];
+                  const resource = plan.resources[resourceId];
                   return !resource
                     ? Effect.dieMessage(`Resource ${resourceId} not found`)
                     : apply(resource);
@@ -165,8 +165,12 @@ export const apply = <const P extends Plan, Err, Req>(
                 } else if (node.action === "delete") {
                   yield* Effect.all(
                     node.downstream.map((dep) =>
-                      dep in plan
-                        ? apply(plan[dep] as P[keyof P])
+                      dep in plan.resources
+                        ? apply(
+                            plan.resources[
+                              dep
+                            ] as P["resources"][keyof P["resources"]],
+                          )
                         : Effect.void,
                     ),
                   );
@@ -228,7 +232,7 @@ export const apply = <const P extends Plan, Err, Req>(
 
         const resources: any = Object.fromEntries(
           yield* Effect.all(
-            Object.entries(plan).map(
+            Object.entries(plan.resources).map(
               Effect.fn(function* ([id, node]) {
                 return [id, yield* apply(node as P[keyof P])];
               }),
@@ -245,17 +249,19 @@ export const apply = <const P extends Plan, Err, Req>(
       }),
     ),
   ) as Effect.Effect<
-    {
-      [id in keyof P]: P[id] extends Delete<Resource> | undefined | never
-        ? never
-        : Simplify<P[id]["resource"]["attr"]>;
-    } extends infer O
-      ? O extends {
-          [key: string]: never;
-        }
-        ? undefined
-        : O
-      : never,
+    "update" extends P["phase"]
+      ?
+          | {
+              [id in keyof P["resources"]]: P["resources"][id] extends
+                | Delete<Resource>
+                | undefined
+                | never
+                ? never
+                : Simplify<P["resources"][id]["resource"]["attr"]>;
+            }
+          // union distribution isn't happening, so we gotta add this additional void here just in case
+          | ("destroy" extends P["phase"] ? void : never)
+      : void,
     Err | PlanRejected,
     Req
   >;

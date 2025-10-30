@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import util from "node:util";
 import type { AnyBinding, SerializedBinding } from "./binding.ts";
 import type { Capability } from "./capability.ts";
+import type { Phase } from "./phase.ts";
 import type { Instance } from "./policy.ts";
 import { Provider, type ProviderService } from "./provider.ts";
 import type { IResource, Resource } from "./resource.ts";
@@ -137,7 +138,13 @@ export type Replace<R extends IResource> = {
 };
 
 export type Plan = {
-  [id in string]: CRUD;
+  phase: Phase;
+  resources: {
+    [id in string]: CRUD;
+  };
+  deletions: {
+    [id in string]?: Delete<Resource>;
+  };
 };
 
 export const plan = <
@@ -221,7 +228,9 @@ export const plan = <
             (yield* Effect.all(
               Object.entries(graph).map(
                 Effect.fn(function* ([id, node]) {
-                  const resource = isService(node) ? node.runtime : node;
+                  const resource = isService(node)
+                    ? node.runtime
+                    : (node as Resource);
                   const news = isService(node)
                     ? node.runtime.props
                     : resource.props;
@@ -230,9 +239,9 @@ export const plan = <
                   const provider: ProviderService = yield* Provider(
                     resource.parent as Resource,
                   );
-                  const capabilities = diffCapabilities(
+                  const capabilities = diffBindings(
                     oldState,
-                    isService(node) ? node.runtime.capability : [],
+                    isService(node) ? node.props.bindings : [],
                   );
 
                   if (
@@ -255,7 +264,6 @@ export const plan = <
                       olds: oldState.props,
                       news,
                       output: oldState.output,
-                      bindings: capabilities,
                     });
                     if (diff.action === "noop") {
                       return {
@@ -293,7 +301,7 @@ export const plan = <
                         attributes: undefined!,
                       };
                     }
-                  } else if (compare(oldState, resource.input)) {
+                  } else if (compare(oldState, resource.props)) {
                     return {
                       ...BaseNode,
                       action: "update",
@@ -319,8 +327,8 @@ export const plan = <
                 }),
               ),
             )).map((update) => [update.resource.id, update]),
-          ) as Plan)
-        : ({} as Plan);
+          ) as Plan["resources"])
+        : ({} as Plan["resources"]);
 
     const deletions = Object.fromEntries(
       (yield* Effect.all(
@@ -354,7 +362,7 @@ export const plan = <
                     type: oldState.type,
                     attr: oldState.output,
                     props: oldState.props,
-                  } satisfies IResource,
+                  } satisfies IResource as Resource,
                   downstream: downstream[id] ?? [],
                 } satisfies Delete<Resource>,
               ] as const;
@@ -383,7 +391,13 @@ export const plan = <
     );
   }) as Effect.Effect<
     {
-      [ID in keyof Graph]: Graph[ID];
+      phase: Phase;
+      resources: {
+        [ID in keyof Graph]: Graph[ID];
+      };
+      deletions: {
+        [id in Exclude<string, keyof Graph>]?: Delete<Resource>;
+      };
     },
     never,
     UpstreamTags | State
@@ -403,33 +417,33 @@ const compare = <R extends Resource>(
   newState: R["props"],
 ) => JSON.stringify(oldState?.props) === JSON.stringify(newState);
 
-const diffCapabilities = (
+const diffBindings = (
   oldState: ResourceState | undefined,
-  caps: Capability[],
+  bindings: AnyBinding[],
 ) => {
   const actions: BindNode[] = [];
-  const oldCaps = oldState?.capabilities;
-  const oldSids = new Set(oldCaps?.map((binding) => binding.sid));
-  for (const _cap of caps) {
-    const cap = _cap as any;
+  const oldBindings = oldState?.bindings;
+  const oldSids = new Set(
+    oldBindings?.map((binding) => binding.capability.sid),
+  );
+  for (const binding of bindings) {
+    const cap = binding.capability;
     const sid = cap.sid ?? `${cap.action}:${cap.resource.ID}`;
     oldSids.delete(sid);
 
-    const oldBinding = oldCaps?.find((cap) => cap.sid === sid);
+    const oldBinding = oldBindings?.find(
+      (binding) => binding.capability.sid === sid,
+    );
     if (!oldBinding) {
       actions.push({
         action: "attach",
-        capability: cap,
-        // phantom
-        attributes: cap.resource.Attr as never,
+        binding,
       });
-    } else if (isCapabilityDiff(oldBinding, cap)) {
+    } else if (isBindingDiff(oldBinding, binding)) {
       actions.push({
         action: "attach",
-        capability: cap,
+        binding,
         olds: oldBinding,
-        // phantom
-        attributes: cap.resource.Attr as never,
       });
     }
   }
@@ -442,5 +456,8 @@ const diffCapabilities = (
   return actions;
 };
 
-const isCapabilityDiff = (oldCap: SerializedBinding, newCap: Capability) =>
-  oldCap.action !== newCap.action || oldCap.resource.id !== newCap.resource.id;
+const isBindingDiff = (oldBinding: SerializedBinding, newBinding: AnyBinding) =>
+  oldBinding.capability.action !== newBinding.capability.action ||
+  oldBinding.capability.resource.id !== newBinding.capability.resource.id;
+// TODO(sam): compare props
+// oldBinding.props !== newBinding.props;
