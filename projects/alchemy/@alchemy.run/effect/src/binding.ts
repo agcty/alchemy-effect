@@ -37,13 +37,13 @@ export interface Binding<
   Cap extends Capability = Capability,
   Props = any,
   Tag extends string = Cap["type"],
-  IsCustomTag extends boolean = Cap["type"] extends Tag ? false : true,
+  IsCustom extends boolean = Cap["type"] extends Tag ? false : true,
 > {
   runtime: Run;
   capability: Cap;
   tag: Tag;
   props: Props;
-  isCustomTag: IsCustomTag;
+  isCustom: IsCustom;
 }
 
 /** Tag for a Service that can bind a Capability to a Runtime */
@@ -64,23 +64,13 @@ export interface Bind<
 }
 
 export const Binding: {
-  <
-    F extends (
-      resource: any,
-      props?: any,
-    ) => AnyBinding & { isCustomTag: true },
-  >(
+  <F extends (resource: any, props?: any) => AnyBinding & { isCustom: true }>(
     runtime: ReturnType<F>["runtime"],
     resource: new () => ReturnType<F>["capability"]["resource"],
     type: ReturnType<F>["capability"]["type"],
     tag: ReturnType<F>["tag"],
   ): F & BindingDeclaration<ReturnType<F>["runtime"], F>;
-  <
-    F extends (
-      resource: any,
-      props?: any,
-    ) => AnyBinding & { isCustomTag: false },
-  >(
+  <F extends (resource: any, props?: any) => AnyBinding & { isCustom: false }>(
     runtime: ReturnType<F>["runtime"],
     resource: new () => ReturnType<F>["capability"]["resource"],
     type: ReturnType<F>["capability"]["type"],
@@ -121,17 +111,6 @@ export interface BindingDeclaration<
     ): Layer<Bind<Run, Cap, Tag>>;
   };
 }
-
-// <Self>(): Self =>
-//   Object.assign(
-//     Context.Tag(
-//       `${capability.action}(${tag}, ${runtime})` as `${Cap["action"]}(${Tag}, ${Runtime})`,
-//     )<Self, BindingService<Cap["resource"], Props>>(),
-//     {
-//       Kind: "Binding",
-//       Capability: capability,
-//     },
-//   ) as Self;
 
 export type BindingService<
   Target = any,
