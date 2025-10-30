@@ -2,9 +2,9 @@
   "files": [],
   "exclude": ["node_modules", "dist"],
   "references": [
-    { "path": "./@alchemy.run/effect/tsconfig.json" },
-    { "path": "./@alchemy.run/effect-aws/tsconfig.json" },
-    { "path": "./@alchemy.run/effect-cli/tsconfig.json" },
-    { "path": "./@alchemy.run/effect-example/tsconfig.json" },
+    { "path": "./alchemy-effect/tsconfig.json" },
+    { "path": "./alchemy-effect-aws/tsconfig.json" },
+    { "path": "./alchemy-effect-cli/tsconfig.json" },
+    { "path": "./example/tsconfig.json" },
   ]
 }

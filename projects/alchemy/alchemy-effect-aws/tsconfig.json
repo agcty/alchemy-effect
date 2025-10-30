@@ -1,6 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["package.json", "src/**/*.ts", "../effect/src/event.ts"],
+  "extends": "../tsconfig.base.json",
+  "include": ["package.json", "src/**/*.ts"],
   "compilerOptions": {
     "composite": true,
     "noEmit": false,
@@ -17,6 +17,6 @@
     "rewriteRelativeImportExtensions": true
   },
   "references": [
-    { "path": "../effect/tsconfig.json" }
+    { "path": "../alchemy-effect/tsconfig.json" }
   ]
 }

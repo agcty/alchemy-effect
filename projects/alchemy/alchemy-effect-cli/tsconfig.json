@@ -1,6 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "include": ["package.json", "src/**/*.ts", "../effect/src/event.ts"],
+  "extends": "../tsconfig.base.json",
+  "include": ["package.json", "src/**/*.ts", "src/**/*.js", "src/**/*.tsx"],
   "compilerOptions": {
     "composite": true,
     "noEmit": false,
@@ -12,11 +12,14 @@
     "module": "Preserve",
     "moduleResolution": "Bundler",
     "target": "ESNext",
+    // ink
+    "jsx": "react",
+    "lib": ["DOM", "DOM.Iterable", "ES2023"],
     "allowJs": true,
     "allowImportingTsExtensions": true,
     "rewriteRelativeImportExtensions": true
   },
   "references": [
-    { "path": "../effect/tsconfig.json" }
+    { "path": "../alchemy-effect/tsconfig.json" }
   ]
 }

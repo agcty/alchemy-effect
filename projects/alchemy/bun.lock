@@ -11,7 +11,7 @@
         "typescript": "catalog:",
       },
     },
-    "@alchemy.run/effect": {
+    "alchemy-effect": {
       "name": "@alchemy.run/effect",
       "version": "0.0.0",
       "devDependencies": {
@@ -31,7 +31,7 @@
         "@effect/platform-node",
       ],
     },
-    "@alchemy.run/effect-aws": {
+    "alchemy-effect-aws": {
       "name": "@alchemy.run/effect-aws",
       "version": "0.0.0",
       "dependencies": {
@@ -60,7 +60,7 @@
         "effect": "*",
       },
     },
-    "@alchemy.run/effect-cli": {
+    "alchemy-effect-cli": {
       "name": "@alchemy.run/effect-cli",
       "version": "0.0.0",
       "bin": {
@@ -88,7 +88,7 @@
         "@effect/platform-node": "*",
       },
     },
-    "@alchemy.run/effect-cloudflare": {
+    "alchemy-effect-cloudflare": {
       "name": "@alchemy.run/effect-cloudflare",
       "version": "0.0.0",
       "dependencies": {
@@ -109,7 +109,7 @@
         "effect": "*",
       },
     },
-    "@alchemy.run/effect-example": {
+    "example": {
       "name": "@alchemy.run/effect-example",
       "dependencies": {
         "@alchemy.run/effect": "workspace:*",
@@ -141,15 +141,15 @@
   "packages": {
     "@alcalzone/ansi-tokenize": ["@alcalzone/ansi-tokenize@0.2.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "is-fullwidth-code-point": "^5.0.0" } }, "sha512-mkOh+Wwawzuf5wa30bvc4nA+Qb6DIrGWgBhRR/Pw4T9nsgYait8izvXkNyU78D6Wcu3Z+KUdwCmLCxlWjEotYA=="],
 
-    "@alchemy.run/effect": ["@alchemy.run/effect@workspace:@alchemy.run/effect"],
+    "@alchemy.run/effect": ["@alchemy.run/effect@workspace:alchemy-effect"],
 
-    "@alchemy.run/effect-aws": ["@alchemy.run/effect-aws@workspace:@alchemy.run/effect-aws"],
+    "@alchemy.run/effect-aws": ["@alchemy.run/effect-aws@workspace:alchemy-effect-aws"],
 
-    "@alchemy.run/effect-cli": ["@alchemy.run/effect-cli@workspace:@alchemy.run/effect-cli"],
+    "@alchemy.run/effect-cli": ["@alchemy.run/effect-cli@workspace:alchemy-effect-cli"],
 
-    "@alchemy.run/effect-cloudflare": ["@alchemy.run/effect-cloudflare@workspace:@alchemy.run/effect-cloudflare"],
+    "@alchemy.run/effect-cloudflare": ["@alchemy.run/effect-cloudflare@workspace:alchemy-effect-cloudflare"],
 
-    "@alchemy.run/effect-example": ["@alchemy.run/effect-example@workspace:@alchemy.run/effect-example"],
+    "@alchemy.run/effect-example": ["@alchemy.run/effect-example@workspace:example"],
 
     "@aws-crypto/sha256-browser": ["@aws-crypto/sha256-browser@5.2.0", "", { "dependencies": { "@aws-crypto/sha256-js": "^5.2.0", "@aws-crypto/supports-web-crypto": "^5.2.0", "@aws-crypto/util": "^5.2.0", "@aws-sdk/types": "^3.222.0", "@aws-sdk/util-locate-window": "^3.0.0", "@smithy/util-utf8": "^2.0.0", "tslib": "^2.6.2" } }, "sha512-AXfN/lGotSQwu6HNcEsIASo7kWXZ5HYWvfOmSNKDsEqC4OashTp8alTmaz+F7TC2L083SFv5RdB+qU3Vs1kZqw=="],
 
@@ -760,6 +760,14 @@
     "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
 
     "zod-to-json-schema": ["zod-to-json-schema@3.24.6", "", { "peerDependencies": { "zod": "^3.24.1" } }, "sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg=="],
+
+    "@alchemy.run/effect/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+
+    "@alchemy.run/effect-aws/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+
+    "@alchemy.run/effect-cli/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+
+    "@alchemy.run/effect-cloudflare/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
 
     "@aws-crypto/sha256-browser/@smithy/util-utf8": ["@smithy/util-utf8@2.3.0", "", { "dependencies": { "@smithy/util-buffer-from": "^2.2.0", "tslib": "^2.6.2" } }, "sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A=="],
 

@@ -27,7 +27,8 @@
       "wrangler": "^4.42.2"
     },
     "packages": [
-      "@alchemy.run/*"
+      "alchemy-effect*",
+      "example"
     ]
   },
   "devDependencies": {
