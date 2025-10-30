@@ -25,7 +25,7 @@ export const QueueEventSource = Binding<
     queue: Q,
     props?: Props,
   ) => Binding<Function, Consume<From<Q>>, Props, "QueueEventSource">
->(Function, Queue, "AWS.SQS.Consume", "QueueEventSource");
+>(Function, "AWS.SQS.Consume", "QueueEventSource");
 
 export const consumeFromLambdaFunction = () =>
   QueueEventSource.provider.succeed({

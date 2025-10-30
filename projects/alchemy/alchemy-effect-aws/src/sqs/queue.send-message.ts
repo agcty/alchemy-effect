@@ -15,7 +15,7 @@ export interface SendMessage<Q = Queue>
 
 export const SendMessage = Binding<
   <Q extends Queue>(queue: Q) => Binding<Function, SendMessage<To<Q>>>
->(Function, Queue, "AWS.SQS.SendMessage");
+>(Function, "AWS.SQS.SendMessage");
 
 export const sendMessage = <Q extends Queue>(
   queue: Q,

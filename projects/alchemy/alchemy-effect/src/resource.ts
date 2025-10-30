@@ -1,5 +1,6 @@
+import * as Context from "effect/Context";
 import type { Effect } from "effect/Effect";
-import type { Layer } from "effect/Layer";
+import * as Layer from "effect/Layer";
 import type { Provider, ProviderService } from "./provider.ts";
 
 export interface IResource<
@@ -26,8 +27,9 @@ export interface Resource<
 
 export const Resource = <Ctor extends (id: string, props: any) => Resource>(
   type: ReturnType<Ctor>["type"],
-) =>
-  class {
+) => {
+  const Tag = Context.Tag(type)();
+  return class {
     static readonly type = type;
     constructor(id: string, props: any) {
       if (!new.target) {
@@ -42,6 +44,12 @@ export const Resource = <Ctor extends (id: string, props: any) => Resource>(
         };
       }
     }
+    static provider = {
+      effect: (eff: Effect<ProviderService<ReturnType<Ctor>>, any, any>) =>
+        Layer.effect(Tag, eff),
+      succeed: (service: ProviderService<ReturnType<Ctor>>) =>
+        Layer.succeed(Tag, service),
+    };
   } as unknown as Ctor & {
     type: ReturnType<Ctor>["type"];
     new (): ReturnType<Ctor> & {
@@ -50,9 +58,10 @@ export const Resource = <Ctor extends (id: string, props: any) => Resource>(
     provider: {
       effect<Err, Req>(
         eff: Effect<ProviderService<ReturnType<Ctor>>, Err, Req>,
-      ): Layer<Provider<ReturnType<Ctor>>, Err, Req>;
+      ): Layer.Layer<Provider<ReturnType<Ctor>>, Err, Req>;
       succeed(
         service: ProviderService<ReturnType<Ctor>>,
-      ): Layer<Provider<ReturnType<Ctor>>>;
+      ): Layer.Layer<Provider<ReturnType<Ctor>>>;
     };
   };
+};

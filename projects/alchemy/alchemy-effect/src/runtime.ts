@@ -1,7 +1,7 @@
 import type { Types } from "effect";
 import * as Context from "effect/Context";
 import type { Effect } from "effect/Effect";
-import type { Layer } from "effect/Layer";
+import * as Layer from "effect/Layer";
 import type { Capability } from "./capability.ts";
 import type { Policy } from "./policy.ts";
 import type { ProviderService } from "./provider.ts";
@@ -75,10 +75,11 @@ export const Runtime =
     provider: {
       effect<Err, Req>(
         eff: Effect<ProviderService<Self>, Err, Req>,
-      ): Layer<Self, Err, Req>;
-      succeed(service: ProviderService<Self>): Layer<Self>;
+      ): Layer.Layer<Self, Err, Req>;
+      succeed(service: ProviderService<Self>): Layer.Layer<Self>;
     };
   } => {
+    const Tag = Context.Tag(type)();
     const self = Object.assign(
       (
         ...args:
@@ -122,6 +123,12 @@ export const Runtime =
         type: type,
         id: undefined! as string,
         capability: undefined! as Capability[],
+        provider: {
+          effect: (eff: Effect<ProviderService<Self>, any, any>) =>
+            Layer.effect(Tag, eff),
+          succeed: (service: ProviderService<Self>) =>
+            Layer.succeed(Tag, service),
+        },
         toString() {
           return `${this.type}(${this.id}${
             this.capability?.length

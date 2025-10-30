@@ -1,6 +1,6 @@
 import * as Context from "effect/Context";
 import type { Effect } from "effect/Effect";
-import type { Layer } from "effect/Layer";
+import * as Layer from "effect/Layer";
 import type { Capability } from "./capability.ts";
 import type { Resource } from "./resource.ts";
 import type { Runtime } from "./runtime.ts";
@@ -64,31 +64,29 @@ export interface Bind<
 export const Binding: {
   <F extends (resource: any, props?: any) => AnyBinding & { isCustom: true }>(
     runtime: ReturnType<F>["runtime"],
-    resource: new () => ReturnType<F>["capability"]["resource"],
+    // resource: new () => ReturnType<F>["capability"]["resource"],
     type: ReturnType<F>["capability"]["type"],
     tag: ReturnType<F>["tag"],
   ): F & BindingDeclaration<ReturnType<F>["runtime"], F>;
   <F extends (resource: any, props?: any) => AnyBinding & { isCustom: false }>(
     runtime: ReturnType<F>["runtime"],
-    resource: new () => ReturnType<F>["capability"]["resource"],
+    // resource: new () => ReturnType<F>["capability"]["resource"],
     type: ReturnType<F>["capability"]["type"],
   ): F & BindingDeclaration<ReturnType<F>["runtime"], F>;
-} = (runtime: any, resource: any, type: string, tag?: string) =>
-  Object.assign(
+} = (runtime: any, cap: string, tag?: string) => {
+  const Tag = Context.Tag(`${runtime.type}(${cap}, ${tag ?? cap})`)();
+  return Object.assign(
     () => {
-      throw new Error(`Should never be called`);
+      throw new Error(`Not implemented`);
     },
     {
       provider: {
-        effect: () => {
-          throw new Error(`Not implemented`);
-        },
-        succeed: () => {
-          throw new Error(`Not implemented`);
-        },
+        effect: (eff) => Layer.effect(Tag, eff),
+        succeed: (service) => Layer.succeed(Tag, service),
       },
     } satisfies BindingDeclaration<Runtime, any>,
   );
+};
 
 export interface BindingDeclaration<
   Run extends Runtime,
@@ -103,10 +101,10 @@ export interface BindingDeclaration<
         Err,
         Req
       >,
-    ): Layer<Bind<Run, Cap, Tag>, Err, Req>;
+    ): Layer.Layer<Bind<Run, Cap, Tag>, Err, Req>;
     succeed(
       service: BindingService<Run, Parameters<F>[0], Parameters<F>[1]>,
-    ): Layer<Bind<Run, Cap, Tag>>;
+    ): Layer.Layer<Bind<Run, Cap, Tag>>;
   };
 }
 
