@@ -1,12 +1,5 @@
-import {
-  Capability,
-  Policy,
-  Provider,
-  Runtime,
-  type RuntimeHandler,
-} from "@alchemy.run/effect";
+import { Capability, Policy, Runtime } from "@alchemy.run/effect";
 
-import type { Context } from "aws-lambda";
 export type { Context } from "aws-lambda";
 
 export interface FunctionProps<Req = any> {
@@ -30,17 +23,7 @@ export type FunctionAttr<Props extends FunctionProps = FunctionProps> = {
   };
 };
 
-export interface Function<
-  Handler extends
-    | RuntimeHandler<[event: any, context: Context]>
-    | unknown = unknown,
-  Props extends FunctionProps<RuntimeHandler.Caps<Handler>> | unknown = unknown,
-> extends Runtime<"AWS.Lambda.Function", Handler, Props> {
-  readonly Provider: FunctionProvider;
-  readonly Instance: Function<this["handler"], this["props"]>;
-
+export interface Function extends Runtime<"AWS.Lambda.Function"> {
   readonly attr: FunctionAttr<Extract<this["props"], FunctionProps>>;
 }
 export const Function = Runtime("AWS.Lambda.Function")<Function>();
-
-export type FunctionProvider = Provider<Function>;

@@ -6,7 +6,7 @@ export class Message extends S.Class<Message>("Message")({
   value: S.String,
 }) {}
 
-export class Messages extends SQS.Queue("messages", {
+export class Messages extends SQS.Queue("Messages", {
   fifo: true,
   schema: Message,
 }) {}

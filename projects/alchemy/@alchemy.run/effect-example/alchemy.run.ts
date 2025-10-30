@@ -4,12 +4,12 @@ import * as AlchemyCLI from "@alchemy.run/effect-cli";
 import { FetchHttpClient } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import * as Effect from "effect/Effect";
-import { MyMonitor } from "./src/component.ts";
-import { Api, Consumer } from "./src/index.ts";
+import { Api } from "./src/index.ts";
 
 const plan = Alchemy.plan({
-  phase: process.argv.includes("--destroy") ? "destroy" : "update",
-  resources: [Api, Consumer, MyMonitor],
+  // phase: process.argv.includes("--destroy") ? "destroy" : "update",
+  phase: "update",
+  services: [Api],
 });
 
 const stack = await plan.pipe(
@@ -25,3 +25,7 @@ const stack = await plan.pipe(
   Effect.tap((stack) => Effect.log(stack?.Api.functionUrl)),
   Effect.runPromise,
 );
+
+if (stack) {
+  // Effect.log(stack?.Api.functionUrl);
+}

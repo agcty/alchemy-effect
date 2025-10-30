@@ -46,7 +46,7 @@ export function Policy(...bindings: AnyBinding[]) {
 export const declare = <S extends Capability>() =>
   Effect.gen(function* () {}) as Effect.Effect<void, never, S>;
 
-type Instance<T> = { id: string } extends T
+export type Instance<T> = { id: string } extends T
   ? T
   : T extends new (...args: any) => infer I
     ? I

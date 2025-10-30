@@ -1,9 +1,9 @@
 import type { Types } from "effect";
 import * as Context from "effect/Context";
 import type { Effect } from "effect/Effect";
-import { bind } from "./bind.ts";
 import type { Capability } from "./capability.ts";
 import type { Policy } from "./policy.ts";
+import type { Service } from "./service.ts";
 
 export type RuntimeHandler<
   Inputs extends any[] = any[],
@@ -30,19 +30,6 @@ export declare namespace Runtime {
         readonly F: F;
         readonly cap: Types.Contravariant<Cap>;
       };
-
-  export type Instance<
-    R extends Runtime,
-    Handler extends RuntimeHandler,
-    Props,
-  > = Extract<
-    (R & {
-      handler: Handler;
-      props: Props;
-      cap: Extract<Effect.Context<ReturnType<Handler>>, Capability>;
-    })["Instance"],
-    Runtime
-  >;
 }
 
 export type AnyRuntime = Runtime<string>;
@@ -56,8 +43,7 @@ export interface Runtime<
   Handler = unknown,
   Props = unknown,
 > {
-  Provider: unknown;
-  Instance: unknown;
+  attr: unknown;
 
   type: Type;
   props: Props;
@@ -78,7 +64,9 @@ export interface Runtime<
     { handle }: { handle: Handler },
   ): <const Props extends this["props"]>(
     props: Props,
-  ) => Runtime.Instance<this, Handler, Props>;
+  ) => Service<ID, this, Handler, Extract<Props, RuntimeProps<this, any>>> & {
+    new (): {};
+  };
 }
 
 export const Runtime =
@@ -102,7 +90,20 @@ export const Runtime =
         } else {
           const [id, { handle }] = args;
           return <const Props extends RuntimeProps<Self, any>>(props: Props) =>
-            bind(self as Runtime, id, handle, props) as unknown as Self;
+            Object.assign(
+              class {
+                constructor() {
+                  throw new Error("Cannot instantiate a Service directly");
+                }
+              },
+              {
+                id,
+                attr: undefined!,
+                handler: handle,
+                props,
+                runtime: self,
+              } satisfies Service<string, Self, any, any>,
+            );
         }
       },
       {

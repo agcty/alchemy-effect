@@ -1,12 +1,11 @@
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import util from "node:util";
-import { isBound, type Bound } from "./bind.ts";
 import type { Capability, SerializedCapability } from "./capability.ts";
-import type { Phase } from "./phase.ts";
+import type { Instance } from "./policy.ts";
 import { Provider, type ProviderService } from "./provider.ts";
 import type { Resource } from "./resource.ts";
-import type { Runtime } from "./runtime.ts";
+import type { Service } from "./service.ts";
 import { State, type ResourceState } from "./state.ts";
 
 export type PlanError = never;
@@ -139,65 +138,42 @@ export type Replace<R extends Resource> = {
   deleteFirst?: boolean;
 };
 
-type PlanNode = Bound<any> | Resource;
-type PlanGraph = {
-  [id in string]: PlanNode;
-};
-type PlanGraphEffect = Effect.Effect<PlanGraph, never, unknown>;
-
-type ApplyAll<
-  Subgraphs extends PlanGraphEffect[],
-  Accum extends Record<string, CRUD> = {},
-> = Subgraphs extends [
-  infer Head extends PlanGraphEffect,
-  ...infer Tail extends PlanGraphEffect[],
-]
-  ? ApplyAll<
-      Tail,
-      Accum & {
-        [id in keyof Effect.Effect.Success<Head>]: _Apply<
-          Extract<Effect.Effect.Success<Head>[id], PlanNode>
-        >;
-      }
-    >
-  : Accum;
-
-type _Apply<Item extends PlanNode> =
-  Item extends Bound<infer Run extends Runtime<string, any, any>>
-    ? Apply<Run>
-    : Item extends Resource
-      ? Apply<Item>
-      : never;
-
-type DerivePlan<
-  P extends Phase = Phase,
-  Resources extends PlanGraphEffect[] = PlanGraphEffect[],
-> = P extends "update"
-  ?
-      | {
-          [k in keyof ApplyAll<Resources>]: ApplyAll<Resources>[k];
-        }
-      | {
-          [k in Exclude<string, keyof ApplyAll<Resources>>]: Delete<Resource>;
-        }
-  : {
-      [k in Exclude<string, keyof ApplyAll<Resources>>]: Delete<Resource>;
-    };
-
 export type Plan = {
   [id in string]: CRUD;
 };
 
 export const plan = <
   const Phase extends "update" | "destroy",
-  const Resources extends PlanGraphEffect[],
+  const Services extends Service[],
 >({
   phase,
-  resources,
+  services,
 }: {
   phase: Phase;
-  resources: Resources;
+  services: Services;
 }) => {
+  type ServiceIDs = Services[number]["id"];
+  type ServiceHosts = {
+    [ID in ServiceIDs]: Extract<Services[number], Service<Extract<ID, string>>>;
+  };
+
+  type UpstreamTags = {
+    [ID in ServiceIDs]: ServiceHosts[ID]["props"]["bindings"]["tags"][number];
+  }[ServiceIDs];
+  type UpstreamResources = {
+    [ID in ServiceIDs]: Extract<
+      ServiceHosts[ID]["props"]["bindings"]["capabilities"][number]["resource"],
+      Resource
+    >;
+  }[ServiceIDs];
+  type Graph = {
+    [ID in ServiceIDs]: Apply<Extract<Instance<ServiceHosts[ID]>, Resource>>;
+  } & {
+    [ID in UpstreamResources["id"]]: Apply<
+      Extract<UpstreamResources, { id: ID }>
+    >;
+  };
+
   return Effect.gen(function* () {
     const state = yield* State;
 
@@ -228,7 +204,7 @@ export const plan = <
     const updates = (
       phase === "update"
         ? yield* Effect.all(
-            resources.map((resource) =>
+            services.map((resource) =>
               Effect.flatMap(
                 resource,
                 Effect.fn(function* (subgraph: {
@@ -405,9 +381,11 @@ export const plan = <
       {} as any,
     );
   }) as Effect.Effect<
-    DerivePlan<Phase, Resources>,
+    {
+      [ID in keyof Graph]: Graph[ID];
+    },
     never,
-    Effect.Effect.Context<Resources[number]> | State
+    UpstreamTags | State
   >;
 };
 

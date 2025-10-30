@@ -23,4 +23,7 @@ export const serve =
     },
   ) =>
   <const Props extends Lambda.FunctionProps<Req>>(props: Props) =>
-    Lambda.Function(id, { handle: fetch })(props);
+    Lambda.Function(id, { handle: fetch })({
+      ...props,
+      url: true,
+    });

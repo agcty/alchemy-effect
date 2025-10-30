@@ -21,19 +21,20 @@ export type Binding<
 > = {
   runtime: Run;
   capability: Cap;
-  tag: BindingTag<Run, Cap, Tag>;
+  tag: Bind<Run, Cap, Tag>;
 };
 
-export interface BindingTag<
-  Run extends Runtime,
+/** Tag for a Service that can bind a Capability to a Runtime */
+export interface Bind<
+  F extends Runtime,
   Cap extends Capability,
   Tag extends string,
 > extends Context.Tag<
-    `${Run["type"]}(${Cap["type"]}, ${Tag})`,
+    `${F["type"]}(${Cap["type"]}, ${Tag})`,
     BindingService<
-      Run,
+      F,
       Extract<Extract<Cap["resource"], Resource>["parent"], Resource>,
-      Run["props"]
+      F["props"]
     >
   > {
   /** @internal phantom */
@@ -81,7 +82,7 @@ export interface BindingDeclaration<
     ): Layer<Tag, Err, Req>;
     succeed(
       service: BindingService<Run["props"], Parameters<F>[0], Parameters<F>[1]>,
-    ): Layer<BindingService<Run["props"], Parameters<F>[0], Parameters<F>[1]>>;
+    ): Layer<Tag>;
   };
 }
 
