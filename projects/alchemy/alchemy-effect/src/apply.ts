@@ -3,7 +3,6 @@ import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Simplify } from "effect/Types";
 import { PlanReviewer, type PlanRejected } from "./approve.ts";
-import type { Capability } from "./capability.ts";
 import type { ApplyEvent, ApplyStatus } from "./event.ts";
 import { type BindNode, type CRUD, type Delete, type Plan } from "./plan.ts";
 import type { Resource } from "./resource.ts";
@@ -77,26 +76,10 @@ export const apply = <P extends Plan, Err, Req>(
                       status: node.action === "create" ? "created" : "updated",
                       props: node.resource.props,
                       output,
-                      bindings: node.bindings.map((binding) => ({
-                        ...binding,
-                        resource: {
-                          type: binding.binding.capability.resource.type,
-                          id: binding.binding.capability.resource.id,
-                        },
-                      })),
+                      bindings: node.bindings,
                     })
                     .pipe(Effect.map(() => output)),
                 ),
-              );
-
-            const hydrate = <A extends BindNode>(bindings: Capability[]) =>
-              node.bindings.map(
-                (binding, i) =>
-                  Object.assign(binding, {
-                    attributes: bindings[i],
-                  }) as A & {
-                    attributes: any;
-                  },
               );
 
             const id = node.resource.id;
@@ -130,7 +113,7 @@ export const apply = <P extends Plan, Err, Req>(
                     .create({
                       id,
                       news: node.news,
-                      bindings: hydrate(bindings),
+                      bindings,
                       session: scopedSession,
                     })
                     .pipe(
@@ -146,7 +129,7 @@ export const apply = <P extends Plan, Err, Req>(
                       news: node.news,
                       olds: node.olds,
                       output: node.output,
-                      bindings: hydrate(bindings),
+                      bindings,
                       session: scopedSession,
                     })
                     .pipe(
@@ -198,7 +181,7 @@ export const apply = <P extends Plan, Err, Req>(
                           id,
                           news: node.news,
                           // TODO(sam): these need to only include attach actions
-                          bindings: hydrate(yield* apply(node.bindings)),
+                          bindings: yield* apply(node.bindings),
                           session: scopedSession,
                         })
                         // TODO(sam): delete and create will conflict here, we need to extend the state store for replace

@@ -3,35 +3,28 @@ import type { Effect } from "effect/Effect";
 import * as Layer from "effect/Layer";
 import type { Provider, ProviderService } from "./provider.ts";
 
-export interface IResource<
+export interface Resource<
   Type extends string = string,
   ID extends string = string,
-  Props = any,
-  Attrs = any,
+  Props = unknown,
+  Attrs = unknown,
 > {
   id: ID;
   type: Type;
   props: Props;
   attr: Attrs;
   parent: unknown;
-}
-export interface Resource<
-  Type extends string = string,
-  ID extends string = string,
-  Props = unknown,
-  Attrs = unknown,
-> extends IResource<Type, ID, Props, Attrs> {
   // oxlint-disable-next-line no-misused-new
   new (): Resource<Type, ID, Props, Attrs>;
-  provider: {
-    tag: Context.TagClass<Provider<Resource>, Type, ProviderService<Resource>>;
-    effect<Err, Req>(
-      eff: Effect<ProviderService<Resource>, Err, Req>,
-    ): Layer.Layer<Provider<Resource>, Err, Req>;
-    succeed(
-      service: ProviderService<Resource>,
-    ): Layer.Layer<Provider<Resource>>;
-  };
+}
+
+export interface ResourceTags<R extends Resource> {
+  of<S extends ProviderService<R>>(service: S): S;
+  tag: Context.TagClass<Provider<R>, R["type"], ProviderService<R>>;
+  effect<Err, Req>(
+    eff: Effect<ProviderService<R>, Err, Req>,
+  ): Layer.Layer<Provider<R>, Err, Req>;
+  succeed(service: ProviderService<R>): Layer.Layer<Provider<R>>;
 }
 
 export const Resource = <Ctor extends (id: string, props: any) => Resource>(

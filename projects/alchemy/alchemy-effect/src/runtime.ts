@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import type { Capability } from "./capability.ts";
 import type { Policy } from "./policy.ts";
 import type { ProviderService } from "./provider.ts";
-import type { Resource } from "./resource.ts";
+import type { Resource, ResourceTags } from "./resource.ts";
 import type { IService, Service } from "./service.ts";
 
 export type RuntimeHandler<
@@ -52,7 +52,6 @@ export interface Runtime<
   binding: unknown;
   /** @internal phantom */
   capability: unknown;
-  new (): {};
   <
     const ID extends string,
     Inputs extends any[],
@@ -69,15 +68,18 @@ export interface Runtime<
   ) => Service<ID, this, Handler, Props>;
 }
 
+// export interface IRuntime<
+//   Type extends string = string,
+//   Handler = unknown,
+//   Props = unknown,
+// > extends IResource<Type, string, Props, unknown> {
+
+// }
+
 export const Runtime =
   <const Type extends string>(type: Type) =>
   <Self extends Runtime>(): Self & {
-    provider: {
-      effect<Err, Req>(
-        eff: Effect<ProviderService<Self>, Err, Req>,
-      ): Layer.Layer<Self, Err, Req>;
-      succeed(service: ProviderService<Self>): Layer.Layer<Self>;
-    };
+    provider: ResourceTags<Self>;
   } => {
     const Tag = Context.Tag(type)();
     const provider = {

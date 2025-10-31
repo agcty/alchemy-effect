@@ -5,7 +5,7 @@ import type { Capability } from "./capability.ts";
 import type { Phase } from "./phase.ts";
 import type { Instance } from "./policy.ts";
 import { type ProviderService } from "./provider.ts";
-import type { IResource, Resource } from "./resource.ts";
+import type { Resource, ResourceTags } from "./resource.ts";
 import { isService, type Service } from "./service.ts";
 import { State, type ResourceState } from "./state.ts";
 
@@ -59,14 +59,14 @@ export const isCRUD = (node: any): node is CRUD => {
 /**
  * A node in the plan that represents a resource CRUD operation.
  */
-export type CRUD<R extends IResource = IResource> =
+export type CRUD<R extends Resource = Resource> =
   | Create<R>
   | Update<R>
   | Delete<R>
   | Replace<R>
   | NoopUpdate<R>;
 
-export type Apply<R extends IResource = IResource> =
+export type Apply<R extends Resource = Resource> =
   | Create<R>
   | Update<R>
   | Replace<R>
@@ -82,7 +82,7 @@ const Node = <T extends Apply>(node: T) => ({
   },
 });
 
-export type Create<R extends IResource> = {
+export type Create<R extends Resource> = {
   action: "create";
   resource: R;
   news: any;
@@ -91,7 +91,7 @@ export type Create<R extends IResource> = {
   bindings: BindNode[];
 };
 
-export type Update<R extends IResource> = {
+export type Update<R extends Resource> = {
   action: "update";
   resource: R;
   olds: any;
@@ -102,7 +102,7 @@ export type Update<R extends IResource> = {
   bindings: BindNode[];
 };
 
-export type Delete<R extends IResource> = {
+export type Delete<R extends Resource> = {
   action: "delete";
   resource: R;
   olds: any;
@@ -113,14 +113,14 @@ export type Delete<R extends IResource> = {
   downstream: string[];
 };
 
-export type NoopUpdate<R extends IResource> = {
+export type NoopUpdate<R extends Resource> = {
   action: "noop";
   resource: R;
   attributes: R["attr"];
   bindings: BindNode[];
 };
 
-export type Replace<R extends IResource> = {
+export type Replace<R extends Resource> = {
   action: "replace";
   resource: R;
   olds: any;
@@ -222,7 +222,9 @@ export const plan = <
                 .map(
                   Effect.fn(function* (node) {
                     const id = node.id;
-                    const resource = node;
+                    const resource = node as Resource & {
+                      provider: ResourceTags<Resource>;
+                    };
                     const news = isService(node)
                       ? node.runtime.props
                       : resource.props;
@@ -355,7 +357,7 @@ export const plan = <
                     type: oldState.type,
                     attr: oldState.output,
                     props: oldState.props,
-                  } satisfies IResource as Resource,
+                  } as Resource,
                   downstream: downstream[id] ?? [],
                 } satisfies Delete<Resource>,
               ] as const;

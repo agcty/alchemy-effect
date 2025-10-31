@@ -27,7 +27,7 @@ const stack = await plan.pipe(
   Effect.provide(NodeContext.layer),
   Effect.provide(FetchHttpClient.layer),
   Effect.tap((stack) => Effect.log(stack?.Api.functionUrl)),
-  Effect.runPromiseExit,
+  Effect.runPromise,
 );
 
 if (stack) {

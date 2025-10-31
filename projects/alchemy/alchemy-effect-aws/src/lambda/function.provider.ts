@@ -5,7 +5,7 @@ import { FileSystem } from "@effect/platform";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
-import { App, DotAlchemy, type ProviderService } from "@alchemy.run/effect";
+import { App, DotAlchemy } from "@alchemy.run/effect";
 
 import type {
   CreateFunctionUrlConfigRequest,
@@ -362,7 +362,7 @@ export const functionProvider = () =>
         }`;
 
       return {
-        type: "AWS.Lambda.Function",
+        // type: "AWS.Lambda.Function",
         read: Effect.fn(function* ({ id, output }) {
           if (output) {
             // example: refresh the function URL from the API
@@ -402,6 +402,7 @@ export const functionProvider = () =>
           return { action: "noop" };
         }),
         create: Effect.fn(function* ({ id, news, bindings, session }) {
+          console.log({ id, news, bindings, session });
           const roleName = createRoleName(id);
           const policyName = createPolicyName(id);
           // const policyArn = `arn:aws:iam::${accountId}:policy/${policyName}`;
@@ -558,6 +559,6 @@ export const functionProvider = () =>
             .pipe(Effect.catchTag("NoSuchEntityException", () => Effect.void));
           return null as any;
         }),
-      } as any satisfies ProviderService<Function>;
+      };
     }),
   );

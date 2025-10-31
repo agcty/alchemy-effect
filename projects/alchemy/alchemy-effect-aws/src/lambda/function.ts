@@ -4,6 +4,8 @@ import type * as IAM from "../iam.ts";
 export type { Context } from "aws-lambda";
 
 export interface FunctionProps<Req = any> {
+  functionName?: string;
+  functionArn?: string;
   main: string;
   handler?: string;
   memory?: number;
