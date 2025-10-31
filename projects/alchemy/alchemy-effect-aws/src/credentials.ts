@@ -15,6 +15,7 @@ import {
   type AwsCredentialIdentity,
   type AwsCredentialIdentityProvider,
 } from "@smithy/types";
+import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -298,6 +299,9 @@ export const fromSSO = () =>
         );
 
         if (isExpired(ssoToken.expiresAt)) {
+          yield* Console.log(
+            `The SSO session token associated with profile=${profileName} was not found or is invalid. ${REFRESH_MESSAGE}`,
+          );
           yield* Effect.fail(
             new ExpiredSSOToken({
               message: `The SSO session token associated with profile=${profileName} was not found or is invalid. ${REFRESH_MESSAGE}`,
