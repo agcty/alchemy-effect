@@ -11,7 +11,9 @@ class Message extends S.Class<Message>("Message")({
 
 const MonitorSimple = <const ID extends string, Req>(
   id: ID,
-  { onAlarm }: {
+  {
+    onAlarm,
+  }: {
     onAlarm: (message: Message) => Effect.Effect<void, never, Req>;
   },
 ) => {
@@ -60,7 +62,10 @@ export interface MonitorComplexProps<ReqAlarm, ReqResolved>
 
 const MonitorComplex = <const ID extends string, ReqAlarm, ReqResolved>(
   id: ID,
-  { onAlarm, onResolved }: {
+  {
+    onAlarm,
+    onResolved,
+  }: {
     onAlarm: (
       batch: SQS.QueueEvent<Message>,
     ) => Effect.Effect<void, never, ReqAlarm>;
@@ -120,7 +125,7 @@ export class MyMonitor extends MonitorComplex("MyMonitor", {
   bindings: $(SQS.SendMessage(Outer)),
 }) {}
 
-export default MyMonitor.pipe(
-  Effect.provide(SQS.clientFromEnv()),
-  Lambda.toHandler,
-);
+// export default MyMonitor.pipe(
+//   Effect.provide(SQS.clientFromEnv()),
+//   Lambda.toHandler,
+// );

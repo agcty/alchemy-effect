@@ -29,7 +29,7 @@ export interface Policy<
   ): Policy<F, B[number]["capability"] | Capabilities, Tags>;
 }
 
-export type $ = typeof $;
+export type $<T> = Instance<T>;
 export const $ = Policy;
 
 type BindingTags<B extends AnyBinding> = B extends any

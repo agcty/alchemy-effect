@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import {
   Binding,
   declare,
+  toEnvKey,
   type Capability,
   type To,
 } from "@alchemy.run/effect";
@@ -24,8 +25,7 @@ export const sendMessage = <Q extends Queue>(
   Effect.gen(function* () {
     yield* declare<SendMessage<To<Q>>>();
     const sqs = yield* QueueClient;
-    const url =
-      process.env[`${queue.id.toUpperCase().replace(/-/g, "_")}_QUEUE_URL`]!;
+    const url = process.env[toEnvKey(queue.id, "QUEUE_URL")]!;
     return yield* sqs.sendMessage({
       QueueUrl: url,
       MessageBody: JSON.stringify(message),
@@ -37,8 +37,7 @@ export const sendMessageFromLambdaFunction = () =>
     attach: (queue) => ({
       env: {
         // ask what attribute is needed to interact? e.g. is it the Queue ARN or the Queue URL?
-        [`${queue.id.toUpperCase().replace(/-/g, "_")}_QUEUE_URL`]:
-          queue.attr.queueUrl,
+        [toEnvKey(queue.id, "QUEUE_URL")]: queue.attr.queueUrl,
       },
       policyStatements: [
         {

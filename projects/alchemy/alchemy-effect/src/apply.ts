@@ -230,19 +230,23 @@ export const apply = <P extends Plan, Err, Req>(
             ));
           }) as Effect.Effect<any, never, never>;
 
+        const nodes = [
+          ...Object.entries(plan.resources),
+          ...Object.entries(plan.deletions),
+        ];
+
         const resources: any = Object.fromEntries(
           yield* Effect.all(
-            Object.entries(plan.resources).map(
+            nodes.map(
               Effect.fn(function* ([id, node]) {
-                return [id, yield* apply(node as P[keyof P])];
+                return [id, yield* apply(node as CRUD)];
               }),
             ),
           ),
         );
         yield* done();
-        if (
-          Object.values(plan).every((resource) => resource.action === "delete")
-        ) {
+        if (Object.keys(plan.resources).length === 0) {
+          // all resources are deleted, return undefined
           return undefined;
         }
         return resources;
