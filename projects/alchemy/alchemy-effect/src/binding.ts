@@ -79,6 +79,8 @@ export const Binding: {
         props,
         isCustom: false,
         tag: tag ?? cap,
+        // @ts-expect-error - we smuggle this property because it interacts poorly with inference
+        Tag,
       }) satisfies Binding<any, any, any, string, false>,
     {
       provider: {
@@ -116,22 +118,21 @@ export type BindingService<
   AttachReq = never,
   DetachReq = never,
 > = {
-  attach: (
-    resource: {
+  attach: (props: {
+    source: {
       id: string;
       attr: Source["attr"];
       props: Source["props"];
-    },
-    props: Props,
+    };
+    props: Props;
     target: {
+      id: string;
       props: Target["props"];
       attr: Target["attr"];
-      binding: Target["binding"];
-    },
-  ) =>
+    };
+  }) =>
     | Effect<Partial<Target["binding"]> | void, never, AttachReq>
-    | Partial<Target["binding"]>
-    | void;
+    | Partial<Target["binding"]>;
   detach?: (
     resource: {
       id: string;

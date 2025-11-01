@@ -49,7 +49,6 @@ export interface ProviderService<Res extends Resource = Resource> {
     id: string;
     news: Res["props"];
     session: ScopedPlanStatusSession;
-    bindings: BindingData<Res>;
   }): Effect.Effect<Res["attr"], any, never>;
   create(input: {
     id: string;

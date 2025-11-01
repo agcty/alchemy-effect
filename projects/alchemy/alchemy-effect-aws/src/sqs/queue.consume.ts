@@ -29,7 +29,7 @@ export const QueueEventSource = Binding<
 
 export const consumeFromLambdaFunction = () =>
   QueueEventSource.provider.succeed({
-    attach: (queue) => ({
+    attach: ({ source: queue }) => ({
       policyStatements: [
         {
           Sid: "AWS.SQS.Consume",

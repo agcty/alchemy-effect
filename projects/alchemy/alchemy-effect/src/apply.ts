@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Simplify } from "effect/Types";
 import { PlanReviewer, type PlanRejected } from "./approve.ts";
+import type { AnyBinding, BindingService } from "./binding.ts";
 import type { ApplyEvent, ApplyStatus } from "./event.ts";
 import { type BindNode, type CRUD, type Delete, type Plan } from "./plan.ts";
 import type { Resource } from "./resource.ts";
@@ -48,22 +49,53 @@ export const apply = <P extends Plan, Err, Req>(
             } satisfies PlanStatusSession);
         const { emit, done } = session;
 
-        const apply: (
-          node: BindNode[] | CRUD,
-        ) => Effect.Effect<any, never, never> = (node) =>
-          Effect.gen(function* () {
-            if (Array.isArray(node)) {
-              return yield* Effect.all(
-                node.map((node) => {
-                  const resourceId = node.binding.capability.resource.id;
-                  const resource = plan.resources[resourceId];
-                  return !resource
-                    ? Effect.dieMessage(`Resource ${resourceId} not found`)
-                    : apply(resource);
-                }),
-              );
-            }
+        const applyBindings = Effect.fn(function* (
+          resource: Resource,
+          bindings: BindNode[],
+          target: {
+            id: string;
+            props: any;
+            attr: any;
+          },
+        ) {
+          return yield* Effect.all(
+            bindings.map(
+              Effect.fn(function* (node) {
+                const binding = node.binding as AnyBinding & {
+                  // smuggled property (because it interacts poorly with inference)
+                  Tag: Context.Tag<never, BindingService>;
+                };
+                const provider = yield* binding.Tag;
 
+                const resourceId: string = node.binding.capability.resource.id;
+                const upstreamNode = plan.resources[resourceId];
+                const upstreamAttr = resource
+                  ? yield* apply(upstreamNode)
+                  : yield* Effect.dieMessage(
+                      `Resource ${resourceId} not found`,
+                    );
+
+                const attach = provider.attach({
+                  source: {
+                    id: resourceId,
+                    attr: upstreamAttr,
+                    props: upstreamNode.resource.props,
+                  },
+                  props: node.binding.props,
+                  target,
+                });
+                return Effect.isEffect(attach)
+                  ? yield* attach as Effect.Effect<any, never, never>
+                  : attach;
+              }),
+            ),
+          );
+        });
+
+        const apply: (node: CRUD) => Effect.Effect<any, never, never> = (
+          node,
+        ) =>
+          Effect.gen(function* () {
             const checkpoint = <Out, Err>(
               effect: Effect.Effect<Out, Err, never>,
             ) =>
@@ -83,6 +115,7 @@ export const apply = <P extends Plan, Err, Req>(
               );
 
             const id = node.resource.id;
+            const resource = node.resource;
 
             const scopedSession = {
               ...session,
@@ -107,8 +140,28 @@ export const apply = <P extends Plan, Err, Req>(
                 if (node.action === "noop") {
                   return (yield* state.get(id))?.output;
                 } else if (node.action === "create") {
-                  const bindings = yield* apply(node.bindings);
+                  let attr: any;
+                  if (node.provider.stub) {
+                    // stub the resource prior to resolving upstream resources or bindings if a stub is available
+                    attr = yield* node.provider.stub({
+                      id,
+                      news: node.news,
+                      session: scopedSession,
+                    });
+                  }
+
+                  const bindings = yield* applyBindings(
+                    resource,
+                    node.bindings,
+                    {
+                      id,
+                      props: node.news,
+                      attr,
+                    },
+                  );
+
                   yield* report("creating");
+
                   return yield* node.provider
                     .create({
                       id,
@@ -121,8 +174,20 @@ export const apply = <P extends Plan, Err, Req>(
                       Effect.tap(() => report("created")),
                     );
                 } else if (node.action === "update") {
-                  const bindings = yield* apply(node.bindings);
+                  const bindings = yield* applyBindings(
+                    resource,
+                    node.bindings,
+                    {
+                      id,
+                      props: node.news,
+                      attr: node.attributes,
+                    },
+                  );
+
                   yield* report("updating");
+
+                  // const bindings = yield* applyDependencies(node.bindings);
+
                   return yield* node.provider
                     .update({
                       id,
@@ -181,7 +246,15 @@ export const apply = <P extends Plan, Err, Req>(
                           id,
                           news: node.news,
                           // TODO(sam): these need to only include attach actions
-                          bindings: yield* apply(node.bindings),
+                          bindings: yield* applyBindings(
+                            resource,
+                            node.bindings,
+                            {
+                              id,
+                              props: node.news,
+                              attr: node.attributes,
+                            },
+                          ),
                           session: scopedSession,
                         })
                         // TODO(sam): delete and create will conflict here, we need to extend the state store for replace

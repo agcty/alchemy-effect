@@ -34,7 +34,7 @@ export const sendMessage = <Q extends Queue>(
 
 export const sendMessageFromLambdaFunction = () =>
   SendMessage.provider.succeed({
-    attach: (queue) => ({
+    attach: ({ source: queue }) => ({
       env: {
         // ask what attribute is needed to interact? e.g. is it the Queue ARN or the Queue URL?
         [toEnvKey(queue.id, "QUEUE_URL")]: queue.attr.queueUrl,

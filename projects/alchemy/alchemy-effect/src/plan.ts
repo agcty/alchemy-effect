@@ -225,9 +225,7 @@ export const plan = <
                     const resource = node as Resource & {
                       provider: ResourceTags<Resource>;
                     };
-                    const news = isService(node)
-                      ? node.runtime.props
-                      : resource.props;
+                    const news = resource.props;
 
                     const oldState = yield* state.get(id);
                     const provider = yield* resource.provider.tag;

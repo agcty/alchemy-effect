@@ -30,7 +30,7 @@ export const invoke = <F extends Function>(func: F, input: any) =>
   });
 
 export const invokeFunctionFromLambda = InvokeFunction.provider.succeed({
-  attach: (func) => ({
+  attach: ({ source: func }) => ({
     env: {
       [toEnvKey(func.id, "FUNCTION_ARN")]: func.attr.functionArn,
     },

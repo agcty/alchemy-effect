@@ -402,7 +402,6 @@ export const functionProvider = () =>
           return { action: "noop" };
         }),
         create: Effect.fn(function* ({ id, news, bindings, session }) {
-          console.log({ id, news, bindings, session });
           const roleName = createRoleName(id);
           const policyName = createPolicyName(id);
           // const policyArn = `arn:aws:iam::${accountId}:policy/${policyName}`;
