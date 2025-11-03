@@ -3,6 +3,12 @@ import type { Effect } from "effect/Effect";
 import * as Layer from "effect/Layer";
 import type { Provider, ProviderService } from "./provider.ts";
 
+export const isResource = (r: any): r is Resource => {
+  return (
+    r && typeof r === "function" && "id" in r && "type" in r && "props" in r
+  );
+};
+
 export interface Resource<
   Type extends string = string,
   ID extends string = string,

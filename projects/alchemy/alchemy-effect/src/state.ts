@@ -7,6 +7,7 @@ import * as Layer from "effect/Layer";
 import path from "node:path";
 import { App } from "./app.ts";
 import type { BindNode } from "./plan.ts";
+import { isResource } from "./resource.ts";
 
 // SQL only?? no
 // DynamoDB is faster but bounded to 400KB (<10ms minimum latency)
@@ -141,7 +142,34 @@ export const localFs = Layer.effect(
         ),
       set: <V extends ResourceState>(id: string, value: V) =>
         fs
-          .writeFileString(resourceFile(id), JSON.stringify(value, null, 2))
+          .writeFileString(
+            resourceFile(id),
+            JSON.stringify(
+              value,
+              (k, v) => {
+                if (typeof v === "function") {
+                  if (k === "resource") {
+                    console.log({
+                      isResource: isResource(v),
+                      keys: Object.keys(v),
+                      values: Object.values(v),
+                    });
+                  }
+                }
+
+                if (isResource(v)) {
+                  return {
+                    id: v.id,
+                    type: v.type,
+                    props: v.props,
+                    attr: v.attr,
+                  };
+                }
+                return v;
+              },
+              2,
+            ),
+          )
           .pipe(
             recover,
             Effect.map(() => value),

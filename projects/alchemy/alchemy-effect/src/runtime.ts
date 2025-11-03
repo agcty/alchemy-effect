@@ -1,6 +1,6 @@
 import type { Types } from "effect";
 import * as Context from "effect/Context";
-import type { Effect } from "effect/Effect";
+import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import type { Capability } from "./capability.ts";
 import type { Policy } from "./policy.ts";
@@ -13,11 +13,11 @@ export type RuntimeHandler<
   Output = any,
   Err = any,
   Req = any,
-> = (...inputs: Inputs) => Effect<Output, Err, Req>;
+> = (...inputs: Inputs) => Effect.Effect<Output, Err, Req>;
 
 export declare namespace RuntimeHandler {
   export type Caps<H extends RuntimeHandler | unknown> = Extract<
-    Effect.Context<ReturnType<Extract<H, RuntimeHandler>>>,
+    Effect.Effect.Context<ReturnType<Extract<H, RuntimeHandler>>>,
     Capability
   >;
 }
@@ -64,17 +64,14 @@ export interface Runtime<
     { handle }: { handle: Handler },
   ): <const Props extends this["props"]>(
     props: Props,
+  ) => Service<
+    ID,
+    this,
+    Handler,
     // @ts-expect-error
-  ) => Service<ID, this, Handler, Props>;
+    Props
+  >;
 }
-
-// export interface IRuntime<
-//   Type extends string = string,
-//   Handler = unknown,
-//   Props = unknown,
-// > extends IResource<Type, string, Props, unknown> {
-
-// }
 
 export const Runtime =
   <const Type extends string>(type: Type) =>
@@ -84,7 +81,7 @@ export const Runtime =
     const Tag = Context.Tag(type)();
     const provider = {
       tag: Tag,
-      effect: (eff: Effect<ProviderService<Self>, any, any>) =>
+      effect: (eff: Effect.Effect<ProviderService<Self>, any, any>) =>
         Layer.effect(Tag, eff),
       succeed: (service: ProviderService<Self>) => Layer.succeed(Tag, service),
     };
@@ -94,7 +91,7 @@ export const Runtime =
           | [cap: Capability]
           | [
               id: string,
-              { handle: (...args: any[]) => Effect<any, never, any> },
+              { handle: (...args: any[]) => Effect.Effect<any, never, any> },
             ]
       ) => {
         if (args.length === 1) {
@@ -117,7 +114,8 @@ export const Runtime =
                 type,
                 id,
                 attr: undefined!,
-                handler: handle,
+                impl: handle,
+                handler: Effect.succeed(handle as any),
                 props,
                 runtime: self,
                 // TODO(sam): is this right?

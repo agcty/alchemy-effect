@@ -4,6 +4,7 @@
   "references": [
     { "path": "./alchemy-effect/tsconfig.json" },
     { "path": "./alchemy-effect-aws/tsconfig.json" },
+    { "path": "./alchemy-effect-cloudflare/tsconfig.json" },
     { "path": "./alchemy-effect-cli/tsconfig.json" },
     { "path": "./example/tsconfig.json" },
   ]

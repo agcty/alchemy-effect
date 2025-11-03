@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/effect-aws",
+  "name": "@alchemy.run/aws",
   "version": "0.0.0",
   "license": "Apache-2.0",
   "author": "Sam Goodwin <sam@alchemy.run>",
@@ -50,7 +50,7 @@
     }
   },
   "peerDependencies": {
-    "@alchemy.run/effect": "workspace:*",
+    "@alchemy.run/core": "workspace:*",
     "@effect/platform-node": "*",
     "@effect/platform": "*",
     "effect": "*"

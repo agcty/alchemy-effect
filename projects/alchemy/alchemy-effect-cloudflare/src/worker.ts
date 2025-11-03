@@ -4,7 +4,7 @@ import {
   Provider,
   Runtime,
   Service,
-} from "@alchemy.run/effect";
+} from "@alchemy.run/core";
 
 export const WorkerType = "AWS.Lambda.Worker";
 export type WorkerType = typeof WorkerType;

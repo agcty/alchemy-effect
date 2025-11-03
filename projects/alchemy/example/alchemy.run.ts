@@ -1,6 +1,6 @@
-import * as Alchemy from "@alchemy.run/effect";
-import * as AWS from "@alchemy.run/effect-aws";
-import * as AlchemyCLI from "@alchemy.run/effect-cli";
+import * as AWS from "@alchemy.run/aws";
+import * as AlchemyCLI from "@alchemy.run/cli";
+import * as Alchemy from "@alchemy.run/core";
 import { FetchHttpClient } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import * as Effect from "effect/Effect";

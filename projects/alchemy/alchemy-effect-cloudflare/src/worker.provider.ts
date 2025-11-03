@@ -1,4 +1,4 @@
-import { App, Provider } from "@alchemy.run/effect";
+import { App, Provider } from "@alchemy.run/core";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { CloudflareAccountId, CloudflareApi } from "./api.ts";

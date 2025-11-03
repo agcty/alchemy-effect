@@ -1,6 +1,6 @@
-import { $ } from "@alchemy.run/effect";
-import * as Lambda from "@alchemy.run/effect-aws/lambda";
-import * as SQS from "@alchemy.run/effect-aws/sqs";
+import * as Lambda from "@alchemy.run/aws/lambda";
+import * as SQS from "@alchemy.run/aws/sqs";
+import { $ } from "@alchemy.run/core";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 import { Message, Messages } from "./messages.ts";
@@ -23,5 +23,7 @@ export class Api extends Lambda.serve("Api", {
 }) {}
 
 // coupled to physical infrastructure (actual SQS client)
-// export default Api.pipe(Effect.provide(SQS.clientFromEnv()), Lambda.toHandler);
-export default () => {};
+export default Api.handler.pipe(
+  Effect.provide(SQS.clientFromEnv()),
+  Lambda.toHandler,
+);

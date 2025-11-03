@@ -1,4 +1,4 @@
-import { Policy, Runtime, type Capability } from "@alchemy.run/effect";
+import { Policy, Runtime, type Capability } from "@alchemy.run/core";
 import type * as IAM from "../iam.ts";
 
 export type { Context } from "aws-lambda";

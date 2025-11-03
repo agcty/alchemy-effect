@@ -1,7 +1,7 @@
 // biome-ignore lint/style/useImportType: UMD global
 import React, { useState } from "react";
 
-import type * as Alchemy from "@alchemy.run/effect";
+import type * as Alchemy from "@alchemy.run/core";
 import { Box, Text, useApp, useInput } from "ink";
 
 import { Plan } from "./Plan.tsx";

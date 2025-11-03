@@ -190,11 +190,21 @@ export const plan = <
           bindings: BindNode[];
         } => !!resource?.bindings,
       )
-      .flatMap((resource) =>
-        resource.bindings.map(({ binding }) => [
-          binding.capability.resource.id,
-          binding.capability.resource,
-        ]),
+      .flatMap(
+        (resource) =>
+          resource.bindings.flatMap(({ binding }) => [
+            [binding.capability.resource.id, binding.capability.resource],
+          ]),
+        // resource.bindings.flatMap(({ binding }) => {
+        //   const capability: Capability = binding.capability;
+        //   const resource = capability.resource;
+        //   if (!resource) {
+        //     return [];
+        //   }
+        //   return [
+        //     [binding.capability.resource.id, binding.capability.resource],
+        //   ];
+        // }),
       )
       .reduce(
         (acc, [id, resourceId]) => ({
@@ -455,6 +465,6 @@ const isBindingDiff = (
   newBinding: AnyBinding,
 ) =>
   oldBinding.capability.action !== newBinding.capability.action ||
-  oldBinding.capability.resource.id !== newBinding.capability.resource.id;
+  oldBinding.capability?.resource?.id !== newBinding.capability?.resource?.id;
 // TODO(sam): compare props
 // oldBinding.props !== newBinding.props;

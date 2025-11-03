@@ -1,4 +1,4 @@
-import type { Capability } from "@alchemy.run/effect";
+import type { Capability } from "@alchemy.run/core";
 import type { Context as LambdaContext } from "aws-lambda";
 import * as Effect from "effect/Effect";
 

@@ -12,7 +12,7 @@
       },
     },
     "alchemy-effect": {
-      "name": "@alchemy.run/effect",
+      "name": "@alchemy.run/core",
       "version": "0.0.0",
       "devDependencies": {
         "@effect/platform": "catalog:",
@@ -32,7 +32,7 @@
       ],
     },
     "alchemy-effect-aws": {
-      "name": "@alchemy.run/effect-aws",
+      "name": "@alchemy.run/aws",
       "version": "0.0.0",
       "dependencies": {
         "@aws-sdk/credential-providers": "^3.0.0",
@@ -54,14 +54,14 @@
         "@types/node": "latest",
       },
       "peerDependencies": {
-        "@alchemy.run/effect": "workspace:*",
+        "@alchemy.run/core": "workspace:*",
         "@effect/platform": "*",
         "@effect/platform-node": "*",
         "effect": "*",
       },
     },
     "alchemy-effect-cli": {
-      "name": "@alchemy.run/effect-cli",
+      "name": "@alchemy.run/cli",
       "version": "0.0.0",
       "bin": {
         "alchemy-effect": "bin/alchemy.js",
@@ -83,13 +83,13 @@
         "tsdown": "^0.15.4",
       },
       "peerDependencies": {
-        "@alchemy.run/effect": "workspace:*",
+        "@alchemy.run/core": "workspace:*",
         "@effect/platform": "*",
         "@effect/platform-node": "*",
       },
     },
     "alchemy-effect-cloudflare": {
-      "name": "@alchemy.run/effect-cloudflare",
+      "name": "@alchemy.run/cloudflare",
       "version": "0.0.0",
       "dependencies": {
         "cloudflare": "^5.2.0",
@@ -103,19 +103,19 @@
         "@types/node": "latest",
       },
       "peerDependencies": {
-        "@alchemy.run/effect": "workspace:*",
+        "@alchemy.run/core": "workspace:*",
         "@effect/platform": "*",
         "@effect/platform-node": "*",
         "effect": "*",
       },
     },
     "example": {
-      "name": "@alchemy.run/effect-example",
+      "name": "example",
       "dependencies": {
-        "@alchemy.run/effect": "workspace:*",
-        "@alchemy.run/effect-aws": "workspace:*",
-        "@alchemy.run/effect-cli": "workspace:*",
-        "@alchemy.run/effect-cloudflare": "workspace:*",
+        "@alchemy.run/aws": "workspace:*",
+        "@alchemy.run/cli": "workspace:*",
+        "@alchemy.run/cloudflare": "workspace:*",
+        "@alchemy.run/core": "workspace:*",
         "@effect/platform": "catalog:",
         "@effect/platform-node": "catalog:",
         "@types/aws-lambda": "catalog:",
@@ -141,15 +141,13 @@
   "packages": {
     "@alcalzone/ansi-tokenize": ["@alcalzone/ansi-tokenize@0.2.2", "", { "dependencies": { "ansi-styles": "^6.2.1", "is-fullwidth-code-point": "^5.0.0" } }, "sha512-mkOh+Wwawzuf5wa30bvc4nA+Qb6DIrGWgBhRR/Pw4T9nsgYait8izvXkNyU78D6Wcu3Z+KUdwCmLCxlWjEotYA=="],
 
-    "@alchemy.run/effect": ["@alchemy.run/effect@workspace:alchemy-effect"],
+    "@alchemy.run/aws": ["@alchemy.run/aws@workspace:alchemy-effect-aws"],
 
-    "@alchemy.run/effect-aws": ["@alchemy.run/effect-aws@workspace:alchemy-effect-aws"],
+    "@alchemy.run/cli": ["@alchemy.run/cli@workspace:alchemy-effect-cli"],
 
-    "@alchemy.run/effect-cli": ["@alchemy.run/effect-cli@workspace:alchemy-effect-cli"],
+    "@alchemy.run/cloudflare": ["@alchemy.run/cloudflare@workspace:alchemy-effect-cloudflare"],
 
-    "@alchemy.run/effect-cloudflare": ["@alchemy.run/effect-cloudflare@workspace:alchemy-effect-cloudflare"],
-
-    "@alchemy.run/effect-example": ["@alchemy.run/effect-example@workspace:example"],
+    "@alchemy.run/core": ["@alchemy.run/core@workspace:alchemy-effect"],
 
     "@aws-crypto/sha256-browser": ["@aws-crypto/sha256-browser@5.2.0", "", { "dependencies": { "@aws-crypto/sha256-js": "^5.2.0", "@aws-crypto/supports-web-crypto": "^5.2.0", "@aws-crypto/util": "^5.2.0", "@aws-sdk/types": "^3.222.0", "@aws-sdk/util-locate-window": "^3.0.0", "@smithy/util-utf8": "^2.0.0", "tslib": "^2.6.2" } }, "sha512-AXfN/lGotSQwu6HNcEsIASo7kWXZ5HYWvfOmSNKDsEqC4OashTp8alTmaz+F7TC2L083SFv5RdB+qU3Vs1kZqw=="],
 
@@ -575,6 +573,8 @@
 
     "event-target-shim": ["event-target-shim@5.0.1", "", {}, "sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ=="],
 
+    "example": ["example@workspace:example"],
+
     "fast-check": ["fast-check@3.23.2", "", { "dependencies": { "pure-rand": "^6.1.0" } }, "sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A=="],
 
     "fast-xml-parser": ["fast-xml-parser@5.3.0", "", { "dependencies": { "strnum": "^2.1.0" }, "bin": { "fxparser": "src/cli/cli.js" } }, "sha512-gkWGshjYcQCF+6qtlrqBqELqNqnt4CxruY6UVAWWnqb3DQ6qaNFEIKqzYep1XzHLM/QtrHVCxyPOtTk4LTQ7Aw=="],
@@ -761,13 +761,13 @@
 
     "zod-to-json-schema": ["zod-to-json-schema@3.24.6", "", { "peerDependencies": { "zod": "^3.24.1" } }, "sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg=="],
 
-    "@alchemy.run/effect/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+    "@alchemy.run/aws/@types/node": ["@types/node@24.10.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A=="],
 
-    "@alchemy.run/effect-aws/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+    "@alchemy.run/cli/@types/node": ["@types/node@24.10.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A=="],
 
-    "@alchemy.run/effect-cli/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+    "@alchemy.run/cloudflare/@types/node": ["@types/node@24.10.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A=="],
 
-    "@alchemy.run/effect-cloudflare/@types/node": ["@types/node@24.9.2", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-uWN8YqxXxqFMX2RqGOrumsKeti4LlmIMIyV0lgut4jx7KQBcBiW6vkDtIBvHnHIquwNfJhk8v2OtmO8zXWHfPA=="],
+    "@alchemy.run/core/@types/node": ["@types/node@24.10.0", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-qzQZRBqkFsYyaSWXuEHc2WR9c0a0CXwiE5FWUvn7ZM+vdy1uZLfCunD38UzhuB7YN/J11ndbDBcTmOdxJo9Q7A=="],
 
     "@aws-crypto/sha256-browser/@smithy/util-utf8": ["@smithy/util-utf8@2.3.0", "", { "dependencies": { "@smithy/util-buffer-from": "^2.2.0", "tslib": "^2.6.2" } }, "sha512-R8Rdn8Hy72KKcebgLiv8jQcQkXoLMOGGv5uI1/k0l+snqkOzQ1R0ChUBCxWMlBsFMekWjq0wRudIweFs7sKT5A=="],
 

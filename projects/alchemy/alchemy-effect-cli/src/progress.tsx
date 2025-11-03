@@ -3,7 +3,7 @@ import React from "react";
 
 import { render } from "ink";
 
-import * as Alchemy from "@alchemy.run/effect";
+import * as Alchemy from "@alchemy.run/core";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 

@@ -1,4 +1,4 @@
-import { App } from "@alchemy.run/effect";
+import { App } from "@alchemy.run/core";
 import * as Effect from "effect/Effect";
 import { CloudflareAccountId, CloudflareApi } from "./api.ts";
 import { KV as KVNamespace, type KVProps } from "./kv.ts";

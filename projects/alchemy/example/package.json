@@ -16,10 +16,10 @@
     "destroy": "AWS_REGION=us-west-2 bun ./alchemy.run.ts --destroy"
   },
   "dependencies": {
-    "@alchemy.run/effect-cli": "workspace:*",
-    "@alchemy.run/effect-cloudflare": "workspace:*",
-    "@alchemy.run/effect-aws": "workspace:*",
-    "@alchemy.run/effect": "workspace:*",
+    "@alchemy.run/cli": "workspace:*",
+    "@alchemy.run/cloudflare": "workspace:*",
+    "@alchemy.run/aws": "workspace:*",
+    "@alchemy.run/core": "workspace:*",
     "@effect/platform-node": "catalog:",
     "@effect/platform": "catalog:",
     "effect": "catalog:",

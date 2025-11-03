@@ -6,7 +6,7 @@ import {
   type Capability,
   declare,
   toEnvKey,
-} from "@alchemy.run/effect";
+} from "@alchemy.run/core";
 import { FunctionClient } from "./function.client.ts";
 import { Function } from "./function.ts";
 

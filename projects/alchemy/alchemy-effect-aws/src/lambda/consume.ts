@@ -1,5 +1,5 @@
-import type { From } from "@alchemy.run/effect";
-import { declare } from "@alchemy.run/effect";
+import type { From } from "@alchemy.run/core";
+import { declare } from "@alchemy.run/core";
 import type {
   Context as LambdaContext,
   SQSBatchResponse,
