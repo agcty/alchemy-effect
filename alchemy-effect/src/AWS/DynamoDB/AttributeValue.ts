@@ -5,6 +5,7 @@ import type {
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import * as AST from "effect/SchemaAST";
 import {
   getSetValueAST,
   isClassSchema,
@@ -236,8 +237,14 @@ export const isMapSchemaType = (schema: S.Schema<any>) =>
   isClassSchema(schema) ||
   false;
 
-export const isStringSetSchema = (schema: S.Schema<any>) =>
-  isSetSchema(schema) && isStringSchema(getSetValueAST(schema));
+export const isStringSetSchema = (schema: S.Schema<any>) => {
+  if (!isSetSchema(schema)) return false;
+  const valueAST = getSetValueAST(schema);
+  return valueAST !== undefined && AST.isString(valueAST);
+};
 
-export const isNumberSetSchema = (schema: S.Schema<any>) =>
-  isSetSchema(schema) && isNumberSchema(getSetValueAST(schema));
+export const isNumberSetSchema = (schema: S.Schema<any>) => {
+  if (!isSetSchema(schema)) return false;
+  const valueAST = getSetValueAST(schema);
+  return valueAST !== undefined && AST.isNumber(valueAST);
+};

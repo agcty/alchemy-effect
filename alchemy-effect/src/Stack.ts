@@ -1,8 +1,8 @@
-import { FileSystem } from "@effect/platform/FileSystem";
-import type { HttpClient } from "@effect/platform/HttpClient";
-import { Path } from "@effect/platform/Path";
 import * as Effect from "effect/Effect";
+import { FileSystem } from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import { Path } from "effect/Path";
+import type { HttpClient } from "effect/unstable/http/HttpClient";
 import type { Instance } from ".//Util/instance.ts";
 import * as App from "./App.ts";
 import { type AppliedPlan } from "./Apply.ts";
@@ -10,14 +10,13 @@ import type { CLI } from "./Cli/CLI.ts";
 import { DotAlchemy } from "./Config.ts";
 import type { DerivePlan, Providers, TraverseResources } from "./Plan.ts";
 import type { Ref } from "./Ref.ts";
-import type { AnyResource } from "./Resource.ts";
-import type { AnyService } from "./Service.ts";
+import type { Resource } from "./Resource.ts";
 import type { StageConfig, Stages } from "./Stage.ts";
 import * as State from "./State/index.ts";
 
 export const defineStack = <
   const Name extends string,
-  Resources extends (AnyResource | AnyService)[],
+  Resources extends Resource[],
   Req = never,
   Err = never,
 >(
@@ -26,7 +25,7 @@ export const defineStack = <
 
 export type StackConfig<
   Name extends string,
-  Resources extends (AnyResource | AnyService)[] = (AnyResource | AnyService)[],
+  Resources extends Resource[] = Resource[],
   StagesReq = never,
   StagesErr = never,
   TapReq = never,
@@ -56,12 +55,13 @@ export type StackConfig<
       >;
     });
 
-export type StackOutput<Resources extends AnyResource | AnyService> =
-  AppliedPlan<DerivePlan<Resources>>;
+export type StackOutput<Resources extends Resource> = AppliedPlan<
+  DerivePlan<Resources>
+>;
 
 export type Stack<
   Name extends string = string,
-  Resources extends AnyResource | AnyService = any,
+  Resources extends Resource = any,
   StagesReq = any,
   StagesErr = any,
   TapReq = any,
@@ -104,11 +104,11 @@ export interface StackRefConfig<S extends Stack> extends StageConfig {
   stage?: string;
 }
 
-export type StackRef<Resources extends AnyResource | AnyService> = {
+export type StackRef<Resources extends Resource> = {
   [Id in keyof AsRecord<Resources>]: Ref<AsRecord<Resources>[Id]>;
 };
 
-type AsRecord<Resources extends AnyResource | AnyService> = {
+type AsRecord<Resources extends Resource> = {
   [Id in TraverseResources<Resources>["id"]]: Extract<
     TraverseResources<Resources>,
     { id: Id }

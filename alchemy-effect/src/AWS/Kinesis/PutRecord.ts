@@ -5,8 +5,10 @@ import * as Output from "../../Output/index.ts";
 import * as Lambda from "../Lambda/index.ts";
 import type { Stream } from "./Stream.ts";
 
-export interface PutRecordRequest<S extends Stream>
-  extends Omit<Kinesis.PutRecordRequest, "StreamName" | "Data"> {
+export interface PutRecordRequest<S extends Stream> extends Omit<
+  Kinesis.PutRecordInput,
+  "StreamName" | "Data"
+> {
   Data: S["props"]["schema"]["Type"];
 }
 

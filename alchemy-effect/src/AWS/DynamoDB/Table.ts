@@ -109,7 +109,7 @@ export const Table = Resource<{
   >;
 }>("AWS.DynamoDB.Table");
 
-export interface AnyTable extends Table<string, any> {}
+export interface AnyTable extends Table<string, TableProps> {}
 
 export declare namespace Table {
   export type PartitionKey<T extends Table> = T["props"]["partitionKey"];

@@ -1,44 +1,22 @@
 import type { Effect } from "effect/Effect";
 import * as S from "effect/Schema";
-import type { AST } from "effect/SchemaAST";
+import * as AST from "effect/SchemaAST";
 import type { Sink } from "effect/Sink";
 import type { Stream } from "effect/Stream";
 
 export * from "effect/Schema";
 
-const Description = Symbol.for("effect/annotation/Description");
-
-export const isTag = <T extends S.Schema<any>>(tag: T["ast"]["_tag"]) =>
-  ((schema) =>
-    S.isSchema(schema)
-      ? S.encodedSchema(schema).ast._tag === tag
-      : schema._tag === tag) as {
-    (schema: S.Schema<any>): schema is T;
-    (schema: AST): boolean;
-  };
-
-export const hasGenericAnnotation =
-  (type: string) => (ast: AST | undefined) => {
-    const description: string | undefined = ast?.annotations?.[
-      Description
-    ] as string;
-    return (
-      description &&
-      description?.startsWith(`${type}<`) &&
-      description?.endsWith(">")
-    );
-  };
-
 export const isNullishSchema = (schema: S.Schema<any>) =>
   isNullSchema(schema) || isUndefinedSchema(schema);
-export const isNullSchema = (schema: S.Schema<any>) =>
-  schema.ast._tag === "Literal" && schema.ast.literal === null;
-export const isUndefinedSchema = isTag("UndefinedKeyword");
-export const isBooleanSchema = isTag<S.Schema<boolean>>("BooleanKeyword");
-export const isStringSchema = isTag<S.Schema<string>>("StringKeyword");
-export const isNumberSchema = isTag<S.Schema<number>>("NumberKeyword");
-
-export const hasMapAnnotation = hasGenericAnnotation("Map");
+export const isNullSchema = (schema: S.Schema<any>) => AST.isNull(schema.ast);
+export const isUndefinedSchema = (schema: S.Schema<any>) =>
+  AST.isUndefined(schema.ast);
+export const isBooleanSchema = (schema: S.Schema<any>) =>
+  AST.isBoolean(schema.ast);
+export const isStringSchema = (schema: S.Schema<any>) =>
+  AST.isString(schema.ast);
+export const isNumberSchema = (schema: S.Schema<any>) =>
+  AST.isNumber(schema.ast);
 
 export const isRecordLikeSchema = (schema: S.Schema<any>) =>
   isMapSchema(schema) ||
@@ -47,67 +25,55 @@ export const isRecordLikeSchema = (schema: S.Schema<any>) =>
   isClassSchema(schema) ||
   false;
 
-export const isMapSchema = (schema: S.Schema<any>) =>
-  hasMapAnnotation(schema.ast) ||
-  // @ts-expect-error - ast.to?. is not narrowed, we don't care
-  hasMapAnnotation(schema.ast.to) ||
-  false;
+export const isMapSchema = (schema: S.Schema<any>): boolean => {
+  const ast = schema.ast;
+  if (AST.isDeclaration(ast)) {
+    const typeConstructor = (ast.annotations as any)?.typeConstructor;
+    return typeConstructor?._tag === "ReadonlyMap";
+  }
+  return false;
+};
 
 export const isClassSchema = (schema: S.Schema<any>) => {
-  const encoded = S.encodedSchema(schema);
-  return (
-    encoded.ast._tag === "TypeLiteral" &&
-    encoded.ast.propertySignatures !== undefined
-  );
+  const ast = schema.ast;
+  if (AST.isDeclaration(ast)) {
+    return AST.isObjects(ast.typeParameters[0]);
+  }
+  return false;
 };
 
 export const isStructSchema = (schema: S.Schema<any>) => {
-  return (
-    schema.ast._tag === "TypeLiteral" &&
-    schema.ast.propertySignatures !== undefined
-  );
+  return AST.isObjects(schema.ast);
 };
 
 export const isRecordSchema = (schema: S.Schema<any>) => {
-  const encoded = S.encodedSchema(schema);
-  return (
-    encoded.ast._tag === "TypeLiteral" &&
-    encoded.ast.indexSignatures?.[0] !== undefined
-  );
+  const ast = schema.ast;
+  return AST.isObjects(ast) && ast.indexSignatures?.length > 0;
 };
 
 export const isListSchema = (schema: S.Schema<any>) => {
-  return (
-    hasListAnnotation(schema.ast) ||
-    (S.encodedSchema(schema).ast._tag === "TupleType" && !isMapSchema(schema))
-  );
-};
-export const hasListAnnotation = (ast: AST | undefined) => {
-  const description: string | undefined = ast?.annotations?.[
-    Description
-  ] as string;
-  return (
-    description &&
-    description?.startsWith("List<") &&
-    description?.endsWith(">")
-  );
+  return AST.isArrays(schema.ast);
 };
 
-export const isSetSchema = (schema: S.Schema<any>) => {
-  return (
-    // @ts-expect-error - ast.to?. is not narrowed, we don't care
-    hasSetAnnotation(schema.ast) || hasSetAnnotation(schema.ast.to) || false
-  );
+export const isSetSchema = (schema: S.Schema<any>): boolean => {
+  const ast = schema.ast;
+  if (AST.isDeclaration(ast)) {
+    const typeConstructor = (ast.annotations as any)?.typeConstructor;
+    return typeConstructor?._tag === "ReadonlySet";
+  }
+  return false;
 };
 
-export const hasSetAnnotation = hasGenericAnnotation("Set");
-
-export const getSetValueAST = (schema: S.Schema<any>): AST =>
-  // @ts-expect-error - ast.to?. is not narrowed, we don't care
-  isSetSchema(schema) && schema.ast.to?.typeParameters[0];
+export const getSetValueAST = (schema: S.Schema<any>): AST.AST | undefined => {
+  const ast = schema.ast;
+  if (AST.isDeclaration(ast) && isSetSchema(schema)) {
+    return ast.typeParameters[0];
+  }
+  return undefined;
+};
 
 /** A Schema representing a Schema */
-export type Field = S.Struct.Field; // needs to be a Field to support S.optional(..)
+export type Field = S.Top;
 export const Field = S.suspend(
   (): [Field] extends [any] ? S.Schema<Field> : never => S.Any,
 );
@@ -130,12 +96,14 @@ export const UpdatedAt = S.Date.annotate({
 
 export type AnyClassSchema<
   Self = any,
-  Fields extends S.Struct.Fields = S.Struct.Fields,
-> = S.Class<Self, Fields, any, any, any, any, any>;
+  Fields extends S.Top & { fields: S.Struct.Fields } = S.Top & {
+    fields: S.Struct.Fields;
+  },
+> = S.Class<Self, Fields, any>;
 
 export type AnyClass = new (...args: any[]) => any;
 
-export type AnyErrorSchema = S.TaggedErrorClass<any, any, any>;
+export type AnyErrorSchema = S.ErrorClass<any, any, any>;
 
 export type SchemaWithTemplate<
   Schema extends S.Schema<any>,
@@ -159,11 +127,13 @@ export interface SchemaExtBase<A> extends S.Schema<A> {
 }
 
 export interface FunctionSchema<
-  Input extends S.Schema.All | undefined = S.Schema.All | undefined,
-  Output extends S.Schema.All = S.Schema.All,
+  Input extends S.Top | undefined = S.Top | undefined,
+  Output extends S.Top = S.Top,
 > extends SchemaExtBase<
   (
-    ...args: Input extends undefined ? [] : [input: S.Schema.Type<Input>]
+    ...args: Input extends undefined
+      ? []
+      : [input: S.Schema.Type<Exclude<Input, undefined>>]
   ) => S.Schema.Type<Output>
 > {
   input: Input;
@@ -171,9 +141,9 @@ export interface FunctionSchema<
 }
 
 export interface EffectSchema<
-  A extends S.Schema.All = S.Schema.All,
-  Err extends S.Schema.All = S.Schema.All,
-  Req extends S.Schema.All = S.Schema.All,
+  A extends S.Top = S.Top,
+  Err extends S.Top = S.Top,
+  Req extends S.Top = S.Top,
 > extends SchemaExtBase<
   Effect<S.Schema.Type<A>, S.Schema.Type<Err>, S.Schema.Type<Req>>
 > {
@@ -183,9 +153,9 @@ export interface EffectSchema<
 }
 
 export interface StreamSchema<
-  A extends S.Schema.All = S.Schema.All,
-  Err extends S.Schema.All = S.Schema.All,
-  Req extends S.Schema.All = S.Schema.All,
+  A extends S.Top = S.Top,
+  Err extends S.Top = S.Top,
+  Req extends S.Top = S.Top,
 > extends SchemaExtBase<
   Stream<S.Schema.Type<A>, S.Schema.Type<Err>, S.Schema.Type<Req>>
 > {
@@ -195,11 +165,11 @@ export interface StreamSchema<
 }
 
 export interface SinkSchema<
-  A extends S.Schema.All = S.Schema.All,
-  In extends S.Schema.All = S.Schema.All,
-  L extends S.Schema.All = S.Schema.All,
-  Err extends S.Schema.All = S.Schema.All,
-  Req extends S.Schema.All = S.Schema.All,
+  A extends S.Top = S.Top,
+  In extends S.Top = S.Top,
+  L extends S.Top = S.Top,
+  Err extends S.Top = S.Top,
+  Req extends S.Top = S.Top,
 > extends SchemaExtBase<
   Sink<
     S.Schema.Type<A>,
@@ -219,13 +189,13 @@ export interface SinkSchema<
 export const makeExtSchema = <Schema extends SchemaExt>(
   schema: Schema,
 ): SchemaExt => {
-  const s = S.Any.annotations({
+  const s = S.Any.annotate({
     aspect: schema,
   });
   return new Proxy(() => {}, {
     get: (_target, prop) => s[prop as keyof typeof s],
     apply: (_target, _thisArg, [template, ...references]) => {
-      return S.annotations({
+      return S.annotate({
         aspect: {
           ...schema,
           template,
@@ -239,21 +209,21 @@ export const makeExtSchema = <Schema extends SchemaExt>(
 // export type def = typeof def;
 
 export interface func<
-  Input extends undefined | S.Schema.All | S.Schema.All[],
-  Output extends S.Schema.All,
+  Input extends undefined | S.Top | S.Top[],
+  Output extends S.Top,
 > extends S.Schema<
   Input extends undefined
     ? () => S.Schema.Type<Output>
-    : Input extends S.Schema.All[]
+    : Input extends S.Top[]
       ? (...args: TypeArray<Input>) => S.Schema.Type<Output>
-      : (input: S.Schema.Type<Input>) => S.Schema.Type<Output>
+      : (input: S.Schema.Type<Extract<Input, S.Top>>) => S.Schema.Type<Output>
 > {}
 
-type TypeArray<T extends S.Schema.All[]> = T extends [
+type TypeArray<T extends S.Top[]> = T extends [
   infer Head,
-  ...infer Tail extends S.Schema.All[],
+  ...infer Tail extends S.Top[],
 ]
-  ? Head extends S.Schema.All
+  ? Head extends S.Top
     ? [S.Schema.Type<Head>, ...TypeArray<Tail>]
     : never
   : [];
@@ -286,7 +256,7 @@ export const func: {
     ): SchemaWithTemplate<func<Args, Output>, R>;
   };
 } = ((input: any, output: any) =>
-  S.Any.annotations({
+  S.Any.annotate({
     aspect: {
       type: "fn",
       input: output ? input : undefined,
@@ -294,7 +264,11 @@ export const func: {
     },
   })) as any;
 
-export interface effect<A, Err, Req> extends S.Schema<
+export interface effect<
+  A extends S.Top,
+  Err extends S.Top,
+  Req extends S.Top,
+> extends S.Schema<
   Effect<S.Schema.Type<A>, S.Schema.Type<Err>, S.Schema.Type<Req>>
 > {}
 
@@ -307,7 +281,7 @@ export const effect = <
   err: Err = S.Never as any,
   req: Req = S.Never as any,
 ): effect<A, Err, Req> =>
-  S.Any.annotations({
+  S.Any.annotate({
     aspect: {
       type: "effect",
       a: a,
@@ -325,7 +299,7 @@ export const stream = <
   err: Err = S.Never as any,
   req: Req = S.Never as any,
 ) =>
-  S.Any.annotations({
+  S.Any.annotate({
     aspect: {
       type: "stream",
       a: a,
@@ -347,7 +321,7 @@ export const sink = <
   err: Err = S.Never as any,
   req: Req = S.Never as any,
 ) =>
-  S.Any.annotations({
+  S.Any.annotate({
     aspect: {
       type: "sink",
       a: a,

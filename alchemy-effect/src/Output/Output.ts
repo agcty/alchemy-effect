@@ -1,5 +1,5 @@
+import type { Yieldable } from "effect/Effect";
 import * as Effect from "effect/Effect";
-import type { Yieldable } from "effect/Utils";
 import { getRefMetadata, isRef, ref as stageRef, type Ref } from "../Ref.ts";
 import type { Resource, ResourceLike } from "../Resource.ts";
 import {

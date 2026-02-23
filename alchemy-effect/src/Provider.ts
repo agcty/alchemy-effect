@@ -3,9 +3,11 @@ import * as ServiceMap from "effect/ServiceMap";
 import type { ScopedPlanStatusSession } from "./Cli/index.ts";
 import type { Diff } from "./Diff.ts";
 import type { Input } from "./Input.ts";
-import type { Resource } from "./Resource.ts";
+import type { Resource, ResourceLike } from "./Resource.ts";
 
-export interface Provider<R extends Resource> extends ServiceMap.ServiceClass<
+export interface Provider<
+  R extends ResourceLike,
+> extends ServiceMap.ServiceClass<
   Provider<R>,
   R["type"],
   ProviderService<any>
@@ -16,14 +18,14 @@ export interface Provider<R extends Resource> extends ServiceMap.ServiceClass<
   // ProviderService<R>
 > {}
 
-type BindingData<Res extends Resource> = [Res] extends [Resource]
+type BindingData<Res extends ResourceLike> = [Res] extends [Resource]
   ? Res["binding"][]
   : any[];
 
-type Props<Res extends Resource> = Input.ResolveOpaque<Res["props"]>;
+type Props<Res extends ResourceLike> = Input.ResolveOpaque<Res["props"]>;
 
 export interface ProviderService<
-  Res extends Resource = Resource,
+  Res extends ResourceLike = ResourceLike,
   ReadReq = never,
   DiffReq = never,
   PrecreateReq = never,

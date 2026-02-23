@@ -320,10 +320,7 @@ describe("toAttributeType", () => {
   test("Record schema -> M", () => {
     expect(
       toAttributeType(
-        S.Record({
-          key: S.String,
-          value: S.String,
-        }),
+        S.Record(S.String, S.String),
       ),
     ).toBe("M");
   });
@@ -331,10 +328,7 @@ describe("toAttributeType", () => {
   test("Map schema -> M", () => {
     expect(
       toAttributeType(
-        S.Map({
-          key: S.String,
-          value: S.String,
-        }),
+        S.ReadonlyMap(S.String, S.String),
       ),
     ).toBe("M");
   });
@@ -344,11 +338,11 @@ describe("toAttributeType", () => {
   });
 
   test("Set of strings -> SS", () => {
-    expect(toAttributeType(S.Set(S.String))).toBe("SS");
+    expect(toAttributeType(S.ReadonlySet(S.String))).toBe("SS");
   });
 
   test("Set of numbers -> NS", () => {
-    expect(toAttributeType(S.Set(S.Number))).toBe("NS");
+    expect(toAttributeType(S.ReadonlySet(S.Number))).toBe("NS");
   });
 
   test("Class schema -> M", () => {
@@ -368,10 +362,7 @@ describe("isMapSchemaType", () => {
   test("Map schema", () => {
     expect(
       isMapSchemaType(
-        S.Map({
-          key: S.String,
-          value: S.String,
-        }),
+        S.ReadonlyMap(S.String, S.String),
       ),
     ).toBe(true);
   });
@@ -379,10 +370,7 @@ describe("isMapSchemaType", () => {
   test("Record schema", () => {
     expect(
       isMapSchemaType(
-        S.Record({
-          key: S.String,
-          value: S.String,
-        }),
+        S.Record(S.String, S.String),
       ),
     ).toBe(true);
   });
@@ -415,11 +403,11 @@ describe("isMapSchemaType", () => {
 
 describe("isStringSetSchema", () => {
   test("Set of strings", () => {
-    expect(isStringSetSchema(S.Set(S.String))).toBe(true);
+    expect(isStringSetSchema(S.ReadonlySet(S.String))).toBe(true);
   });
 
   test("not a string set", () => {
-    expect(isStringSetSchema(S.Set(S.Number))).toBe(false);
+    expect(isStringSetSchema(S.ReadonlySet(S.Number))).toBe(false);
     expect(isStringSetSchema(S.String)).toBe(false);
     expect(isStringSetSchema(S.Array(S.String))).toBe(false);
   });
@@ -427,11 +415,11 @@ describe("isStringSetSchema", () => {
 
 describe("isNumberSetSchema", () => {
   test("Set of numbers", () => {
-    expect(isNumberSetSchema(S.Set(S.Number))).toBe(true);
+    expect(isNumberSetSchema(S.ReadonlySet(S.Number))).toBe(true);
   });
 
   test("not a number set", () => {
-    expect(isNumberSetSchema(S.Set(S.String))).toBe(false);
+    expect(isNumberSetSchema(S.ReadonlySet(S.String))).toBe(false);
     expect(isNumberSetSchema(S.Number)).toBe(false);
     expect(isNumberSetSchema(S.Array(S.Number))).toBe(false);
   });

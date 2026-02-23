@@ -2,6 +2,7 @@ import { Region } from "distilled-aws/Region";
 import type { BucketLocationConstraint } from "distilled-aws/s3";
 import * as s3 from "distilled-aws/s3";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
@@ -80,7 +81,8 @@ export interface Bucket<
 > {}
 
 export const BucketProvider = () =>
-  Bucket.provider.effect(
+  Layer.effect(
+    Bucket,
     Effect.gen(function* () {
       const createBucketName = (
         id: string,

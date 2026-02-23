@@ -1,4 +1,3 @@
-export * from "./$.ts";
 export * from "./assert-never.ts";
 export * from "./base32.ts";
 export * from "./class.ts";

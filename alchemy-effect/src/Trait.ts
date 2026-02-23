@@ -70,7 +70,7 @@ export type ApplyTrait<Target, T extends Trait<any, any, any>> = ([
   Target,
 ] extends [Annotated<infer s, infer t>]
   ? Annotated<s, T | t>
-  : [Target] extends [S.Struct.Field]
+  : [Target] extends [S.Top]
     ? Annotated<Target, T>
     : [Target] extends [S.AnyClassSchema]
       ? Annotated<Target, T | Annotated.Unwrap<Target>>

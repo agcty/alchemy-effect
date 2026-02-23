@@ -1,7 +1,4 @@
-import type {
-  ConsumedCapacity,
-  ReturnConsumedCapacity,
-} from "distilled-aws/dynamodb";
+import type { ConsumedCapacity } from "distilled-aws/dynamodb";
 import * as DynamoDB from "distilled-aws/dynamodb";
 import * as Effect from "effect/Effect";
 import * as Binding from "../../Binding.ts";
@@ -21,9 +18,24 @@ export interface GetItemConstraint<
   returnConsumedCapacity?: ReturnConsumedCapacityValue;
 }
 
-export interface GetItemRequest<T extends Table>
-  extends Omit<DynamoDB.GetItemInput, "TableName" | "Key"> {
-  Key: Table.Key<T>;
+type AnyOfValue<T> = T extends Policy.AnyOf<infer V> ? V : never;
+type ConstrainLeadingKey<
+  T extends Table,
+  LeadingKeys extends Policy.AnyOf<any> | never,
+> = [LeadingKeys] extends [never]
+  ? Table.Key<T>
+  : Omit<Table.Key<T>, Table.PartitionKey<T>> & {
+      [K in Table.PartitionKey<T>]: Extract<
+        Table.Key<T>[K],
+        AnyOfValue<LeadingKeys>
+      >;
+    };
+
+export interface GetItemRequest<
+  T extends Table,
+  LeadingKeys extends Policy.AnyOf<any> | never = never,
+> extends Omit<DynamoDB.GetItemInput, "TableName" | "Key"> {
+  Key: ConstrainLeadingKey<T, LeadingKeys>;
 }
 
 export interface GetItemResult<T extends Table, Key extends Table.Key<T>> {
@@ -35,7 +47,7 @@ export const GetItem = Binding.make(
   "AWS.DynamoDB.GetItem",
   <
     T extends Table,
-    const LeadingKeys extends Policy.AnyOf<any> = Policy.AnyOf<string>,
+    const LeadingKeys extends Policy.AnyOf<any> = never,
     const Attributes extends Policy.AnyOf<any> = never,
     const ReturnConsumedCapacityValue extends Policy.AnyOf<any> = never,
   >(
@@ -46,46 +58,50 @@ export const GetItem = Binding.make(
       ReturnConsumedCapacityValue
     >,
   ) =>
-    Binding.fn(table, constraint, function* (request: GetItemRequest<T>) {
-      const tableName = yield* table.tableName();
-      const { Item, ...rest } = yield* DynamoDB.getItem({
-        ...request,
-        TableName: tableName,
-        Key: {
-          [table.props.partitionKey]: {
-            S: (request.Key as any)[table.props.partitionKey] as string,
+    Binding.fn(
+      table,
+      constraint,
+      function* (request: GetItemRequest<T, LeadingKeys>) {
+        const tableName = yield* table.tableName();
+        const { Item, ...rest } = yield* DynamoDB.getItem({
+          ...request,
+          TableName: tableName,
+          Key: {
+            [table.props.partitionKey]: {
+              S: (request.Key as any)[table.props.partitionKey] as string,
+            },
+            ...(table.props.sortKey
+              ? {
+                  [table.props.sortKey]: {
+                    S: (request.Key as any)[table.props.sortKey] as string,
+                  },
+                }
+              : {}),
           },
-          ...(table.props.sortKey
-            ? {
-                [table.props.sortKey]: {
-                  S: (request.Key as any)[table.props.sortKey] as string,
-                },
-              }
-            : {}),
-        },
-      });
+        });
 
-      return {
-        ...rest,
-        Item: Item
-          ? (Object.fromEntries(
-              yield* Effect.promise(() =>
-                Promise.all(
-                  Object.entries(Item!).map(async ([key, value]) => [
-                    key,
-                    await fromAttributeValue(value!),
-                  ]),
+        return {
+          ...rest,
+          Item: Item
+            ? (Object.fromEntries(
+                yield* Effect.promise(() =>
+                  Promise.all(
+                    Object.entries(Item!).map(async ([key, value]) => [
+                      key,
+                      await fromAttributeValue(value!),
+                    ]),
+                  ),
                 ),
-              ),
-            ) as any)
-          : undefined,
-      };
-    }),
+              ) as any)
+            : undefined,
+        };
+      },
+    ),
 );
 
-export const GetItemLambda = Binding.effect(
+export const GetItemFromLambda = Binding.effect(
   [Lambda.Function, GetItem],
-  (func, table, props) =>
+  (func, table, constraint) =>
     Effect.succeed({
       policyStatements: [
         {
@@ -94,15 +110,17 @@ export const GetItemLambda = Binding.effect(
           Action: ["dynamodb:GetItem"],
           Resource: [Output.interpolate`${table.tableArn()}`],
           Condition:
-            props?.leadingKeys ||
-            props?.attributes ||
-            props?.returnConsumedCapacity
+            constraint?.leadingKeys ||
+            constraint?.attributes ||
+            constraint?.returnConsumedCapacity
               ? {
                   "ForAllValues:StringEquals": {
-                    "dynamodb:LeadingKeys": props.leadingKeys?.anyOf as string[],
-                    "dynamodb:Attributes": props.attributes?.anyOf as string[],
-                    "dynamodb:ReturnConsumedCapacity": props.returnConsumedCapacity
+                    "dynamodb:LeadingKeys": constraint.leadingKeys
                       ?.anyOf as string[],
+                    "dynamodb:Attributes": constraint.attributes
+                      ?.anyOf as string[],
+                    "dynamodb:ReturnConsumedCapacity": constraint
+                      .returnConsumedCapacity?.anyOf as string[],
                   },
                 }
               : undefined,

@@ -1,13 +1,10 @@
 import type * as lambda from "aws-lambda";
 import { Region } from "distilled-aws/Region";
 import * as sqs from "distilled-aws/sqs";
-import * as SQS from "distilled-aws/sqs";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
 import type * as S from "effect/Schema";
-import * as Binding from "../../Binding.ts";
-import * as Output from "../../Output/index.ts";
-import * as Lambda from "../Lambda/index.ts";
 
 import { createPhysicalName } from "../../PhysicalName.ts";
 import { Resource } from "../../Resource.ts";
@@ -21,35 +18,10 @@ export type QueueEvent<Data> = Omit<lambda.SQSEvent, "Records"> & {
   Records: QueueRecord<Data>[];
 };
 
-export const Consume = Binding.make(
-  "AWS.SQS.Consume",
-  <Q extends Queue>(queue: Q) =>
-    Binding.fn(queue, function* () {
-      return yield* SQS.receiveMessage({
-        QueueUrl: yield* queue.queueUrl(),
-      });
-    }),
-);
-
-export const ConsumeFromLambdaFunction = Binding.effect(
-  [Lambda.Function, Consume],
-  (func, queue) =>
-    Effect.succeed({
-      policyStatements: [
-        {
-          Sid: "Consume",
-          Effect: "Allow",
-          Action: ["sqs:ReceiveMessage"],
-          Resource: [Output.interpolate`${queue.queueArn()}/*`],
-        },
-      ],
-    }),
-);
-
 export const Queue = Resource<{
-  <const ID extends string, const Props extends QueueProps>(
+  <const ID extends string, const Props extends QueueProps = QueueProps>(
     id: ID,
-    props: Props,
+    props?: Props,
   ): Effect.Effect<Queue<ID, Props>>;
 }>("AWS.SQS.Queue");
 
@@ -127,7 +99,8 @@ export type QueueProps<Msg = any> = {
 );
 
 export const QueueProvider = () =>
-  Queue.provider.effect(
+  Layer.effect(
+    Queue,
     Effect.gen(function* () {
       const region = yield* Region;
       const accountId = yield* Account;
