@@ -85,6 +85,11 @@
       "bun": "./src/Cloudflare/index.ts",
       "import": "./lib/Cloudflare/index.js"
     },
+    "./Cloudflare/Live": {
+      "types": "./src/Cloudflare/Live.d.ts",
+      "bun": "./src/Cloudflare/Live.ts",
+      "import": "./lib/Cloudflare/Live.js"
+    },
     "./Cloudflare/*": {
       "types": "./src/Cloudflare/*/index.d.ts",
       "bun": "./src/Cloudflare/*/index.ts",

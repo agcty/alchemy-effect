@@ -26,6 +26,8 @@ export const Providers = () =>
     Layer.provideMerge(Endpoint.fromStageConfig()),
   );
 
+export default Providers();
+
 export const Resources = () =>
   Layer.mergeAll(
     DynamoDB.TableProvider(),
@@ -58,6 +60,7 @@ export const Bindings = () =>
     Lambda.QueueEventSourceProvider(),
     Lambda.StreamEventSourceProvider(),
     Lambda.TableEventSourceProvider(),
+    S3.AbortMultipartUploadBinding,
     S3.CopyObjectBinding(),
     S3.DeleteObjectBinding(),
     S3.GetObjectBinding(),

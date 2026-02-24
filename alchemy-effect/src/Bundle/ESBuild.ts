@@ -1,20 +1,20 @@
-import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Queue from "effect/Queue";
 import type * as Scope from "effect/Scope";
+import * as ServiceMap from "effect/ServiceMap";
 import type esbuild from "esbuild";
 
-export class ESBuild extends Context.Tag("ESBuild")<
+export class ESBuild extends ServiceMap.Service<
   ESBuild,
   {
-    readonly build: <T extends esbuild.BuildOptions>(
+    build<T extends esbuild.BuildOptions>(
       options: esbuild.SameShape<esbuild.BuildOptions, T>,
-    ) => Effect.Effect<esbuild.BuildResult<T>, ESBuildError>;
-    readonly context: <T extends esbuild.BuildOptions>(
+    ): Effect.Effect<esbuild.BuildResult<T>, ESBuildError>;
+    context<T extends esbuild.BuildOptions>(
       options: esbuild.SameShape<esbuild.BuildOptions, T>,
-    ) => Effect.Effect<
+    ): Effect.Effect<
       {
         queue: Queue.Queue<esbuild.BuildResult<T>>;
         rebuild: () => Effect.Effect<
@@ -27,7 +27,7 @@ export class ESBuild extends Context.Tag("ESBuild")<
       Scope.Scope
     >;
   }
->() {}
+>()("ESBuild") {}
 
 export const esBuild = () =>
   Layer.effect(
@@ -53,7 +53,8 @@ export const esBuild = () =>
                     name: "queue",
                     setup: (build) => {
                       build.onEnd((result) => {
-                        Queue.unsafeOffer(queue, result as esbuild.BuildResult);
+                        // TODO(sam): why are we doing something unsafe here?
+                        Queue.offerUnsafe(queue, result as esbuild.BuildResult);
                       });
                     },
                   },

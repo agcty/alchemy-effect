@@ -24,9 +24,8 @@ export const defaultProviders = () =>
     bucketProvider(),
   ).pipe(Layer.provideMerge(bindings()));
 
-export const providers = () =>
-  defaultProviders().pipe(
-    Layer.provideMerge(
-      Layer.mergeAll(Account.fromStageConfig(), CloudflareApi.Default()),
-    ),
-  );
+export default defaultProviders().pipe(
+  Layer.provideMerge(
+    Layer.mergeAll(Account.fromStageConfig(), CloudflareApi.Default()),
+  ),
+);
