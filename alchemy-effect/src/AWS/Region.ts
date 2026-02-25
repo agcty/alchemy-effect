@@ -4,7 +4,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import { App } from "../App.ts";
+import { StageConfig } from "./StageConfig.ts";
 
 export type RegionID = string;
 
@@ -53,11 +53,11 @@ export const fromStageConfig = () =>
   Layer.effect(
     Region.Region,
     Effect.gen(function* () {
-      const app = yield* App;
-      if (app.config.aws?.region) {
-        return app.config.aws.region;
-      } else if (app.config.aws?.profile) {
-        const profile = yield* Credentials.loadProfile(app.config.aws.profile);
+      const config = yield* StageConfig;
+      if (config.region) {
+        return config.region;
+      } else if (config.profile) {
+        const profile = yield* Credentials.loadProfile(config.profile);
         if (profile.region) {
           return profile.region;
         }

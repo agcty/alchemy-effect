@@ -7,7 +7,7 @@ import * as Schedule from "effect/Schedule";
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import { somePropsAreDifferent } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -21,7 +21,7 @@ export const Vpc = Resource<{
   <const ID extends string, const Props extends VpcProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<Vpc<ID, Props>>;
+  ): ResourceEffect<Vpc<ID, Props>>;
 }>("AWS.EC2.VPC");
 
 export interface Vpc<
@@ -103,7 +103,7 @@ export interface VpcProps {
 
   /**
    * Tags to assign to the VPC.
-   * These will be merged with alchemy auto-tags (alchemy::app, alchemy::stage, alchemy::id).
+   * These will be merged with alchemy auto-tags (alchemy::stack, alchemy::stage, alchemy::id).
    */
   tags?: Record<string, Input<string>>;
 }

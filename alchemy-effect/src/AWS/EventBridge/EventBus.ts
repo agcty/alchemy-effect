@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import {
   createInternalTags,
   createTagsList,
@@ -106,7 +106,7 @@ export const EventBus = Resource<{
   <const ID extends string, const Props extends EventBusProps = EventBusProps>(
     id: ID,
     props?: Props,
-  ): Effect.Effect<EventBus<ID, Props>>;
+  ): ResourceEffect<EventBus<ID, Props>>;
 }>("AWS.EventBridge.EventBus");
 
 export interface EventBus<

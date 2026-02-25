@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import { Binding } from "../../internal/Binding.ts";
 import type { Capability, To } from "../../internal/Capability.ts";
 import { createPhysicalName } from "../../internal/createPhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { Account } from "../Account.ts";
 import { CloudflareApi } from "../CloudflareApi.ts";
 import { Worker } from "../Worker/worker.ts";
@@ -24,6 +24,7 @@ export interface Namespace<
   ID extends string = string,
   Props extends NamespaceProps = NamespaceProps,
 > extends Resource<
+  Namespace,
   "Cloudflare.KV.Namespace",
   ID,
   Props,
@@ -35,7 +36,7 @@ export const Namespace = Resource<{
   <const ID extends string, const Props extends NamespaceProps>(
     id: ID,
     props?: Props,
-  ): Namespace<ID, Props>;
+  ): ResourceEffect<Namespace<ID, Props>>;
 }>("Cloudflare.KV.Namespace");
 
 export const namespaceProvider = () =>

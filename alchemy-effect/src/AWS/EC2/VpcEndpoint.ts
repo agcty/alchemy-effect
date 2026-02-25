@@ -7,7 +7,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -21,7 +21,7 @@ export const VpcEndpoint = Resource<{
   <const ID extends string, const Props extends VpcEndpointProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<VpcEndpoint<ID, Props>>;
+  ): ResourceEffect<VpcEndpoint<ID, Props>>;
 }>("AWS.EC2.VpcEndpoint");
 
 export interface VpcEndpoint<

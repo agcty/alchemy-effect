@@ -5,7 +5,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import type { RouteTableId } from "./RouteTable.ts";
 import type { SubnetId } from "./Subnet.ts";
 
@@ -13,7 +13,7 @@ export const RouteTableAssociation = Resource<{
   <const ID extends string, const Props extends RouteTableAssociationProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<RouteTableAssociation<ID, Props>>;
+  ): ResourceEffect<RouteTableAssociation<ID, Props>>;
 }>("AWS.EC2.RouteTableAssociation");
 
 export interface RouteTableAssociation<

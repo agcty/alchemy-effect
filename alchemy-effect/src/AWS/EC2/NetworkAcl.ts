@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -15,7 +15,7 @@ export const NetworkAcl = Resource<{
   <const ID extends string, const Props extends NetworkAclProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<NetworkAcl<ID, Props>>;
+  ): ResourceEffect<NetworkAcl<ID, Props>>;
 }>("AWS.EC2.NetworkAcl");
 
 export interface NetworkAcl<

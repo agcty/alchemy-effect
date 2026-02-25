@@ -7,10 +7,11 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as S from "effect/Schema";
 
-import { App } from "../../App.ts";
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { StackName } from "../../Stack.ts";
+import { Stage } from "../../Stage.ts";
 import { createInternalTags, hasTags } from "../../Tags.ts";
 import type { type } from "../../Util/index.ts";
 import type { AccountID } from "../Account.ts";
@@ -100,7 +101,7 @@ export const Table = Resource<{
   >(
     id: ID,
     props: TableProps<Items, Attributes, PartitionKey, SortKey>,
-  ): Effect.Effect<
+  ): ResourceEffect<
     Table<ID, TableProps<Items, Attributes, PartitionKey, SortKey>>
   >;
 }>("AWS.DynamoDB.Table");
@@ -125,7 +126,8 @@ export declare namespace Table {
 export const TableProvider = () =>
   Table.provider.effect(
     Effect.gen(function* () {
-      const app = yield* App;
+      const stackName = yield* StackName;
+      const stage = yield* Stage;
 
       const createTableName = (
         id: string,
@@ -273,8 +275,8 @@ export const TableProvider = () =>
               // TODO(sam): that would require Lambda.consume mutates the Table declaration?
               // StreamSpecification: news.streamSpecification,
               Tags: [
-                { Key: "alchemy::app", Value: app.name },
-                { Key: "alchemy::stage", Value: app.stage },
+                { Key: "alchemy::stack", Value: stackName },
+                { Key: "alchemy::stage", Value: stage },
                 { Key: "alchemy::id", Value: id },
               ],
             })

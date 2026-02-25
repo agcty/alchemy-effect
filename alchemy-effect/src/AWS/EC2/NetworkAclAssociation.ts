@@ -2,7 +2,8 @@ import * as ec2 from "distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import type { ProviderService } from "../../Provider.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import type { NetworkAclId } from "./NetworkAcl.ts";
 import type { SubnetId } from "./Subnet.ts";
 
@@ -10,7 +11,7 @@ export const NetworkAclAssociation = Resource<{
   <const ID extends string, const Props extends NetworkAclAssociationProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<NetworkAclAssociation<ID, Props>>;
+  ): ResourceEffect<NetworkAclAssociation<ID, Props>>;
 }>("AWS.EC2.NetworkAclAssociation");
 
 export interface NetworkAclAssociation<

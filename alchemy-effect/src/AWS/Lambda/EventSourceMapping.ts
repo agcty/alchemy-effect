@@ -1,13 +1,12 @@
 import * as lambda from "distilled-aws/lambda";
 import { Region } from "distilled-aws/Region";
 import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
 
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, diffTags, hasTags } from "../../Tags.ts";
 import { Account } from "../Account.ts";
 
@@ -169,13 +168,14 @@ export const EventSourceMapping = Resource<{
   <const ID extends string, const Props extends EventSourceMappingProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<EventSourceMapping<ID, Props>>;
+  ): ResourceEffect<EventSourceMapping<ID, Props>>;
 }>("AWS.Lambda.EventSourceMapping");
 
 export interface EventSourceMapping<
   ID extends string = string,
   Props extends EventSourceMappingProps = EventSourceMappingProps,
 > extends Resource<
+  EventSourceMappingProps,
   "AWS.Lambda.EventSourceMapping",
   ID,
   Props,
@@ -209,8 +209,7 @@ const retryPermissionsPropagation = Effect.retry({
 });
 
 export const EventSourceMappingProvider = () =>
-  Layer.effect(
-    EventSourceMapping,
+  EventSourceMapping.provider.effect(
     Effect.gen(function* () {
       const region = yield* Region;
       const accountId = yield* Account;

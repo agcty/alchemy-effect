@@ -1,7 +1,8 @@
 import * as Effect from "effect/Effect";
 import { base32 } from ".//Util/base32.ts";
-import { App } from "./App.ts";
 import { InstanceId } from "./InstanceId.ts";
+import { StackName } from "./Stack.ts";
+import { Stage } from "./Stage.ts";
 
 export const createPhysicalName = Effect.fn(function* ({
   id,
@@ -45,10 +46,10 @@ export const createPhysicalName = Effect.fn(function* ({
       lowercase ? /[^a-z0-9-]/g : /[^a-zA-Z0-9-]/g,
       delimiter,
     );
-  const app = yield* App;
+  const stackName = yield* StackName;
+  const stage = yield* Stage;
   const prefix =
-    _prefix ??
-    `${app.name}${delimiter}${id}${delimiter}${app.stage}${delimiter}`;
+    _prefix ?? `${stackName}${delimiter}${id}${delimiter}${stage}${delimiter}`;
   const randomId = base32(
     Buffer.from(instanceId ?? (yield* InstanceId), "hex"),
   );

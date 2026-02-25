@@ -5,7 +5,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -16,7 +16,7 @@ export const InternetGateway = Resource<{
   <const ID extends string, const Props extends InternetGatewayProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<InternetGateway<ID, Props>>;
+  ): ResourceEffect<InternetGateway<ID, Props>>;
 }>("AWS.EC2.InternetGateway");
 
 export interface InternetGateway<
@@ -45,7 +45,7 @@ export interface InternetGatewayProps {
 
   /**
    * Tags to assign to the internet gateway.
-   * These will be merged with alchemy auto-tags (alchemy::app, alchemy::stage, alchemy::id).
+   * These will be merged with alchemy auto-tags (alchemy::stack, alchemy::stage, alchemy::id).
    */
   tags?: Record<string, Input<string>>;
 }

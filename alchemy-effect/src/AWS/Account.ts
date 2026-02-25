@@ -4,7 +4,7 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ServiceMap from "effect/ServiceMap";
-import { App } from "../App.ts";
+import { StageConfig } from "./StageConfig.ts";
 
 export class FailedToGetAccount extends Data.TaggedError(
   "AWS::Account::FailedToGetAccount",
@@ -30,11 +30,11 @@ export const fromStageConfig = () =>
   Layer.effect(
     Account,
     Effect.gen(function* () {
-      const app = yield* App;
-      if (app.config.aws?.account) {
-        return app.config.aws.account;
+      const config = yield* StageConfig;
+      if (config.account) {
+        return config.account;
       }
-      const profileName = app.config.aws?.profile;
+      const profileName = config.profile;
       if (profileName) {
         const profile = yield* Credentials.loadProfile(profileName);
         if (profile.sso_account_id) {

@@ -10,7 +10,6 @@ import * as Option from "effect/Option";
 import { Path } from "effect/Path";
 import * as Schedule from "effect/Schedule";
 import type { HttpClient } from "effect/unstable/http/HttpClient";
-import { App } from "../../App.ts";
 import { ESBuild } from "../../Bundle/index.ts";
 import { DotAlchemy } from "../../Config.ts";
 import type {
@@ -19,7 +18,13 @@ import type {
 } from "../../ExecutionContext.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import type { Provider } from "../../Provider.ts";
-import { Resource, type ResourceLike } from "../../Resource.ts";
+import {
+  Resource,
+  type ResourceEffect,
+  type ResourceLike,
+} from "../../Resource.ts";
+import { StackName } from "../../Stack.ts";
+import { Stage } from "../../Stage.ts";
 import { createInternalTags, createTagsList, hasTags } from "../../Tags.ts";
 import { sha256 } from "../../Util/sha256.ts";
 import { zipCode } from "../../Util/zip.ts";
@@ -78,7 +83,7 @@ export const Function = Resource<{
   >(
     id: Id,
     effect: Effect.Effect<Props, never, Req>,
-  ): Effect.Effect<Function<Id, Props>, never, Exclude<Req, Provided>>;
+  ): ResourceEffect<Function<Id, Props>, Exclude<Req, Provided>>;
 }>("AWS.Lambda.Function");
 
 export interface Function<
@@ -100,7 +105,8 @@ export const FunctionProvider = () =>
   Function.provider.effect(
     // @ts-expect-error
     Effect.gen(function* () {
-      const app = yield* App;
+      const stackName = yield* StackName;
+      const stage = yield* Stage;
       const accountId = yield* Account;
       const region = yield* Region;
       const dotAlchemy = yield* DotAlchemy;
@@ -258,7 +264,7 @@ export const FunctionProvider = () =>
         const outfile = path.join(
           dotAlchemy,
           "out",
-          `${app.name}-${app.stage}-${id}.ts`,
+          `${stackName}-${stage}-${id}.ts`,
         );
         yield* esbuild.build({
           // entryPoints: [props.main],

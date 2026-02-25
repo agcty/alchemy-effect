@@ -1,6 +1,5 @@
-import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import type { Table } from "./Table.ts";
 
 export const SecondaryIndex = Resource<{
@@ -13,7 +12,7 @@ export const SecondaryIndex = Resource<{
   >(
     id: ID,
     props: SecondaryIndexProps<Source, Attributes, PartitionKey, SortKey>,
-  ): Effect.Effect<
+  ): ResourceEffect<
     SecondaryIndex<
       ID,
       SecondaryIndexProps<Source, Attributes, PartitionKey, SortKey>

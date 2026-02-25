@@ -1,5 +1,5 @@
 import type { Input, InputProps } from "@/lib/Input";
-import { Resource } from "@/resource";
+import { Resource, type ResourceEffect } from "@/resource";
 import * as State from "@/state";
 import { isUnknown } from "@/unknown";
 import * as Context from "effect/Context";
@@ -19,13 +19,20 @@ export type BucketAttr<Props extends BucketProps> = {
 export interface Bucket<
   ID extends string = string,
   Props extends BucketProps = BucketProps,
-> extends Resource<"Test.Bucket", ID, Props, BucketAttr<Props>, Bucket> {}
+> extends Resource<
+  Bucket,
+  "Test.Bucket",
+  ID,
+  Props,
+  BucketAttr<Props>,
+  Bucket
+> {}
 
 export const Bucket = Resource<{
   <const ID extends string, const Props extends Input<BucketProps>>(
     id: ID,
     props?: Props,
-  ): Bucket<ID, Input.Resolve<Props>>;
+  ): ResourceEffect<Bucket<ID, Input.Resolve<Props>>>;
 }>("Test.Bucket");
 
 const bucketProvider = Bucket.provider.succeed({
@@ -56,13 +63,13 @@ export type QueueAttr<Props extends QueueProps> = {
 export interface Queue<
   ID extends string = string,
   Props extends QueueProps = QueueProps,
-> extends Resource<"Test.Queue", ID, Props, QueueAttr<Props>, Queue> {}
+> extends Resource<Queue, "Test.Queue", ID, Props, QueueAttr<Props>, Queue> {}
 
 export const Queue = Resource<{
   <const ID extends string, const Props extends Input<QueueProps>>(
     id: ID,
     props?: Props,
-  ): Queue<ID, Input.Resolve<Props>>;
+  ): ResourceEffect<Queue<ID, Input.Resolve<Props>>>;
 }>("Test.Queue");
 
 export const queueProvider = Queue.provider.succeed({
@@ -97,6 +104,7 @@ export interface Function<
   ID extends string = string,
   Props extends InputProps<FunctionProps> = InputProps<FunctionProps>,
 > extends Resource<
+  Function,
   "Test.Function",
   ID,
   Props,
@@ -108,27 +116,31 @@ export const Function = Resource<{
   <const ID extends string, const Props extends InputProps<FunctionProps>>(
     id: ID,
     props?: Props,
-  ): Function<ID, Props>;
+  ): ResourceEffect<Function<ID, Props>>;
 }>("Test.Function");
 
-export const functionProvider = Function.provider.succeed({
-  diff: Effect.fn(function* ({ id, news, output }) {}),
-  create: Effect.fn(function* ({ id, news }) {
+export const functionProvider = Function.provider.effect(
+  Effect.gen(function* () {
     return {
-      name: news.name ?? id,
-      env: news.env ?? {},
-      functionArn: `arn:aws:lambda:us-west-2:084828582823:function:${id}`,
+      diff: Effect.fn(function* ({ id, news, output }) {}),
+      create: Effect.fn(function* ({ id, news }) {
+        return {
+          name: news.name ?? id,
+          env: news.env ?? {},
+          functionArn: `arn:aws:lambda:us-west-2:084828582823:function:${id}`,
+        };
+      }),
+      update: Effect.fn(function* ({ id, news, output }) {
+        return {
+          name: news.name ?? id,
+          env: news.env ?? {},
+          functionArn: `arn:aws:lambda:us-west-2:084828582823:function:${id}`,
+        };
+      }),
+      delete: Effect.fn(function* ({ output }) {}),
     };
   }),
-  update: Effect.fn(function* ({ id, news, output }) {
-    return {
-      name: news.name ?? id,
-      env: news.env ?? {},
-      functionArn: `arn:aws:lambda:us-west-2:084828582823:function:${id}`,
-    };
-  }),
-  delete: Effect.fn(function* ({ output }) {}),
-});
+);
 
 // TestResource
 
@@ -155,6 +167,7 @@ export interface TestResource<
   ID extends string = string,
   Props extends InputProps<TestResourceProps> = InputProps<TestResourceProps>,
 > extends Resource<
+  TestResource,
   "Test.TestResource",
   ID,
   Props,
@@ -176,7 +189,7 @@ export const TestResource = Resource<{
   <const ID extends string, const Props extends InputProps<TestResourceProps>>(
     id: ID,
     props?: Props,
-  ): TestResource<ID, Props>;
+  ): ResourceEffect<TestResource<ID, Props>>;
 }>("Test.TestResource");
 
 export const testResourceProvider = TestResource.provider.effect(
@@ -280,6 +293,7 @@ export interface StaticStablesResource<
   Props extends InputProps<StaticStablesResourceProps> =
     InputProps<StaticStablesResourceProps>,
 > extends Resource<
+  StaticStablesResource,
   "Test.StaticStablesResource",
   ID,
   Props,
@@ -311,7 +325,7 @@ export const StaticStablesResource = Resource<{
   >(
     id: ID,
     props?: Props,
-  ): StaticStablesResource<ID, Props>;
+  ): ResourceEffect<StaticStablesResource<ID, Props>>;
 }>("Test.StaticStablesResource");
 
 export const staticStablesResourceProvider =

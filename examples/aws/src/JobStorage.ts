@@ -13,7 +13,7 @@ import type { Job } from "./Job.ts";
 export class JobStorage extends ServiceMap.Service<
   JobStorage,
   {
-    bucket: S3.Bucket;
+    bucket: S3.Bucket<"JobsBucket">;
     putJob(job: Job): Effect.Effect<void>;
     getJob(jobId: string): Effect.Effect<Job | undefined>;
     subscribe<Err = never, Req = never>(

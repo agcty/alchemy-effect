@@ -1,4 +1,4 @@
-import { AWS, Stack, Stage, StageConfig } from "alchemy-effect";
+import { AWS, Stack, Stage } from "alchemy-effect";
 import * as Credentials from "distilled-aws/Credentials";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
@@ -13,18 +13,16 @@ const AWS_PROFILE = Config.string("AWS_PROFILE").pipe(
   Config.withDefault(() => "default"),
 );
 
-const stageConfig = Layer.effect(
-  StageConfig,
+const awsConfig = Layer.effect(
+  AWS.StageConfig,
   Effect.gen(function* () {
     const stage = yield* Stage;
 
     if (stage === "prod") {
       return {
         // example of how to hard-code AWS accounts based on stage
-        aws: {
-          account: "123456789012",
-          region: "us-west-2",
-        },
+        account: "123456789012",
+        region: "us-west-2",
       };
     }
 
@@ -36,11 +34,9 @@ const stageConfig = Layer.effect(
       );
     }
     return {
-      aws: {
-        profile: profileName,
-        account: profile.sso_account_id,
-        region: profile.region ?? (yield* AWS_REGION),
-      },
+      profile: profileName,
+      account: profile.sso_account_id,
+      region: profile.region ?? (yield* AWS_REGION),
     };
   }),
 );
@@ -54,12 +50,10 @@ const stack = Effect.gen(function* () {
     bucketArn: bucket.bucketArn,
   };
 }).pipe(
-  Effect.provide(
-    Layer.provide(AWS.providers(), AWS.credentials()).pipe(
-      Layer.provide(stageConfig),
-    ),
-  ),
+  Effect.provide(Layer.provide(AWS.providers(), awsConfig)),
   Stack.make("JobStack"),
 );
+
+type _ = Effect.Services<typeof stack>;
 
 export default stack;

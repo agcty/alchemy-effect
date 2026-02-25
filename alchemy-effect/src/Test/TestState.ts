@@ -1,16 +1,16 @@
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { App } from "../App.ts";
+import { StackName } from "../Stack.ts";
+import { Stage } from "../Stage.ts";
 import * as State from "../State/index.ts";
 
 export const state = (resources: Record<string, State.ResourceState> = {}) =>
   Layer.effect(
     State.State,
     Effect.gen(function* () {
-      const app = yield* App;
       return State.InMemoryService({
-        [app.name]: {
-          [app.stage]: resources,
+        [yield* StackName]: {
+          [yield* Stage]: resources,
         },
       });
     }),

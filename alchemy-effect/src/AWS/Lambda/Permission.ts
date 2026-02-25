@@ -1,8 +1,6 @@
-import type * as Effect from "effect/Effect";
-
 import type * as lambda from "distilled-aws/lambda";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 
 export type { FunctionUrlAuthType } from "distilled-aws/lambda";
 
@@ -122,5 +120,5 @@ export const Permission = Resource<{
   >(
     id: ID,
     props: Props,
-  ): Effect.Effect<Permission<ID, Props>>;
+  ): ResourceEffect<Permission<ID, Props>>;
 }>("AWS.Lambda.Permission");

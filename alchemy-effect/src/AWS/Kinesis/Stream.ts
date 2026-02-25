@@ -7,7 +7,7 @@ import * as kinesis from "distilled-aws/kinesis";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, diffTags } from "../../Tags.ts";
 import { Account } from "../Account.ts";
 
@@ -19,7 +19,7 @@ export const Stream = Resource<{
   <const ID extends string, const Props extends StreamProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<Stream<ID, Props>>;
+  ): ResourceEffect<Stream<ID, Props>>;
 }>("AWS.Kinesis.Stream");
 
 export interface Stream<

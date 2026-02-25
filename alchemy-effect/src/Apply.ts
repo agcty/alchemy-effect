@@ -4,7 +4,6 @@ import * as ServiceMap from "effect/ServiceMap";
 import type { Simplify } from "effect/Types";
 import type { Instance } from ".//Util/instance.ts";
 import { asEffect } from ".//Util/types.ts";
-import { App } from "./App.ts";
 import type { AnyBinding, BindingProvider } from "./Binding.ts";
 import {
   type PlanStatusSession,
@@ -26,6 +25,8 @@ import {
 import { getProviderByType } from "./Provider.ts";
 import type { AnyResource, Resource } from "./Resource.ts";
 import type { AnyService } from "./Service.ts";
+import { StackName } from "./Stack.ts";
+import { Stage } from "./Stage.ts";
 import {
   type CreatedResourceState,
   type CreatingResourceState,
@@ -104,7 +105,8 @@ const expandAndPivot = Effect.fnUntraced(function* (
   session: PlanStatusSession,
 ) {
   const state = yield* State;
-  const app = yield* App;
+  const stackName = yield* StackName;
+  const stage = yield* Stage;
 
   const outputs = {} as Record<string, Effect.Effect<any, any, State>>;
   const resolveUpstream = Effect.fn(function* (resourceId: string) {
@@ -244,8 +246,8 @@ const expandAndPivot = Effect.fnUntraced(function* (
     Effect.gen(function* () {
       const commit = <State extends ResourceState>(value: State) =>
         state.set({
-          stack: app.name,
-          stage: app.stage,
+          stack: stackName,
+          stage: stage,
           resourceId: node.resource.id,
           value,
         });
@@ -712,7 +714,8 @@ const collectGarbage = Effect.fnUntraced(function* (
   session: PlanStatusSession,
 ) {
   const state = yield* State;
-  const app = yield* App;
+  const stackName = yield* StackName;
+  const stage = yield* Stage;
 
   const deletions: {
     [logicalId in string]: Effect.Effect<void, StateStoreError, never>;
@@ -720,8 +723,8 @@ const collectGarbage = Effect.fnUntraced(function* (
 
   // delete all replaced resources
   const replacedResources = yield* state.getReplacedResources({
-    stack: app.name,
-    stage: app.stage,
+    stack: stackName,
+    stage: stage,
   });
 
   const deletionGraph = {
@@ -769,8 +772,8 @@ const collectGarbage = Effect.fnUntraced(function* (
 
       const commit = <State extends ResourceState>(value: State) =>
         state.set({
-          stack: app.name,
-          stage: app.stage,
+          stack: stackName,
+          stage: stage,
           resourceId: logicalId,
           value,
         });
@@ -834,8 +837,8 @@ const collectGarbage = Effect.fnUntraced(function* (
           if (isDeleteNode(node)) {
             // TODO(sam): should we commit a tombstone instead? and then clean up tombstones after all deletions are complete?
             yield* state.delete({
-              stack: app.name,
-              stage: app.stage,
+              stack: stackName,
+              stage: stage,
               resourceId: logicalId,
             });
             yield* report("deleted");

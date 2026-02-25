@@ -2,7 +2,7 @@ import * as ec2 from "distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { SecurityGroupId } from "./SecurityGroup.ts";
 
@@ -10,7 +10,7 @@ export const SecurityGroupRule = Resource<{
   <const ID extends string, const Props extends SecurityGroupRuleProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<SecurityGroupRule<ID, Props>>;
+  ): ResourceEffect<SecurityGroupRule<ID, Props>>;
 }>("AWS.EC2.SecurityGroupRule");
 
 export interface SecurityGroupRule<

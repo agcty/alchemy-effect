@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { Account } from "../Account.ts";
 import type { PolicyStatement } from "../IAM/Policy.ts";
 
@@ -88,7 +88,7 @@ export const Queue = Resource<{
   <const ID extends string, const Props extends QueueProps = QueueProps>(
     id: ID,
     props?: Props,
-  ): Effect.Effect<Queue<ID, Props>>;
+  ): ResourceEffect<Queue<ID, Props>>;
 }>("AWS.SQS.Queue");
 
 export const QueueProvider = () =>

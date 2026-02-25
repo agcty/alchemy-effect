@@ -6,10 +6,10 @@ import type { InstanceId } from "./InstanceId.ts";
 import type * as Output from "./Output.ts";
 import type { Provider, ProviderService } from "./Provider.ts";
 
-export type ResourceEffect<R extends ResourceLike> = Effect.Effect<
+export type ResourceEffect<R extends ResourceLike, Req = never> = Effect.Effect<
   R,
   never,
-  R | Provider<R["base"]>
+  R | Req
 >;
 
 export type ResourceCtor = (id: string, props?: any) => ResourceEffect<any>;

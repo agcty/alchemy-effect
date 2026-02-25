@@ -1,20 +1,33 @@
 import * as Effect from "effect/Effect";
 import { FileSystem } from "effect/FileSystem";
 import { Path } from "effect/Path";
+import * as ServiceMap from "effect/ServiceMap";
 import type { HttpClient } from "effect/unstable/http/HttpClient";
-import * as App from "./App.ts";
 import { DotAlchemy } from "./Config.ts";
-import type { Provider } from "./Provider.ts";
 import type { ResourceLike } from "./Resource.ts";
 import type { Stage } from "./Stage.ts";
 
+export class StackName extends ServiceMap.Service<StackName, string>()(
+  "StackName",
+) {}
+
 export type StackServices =
-  | App.App
+  | StackName
   | Stage
   | FileSystem
   | Path
   | DotAlchemy
   | HttpClient;
+
+export type Stack<
+  Name extends string = string,
+  Resources = any,
+  Output = any,
+> = {
+  name: Name;
+  output: Output;
+  resources: Resources;
+};
 
 export const make: {
   <const Name extends string>(
@@ -22,9 +35,15 @@ export const make: {
   ): <A, Err = never, Req extends StackServices | ResourceLike = never>(
     eff: Effect.Effect<A, Err, Req>,
   ) => Effect.Effect<
-    Stack<Name, A, Extract<Req, ResourceLike>>,
-    never,
-    Exclude<Req, ResourceLike> | Provider<Extract<Req, ResourceLike>>
+    Stack<
+      Name,
+      {
+        [type in keyof ExtractResources<Req>]: ExtractResources<Req>[type];
+      },
+      A
+    >,
+    Err,
+    Exclude<Req, ResourceLike>
   >;
   <
     const Name extends string,
@@ -35,18 +54,20 @@ export const make: {
     name: Name,
     eff: Effect.Effect<A, Err, Req>,
   ): Effect.Effect<
-    Stack<Name, A, Extract<Req, ResourceLike>>,
-    never,
-    Exclude<Req, ResourceLike> | Provider<Extract<Req, ResourceLike>>
+    Stack<
+      Name,
+      {
+        [type in keyof ExtractResources<Req>]: ExtractResources<Req>[type];
+      },
+      A
+    >,
+    Err,
+    Exclude<Req, ResourceLike>
   >;
 } = undefined!;
 
-export type Stack<
-  Name extends string = string,
-  Output = any,
-  Resources extends ResourceLike = ResourceLike,
-> = {
-  name: Name;
-  output: Output;
-  resources: Resources[];
+type ExtractResources<T> = AsRecord<Extract<T, ResourceLike>>;
+
+type AsRecord<T extends ResourceLike> = {
+  [id in T["id"]]: Extract<T, { id: id }>;
 };

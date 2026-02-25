@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import { Binding } from "../../Binding.ts";
 import type { Capability, To } from "../../Capability.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { Account } from "../Account.ts";
 import { CloudflareApi } from "../CloudflareApi.ts";
 import { Worker } from "../Workers/Worker.ts";
@@ -32,6 +32,7 @@ export interface Bucket<
   ID extends string = string,
   Props extends BucketProps = BucketProps,
 > extends Resource<
+  Bucket,
   "Cloudflare.R2.Bucket",
   ID,
   Props,
@@ -43,7 +44,7 @@ export const Bucket = Resource<{
   <const ID extends string, const Props extends BucketProps>(
     id: ID,
     props?: Props,
-  ): Bucket<ID, Props>;
+  ): ResourceEffect<Bucket<ID, Props>>;
 }>("Cloudflare.R2.Bucket");
 
 export declare namespace Bucket {

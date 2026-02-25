@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import { Account, type AccountID } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
@@ -254,13 +254,14 @@ export const Rule = Resource<{
   <const ID extends string, const Props extends RuleProps = RuleProps>(
     id: ID,
     props?: Props,
-  ): Effect.Effect<Rule<ID, Props>>;
+  ): ResourceEffect<Rule<ID, Props>>;
 }>("AWS.EventBridge.Rule");
 
 export interface Rule<
   ID extends string = string,
   Props extends RuleProps = RuleProps,
 > extends Resource<
+  Rule,
   "AWS.EventBridge.Rule",
   ID,
   Props,

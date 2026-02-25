@@ -6,7 +6,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { createInternalTags, createTagsList } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -17,7 +17,7 @@ export const RouteTable = Resource<{
   <const ID extends string, const Props extends RouteTableProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<RouteTable<ID, Props>>;
+  ): ResourceEffect<RouteTable<ID, Props>>;
 }>("AWS.EC2.RouteTable");
 
 export interface RouteTable<
@@ -45,7 +45,7 @@ export interface RouteTableProps {
 
   /**
    * Tags to assign to the route table.
-   * These will be merged with alchemy auto-tags (alchemy::app, alchemy::stage, alchemy::id).
+   * These will be merged with alchemy auto-tags (alchemy::stack, alchemy::stage, alchemy::id).
    */
   tags?: Record<string, Input<string>>;
 }

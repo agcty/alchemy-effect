@@ -74,7 +74,7 @@ export const notifications = <
     } else {
       // if we're running outside a Lambda Function, we need to put messages in SQS queue
       // and then consume from it. Lambda can be invoked directly by S3 which is handy.
-      const queue = yield* SQS.Queue(`${bucket.id}-BucketEvents`);
+      const queue = yield* SQS.Queue(`${bucket.id as B["id"]}-BucketEvents`);
 
       yield* BucketEventSource(bucket, {
         queue,

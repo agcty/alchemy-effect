@@ -2,10 +2,11 @@ import * as Data from "effect/Data";
 import type { Yieldable } from "effect/Effect";
 import * as Effect from "effect/Effect";
 import type { Pipeable } from "effect/Pipeable";
-import { App } from "./App.ts";
-import type { ExecutionContext } from "./ExecutionContext.ts";
+import { ExecutionContext } from "./ExecutionContext.ts";
 import { getRefMetadata, isRef, ref as stageRef, type Ref } from "./Ref.ts";
 import type { Resource, ResourceLike } from "./Resource.ts";
+import { StackName } from "./Stack.ts";
+import { Stage } from "./Stage.ts";
 import * as State from "./State/State.ts";
 import { isPrimitive } from "./Util/data.ts";
 
@@ -85,7 +86,8 @@ export abstract class BaseExpr<A = any, Req = any> implements Output<A, Req> {
     void
   > {
     return Effect.gen(function* () {
-      const runtime = yield* Plantime;
+      const _ctx = yield* ExecutionContext;
+      // TODO(sam): implement
       return;
     }) as any;
   }
@@ -364,9 +366,8 @@ export const evaluate: <A, Upstream extends ResourceLike, Req>(
       return (yield* evaluate(expr.expr, upstream))?.[expr.identifier];
     } else if (isRefExpr(expr)) {
       const state = yield* State.State;
-      const app = yield* App;
-      const stack = expr.stack ?? app.name;
-      const stage = expr.stage ?? app.stage;
+      const stack = expr.stack ?? (yield* StackName);
+      const stage = expr.stage ?? (yield* Stage);
       const resource = yield* state.get({
         stack,
         stage,

@@ -6,7 +6,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource } from "../../Resource.ts";
+import { Resource, type ResourceEffect } from "../../Resource.ts";
 import {
   createAlchemyTagFilters,
   createInternalTags,
@@ -23,7 +23,7 @@ export const NatGateway = Resource<{
   <const ID extends string, const Props extends NatGatewayProps>(
     id: ID,
     props: Props,
-  ): Effect.Effect<NatGateway<ID, Props>>;
+  ): ResourceEffect<NatGateway<ID, Props>>;
 }>("AWS.EC2.NatGateway");
 
 export interface NatGateway<

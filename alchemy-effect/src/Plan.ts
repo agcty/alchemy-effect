@@ -5,13 +5,14 @@ import * as ServiceMap from "effect/ServiceMap";
 import { omit } from "effect/Struct";
 import type { Instance } from ".//Util/instance.ts";
 import { asEffect } from ".//Util/types.ts";
-import { App } from "./App.ts";
 import type { NoopDiff, UpdateDiff } from "./Diff.ts";
 import { InstanceId } from "./InstanceId.ts";
 import * as Output from "./Output.ts";
 import type { Provider } from "./Provider.ts";
 import { getProviderByType, type ProviderService } from "./Provider.ts";
 import type { Resource, ResourceLike } from "./Resource.ts";
+import { StackName } from "./Stack.ts";
+import { Stage } from "./Stage.ts";
 import {
   State,
   StateStoreError,
@@ -167,15 +168,16 @@ export const plan = <const Resources extends Resource[]>(
       .filter((r, i, arr) => arr.findIndex((r2) => r2.id === r.id) === i);
 
     // TODO(sam): rename terminology to Stack
-    const app = yield* App;
+    const stackName = yield* StackName;
+    const stage = yield* Stage;
 
     const resourceIds = yield* state.list({
-      stack: app.name,
-      stage: app.stage,
+      stack: stackName,
+      stage: stage,
     });
     const oldResources = yield* Effect.all(
       resourceIds.map((id) =>
-        state.get({ stack: app.name, stage: app.stage, resourceId: id }),
+        state.get({ stack: stackName, stage: stage, resourceId: id }),
       ),
       { concurrency: "unbounded" },
     );
@@ -213,8 +215,8 @@ export const plan = <const Resources extends Resource[]>(
               const provider = yield* resource.provider.tag;
               const props = yield* resolveInput(resource.props);
               const oldState = yield* state.get({
-                stack: app.name,
-                stage: app.stage,
+                stack: stackName,
+                stage: stage,
                 resourceId: resource.id,
               });
 
@@ -395,8 +397,8 @@ export const plan = <const Resources extends Resource[]>(
               const news = yield* resolveInput(resource.props);
 
               const oldState = yield* state.get({
-                stack: app.name,
-                stage: app.stage,
+                stack: stackName,
+                stage: stage,
                 resourceId: id,
               });
               const provider = yield* resource.provider.tag;
@@ -641,14 +643,14 @@ export const plan = <const Resources extends Resource[]>(
 
     const deletions = Object.fromEntries(
       (yield* Effect.all(
-        (yield* state.list({ stack: app.name, stage: app.stage })).map(
+        (yield* state.list({ stack: stackName, stage: stage })).map(
           Effect.fn(function* (id) {
             if (id in resourceGraph) {
               return;
             }
             const oldState = yield* state.get({
-              stack: app.name,
-              stage: app.stage,
+              stack: stackName,
+              stage: stage,
               resourceId: id,
             });
             let attr: any = oldState?.attr;
