@@ -7,7 +7,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -17,28 +17,13 @@ import type { SecurityGroupId } from "./SecurityGroup.ts";
 import type { SubnetId } from "./Subnet.ts";
 import type { VpcId } from "./Vpc.ts";
 
-export const VpcEndpoint = Resource<{
-  <const ID extends string, const Props extends VpcEndpointProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<VpcEndpoint<ID, Props>>;
-}>("AWS.EC2.VpcEndpoint");
-
-export interface VpcEndpoint<
-  ID extends string = string,
-  Props extends VpcEndpointProps = VpcEndpointProps,
-> extends Resource<
-  VpcEndpoint,
-  "AWS.EC2.VpcEndpoint",
-  ID,
-  Props,
-  VpcEndpointAttrs<Input.Resolve<Props>>
-> {}
-
 export type VpcEndpointId<ID extends string = string> = `vpce-${ID}`;
 export const VpcEndpointId = <ID extends string>(
   id: ID,
 ): ID & VpcEndpointId<ID> => `vpce-${id}` as ID & VpcEndpointId<ID>;
+
+export type VpcEndpointArn =
+  `arn:aws:ec2:${RegionID}:${AccountID}:vpc-endpoint/${VpcEndpointId}`;
 
 export interface VpcEndpointProps {
   /**
@@ -112,114 +97,120 @@ export interface VpcEndpointProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface VpcEndpointAttrs<Props extends VpcEndpointProps> {
-  /**
-   * The ID of the VPC endpoint.
-   */
-  vpcEndpointId: VpcEndpointId;
+export interface VpcEndpoint extends Resource<
+  VpcEndpoint,
+  "AWS.EC2.VpcEndpoint",
+  VpcEndpointProps,
+  {
+    /**
+     * The ID of the VPC endpoint.
+     */
+    vpcEndpointId: VpcEndpointId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the VPC endpoint.
-   */
-  vpcEndpointArn: `arn:aws:ec2:${RegionID}:${AccountID}:vpc-endpoint/${this["vpcEndpointId"]}`;
+    /**
+     * The Amazon Resource Name (ARN) of the VPC endpoint.
+     */
+    vpcEndpointArn: VpcEndpointArn;
 
-  /**
-   * The type of endpoint.
-   */
-  vpcEndpointType: EC2.VpcEndpointType;
+    /**
+     * The type of endpoint.
+     */
+    vpcEndpointType: EC2.VpcEndpointType;
 
-  /**
-   * The ID of the VPC.
-   */
-  vpcId: Props["vpcId"];
+    /**
+     * The ID of the VPC.
+     */
+    vpcId: VpcId;
 
-  /**
-   * The service name.
-   */
-  serviceName: Props["serviceName"];
+    /**
+     * The service name.
+     */
+    serviceName: string;
 
-  /**
-   * The current state of the VPC endpoint.
-   */
-  state: EC2.State;
+    /**
+     * The current state of the VPC endpoint.
+     */
+    state: EC2.State;
 
-  /**
-   * The policy document associated with the endpoint.
-   */
-  policyDocument?: string;
+    /**
+     * The policy document associated with the endpoint.
+     */
+    policyDocument?: string;
 
-  /**
-   * The IDs of the route tables associated with the endpoint.
-   */
-  routeTableIds?: string[];
+    /**
+     * The IDs of the route tables associated with the endpoint.
+     */
+    routeTableIds?: string[];
 
-  /**
-   * The IDs of the subnets associated with the endpoint.
-   */
-  subnetIds?: string[];
+    /**
+     * The IDs of the subnets associated with the endpoint.
+     */
+    subnetIds?: string[];
 
-  /**
-   * Information about the security groups associated with the network interfaces.
-   */
-  groups?: Array<{
-    groupId: string;
-    groupName: string;
-  }>;
+    /**
+     * Information about the security groups associated with the network interfaces.
+     */
+    groups?: Array<{
+      groupId: string;
+      groupName: string;
+    }>;
 
-  /**
-   * Whether private DNS is enabled.
-   */
-  privateDnsEnabled?: boolean;
+    /**
+     * Whether private DNS is enabled.
+     */
+    privateDnsEnabled?: boolean;
 
-  /**
-   * Whether the VPC endpoint is being managed by its service.
-   */
-  requesterManaged?: boolean;
+    /**
+     * Whether the VPC endpoint is being managed by its service.
+     */
+    requesterManaged?: boolean;
 
-  /**
-   * The IDs of the network interfaces for the endpoint.
-   */
-  networkInterfaceIds?: string[];
+    /**
+     * The IDs of the network interfaces for the endpoint.
+     */
+    networkInterfaceIds?: string[];
 
-  /**
-   * The DNS entries for the endpoint.
-   */
-  dnsEntries?: Array<{
-    dnsName?: string;
-    hostedZoneId?: string;
-  }>;
+    /**
+     * The DNS entries for the endpoint.
+     */
+    dnsEntries?: Array<{
+      dnsName?: string;
+      hostedZoneId?: string;
+    }>;
 
-  /**
-   * The date and time the VPC endpoint was created.
-   */
-  creationTimestamp?: string;
+    /**
+     * The date and time the VPC endpoint was created.
+     */
+    creationTimestamp?: string;
 
-  /**
-   * The ID of the AWS account that owns the VPC endpoint.
-   */
-  ownerId?: string;
+    /**
+     * The ID of the AWS account that owns the VPC endpoint.
+     */
+    ownerId?: string;
 
-  /**
-   * The IP address type for the endpoint.
-   */
-  ipAddressType?: EC2.IpAddressType;
+    /**
+     * The IP address type for the endpoint.
+     */
+    ipAddressType?: EC2.IpAddressType;
 
-  /**
-   * The DNS options for the endpoint.
-   */
-  dnsOptions?: {
-    dnsRecordIpType?: EC2.DnsRecordIpType;
-    privateDnsOnlyForInboundResolverEndpoint?: boolean;
-  };
+    /**
+     * The DNS options for the endpoint.
+     */
+    dnsOptions?: {
+      dnsRecordIpType?: EC2.DnsRecordIpType;
+      privateDnsOnlyForInboundResolverEndpoint?: boolean;
+    };
 
-  /**
-   * The last error that occurred for VPC endpoint.
-   */
-  lastError?: {
-    code?: string;
-    message?: string;
-  };
-}
+    /**
+     * The last error that occurred for VPC endpoint.
+     */
+    lastError?: {
+      code?: string;
+      message?: string;
+    };
+  }
+> {}
+export const VpcEndpoint = Resource<VpcEndpoint>("AWS.EC2.VpcEndpoint");
 
 export const VpcEndpointProvider = () =>
   VpcEndpoint.provider.effect(
@@ -250,16 +241,13 @@ export const VpcEndpointProvider = () =>
           ),
         );
 
-      const toAttrs = (
-        ep: ec2.VpcEndpoint,
-      ): VpcEndpointAttrs<VpcEndpointProps> => ({
+      const toAttrs = (ep: ec2.VpcEndpoint): VpcEndpoint["attr"] => ({
         vpcEndpointId: ep.VpcEndpointId as VpcEndpointId,
         vpcEndpointArn:
-          `arn:aws:ec2:${region}:${accountId}:vpc-endpoint/${ep.VpcEndpointId}` as VpcEndpointAttrs<VpcEndpointProps>["vpcEndpointArn"],
+          `arn:aws:ec2:${region}:${accountId}:vpc-endpoint/${ep.VpcEndpointId}` as VpcEndpointArn,
         vpcEndpointType: ep.VpcEndpointType!,
-        vpcId: ep.VpcId as VpcEndpointAttrs<VpcEndpointProps>["vpcId"],
-        serviceName:
-          ep.ServiceName as VpcEndpointAttrs<VpcEndpointProps>["serviceName"],
+        vpcId: ep.VpcId as VpcId,
+        serviceName: ep.ServiceName!,
         state: ep.State!,
         policyDocument: ep.PolicyDocument,
         routeTableIds: ep.RouteTableIds,

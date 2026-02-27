@@ -7,7 +7,7 @@ import * as Schedule from "effect/Schedule";
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import { somePropsAreDifferent } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
@@ -17,23 +17,7 @@ export type VpcId = `vpc-${string}`;
 export const VpcId = <const S extends string>(value: S): S & VpcId =>
   value as S & VpcId;
 
-export const Vpc = Resource<{
-  <const ID extends string, const Props extends VpcProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<Vpc<ID, Props>>;
-}>("AWS.EC2.VPC");
-
-export interface Vpc<
-  ID extends string = string,
-  Props extends VpcProps = VpcProps,
-> extends Resource<
-  Vpc,
-  "AWS.EC2.VPC",
-  ID,
-  Props,
-  VpcAttrs<Input.Resolve<Props>>
-> {}
+export type VpcArn = `arn:aws:ec2:${RegionID}:${AccountID}:vpc/${VpcId}`;
 
 export interface VpcProps {
   /**
@@ -108,70 +92,76 @@ export interface VpcProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface VpcAttrs<_Props extends VpcProps = VpcProps> {
-  /**
-   * The ID of the VPC.
-   */
-  vpcId: VpcId;
+export interface Vpc extends Resource<
+  Vpc,
+  "AWS.EC2.VPC",
+  VpcProps,
+  {
+    /**
+     * The ID of the VPC.
+     */
+    vpcId: VpcId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the VPC.
-   */
-  vpcArn: `arn:aws:ec2:${RegionID}:${AccountID}:vpc/${this["vpcId"]}`;
+    /**
+     * The Amazon Resource Name (ARN) of the VPC.
+     */
+    vpcArn: VpcArn;
 
-  /**
-   * The primary IPv4 CIDR block for the VPC.
-   */
-  cidrBlock: string;
-
-  /**
-   * The ID of the set of DHCP options associated with the VPC.
-   */
-  dhcpOptionsId: string;
-
-  /**
-   * The current state of the VPC.
-   */
-  state: EC2.VpcState;
-
-  /**
-   * Whether the VPC is the default VPC.
-   */
-  isDefault: boolean;
-
-  /**
-   * The ID of the AWS account that owns the VPC.
-   */
-  ownerId?: string;
-
-  /**
-   * Information about the IPv4 CIDR blocks associated with the VPC.
-   */
-  cidrBlockAssociationSet?: Array<{
-    associationId: string;
+    /**
+     * The primary IPv4 CIDR block for the VPC.
+     */
     cidrBlock: string;
-    cidrBlockState: {
-      state: EC2.VpcCidrBlockStateCode;
-      statusMessage?: string;
-    };
-  }>;
 
-  /**
-   * Information about the IPv6 CIDR blocks associated with the VPC.
-   */
-  ipv6CidrBlockAssociationSet?: Array<{
-    associationId: string;
-    ipv6CidrBlock: string;
-    ipv6CidrBlockState: {
-      state: EC2.VpcCidrBlockStateCode;
-      statusMessage?: string;
-    };
-    networkBorderGroup?: string;
-    ipv6Pool?: string;
-  }>;
+    /**
+     * The ID of the set of DHCP options associated with the VPC.
+     */
+    dhcpOptionsId: string;
 
-  tags?: Record<string, string>;
-}
+    /**
+     * The current state of the VPC.
+     */
+    state: EC2.VpcState;
+
+    /**
+     * Whether the VPC is the default VPC.
+     */
+    isDefault: boolean;
+
+    /**
+     * The ID of the AWS account that owns the VPC.
+     */
+    ownerId?: string;
+
+    /**
+     * Information about the IPv4 CIDR blocks associated with the VPC.
+     */
+    cidrBlockAssociationSet?: Array<{
+      associationId: string;
+      cidrBlock: string;
+      cidrBlockState: {
+        state: EC2.VpcCidrBlockStateCode;
+        statusMessage?: string;
+      };
+    }>;
+
+    /**
+     * Information about the IPv6 CIDR blocks associated with the VPC.
+     */
+    ipv6CidrBlockAssociationSet?: Array<{
+      associationId: string;
+      ipv6CidrBlock: string;
+      ipv6CidrBlockState: {
+        state: EC2.VpcCidrBlockStateCode;
+        statusMessage?: string;
+      };
+      networkBorderGroup?: string;
+      ipv6Pool?: string;
+    }>;
+
+    tags?: Record<string, string>;
+  }
+> {}
+export const Vpc = Resource<Vpc>("AWS.EC2.VPC");
 
 export const VpcProvider = () =>
   Vpc.provider.effect(
@@ -252,8 +242,7 @@ export const VpcProvider = () =>
           // 6. Return attributes
           return {
             vpcId,
-            vpcArn:
-              `arn:aws:ec2:${region}:${accountId}:vpc/${vpcId}` as VpcAttrs<VpcProps>["vpcArn"],
+            vpcArn: `arn:aws:ec2:${region}:${accountId}:vpc/${vpcId}` as VpcArn,
             cidrBlock: vpc.CidrBlock!,
             dhcpOptionsId: vpc.DhcpOptionsId!,
             state: vpc.State!,
@@ -281,7 +270,7 @@ export const VpcProvider = () =>
                 ipv6Pool: assoc.Ipv6Pool,
               }),
             ),
-          } satisfies VpcAttrs<VpcProps>;
+          };
         }),
 
         update: Effect.fn(function* ({ id, news, olds, output, session }) {

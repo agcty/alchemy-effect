@@ -2,11 +2,13 @@ import type { Workers } from "cloudflare/resources";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
+import * as ServiceMap from "effect/ServiceMap";
 
 import { sha256 } from "../..//Util/sha256.ts";
 import * as ESBuild from "../../Bundle/ESBuild.ts";
 import type { ScopedPlanStatusSession } from "../../Cli/index.ts";
 import { DotAlchemy } from "../../Config.ts";
+import type { FunctionExecutionContext } from "../../ExecutionContext.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { Account } from "../Account.ts";
@@ -58,17 +60,45 @@ export interface WorkerAttr<Props extends WorkerProps> {
   hash: { assets: string | undefined; bundle: string };
 }
 
+export class WorkerRuntime extends ServiceMap.Service<WorkerRuntime, Worker>()(
+  "Cloudflare.Workers.WorkerRuntime",
+) {}
+
+export interface WorkerExecutionContext extends FunctionExecutionContext<"Cloudflare.Worker"> {
+  /**
+   * An object with properties that are exported from the Worker entrypoint.
+   *
+   * Equivalent to these in code:
+   * ```ts
+   * export class MyDo extends DurableObject {
+   *   fetch(request: Request) {
+   *     return new Response("Hello from MyDo");
+   *   }
+   * }
+   *
+   * export default {
+   *   fetch: (request: Request) => Promise<Response>;
+   *   queue: (message: any) => Promise<void>;
+   * }
+   * ```
+   */
+  exports: Record<string, any>;
+}
+
 export interface Worker<
   Id extends string = string,
   Props extends WorkerProps = WorkerProps,
-> extends Resource<
-  Worker,
-  "Cloudflare.Worker",
-  Id,
-  Props,
-  WorkerAttr<Props>,
-  WorkerBinding
-> {}
+>
+  extends
+    WorkerExecutionContext,
+    Resource<
+      Worker,
+      "Cloudflare.Worker",
+      Id,
+      Props,
+      WorkerAttr<Props>,
+      WorkerBinding
+    > {}
 
 export const Worker = Resource<{
   <const Id extends string, const Props extends WorkerProps>(

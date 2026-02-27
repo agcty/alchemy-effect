@@ -9,11 +9,17 @@ import type { Bucket } from "./Bucket.ts";
 
 export interface GetObjectRequest extends Omit<S3.GetObjectRequest, "Bucket"> {}
 
+type Operation<T extends (input: any) => Effect.Effect<any, any, any>> = (
+  ...args: Parameters<T>
+) => Effect.Effect<
+  Effect.Success<ReturnType<T>>,
+  Effect.Error<ReturnType<T>>,
+  never
+>;
+
 export class GetObject extends Binding.Service<
   GetObject,
-  (
-    bucket: Bucket,
-  ) => Effect.Effect<(request: GetObjectRequest) => Effect.Effect<any, any, any>>
+  (bucket: Bucket) => Effect.Effect<Operation<typeof S3.getObject>>
 >()("AWS.S3.GetObject") {}
 
 export const GetObjectLive = Layer.effect(
@@ -21,12 +27,13 @@ export const GetObjectLive = Layer.effect(
   // @ts-expect-error
   Effect.gen(function* () {
     const Policy = yield* GetObjectPolicy;
+    const getObject = yield* S3.getObject;
 
     return Effect.fn(function* (bucket: Bucket) {
       const BucketName = yield* bucket.bucketName;
       yield* Policy(bucket);
       return Effect.fn(function* (request: GetObjectRequest) {
-        return yield* S3.getObject({
+        return yield* getObject({
           ...request,
           Bucket: yield* BucketName,
         });

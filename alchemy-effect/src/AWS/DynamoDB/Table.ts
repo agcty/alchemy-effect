@@ -9,7 +9,7 @@ import * as S from "effect/Schema";
 
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { StackName } from "../../Stack.ts";
 import { Stage } from "../../Stage.ts";
 import { createInternalTags, hasTags } from "../../Tags.ts";
@@ -17,6 +17,11 @@ import type { type } from "../../Util/index.ts";
 import type { AccountID } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 import { isScalarAttributeType, toAttributeType } from "./AttributeValue.ts";
+
+export type TableName = string;
+
+export type TableArn =
+  `arn:aws:dynamodb:${RegionID}:${AccountID}:table/${TableName}`;
 
 export type TableRecord<Data> = Omit<lambda.DynamoDBRecord, "dynamodb"> & {
   dynamodb: Omit<lambda.StreamRecord, "NewImage" | "OldImage"> & {
@@ -51,15 +56,6 @@ export interface TableProps<
   tableClass?: DynamoDB.TableClass;
 }
 
-export interface TableAttrs<Props extends Input.Resolve<TableProps>> {
-  tableName: Props["tableName"] extends string ? Props["tableName"] : string;
-  tableId: string;
-  tableArn: `arn:aws:dynamodb:${RegionID}:${AccountID}:table/${this["tableName"]}`;
-  partitionKey: Props["partitionKey"];
-  sortKey: Props["sortKey"];
-  // etc...
-}
-
 export type AttributesSchema<
   Items,
   PartitionKey extends keyof Items,
@@ -78,35 +74,22 @@ export type ToAttribute<S> = S extends string
       ? Uint8Array
       : S;
 
-export interface Table<
-  ID extends string = string,
-  Props extends TableProps<any, any, any, any> = TableProps<any, any, any, any>,
-> extends Resource<
+export interface Table extends Resource<
   Table,
   "AWS.DynamoDB.Table",
-  ID,
-  Props,
-  TableAttrs<Input.Resolve<Props>>
+  TableProps<any, any, any, any>,
+  {
+    tableId: string;
+    tableName: TableName;
+    tableArn: TableArn;
+    partitionKey: string;
+    sortKey: string | undefined;
+  }
 > {}
 
-export const Table = Resource<{
-  <
-    const ID extends string,
-    const Items,
-    const Attributes extends NoInfer<
-      AttributesSchema<Items, PartitionKey, SortKey>
-    >,
-    const PartitionKey extends keyof Items,
-    const SortKey extends keyof Items | undefined = undefined,
-  >(
-    id: ID,
-    props: TableProps<Items, Attributes, PartitionKey, SortKey>,
-  ): ResourceEffect<
-    Table<ID, TableProps<Items, Attributes, PartitionKey, SortKey>>
-  >;
-}>("AWS.DynamoDB.Table");
+export const Table = Resource<Table>("AWS.DynamoDB.Table");
 
-export interface AnyTable extends Table<string, TableProps> {}
+export interface AnyTable extends Table {}
 
 export declare namespace Table {
   export type PartitionKey<T extends Table> = T["props"]["partitionKey"];
@@ -302,12 +285,10 @@ export const TableProvider = () =>
           return {
             tableName,
             tableId: response.TableId!,
-            tableArn: response.TableArn! as TableAttrs<
-              Input.Resolve<TableProps>
-            >["tableArn"],
+            tableArn: response.TableArn! as TableArn,
             partitionKey: news.partitionKey,
             sortKey: news.sortKey,
-          } satisfies TableAttrs<Input.Resolve<TableProps>> as TableAttrs<any>;
+          } as const;
         }),
 
         update: Effect.fn(function* ({ output, news, olds }) {

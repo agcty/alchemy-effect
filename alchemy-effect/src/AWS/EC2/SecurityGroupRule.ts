@@ -2,27 +2,9 @@ import * as ec2 from "distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { SecurityGroupId } from "./SecurityGroup.ts";
-
-export const SecurityGroupRule = Resource<{
-  <const ID extends string, const Props extends SecurityGroupRuleProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<SecurityGroupRule<ID, Props>>;
-}>("AWS.EC2.SecurityGroupRule");
-
-export interface SecurityGroupRule<
-  ID extends string = string,
-  Props extends SecurityGroupRuleProps = SecurityGroupRuleProps,
-> extends Resource<
-  SecurityGroupRule,
-  "AWS.EC2.SecurityGroupRule",
-  ID,
-  Props,
-  SecurityGroupRuleAttrs<Input.Resolve<Props>>
-> {}
 
 export type SecurityGroupRuleId<ID extends string = string> = `sgr-${ID}`;
 export const SecurityGroupRuleId = <ID extends string>(
@@ -89,70 +71,84 @@ export interface SecurityGroupRuleProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface SecurityGroupRuleAttrs<
-  Props extends Input.Resolve<SecurityGroupRuleProps> =
-    Input.Resolve<SecurityGroupRuleProps>,
-> {
-  /**
-   * The ID of the security group rule.
-   */
-  securityGroupRuleId: SecurityGroupRuleId;
+export interface SecurityGroupRule extends Resource<
+  SecurityGroupRule,
+  "AWS.EC2.SecurityGroupRule",
+  SecurityGroupRuleProps,
+  {
+    /**
+     * The ID of the security group rule.
+     */
+    securityGroupRuleId: SecurityGroupRuleId;
 
-  /**
-   * The ID of the security group.
-   */
-  groupId: Props["groupId"];
+    /**
+     * The ID of the security group.
+     */
+    groupId: SecurityGroupId;
 
-  /**
-   * The ID of the AWS account that owns the security group.
-   */
-  groupOwnerId: string;
+    /**
+     * The ID of the AWS account that owns the security group.
+     */
+    groupOwnerId: string;
 
-  /**
-   * Whether this is an egress rule.
-   */
-  isEgress: Props["type"] extends "egress" ? true : false;
+    /**
+     * Whether this is an egress rule.
+     */
+    isEgress: boolean;
 
-  /**
-   * The IP protocol.
-   */
-  ipProtocol: Props["ipProtocol"];
+    /**
+     * The IP protocol.
+     */
+    ipProtocol: string;
 
-  /**
-   * The start of the port range.
-   */
-  fromPort?: number;
+    /**
+     * The start of the port range.
+     */
+    fromPort?: number;
 
-  /**
-   * The end of the port range.
-   */
-  toPort?: number;
+    /**
+     * The end of the port range.
+     */
+    toPort?: number;
 
-  /**
-   * The IPv4 CIDR range.
-   */
-  cidrIpv4?: Props["cidrIpv4"];
+    /**
+     * The IPv4 CIDR range.
+     */
+    cidrIpv4?: string | undefined;
 
-  /**
-   * The IPv6 CIDR range.
-   */
-  cidrIpv6?: Props["cidrIpv6"];
+    /**
+     * The IPv6 CIDR range.
+     */
+    cidrIpv6?: string | undefined;
 
-  /**
-   * The ID of the referenced security group.
-   */
-  referencedGroupId?: string;
+    /**
+     * The ID of the referenced security group.
+     */
+    referencedGroupId?: string;
 
-  /**
-   * The ID of the prefix list.
-   */
-  prefixListId?: string;
+    /**
+     * The ID of the prefix list.
+     */
+    prefixListId?: string;
 
-  /**
-   * The description.
-   */
-  description?: Props["description"];
-}
+    /**
+     * The description.
+     */
+    description?: string | undefined;
+  }
+> {}
+export const SecurityGroupRule = Resource<SecurityGroupRule>(
+  "AWS.EC2.SecurityGroupRule",
+);
+
+type SecurityGroupRuleAttrsType = SecurityGroupRule extends Resource<
+  any,
+  any,
+  any,
+  infer A
+>
+  ? A
+  : never;
 
 export const SecurityGroupRuleProvider = () =>
   SecurityGroupRule.provider.effect(
@@ -190,11 +186,11 @@ export const SecurityGroupRuleProvider = () =>
               : never
           >
         >,
-      ): SecurityGroupRuleAttrs => ({
+      ): SecurityGroupRuleAttrsType => ({
         securityGroupRuleId: rule.SecurityGroupRuleId as SecurityGroupRuleId,
         groupId: rule.GroupId as SecurityGroupId,
         groupOwnerId: rule.GroupOwnerId!,
-        isEgress: rule.IsEgress as any,
+        isEgress: rule.IsEgress as boolean,
         ipProtocol: rule.IpProtocol!,
         fromPort: rule.FromPort,
         toPort: rule.ToPort,

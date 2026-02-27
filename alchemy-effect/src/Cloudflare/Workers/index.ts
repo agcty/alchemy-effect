@@ -1,4 +1,3 @@
-export * from "./assets.fetch.ts";
-export * from "./worker.handler.ts";
-export * from "./worker.serve.ts";
+export * from "./Assets.ts";
+export * from "./Fetch.ts";
 export * from "./Worker.ts";

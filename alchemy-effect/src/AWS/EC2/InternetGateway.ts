@@ -5,30 +5,12 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 import type { VpcId } from "./Vpc.ts";
-
-export const InternetGateway = Resource<{
-  <const ID extends string, const Props extends InternetGatewayProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<InternetGateway<ID, Props>>;
-}>("AWS.EC2.InternetGateway");
-
-export interface InternetGateway<
-  ID extends string = string,
-  Props extends InternetGatewayProps = InternetGatewayProps,
-> extends Resource<
-  InternetGateway,
-  "AWS.EC2.InternetGateway",
-  ID,
-  Props,
-  InternetGatewayAttrs<Input.Resolve<Props>>
-> {}
 
 export type InternetGatewayId<ID extends string = string> = `igw-${ID}`;
 export const InternetGatewayId = <ID extends string>(
@@ -50,41 +32,39 @@ export interface InternetGatewayProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface InternetGatewayAttrs<Props extends InternetGatewayProps> {
-  /**
-   * The ID of the internet gateway.
-   */
-  internetGatewayId: InternetGatewayId;
-
-  /**
-   * The Amazon Resource Name (ARN) of the internet gateway.
-   */
-  internetGatewayArn: `arn:aws:ec2:${RegionID}:${AccountID}:internet-gateway/${this["internetGatewayId"]}`;
-
-  /**
-   * The ID of the VPC the internet gateway is attached to (if any).
-   */
-  vpcId?: Props["vpcId"];
-
-  /**
-   * The ID of the AWS account that owns the internet gateway.
-   */
-  ownerId?: string;
-
-  /**
-   * The attachments for the internet gateway.
-   */
-  attachments?: Array<{
+export interface InternetGateway extends Resource<
+  InternetGateway,
+  "AWS.EC2.InternetGateway",
+  InternetGatewayProps,
+  {
     /**
-     * The current state of the attachment.
+     * The ID of the internet gateway.
      */
-    state: "attaching" | "available" | "detaching" | "detached";
+    internetGatewayId: InternetGatewayId;
     /**
-     * The ID of the VPC.
+     * The Amazon Resource Name (ARN) of the internet gateway.
      */
-    vpcId: string;
-  }>;
-}
+    internetGatewayArn: `arn:aws:ec2:${RegionID}:${AccountID}:internet-gateway/${string}`;
+    /**
+     * The ID of the VPC the internet gateway is attached to (if any).
+     */
+    vpcId?: VpcId;
+    /**
+     * The ID of the AWS account that owns the internet gateway.
+     */
+    ownerId?: string;
+    /**
+     * The attachments for the internet gateway.
+     */
+    attachments?: Array<{
+      state: "attaching" | "available" | "detaching" | "detached";
+      vpcId: string;
+    }>;
+  }
+> {}
+export const InternetGateway = Resource<InternetGateway>(
+  "AWS.EC2.InternetGateway",
+);
 
 export const InternetGatewayProvider = () =>
   InternetGateway.provider.effect(
@@ -142,8 +122,7 @@ export const InternetGatewayProvider = () =>
           // 5. Return attributes
           return {
             internetGatewayId,
-            internetGatewayArn:
-              `arn:aws:ec2:${region}:${accountId}:internet-gateway/${internetGatewayId}` as InternetGatewayAttrs<InternetGatewayProps>["internetGatewayArn"],
+            internetGatewayArn: `arn:aws:ec2:${region}:${accountId}:internet-gateway/${internetGatewayId}`,
             vpcId: news.vpcId,
             ownerId: igw.OwnerId,
             attachments: igw.Attachments?.map((a) => ({
@@ -154,7 +133,7 @@ export const InternetGatewayProvider = () =>
                 | "detached",
               vpcId: a.VpcId!,
             })),
-          } satisfies InternetGatewayAttrs<InternetGatewayProps>;
+          };
         }),
 
         update: Effect.fn(function* ({ news, olds, output, session }) {

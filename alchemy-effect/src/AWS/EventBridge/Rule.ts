@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import { Account, type AccountID } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
@@ -34,11 +34,16 @@ export type {
   SqsParameters,
 } from "distilled-aws/eventbridge";
 
+export type RuleName = string;
+
+export type RuleArn =
+  `arn:aws:events:${RegionID}:${AccountID}:rule/${RuleName}`;
+
 export interface RuleTarget {
   /** Unique identifier for this target within the rule. */
   Id: string;
   /** ARN of the target resource. */
-  Arn: Input<string>;
+  Arn: Input<RuleArn>;
   /** ARN of the IAM role to use for this target when the rule is triggered. */
   RoleArn?: Input<string>;
   /** Valid JSON text passed to the target. Mutually exclusive with InputPath and InputTransformer. */
@@ -148,15 +153,6 @@ export interface RuleProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface RuleAttrs<Props extends RuleProps = RuleProps> {
-  /** The name of the rule. */
-  ruleName: Props["name"] extends string ? Props["name"] : string;
-  /** The ARN of the rule. */
-  ruleArn: `arn:aws:events:${RegionID}:${AccountID}:rule/${string}`;
-  /** The event bus associated with the rule. */
-  eventBusName: string;
-}
-
 /**
  * An Amazon EventBridge rule that matches events and routes them to targets.
  *
@@ -250,23 +246,20 @@ export interface RuleAttrs<Props extends RuleProps = RuleProps> {
  * });
  * ```
  */
-export const Rule = Resource<{
-  <const ID extends string, const Props extends RuleProps = RuleProps>(
-    id: ID,
-    props?: Props,
-  ): ResourceEffect<Rule<ID, Props>>;
-}>("AWS.EventBridge.Rule");
-
-export interface Rule<
-  ID extends string = string,
-  Props extends RuleProps = RuleProps,
-> extends Resource<
+export interface Rule extends Resource<
   Rule,
   "AWS.EventBridge.Rule",
-  ID,
-  Props,
-  RuleAttrs<Input.Resolve<Props>>
+  RuleProps,
+  {
+    /** The name of the rule. */
+    ruleName: RuleName;
+    /** The ARN of the rule. */
+    ruleArn: RuleArn;
+    /** The event bus associated with the rule. */
+    eventBusName: string;
+  }
 > {}
+export const Rule = Resource<Rule>("AWS.EventBridge.Rule");
 
 export const RuleProvider = () =>
   Rule.provider.effect(

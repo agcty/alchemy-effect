@@ -4,30 +4,12 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 import type { VpcId } from "./Vpc.ts";
-
-export const EgressOnlyInternetGateway = Resource<{
-  <const ID extends string, const Props extends EgressOnlyInternetGatewayProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<EgressOnlyInternetGateway<ID, Props>>;
-}>("AWS.EC2.EgressOnlyInternetGateway");
-
-export interface EgressOnlyInternetGateway<
-  ID extends string = string,
-  Props extends EgressOnlyInternetGatewayProps = EgressOnlyInternetGatewayProps,
-> extends Resource<
-  EgressOnlyInternetGateway,
-  "AWS.EC2.EgressOnlyInternetGateway",
-  ID,
-  Props,
-  EgressOnlyInternetGatewayAttrs<Input.Resolve<Props>>
-> {}
 
 export type EgressOnlyInternetGatewayId<ID extends string = string> =
   `eigw-${ID}`;
@@ -52,36 +34,39 @@ export interface EgressOnlyInternetGatewayProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface EgressOnlyInternetGatewayAttrs<
-  Props extends Input.Resolve<EgressOnlyInternetGatewayProps> =
-    Input.Resolve<EgressOnlyInternetGatewayProps>,
-> {
-  /**
-   * The ID of the egress-only internet gateway.
-   */
-  egressOnlyInternetGatewayId: EgressOnlyInternetGatewayId;
-
-  /**
-   * The Amazon Resource Name (ARN) of the egress-only internet gateway.
-   */
-  egressOnlyInternetGatewayArn: EgressOnlyInternetGatewayArn<
-    this["egressOnlyInternetGatewayId"]
-  >;
-
-  /**
-   * Information about the attachment of the egress-only internet gateway.
-   */
-  attachments?: Array<{
+export interface EgressOnlyInternetGateway extends Resource<
+  EgressOnlyInternetGateway,
+  "AWS.EC2.EgressOnlyInternetGateway",
+  EgressOnlyInternetGatewayProps,
+  {
     /**
-     * The current state of the attachment.
+     * The ID of the egress-only internet gateway.
      */
-    state: "attaching" | "attached" | "detaching" | "detached";
+    egressOnlyInternetGatewayId: EgressOnlyInternetGatewayId;
+
     /**
-     * The ID of the VPC.
+     * The Amazon Resource Name (ARN) of the egress-only internet gateway.
      */
-    vpcId: Props["vpcId"];
-  }>;
-}
+    egressOnlyInternetGatewayArn: EgressOnlyInternetGatewayArn;
+
+    /**
+     * Information about the attachment of the egress-only internet gateway.
+     */
+    attachments?: Array<{
+      /**
+       * The current state of the attachment.
+       */
+      state: "attaching" | "attached" | "detaching" | "detached";
+      /**
+       * The ID of the VPC.
+       */
+      vpcId: VpcId;
+    }>;
+  }
+> {}
+export const EgressOnlyInternetGateway = Resource<EgressOnlyInternetGateway>(
+  "AWS.EC2.EgressOnlyInternetGateway",
+);
 
 export const EgressOnlyInternetGatewayProvider = () =>
   EgressOnlyInternetGateway.provider.effect(
@@ -120,7 +105,7 @@ export const EgressOnlyInternetGatewayProvider = () =>
 
       const toAttrs = (
         gw: ec2.EgressOnlyInternetGateway,
-      ): EgressOnlyInternetGatewayAttrs => ({
+      ) => ({
         egressOnlyInternetGatewayId:
           gw.EgressOnlyInternetGatewayId as EgressOnlyInternetGatewayId,
         egressOnlyInternetGatewayArn:

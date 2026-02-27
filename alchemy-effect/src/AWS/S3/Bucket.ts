@@ -5,14 +5,14 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { diffTags } from "../../Tags.ts";
 import { Account, type AccountID } from "../Account.ts";
 import type { PolicyStatement } from "../IAM/Policy.ts";
 import type { RegionID } from "../Region.ts";
 
 export type BucketName = string;
-export type BucketArn = `arn:aws:s3:::${string}`;
+export type BucketArn = `arn:aws:s3:::${BucketName}`;
 
 export interface BucketProps {
   /**
@@ -36,56 +36,49 @@ export interface BucketProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface BucketBinding {
-  notificationConfiguration?: s3.NotificationConfiguration;
-  policyStatements?: PolicyStatement[];
-}
-
-export interface BucketAttrs<Props extends Input.Resolve<BucketProps>> {
-  /**
-   * Name of the bucket.
-   */
-  bucketName: Props["bucketName"] extends string ? Props["bucketName"] : string;
-  /**
-   * ARN of the bucket.
-   */
-  bucketArn: `arn:aws:s3:::${this["bucketName"]}`;
-  /**
-   * Domain name of the bucket (e.g., bucket-name.s3.amazonaws.com).
-   */
-  bucketDomainName: `${this["bucketName"]}.s3.amazonaws.com`;
-  /**
-   * Regional domain name of the bucket.
-   */
-  bucketRegionalDomainName: `${this["bucketName"]}.s3.${RegionID}.amazonaws.com`;
-  /**
-   * AWS region where the bucket is located.
-   */
-  region: RegionID;
-  /**
-   * AWS account ID that owns the bucket.
-   */
-  accountId: AccountID;
-}
-
-export const Bucket = Resource<{
-  <const ID extends string, const Props extends BucketProps>(
-    id: ID,
-    props?: Props,
-  ): ResourceEffect<Bucket<ID, Props>>;
-}>("AWS.S3.Bucket");
-
-export interface Bucket<
-  ID extends string = string,
-  Props extends BucketProps = BucketProps,
-> extends Resource<
+export interface Bucket extends Resource<
   Bucket,
   "AWS.S3.Bucket",
-  ID,
-  Props,
-  BucketAttrs<Input.Resolve<Props>>,
-  BucketBinding
+  BucketProps,
+  {
+    /**
+     * Name of the bucket.
+     */
+    bucketName: BucketName;
+    /**
+     * ARN of the bucket.
+     */
+    bucketArn: BucketArn;
+    /**
+     * Domain name of the bucket (e.g., bucket-name.s3.amazonaws.com).
+     */
+    bucketDomainName: `${BucketName}.s3.amazonaws.com`;
+    /**
+     * Regional domain name of the bucket.
+     */
+    bucketRegionalDomainName: `${BucketName}.s3.${RegionID}.amazonaws.com`;
+    /**
+     * AWS region where the bucket is located.
+     */
+    region: RegionID;
+    /**
+     * AWS account ID that owns the bucket.
+     */
+    accountId: AccountID;
+  },
+  {
+    /**
+     * Notification configuration for the bucket.
+     */
+    notificationConfiguration?: s3.NotificationConfiguration;
+    /**
+     * Policy statements for the bucket.
+     */
+    policyStatements?: PolicyStatement[];
+  }
 > {}
+
+export const Bucket = Resource<Bucket>("AWS.S3.Bucket");
 
 export const BucketProvider = () =>
   Bucket.provider.effect(

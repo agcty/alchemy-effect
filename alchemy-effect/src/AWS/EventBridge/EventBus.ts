@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import {
   createInternalTags,
   createTagsList,
@@ -20,9 +20,13 @@ export type {
   LogConfig,
 } from "distilled-aws/eventbridge";
 
+export type EventBusName = string;
+export type EventBusArn =
+  `arn:aws:events:${RegionID}:${AccountID}:event-bus/${EventBusName}`;
+
 export interface EventBusDeadLetterConfig {
   /** ARN of the SQS queue used as the dead-letter queue. */
-  Arn?: Input<string>;
+  Arn?: Input<EventBusArn>;
 }
 
 export interface EventBusProps {
@@ -31,7 +35,7 @@ export interface EventBusProps {
    * If omitted, a unique name will be generated.
    * Cannot be "default" — use the default event bus by omitting eventBusName on rules.
    */
-  name?: string;
+  name?: EventBusName;
 
   /**
    * The partner event source to associate with this event bus.
@@ -66,15 +70,6 @@ export interface EventBusProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface EventBusAttrs<Props extends EventBusProps = EventBusProps> {
-  /** The name of the event bus. */
-  eventBusName: Props["name"] extends string ? Props["name"] : string;
-  /** The ARN of the event bus. */
-  eventBusArn: `arn:aws:events:${RegionID}:${AccountID}:event-bus/${string}`;
-  /** Description of the event bus, if set. */
-  description?: string;
-}
-
 /**
  * An Amazon EventBridge event bus for receiving and routing events.
  *
@@ -102,23 +97,20 @@ export interface EventBusAttrs<Props extends EventBusProps = EventBusProps> {
  * });
  * ```
  */
-export const EventBus = Resource<{
-  <const ID extends string, const Props extends EventBusProps = EventBusProps>(
-    id: ID,
-    props?: Props,
-  ): ResourceEffect<EventBus<ID, Props>>;
-}>("AWS.EventBridge.EventBus");
-
-export interface EventBus<
-  ID extends string = string,
-  Props extends EventBusProps = EventBusProps,
-> extends Resource<
+export interface EventBus extends Resource<
   EventBus,
   "AWS.EventBridge.EventBus",
-  ID,
-  Props,
-  EventBusAttrs<Input.Resolve<Props>>
+  EventBusProps,
+  {
+    /** The name of the event bus. */
+    eventBusName: EventBusName;
+    /** The ARN of the event bus. */
+    eventBusArn: EventBusArn;
+    /** Description of the event bus, if set. */
+    description?: string;
+  }
 > {}
+export const EventBus = Resource<EventBus>("AWS.EventBridge.EventBus");
 
 export const EventBusProvider = () =>
   EventBus.provider.effect(

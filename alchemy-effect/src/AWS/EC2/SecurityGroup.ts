@@ -4,30 +4,12 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 import type { VpcId } from "./Vpc.ts";
-
-export const SecurityGroup = Resource<{
-  <const ID extends string, const Props extends SecurityGroupProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<SecurityGroup<ID, Props>>;
-}>("AWS.EC2.SecurityGroup");
-
-export interface SecurityGroup<
-  ID extends string = string,
-  Props extends SecurityGroupProps = SecurityGroupProps,
-> extends Resource<
-  SecurityGroup,
-  "AWS.EC2.SecurityGroup",
-  ID,
-  Props,
-  SecurityGroupAttrs<Input.Resolve<Props>>
-> {}
 
 export type SecurityGroupId<ID extends string = string> = `sg-${ID}`;
 export const SecurityGroupId = <ID extends string>(
@@ -121,72 +103,84 @@ export interface SecurityGroupProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface SecurityGroupAttrs<
-  Props extends Input.Resolve<SecurityGroupProps> =
-    Input.Resolve<SecurityGroupProps>,
-> {
-  /**
-   * The ID of the security group.
-   */
-  groupId: SecurityGroupId;
+export interface SecurityGroup extends Resource<
+  SecurityGroup,
+  "AWS.EC2.SecurityGroup",
+  SecurityGroupProps,
+  {
+    /**
+     * The ID of the security group.
+     */
+    groupId: SecurityGroupId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the security group.
-   */
-  groupArn: SecurityGroupArn<this["groupId"]>;
+    /**
+     * The Amazon Resource Name (ARN) of the security group.
+     */
+    groupArn: SecurityGroupArn;
 
-  /**
-   * The name of the security group.
-   */
-  groupName: string;
+    /**
+     * The name of the security group.
+     */
+    groupName: string;
 
-  /**
-   * The description of the security group.
-   */
-  description: string;
+    /**
+     * The description of the security group.
+     */
+    description: string;
 
-  /**
-   * The ID of the VPC for the security group.
-   */
-  vpcId: Props["vpcId"];
+    /**
+     * The ID of the VPC for the security group.
+     */
+    vpcId: VpcId;
 
-  /**
-   * The ID of the AWS account that owns the security group.
-   */
-  ownerId: string;
+    /**
+     * The ID of the AWS account that owns the security group.
+     */
+    ownerId: string;
 
-  /**
-   * The inbound rules associated with the security group.
-   */
-  ingressRules?: Array<{
-    securityGroupRuleId: string;
-    ipProtocol: string;
-    fromPort?: number;
-    toPort?: number;
-    cidrIpv4?: string;
-    cidrIpv6?: string;
-    referencedGroupId?: string;
-    prefixListId?: string;
-    description?: string;
-    isEgress: false;
-  }>;
+    /**
+     * The inbound rules associated with the security group.
+     */
+    ingressRules?: Array<{
+      securityGroupRuleId: string;
+      ipProtocol: string;
+      fromPort?: number;
+      toPort?: number;
+      cidrIpv4?: string;
+      cidrIpv6?: string;
+      referencedGroupId?: string;
+      prefixListId?: string;
+      description?: string;
+      isEgress: false;
+    }>;
 
-  /**
-   * The outbound rules associated with the security group.
-   */
-  egressRules?: Array<{
-    securityGroupRuleId: string;
-    ipProtocol: string;
-    fromPort?: number;
-    toPort?: number;
-    cidrIpv4?: string;
-    cidrIpv6?: string;
-    referencedGroupId?: string;
-    prefixListId?: string;
-    description?: string;
-    isEgress: true;
-  }>;
-}
+    /**
+     * The outbound rules associated with the security group.
+     */
+    egressRules?: Array<{
+      securityGroupRuleId: string;
+      ipProtocol: string;
+      fromPort?: number;
+      toPort?: number;
+      cidrIpv4?: string;
+      cidrIpv6?: string;
+      referencedGroupId?: string;
+      prefixListId?: string;
+      description?: string;
+      isEgress: true;
+    }>;
+  }
+> {}
+export const SecurityGroup = Resource<SecurityGroup>("AWS.EC2.SecurityGroup");
+
+type SecurityGroupAttrsType = SecurityGroup extends Resource<
+  any,
+  any,
+  any,
+  infer A
+>
+  ? A
+  : never;
 
 export const SecurityGroupProvider = () =>
   SecurityGroup.provider.effect(
@@ -229,7 +223,7 @@ export const SecurityGroupProvider = () =>
       const toAttrs = (
         sg: ec2.SecurityGroup,
         rules: ec2.SecurityGroupRule[],
-      ): SecurityGroupAttrs => ({
+      ): SecurityGroupAttrsType => ({
         groupId: sg.GroupId as SecurityGroupId,
         groupArn:
           `arn:aws:ec2:${region}:${accountId}:security-group/${sg.GroupId as SecurityGroupId}` as SecurityGroupArn,

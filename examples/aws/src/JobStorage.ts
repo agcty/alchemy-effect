@@ -8,7 +8,7 @@ import type { Job } from "./Job.ts";
 export class JobStorage extends ServiceMap.Service<
   JobStorage,
   {
-    bucket: S3.Bucket<"JobsBucket">;
+    bucket: S3.Bucket;
     putJob(job: Job): Effect.Effect<Job>;
     getJob(jobId: string): Effect.Effect<Job | undefined>;
   }
@@ -17,11 +17,10 @@ export class JobStorage extends ServiceMap.Service<
 export const jobStorage = Layer.effect(
   JobStorage,
   Effect.gen(function* () {
-    const Bucket = yield* S3.Bucket;
     const bucket = yield* S3.Bucket("JobsBucket");
 
-    const getObject = yield* S3.GetObject(bucket);
-    const putObject = yield* S3.PutObject(bucket);
+    const getObject = yield* S3.GetObject.bind(bucket);
+    const putObject = yield* S3.PutObject.bind(bucket);
 
     const putJob = (job: Job) =>
       putObject({

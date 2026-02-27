@@ -6,82 +6,76 @@ import type { InstanceId } from "./InstanceId.ts";
 import type * as Output from "./Output.ts";
 import type { Provider, ProviderService } from "./Provider.ts";
 
+export type ResourceCtor<R extends ResourceLike, Req = never> = (
+  id: string,
+  props?: R["props"],
+) => Effect.Effect<R, never, Req>;
+
+export type ResourceClass<Self extends ResourceLike> = ResourceCtor<
+  Self,
+  Provider<Self>
+> &
+  Effect.Effect<ResourceCtor<Self>> & {
+    provider: ResourceProviders<Self, Self["props"]>;
+  };
+
 export interface ResourceLike<
   Base = any,
   Type extends string = any,
-  Id extends string = any,
   Props extends object = any,
   Attributes extends object = any,
   Binding = any,
 > extends Pipeable {
   kind: "Resource";
   type: Type;
-  id: Id;
-  attr: Attributes;
   props: Props;
+  attr: Attributes;
   base: Base;
   binding: Binding;
+  /** @internal */
+  Resource: unknown;
 }
 
 export type Resource<
-  Base = any,
+  Self extends ResourceLike = any,
   Type extends string = any,
-  Id extends string = any,
   Props extends object = any,
   Attributes extends object = any,
   Binding = never,
-> = ResourceLike<Base, Type, Id, Props, Attributes, Binding> & {
+> = ResourceLike<Self, Type, Props, Attributes, Binding> & {
   bind(binding: Input<Binding>): Effect.Effect<void>;
 } & {
   [attr in keyof Attributes]: Output.Output<Attributes[attr], never>;
 };
 
-export type ResourceCtor = (id: string, props?: any) => ResourceEffect<any>;
+export const Resource = <R extends ResourceLike>(
+  type: R["type"],
+): ResourceClass<R> => {
+  const f = <const Id extends string, const P extends R["props"]>(
+    id: Id,
+    props?: P,
+  ): Effect.Effect<
+    (R & {
+      id: Id;
+      props: P;
+    })["Resource"],
+    never,
+    Provider<R>
+  > =>
+    Effect.gen(function* () {
+      //
+    });
 
-export type ResourceClass<Ctor extends ResourceCtor = ResourceCtor> = Ctor &
-  Effect.Effect<Ctor, never, ResourceServices<Ctor>> & {
-    readonly type: ResourceType<Ctor>;
-    readonly ctor: Ctor;
-    new (): ResourceInstance<Ctor>;
-    provider: ResourceProviders<Ctor>;
-  };
+  const Service = Effect.gen(function* () {
+    const services = yield* Effect.services();
+    return (id: string, props: R["props"]) =>
+      f(id, props).pipe(Effect.provide(services));
+  });
 
-export const Resource = <Fn extends ResourceCtor>(
-  type: ResourceType<Fn>,
-): ResourceClass<Fn> => {
-  const fn = (id: string, props?: any) => Effect.gen(function* () {});
-
-  return Object.assign(fn, {
-    type,
-    fn,
-    bind: Effect.fn(function* (binding: Input<any>) {
-      // const runtime = yield* Stack;
-    }),
-  }) as any as ResourceClass<Fn>;
+  return Object.assign(f, Service);
 };
 
-export type ResourceEffect<R extends ResourceLike, Req = never> = Effect.Effect<
-  R,
-  never,
-  Req
->;
-
-export type ResourceType<Ctor extends ResourceCtor> =
-  ResourceInstance<Ctor>["type"];
-
-export type ResourceServices<Ctor extends ResourceCtor> = Ctor extends (
-  ...args: any
-) => Effect.Effect<infer _A, infer _E, infer R>
-  ? R
-  : never;
-
-export type ResourceInstance<Ctor extends ResourceCtor> = Ctor extends (
-  ...args: any
-) => Effect.Effect<infer A, infer _E, infer _R>
-  ? A
-  : never;
-
-export interface ResourceProviders<Ctor extends ResourceCtor = ResourceCtor> {
+export interface ResourceProviders<Resource extends ResourceLike, Props> {
   effect<
     Req = never,
     ReadReq = never,
@@ -93,7 +87,7 @@ export interface ResourceProviders<Ctor extends ResourceCtor = ResourceCtor> {
   >(
     eff: Effect.Effect<
       ProviderService<
-        Extract<Effect.Success<ReturnType<Ctor>>, ResourceLike>,
+        Resource,
         ReadReq,
         DiffReq,
         PrecreateReq,
@@ -105,7 +99,7 @@ export interface ResourceProviders<Ctor extends ResourceCtor = ResourceCtor> {
       Req
     >,
   ): Layer.Layer<
-    Provider<Extract<Effect.Success<ReturnType<Ctor>>, ResourceLike>>,
+    Provider<Resource>,
     never,
     Exclude<
       | Req
@@ -127,7 +121,7 @@ export interface ResourceProviders<Ctor extends ResourceCtor = ResourceCtor> {
     DeleteReq = never,
   >(
     service: ProviderService<
-      ResourceInstance<Ctor>,
+      Resource,
       ReadReq,
       DiffReq,
       PrecreateReq,
@@ -136,7 +130,7 @@ export interface ResourceProviders<Ctor extends ResourceCtor = ResourceCtor> {
       DeleteReq
     >,
   ) => ProviderService<
-    ResourceInstance<Ctor>,
+    Resource,
     ReadReq,
     DiffReq,
     PrecreateReq,

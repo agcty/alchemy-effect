@@ -1,23 +1,18 @@
-import type lambda from "aws-lambda";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";
 
+import { Region } from "distilled-aws/Region";
 import * as SQS from "../AWS/SQS/index.ts";
 import { ProcessRuntime } from "./Runtime.ts";
-
-export const isSQSEvent = (event: any): event is lambda.SQSEvent =>
-  Array.isArray(event?.Records) &&
-  event.Records.length > 0 &&
-  event.Records[0].eventSource === "aws:sqs";
 
 export const SQSQueueEventSource = Layer.effect(
   SQS.QueueEventSource,
   Effect.gen(function* () {
-    const ctx = yield* ProcessRuntime;
-    const Policy = yield* QueueEventSourcePolicy;
+    const Process = yield* ProcessRuntime;
     const ReceiveMessage = yield* SQS.ReceiveMessage;
     const DeleteMessageBatch = yield* SQS.DeleteMessageBatch;
+    const region = yield* Region;
 
     return Effect.fn(function* <StreamReq = never, Req = never>(
       queue: SQS.Queue,
@@ -26,28 +21,45 @@ export const SQSQueueEventSource = Layer.effect(
         stream: Stream.Stream<SQS.SQSRecord, never, StreamReq>,
       ) => Effect.Effect<void, never, Req | StreamReq>,
     ) {
-      yield* Policy(queue, props);
-
       const QueueArn = yield* queue.queueArn;
 
       const receiveMessage = yield* ReceiveMessage(queue);
       const deleteMessageBatch = yield* DeleteMessageBatch(queue);
 
-      yield* ctx.run(
+      yield* Process.run(
         Effect.forever(
           Effect.gen(function* () {
             const queueArn = yield* QueueArn;
             const result = yield* receiveMessage({
-              MaxNumberOfMessages: props.maxNumberOfMessages ?? 10,
-              WaitTimeSeconds: props.waitTimeSeconds ?? 20,
+              MaxNumberOfMessages: props.batchSize ?? 10,
+              WaitTimeSeconds: props.maximumBatchingWindowInSeconds,
             });
 
             const messages = result.Messages ?? [];
             if (messages.length === 0) return;
 
-            const records = messages.map((msg) => toSQSRecord(msg, queueArn));
-
-            yield* process(Stream.fromArray(records)).pipe(Effect.orDie);
+            yield* process(
+              Stream.fromArray(
+                messages.map((msg) => ({
+                  messageId: msg.MessageId!,
+                  receiptHandle: msg.ReceiptHandle!,
+                  body: msg.Body!,
+                  attributes: {
+                    ApproximateReceiveCount:
+                      msg.Attributes?.ApproximateReceiveCount!,
+                    SentTimestamp: msg.Attributes?.SentTimestamp!,
+                    SenderId: msg.Attributes?.SenderId!,
+                    ApproximateFirstReceiveTimestamp:
+                      msg.Attributes?.ApproximateFirstReceiveTimestamp!,
+                  },
+                  messageAttributes: {},
+                  md5OfBody: msg.MD5OfBody!,
+                  eventSource: "aws:sqs",
+                  eventSourceARN: queueArn,
+                  awsRegion: region,
+                })),
+              ),
+            ).pipe(Effect.orDie);
 
             // TODO(sam): only delete messages that were successfully processed
             yield* deleteMessageBatch({

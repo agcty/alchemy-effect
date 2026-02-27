@@ -3,27 +3,9 @@ import * as Effect from "effect/Effect";
 
 import type { Input } from "../../Input.ts";
 import type { ProviderService } from "../../Provider.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import type { NetworkAclId } from "./NetworkAcl.ts";
 import type { SubnetId } from "./Subnet.ts";
-
-export const NetworkAclAssociation = Resource<{
-  <const ID extends string, const Props extends NetworkAclAssociationProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<NetworkAclAssociation<ID, Props>>;
-}>("AWS.EC2.NetworkAclAssociation");
-
-export interface NetworkAclAssociation<
-  ID extends string = string,
-  Props extends NetworkAclAssociationProps = NetworkAclAssociationProps,
-> extends Resource<
-  NetworkAclAssociation,
-  "AWS.EC2.NetworkAclAssociation",
-  ID,
-  Props,
-  NetworkAclAssociationAttrs<Input.Resolve<Props>>
-> {}
 
 export type NetworkAclAssociationId<ID extends string = string> =
   `aclassoc-${ID}`;
@@ -44,24 +26,19 @@ export interface NetworkAclAssociationProps {
   subnetId: Input<SubnetId>;
 }
 
-export interface NetworkAclAssociationAttrs<
-  Props extends Input.Resolve<NetworkAclAssociationProps>,
-> {
-  /**
-   * The ID of the association between the network ACL and subnet.
-   */
-  associationId: NetworkAclAssociationId;
-
-  /**
-   * The ID of the network ACL.
-   */
-  networkAclId: Props["networkAclId"];
-
-  /**
-   * The ID of the subnet.
-   */
-  subnetId: Props["subnetId"];
-}
+export interface NetworkAclAssociation extends Resource<
+  NetworkAclAssociation,
+  "AWS.EC2.NetworkAclAssociation",
+  NetworkAclAssociationProps,
+  {
+    associationId: NetworkAclAssociationId;
+    networkAclId: NetworkAclId;
+    subnetId: SubnetId;
+  }
+> {}
+export const NetworkAclAssociation = Resource<NetworkAclAssociation>(
+  "AWS.EC2.NetworkAclAssociation",
+);
 
 export const NetworkAclAssociationProvider = () =>
   NetworkAclAssociation.provider.effect(

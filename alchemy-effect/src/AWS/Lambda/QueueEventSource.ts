@@ -1,9 +1,9 @@
 import type lambda from "aws-lambda";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as ServiceMap from "effect/ServiceMap";
 import * as Stream from "effect/Stream";
 
+import * as Binding from "../../Binding.ts";
 import type { SQSRecord } from "../SQS/index.ts";
 import * as SQS from "../SQS/index.ts";
 import type { Queue } from "../SQS/Queue.ts";
@@ -20,7 +20,7 @@ export const QueueEventSource = Layer.effect(
   SQS.QueueEventSource,
   // @ts-expect-error
   Effect.gen(function* () {
-    const func = yield* FunctionRuntime;
+    const Function = yield* FunctionRuntime;
     const Policy = yield* QueueEventSourcePolicy;
 
     return Effect.fn(function* <StreamReq = never, Req = never>(
@@ -32,7 +32,7 @@ export const QueueEventSource = Layer.effect(
     ) {
       yield* Policy(queue, props);
 
-      yield* func.listen(
+      yield* Function.listen(
         Effect.gen(function* () {
           return (event: any) => {
             if (isSQSEvent(event)) {
@@ -48,7 +48,7 @@ export const QueueEventSource = Layer.effect(
   }),
 );
 
-export class QueueEventSourcePolicy extends ServiceMap.Service<
+export class QueueEventSourcePolicy extends Binding.Policy<
   QueueEventSourcePolicy,
   (queue: Queue, props: QueueEventSourceProps) => Effect.Effect<void>
 >()("AWS.SQS.QueueEventSourcePolicy") {}
@@ -56,10 +56,11 @@ export class QueueEventSourcePolicy extends ServiceMap.Service<
 export const QueueEventSourcePolicyLive = Layer.effect(
   QueueEventSourcePolicy,
   Effect.gen(function* () {
-    const func = yield* FunctionRuntime;
+    const Function = yield* FunctionRuntime;
+    const Mapping = yield* EventSourceMapping;
 
     return Effect.fn(function* (queue, props) {
-      yield* func.bind({
+      yield* Function.bind({
         policyStatements: [
           {
             Sid: "QueueEventSource",
@@ -74,8 +75,8 @@ export const QueueEventSourcePolicyLive = Layer.effect(
         ],
       });
 
-      yield* EventSourceMapping(`${queue.id}-EventSource`, {
-        functionName: func.functionName,
+      yield* Mapping(`${queue.id}-EventSource`, {
+        functionName: Function.functionName,
         eventSourceArn: queue.queueArn,
         batchSize: props.batchSize,
         maximumBatchingWindowInSeconds: props.maximumBatchingWindowInSeconds,

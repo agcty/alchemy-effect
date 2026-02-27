@@ -5,26 +5,8 @@ import * as Schedule from "effect/Schedule";
 
 import { somePropsAreDifferent } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import type { RouteTableId } from "./RouteTable.ts";
-
-export const Route = Resource<{
-  <const ID extends string, const Props extends RouteProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<Route<ID, Props>>;
-}>("AWS.EC2.Route");
-
-export interface Route<
-  ID extends string = string,
-  Props extends RouteProps = RouteProps,
-> extends Resource<
-  Route,
-  "AWS.EC2.Route",
-  ID,
-  Props,
-  RouteAttrs<Input.Resolve<Props>>
-> {}
 
 export interface RouteProps {
   /**
@@ -114,87 +96,30 @@ export interface RouteProps {
   vpcEndpointId?: Input<string>;
 }
 
-export interface RouteAttrs<Props extends RouteProps> {
-  /**
-   * The ID of the route table.
-   */
-  routeTableId: Props["routeTableId"];
-
-  /**
-   * The IPv4 CIDR block used for the destination match.
-   */
-  destinationCidrBlock?: Props["destinationCidrBlock"];
-
-  /**
-   * The IPv6 CIDR block used for the destination match.
-   */
-  destinationIpv6CidrBlock?: Props["destinationIpv6CidrBlock"];
-
-  /**
-   * The ID of a prefix list used for the destination match.
-   */
-  destinationPrefixListId?: Props["destinationPrefixListId"];
-
-  /**
-   * Describes how the route was created.
-   */
-  origin: EC2.RouteOrigin;
-
-  /**
-   * The state of the route.
-   */
-  state: EC2.RouteState;
-
-  /**
-   * The ID of the gateway (if applicable).
-   */
-  gatewayId?: string;
-
-  /**
-   * The ID of the NAT gateway (if applicable).
-   */
-  natGatewayId?: string;
-
-  /**
-   * The ID of the NAT instance (if applicable).
-   */
-  instanceId?: string;
-
-  /**
-   * The ID of the network interface (if applicable).
-   */
-  networkInterfaceId?: string;
-
-  /**
-   * The ID of the VPC peering connection (if applicable).
-   */
-  vpcPeeringConnectionId?: string;
-
-  /**
-   * The ID of the transit gateway (if applicable).
-   */
-  transitGatewayId?: string;
-
-  /**
-   * The ID of the local gateway (if applicable).
-   */
-  localGatewayId?: string;
-
-  /**
-   * The ID of the carrier gateway (if applicable).
-   */
-  carrierGatewayId?: string;
-
-  /**
-   * The ID of the egress-only internet gateway (if applicable).
-   */
-  egressOnlyInternetGatewayId?: string;
-
-  /**
-   * The Amazon Resource Name (ARN) of the core network (if applicable).
-   */
-  coreNetworkArn?: string;
-}
+export interface Route extends Resource<
+  Route,
+  "AWS.EC2.Route",
+  RouteProps,
+  {
+    routeTableId: RouteTableId;
+    destinationCidrBlock?: string | undefined;
+    destinationIpv6CidrBlock?: string | undefined;
+    destinationPrefixListId?: string | undefined;
+    origin: EC2.RouteOrigin;
+    state: EC2.RouteState;
+    gatewayId?: string;
+    natGatewayId?: string;
+    instanceId?: string;
+    networkInterfaceId?: string;
+    vpcPeeringConnectionId?: string;
+    transitGatewayId?: string;
+    localGatewayId?: string;
+    carrierGatewayId?: string;
+    egressOnlyInternetGatewayId?: string;
+    coreNetworkArn?: string;
+  }
+> {}
+export const Route = Resource<Route>("AWS.EC2.Route");
 
 export const RouteProvider = () =>
   Route.provider.effect(
@@ -277,7 +202,7 @@ export const RouteProvider = () =>
             carrierGatewayId: route?.CarrierGatewayId,
             egressOnlyInternetGatewayId: route?.EgressOnlyInternetGatewayId,
             coreNetworkArn: route?.CoreNetworkArn,
-          } satisfies RouteAttrs<RouteProps>;
+          };
         }),
 
         update: Effect.fn(function* ({ news, output, session }) {

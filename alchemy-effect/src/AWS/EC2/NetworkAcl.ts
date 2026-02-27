@@ -4,35 +4,20 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 import type { VpcId } from "./Vpc.ts";
 
-export const NetworkAcl = Resource<{
-  <const ID extends string, const Props extends NetworkAclProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<NetworkAcl<ID, Props>>;
-}>("AWS.EC2.NetworkAcl");
-
-export interface NetworkAcl<
-  ID extends string = string,
-  Props extends NetworkAclProps = NetworkAclProps,
-> extends Resource<
-  NetworkAcl,
-  "AWS.EC2.NetworkAcl",
-  ID,
-  Props,
-  NetworkAclAttrs<Input.Resolve<Props>>
-> {}
-
 export type NetworkAclId<ID extends string = string> = `acl-${ID}`;
 export const NetworkAclId = <ID extends string>(
   id: ID,
 ): ID & NetworkAclId<ID> => `acl-${id}` as ID & NetworkAclId<ID>;
+
+export type NetworkAclArn<ID extends NetworkAclId = NetworkAclId> =
+  `arn:aws:ec2:${RegionID}:${AccountID}:network-acl/${ID}`;
 
 export interface NetworkAclProps {
   /**
@@ -46,66 +31,40 @@ export interface NetworkAclProps {
   tags?: Record<string, Input<string>>;
 }
 
-export type NetworkAclArn<ID extends NetworkAclId = NetworkAclId> =
-  `arn:aws:ec2:${RegionID}:${AccountID}:network-acl/${ID}`;
-
-export interface NetworkAclAttrs<
-  Props extends Input.Resolve<NetworkAclProps> = Input.Resolve<NetworkAclProps>,
-> {
-  /**
-   * The ID of the network ACL.
-   */
-  networkAclId: NetworkAclId;
-
-  /**
-   * The Amazon Resource Name (ARN) of the network ACL.
-   */
-  networkAclArn: NetworkAclArn<this["networkAclId"]>;
-
-  /**
-   * The ID of the VPC for the network ACL.
-   */
-  vpcId: Props["vpcId"];
-
-  /**
-   * Whether this is the default network ACL for the VPC.
-   */
-  isDefault: boolean;
-
-  /**
-   * The ID of the AWS account that owns the network ACL.
-   */
-  ownerId: string;
-
-  /**
-   * The entries (rules) in the network ACL.
-   */
-  entries?: Array<{
-    ruleNumber: number;
-    protocol: string;
-    ruleAction: ec2.RuleAction;
-    egress: boolean;
-    cidrBlock?: string;
-    ipv6CidrBlock?: string;
-    icmpTypeCode?: {
-      code?: number;
-      type?: number;
-    };
-    portRange?: {
-      from?: number;
-      to?: number;
-    };
-  }>;
-
-  /**
-   * The associations between the network ACL and subnets.
-   */
-  associations?: Array<{
-    networkAclAssociationId: string;
-    networkAclId: string;
-    subnetId: string;
-  }>;
-}
+export interface NetworkAcl extends Resource<
+  NetworkAcl,
+  "AWS.EC2.NetworkAcl",
+  NetworkAclProps,
+  {
+    networkAclId: NetworkAclId;
+    networkAclArn: NetworkAclArn;
+    vpcId: VpcId;
+    isDefault: boolean;
+    ownerId: string;
+    entries?: Array<{
+      ruleNumber: number;
+      protocol: string;
+      ruleAction: ec2.RuleAction;
+      egress: boolean;
+      cidrBlock?: string;
+      ipv6CidrBlock?: string;
+      icmpTypeCode?: {
+        code?: number;
+        type?: number;
+      };
+      portRange?: {
+        from?: number;
+        to?: number;
+      };
+    }>;
+    associations?: Array<{
+      networkAclAssociationId: string;
+      networkAclId: string;
+      subnetId: string;
+    }>;
+  }
+> {}
+export const NetworkAcl = Resource<NetworkAcl>("AWS.EC2.NetworkAcl");
 
 export const NetworkAclProvider = () =>
   NetworkAcl.provider.effect(
@@ -134,7 +93,7 @@ export const NetworkAclProvider = () =>
           ),
         );
 
-      const toAttrs = (acl: ec2.NetworkAcl): NetworkAclAttrs => ({
+      const toAttrs = (acl: ec2.NetworkAcl) => ({
         networkAclId: acl.NetworkAclId as NetworkAclId,
         networkAclArn:
           `arn:aws:ec2:${region}:${accountId}:network-acl/${acl.NetworkAclId}` as NetworkAclArn,

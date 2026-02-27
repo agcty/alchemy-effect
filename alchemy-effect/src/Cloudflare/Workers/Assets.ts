@@ -13,14 +13,12 @@ import { Worker } from "./Worker.ts";
 const MAX_ASSET_SIZE = 1024 * 1024 * 25; // 25MB
 const MAX_ASSET_COUNT = 20_000;
 
-export declare namespace Assets {
-  export interface ReadResult {
-    directory: string;
-    config: Worker.AssetsConfig | undefined;
-    manifest: Record<string, { hash: string; size: number }>;
-    _headers: string | undefined;
-    _redirects: string | undefined;
-  }
+export interface AssetReadResult {
+  directory: string;
+  config: Worker.AssetsConfig | undefined;
+  manifest: Record<string, { hash: string; size: number }>;
+  _headers: string | undefined;
+  _redirects: string | undefined;
 }
 
 export class Assets extends ServiceMap.Service<
@@ -28,11 +26,11 @@ export class Assets extends ServiceMap.Service<
   {
     read(
       directory: Worker.AssetsProps,
-    ): Effect.Effect<Assets.ReadResult, PlatformError | ValidationError>;
+    ): Effect.Effect<AssetReadResult, PlatformError | ValidationError>;
     upload(
       accountId: string,
       workerName: string,
-      assets: Assets.ReadResult,
+      assets: AssetReadResult,
       session: ScopedPlanStatusSession,
     ): Effect.Effect<
       { jwt: string | undefined },
@@ -40,6 +38,12 @@ export class Assets extends ServiceMap.Service<
     >;
   }
 >()("Cloudflare.Assets") {}
+
+export type ValidationError =
+  | AssetTooLargeError
+  | TooManyAssetsError
+  | AssetNotFoundError
+  | FailedToReadAssetError;
 
 export class AssetTooLargeError extends Data.TaggedError("AssetTooLargeError")<{
   message: string;
@@ -66,13 +70,7 @@ export class FailedToReadAssetError extends Data.TaggedError(
   cause: PlatformError;
 }> {}
 
-export type ValidationError =
-  | AssetTooLargeError
-  | TooManyAssetsError
-  | AssetNotFoundError
-  | FailedToReadAssetError;
-
-export const assetsProvider = () =>
+export const AssetsProvider = () =>
   Layer.effect(
     Assets,
     Effect.gen(function* () {
@@ -176,7 +174,7 @@ export const assetsProvider = () =>
         upload: Effect.fnUntraced(function* (
           accountId: string,
           workerName: string,
-          assets: Assets.ReadResult,
+          assets: AssetReadResult,
           { note }: ScopedPlanStatusSession,
         ) {
           yield* note("Checking assets...");

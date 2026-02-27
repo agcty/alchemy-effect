@@ -6,7 +6,7 @@ import * as Schedule from "effect/Schedule";
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import { somePropsAreDifferent } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
@@ -16,23 +16,8 @@ export type SubnetId<ID extends string = string> = `subnet-${ID}`;
 export const SubnetId = <ID extends string>(id: ID): ID & SubnetId<ID> =>
   `subnet-${id}` as ID & SubnetId<ID>;
 
-export const Subnet = Resource<{
-  <const ID extends string, const Props extends SubnetProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<Subnet<ID, Props>>;
-}>("AWS.EC2.Subnet");
-
-export interface Subnet<
-  ID extends string = string,
-  Props extends SubnetProps = SubnetProps,
-> extends Resource<
-  Subnet,
-  "AWS.EC2.Subnet",
-  ID,
-  Props,
-  SubnetAttrs<Input.Resolve<Props>>
-> {}
+export type SubnetArn =
+  `arn:aws:ec2:${RegionID}:${AccountID}:subnet/${SubnetId}`;
 
 export interface SubnetProps {
   /**
@@ -126,98 +111,104 @@ export interface SubnetProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface SubnetAttrs<Props extends SubnetProps> {
-  /**
-   * The ID of the VPC the subnet is in.
-   */
-  vpcId: Props["vpcId"];
+export interface Subnet extends Resource<
+  Subnet,
+  "AWS.EC2.Subnet",
+  SubnetProps,
+  {
+    /**
+     * The ID of the VPC the subnet is in.
+     */
+    vpcId: VpcId;
 
-  /**
-   * The ID of the subnet.
-   */
-  subnetId: SubnetId;
+    /**
+     * The ID of the subnet.
+     */
+    subnetId: SubnetId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the subnet.
-   */
-  subnetArn: `arn:aws:ec2:${RegionID}:${AccountID}:subnet/${this["subnetId"]}`;
+    /**
+     * The Amazon Resource Name (ARN) of the subnet.
+     */
+    subnetArn: SubnetArn;
 
-  /**
-   * The IPv4 CIDR block for the subnet.
-   */
-  cidrBlock: string;
+    /**
+     * The IPv4 CIDR block for the subnet.
+     */
+    cidrBlock: string;
 
-  /**
-   * The Availability Zone of the subnet.
-   */
-  availabilityZone: string;
+    /**
+     * The Availability Zone of the subnet.
+     */
+    availabilityZone: string;
 
-  /**
-   * The ID of the Availability Zone of the subnet.
-   */
-  availabilityZoneId?: string;
+    /**
+     * The ID of the Availability Zone of the subnet.
+     */
+    availabilityZoneId?: string;
 
-  /**
-   * The current state of the subnet.
-   */
-  state: ec2.SubnetState;
+    /**
+     * The current state of the subnet.
+     */
+    state: ec2.SubnetState;
 
-  /**
-   * The number of available IPv4 addresses in the subnet.
-   */
-  availableIpAddressCount: number;
+    /**
+     * The number of available IPv4 addresses in the subnet.
+     */
+    availableIpAddressCount: number;
 
-  /**
-   * Whether instances launched in the subnet get public IPv4 addresses.
-   */
-  mapPublicIpOnLaunch: boolean;
+    /**
+     * Whether instances launched in the subnet get public IPv4 addresses.
+     */
+    mapPublicIpOnLaunch: boolean;
 
-  /**
-   * Whether instances launched in the subnet get IPv6 addresses.
-   */
-  assignIpv6AddressOnCreation: Props["assignIpv6AddressOnCreation"];
+    /**
+     * Whether instances launched in the subnet get IPv6 addresses.
+     */
+    assignIpv6AddressOnCreation: boolean | undefined;
 
-  /**
-   * Whether the subnet is the default subnet for the Availability Zone.
-   */
-  defaultForAz: boolean;
+    /**
+     * Whether the subnet is the default subnet for the Availability Zone.
+     */
+    defaultForAz: boolean;
 
-  /**
-   * The ID of the AWS account that owns the subnet.
-   */
-  ownerId?: string;
+    /**
+     * The ID of the AWS account that owns the subnet.
+     */
+    ownerId?: string;
 
-  /**
-   * Information about the IPv6 CIDR blocks associated with the subnet.
-   */
-  ipv6CidrBlockAssociationSet?: Array<{
-    associationId: string;
-    ipv6CidrBlock: string;
-    ipv6CidrBlockState: {
-      state: ec2.SubnetCidrBlockStateCode;
-      statusMessage?: string;
+    /**
+     * Information about the IPv6 CIDR blocks associated with the subnet.
+     */
+    ipv6CidrBlockAssociationSet?: Array<{
+      associationId: string;
+      ipv6CidrBlock: string;
+      ipv6CidrBlockState: {
+        state: ec2.SubnetCidrBlockStateCode;
+        statusMessage?: string;
+      };
+    }>;
+
+    /**
+     * Whether DNS64 is enabled for the subnet.
+     */
+    enableDns64?: boolean;
+
+    /**
+     * Whether this is an IPv6-only subnet.
+     */
+    ipv6Native?: boolean;
+
+    /**
+     * The private DNS name options on launch.
+     */
+    privateDnsNameOptionsOnLaunch?: {
+      hostnameType?: ec2.HostnameType;
+      enableResourceNameDnsARecord?: boolean;
+      enableResourceNameDnsAAAARecord?: boolean;
     };
-  }>;
-
-  /**
-   * Whether DNS64 is enabled for the subnet.
-   */
-  enableDns64?: boolean;
-
-  /**
-   * Whether this is an IPv6-only subnet.
-   */
-  ipv6Native?: boolean;
-
-  /**
-   * The private DNS name options on launch.
-   */
-  privateDnsNameOptionsOnLaunch?: {
-    hostnameType?: ec2.HostnameType;
-    enableResourceNameDnsARecord?: boolean;
-    enableResourceNameDnsAAAARecord?: boolean;
-  };
-}
+  }
+> {}
+export const Subnet = Resource<Subnet>("AWS.EC2.Subnet");
 
 export const SubnetProvider = () =>
   Subnet.provider.effect(
@@ -330,8 +321,7 @@ export const SubnetProvider = () =>
           // 6. Return attributes
           return {
             subnetId,
-            subnetArn:
-              subnet.SubnetArn! as SubnetAttrs<SubnetProps>["subnetArn"],
+            subnetArn: subnet.SubnetArn! as SubnetArn,
             cidrBlock: subnet.CidrBlock!,
             vpcId: news.vpcId,
             availabilityZone: subnet.AvailabilityZone!,
@@ -366,7 +356,7 @@ export const SubnetProvider = () =>
                       .EnableResourceNameDnsAAAARecord,
                 }
               : undefined,
-          } satisfies SubnetAttrs<SubnetProps>;
+          };
         }),
 
         update: Effect.fn(function* ({ id, news, olds, output, session }) {

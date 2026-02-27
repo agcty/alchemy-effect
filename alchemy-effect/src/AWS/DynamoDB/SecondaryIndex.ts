@@ -1,35 +1,6 @@
 import * as S from "effect/Schema";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import type { Table } from "./Table.ts";
-
-export const SecondaryIndex = Resource<{
-  <
-    const ID extends string,
-    const Source extends Table,
-    const Attributes extends S.Struct.Fields,
-    const PartitionKey extends keyof Attributes,
-    const SortKey extends keyof Attributes | undefined = undefined,
-  >(
-    id: ID,
-    props: SecondaryIndexProps<Source, Attributes, PartitionKey, SortKey>,
-  ): ResourceEffect<
-    SecondaryIndex<
-      ID,
-      SecondaryIndexProps<Source, Attributes, PartitionKey, SortKey>
-    >
-  >;
-}>("AWS.DynamoDB.SecondaryIndex");
-
-export interface SecondaryIndex<
-  ID extends string = string,
-  Props extends SecondaryIndexProps = SecondaryIndexProps,
-> extends Resource<
-  SecondaryIndex,
-  "AWS.DynamoDB.SecondaryIndex",
-  ID,
-  Props,
-  SecondaryIndexAttrs<Props>
-> {}
 
 export interface SecondaryIndexProps<
   Source extends Table = Table,
@@ -43,6 +14,15 @@ export interface SecondaryIndexProps<
   sortKey?: SortKey;
 }
 
-export type SecondaryIndexAttrs<Props extends SecondaryIndexProps> = {
-  indexName: Props["indexName"] extends string ? Props["indexName"] : string;
-};
+export interface SecondaryIndex extends Resource<
+  SecondaryIndex,
+  "AWS.DynamoDB.SecondaryIndex",
+  SecondaryIndexProps,
+  {
+    indexName: string;
+  }
+> {}
+
+export const SecondaryIndex = Resource<SecondaryIndex>(
+  "AWS.DynamoDB.SecondaryIndex",
+);

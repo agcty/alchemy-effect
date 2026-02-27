@@ -1,8 +1,6 @@
 import type { R2 } from "cloudflare/resources";
 import * as Effect from "effect/Effect";
 
-import { Binding } from "../../Binding.ts";
-import type { Capability, To } from "../../Capability.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import { Resource, type ResourceEffect } from "../../Resource.ts";
 import { Account } from "../Account.ts";
@@ -53,7 +51,7 @@ export declare namespace Bucket {
   export type Location = "apac" | "eeur" | "enam" | "weur" | "wnam" | "oc";
 }
 
-export const bucketProvider = () =>
+export const BucketProvider = () =>
   Bucket.provider.effect(
     Effect.gen(function* () {
       const api = yield* CloudflareApi;

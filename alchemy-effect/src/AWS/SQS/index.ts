@@ -1,6 +1,5 @@
 export * from "./DeleteMessage.ts";
 export * from "./DeleteMessageBatch.ts";
-export * from "./Messages.ts";
 export * from "./Queue.ts";
 export * from "./QueueEventSource.ts";
 export * from "./QueueSink.ts";

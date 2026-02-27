@@ -5,27 +5,9 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import type { RouteTableId } from "./RouteTable.ts";
 import type { SubnetId } from "./Subnet.ts";
-
-export const RouteTableAssociation = Resource<{
-  <const ID extends string, const Props extends RouteTableAssociationProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<RouteTableAssociation<ID, Props>>;
-}>("AWS.EC2.RouteTableAssociation");
-
-export interface RouteTableAssociation<
-  ID extends string = string,
-  Props extends RouteTableAssociationProps = RouteTableAssociationProps,
-> extends Resource<
-  RouteTableAssociation,
-  "AWS.EC2.RouteTableAssociation",
-  ID,
-  Props,
-  RouteTableAssociationAttrs<Input.Resolve<Props>>
-> {}
 
 export type RouteTableAssociationId<ID extends string = string> =
   `rtbassoc-${ID}`;
@@ -54,37 +36,43 @@ export interface RouteTableAssociationProps {
   gatewayId?: Input<string>;
 }
 
-export interface RouteTableAssociationAttrs<
-  Props extends RouteTableAssociationProps,
-> {
-  /**
-   * The ID of the association.
-   */
-  associationId: RouteTableAssociationId;
+export interface RouteTableAssociation extends Resource<
+  RouteTableAssociation,
+  "AWS.EC2.RouteTableAssociation",
+  RouteTableAssociationProps,
+  {
+    /**
+     * The ID of the association.
+     */
+    associationId: RouteTableAssociationId;
 
-  /**
-   * The ID of the route table.
-   */
-  routeTableId: Props["routeTableId"];
+    /**
+     * The ID of the route table.
+     */
+    routeTableId: RouteTableId;
 
-  /**
-   * The ID of the subnet (if the association is with a subnet).
-   */
-  subnetId?: Props["subnetId"];
+    /**
+     * The ID of the subnet (if the association is with a subnet).
+     */
+    subnetId?: SubnetId | undefined;
 
-  /**
-   * The ID of the gateway (if the association is with a gateway).
-   */
-  gatewayId?: Props["gatewayId"];
+    /**
+     * The ID of the gateway (if the association is with a gateway).
+     */
+    gatewayId?: string | undefined;
 
-  /**
-   * The state of the association.
-   */
-  associationState: {
-    state: EC2.RouteTableAssociationStateCode;
-    statusMessage?: string;
-  };
-}
+    /**
+     * The state of the association.
+     */
+    associationState: {
+      state: EC2.RouteTableAssociationStateCode;
+      statusMessage?: string;
+    };
+  }
+> {}
+export const RouteTableAssociation = Resource<RouteTableAssociation>(
+  "AWS.EC2.RouteTableAssociation",
+);
 
 export const RouteTableAssociationProvider = () =>
   RouteTableAssociation.provider.effect(
@@ -138,14 +126,14 @@ export const RouteTableAssociationProvider = () =>
           // Return attributes
           return {
             associationId,
-            routeTableId: news.routeTableId,
-            subnetId: news.subnetId,
-            gatewayId: news.gatewayId,
+            routeTableId: news.routeTableId as RouteTableId,
+            subnetId: news.subnetId as SubnetId | undefined,
+            gatewayId: news.gatewayId as string | undefined,
             associationState: {
               state: result.AssociationState?.State ?? "associated",
               statusMessage: result.AssociationState?.StatusMessage,
             },
-          } satisfies RouteTableAssociationAttrs<RouteTableAssociationProps>;
+          };
         }),
 
         update: Effect.fn(function* ({ news, olds, output, session }) {
@@ -173,9 +161,9 @@ export const RouteTableAssociationProvider = () =>
 
             return {
               associationId: newAssociationId,
-              routeTableId: news.routeTableId,
-              subnetId: news.subnetId,
-              gatewayId: news.gatewayId,
+              routeTableId: news.routeTableId as RouteTableId,
+              subnetId: news.subnetId as SubnetId | undefined,
+              gatewayId: news.gatewayId as string | undefined,
               associationState: {
                 state: result.AssociationState?.State ?? "associated",
                 statusMessage: result.AssociationState?.StatusMessage,

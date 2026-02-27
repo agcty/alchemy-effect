@@ -4,7 +4,7 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import { createPhysicalName } from "../../PhysicalName.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { Account } from "../Account.ts";
 import type { PolicyStatement } from "../IAM/Policy.ts";
 
@@ -66,30 +66,21 @@ export type QueueProps = {
     }
 );
 
-export interface Queue<
-  ID extends string = string,
-  Props extends QueueProps = QueueProps,
-> extends Resource<
+export interface Queue extends Resource<
   Queue,
   "AWS.SQS.Queue",
-  ID,
-  Props,
+  QueueProps,
   {
-    queueName: Props["queueName"] extends string ? Props["queueName"] : string;
-    queueUrl: Props["fifo"] extends true ? `${string}.fifo` : string;
-    queueArn: `arn:aws:sqs:${string}:${string}:${Props["queueName"]}`;
+    queueName: string;
+    queueUrl: string;
+    queueArn: `arn:aws:sqs:${string}:${string}:${string}`;
   },
   {
     policyStatements: PolicyStatement[];
   }
 > {}
 
-export const Queue = Resource<{
-  <const ID extends string, const Props extends QueueProps = QueueProps>(
-    id: ID,
-    props?: Props,
-  ): ResourceEffect<Queue<ID, Props>>;
-}>("AWS.SQS.Queue");
+export const Queue = Resource<Queue>("AWS.SQS.Queue");
 
 export const QueueProvider = () =>
   Queue.provider.effect(

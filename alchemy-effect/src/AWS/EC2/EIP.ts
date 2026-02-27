@@ -4,29 +4,14 @@ import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import { createInternalTags, createTagsList, diffTags } from "../../Tags.ts";
 import type { AccountID } from "../Account.ts";
 import { Account } from "../Account.ts";
 import type { RegionID } from "../Region.ts";
 
-export const EIP = Resource<{
-  <const ID extends string, const Props extends EIPProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<EIP<ID, Props>>;
-}>("AWS.EC2.EIP");
-
-export interface EIP<
-  ID extends string = string,
-  Props extends EIPProps = EIPProps,
-> extends Resource<
-  EIP,
-  "AWS.EC2.EIP",
-  ID,
-  Props,
-  EipAttrs<Input.Resolve<Props>>
-> {}
+export type EIPArn =
+  `arn:aws:ec2:${RegionID}:${AccountID}:elastic-ip/${AllocationId}`;
 
 export type AllocationId<ID extends string = string> = `eipalloc-${ID}`;
 export const AllocationId = <ID extends string>(
@@ -65,52 +50,58 @@ export interface EIPProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface EipAttrs<_Props extends EIPProps = EIPProps> {
-  /**
-   * The allocation ID for the Elastic IP address.
-   */
-  allocationId: AllocationId;
+export interface EIP extends Resource<
+  EIP,
+  "AWS.EC2.EIP",
+  EIPProps,
+  {
+    /**
+     * The allocation ID for the Elastic IP address.
+     */
+    allocationId: AllocationId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the Elastic IP.
-   */
-  eipArn: `arn:aws:ec2:${RegionID}:${AccountID}:elastic-ip/${this["allocationId"]}`;
+    /**
+     * The Amazon Resource Name (ARN) of the Elastic IP.
+     */
+    eipArn: `arn:aws:ec2:${RegionID}:${AccountID}:elastic-ip/${string}`;
 
-  /**
-   * The Elastic IP address.
-   */
-  publicIp: string;
+    /**
+     * The Elastic IP address.
+     */
+    publicIp: string;
 
-  /**
-   * The ID of an address pool.
-   */
-  publicIpv4Pool?: string;
+    /**
+     * The ID of an address pool.
+     */
+    publicIpv4Pool?: string;
 
-  /**
-   * Indicates whether the Elastic IP address is for use with instances in a VPC or EC2-Classic.
-   */
-  domain: "vpc" | "standard";
+    /**
+     * Indicates whether the Elastic IP address is for use with instances in a VPC or EC2-Classic.
+     */
+    domain: "vpc" | "standard";
 
-  /**
-   * The network border group.
-   */
-  networkBorderGroup?: string;
+    /**
+     * The network border group.
+     */
+    networkBorderGroup?: string;
 
-  /**
-   * The customer-owned IP address.
-   */
-  customerOwnedIp?: string;
+    /**
+     * The customer-owned IP address.
+     */
+    customerOwnedIp?: string;
 
-  /**
-   * The ID of the customer-owned address pool.
-   */
-  customerOwnedIpv4Pool?: string;
+    /**
+     * The ID of the customer-owned address pool.
+     */
+    customerOwnedIpv4Pool?: string;
 
-  /**
-   * The carrier IP address associated with the network interface.
-   */
-  carrierIp?: string;
-}
+    /**
+     * The carrier IP address associated with the network interface.
+     */
+    carrierIp?: string;
+  }
+> {}
+export const EIP = Resource<EIP>("AWS.EC2.EIP");
 
 export const EIPProvider = () =>
   EIP.provider.effect(
@@ -148,7 +139,7 @@ export const EIPProvider = () =>
           return {
             allocationId: address.AllocationId as AllocationId,
             eipArn:
-              `arn:aws:ec2:${region}:${accountId}:elastic-ip/${address.AllocationId}` as EipAttrs<EIPProps>["eipArn"],
+              `arn:aws:ec2:${region}:${accountId}:elastic-ip/${address.AllocationId}` as EIPArn,
             publicIp: address.PublicIp!,
             publicIpv4Pool: address.PublicIpv4Pool,
             domain: (address.Domain as "vpc" | "standard") ?? "vpc",
@@ -156,7 +147,7 @@ export const EIPProvider = () =>
             customerOwnedIp: address.CustomerOwnedIp,
             customerOwnedIpv4Pool: address.CustomerOwnedIpv4Pool,
             carrierIp: address.CarrierIp,
-          } satisfies EipAttrs<EIPProps>;
+          } satisfies EIP["attr"];
         }),
 
         diff: Effect.fn(function* ({ news, olds }) {
@@ -194,7 +185,7 @@ export const EIPProvider = () =>
           return {
             allocationId,
             eipArn:
-              `arn:aws:ec2:${region}:${accountId}:elastic-ip/${allocationId}` as EipAttrs<EIPProps>["eipArn"],
+              `arn:aws:ec2:${region}:${accountId}:elastic-ip/${allocationId}` as EIPArn,
             publicIp: result.PublicIp!,
             publicIpv4Pool: result.PublicIpv4Pool,
             domain: (result.Domain as "vpc" | "standard") ?? "vpc",
@@ -202,7 +193,7 @@ export const EIPProvider = () =>
             customerOwnedIp: result.CustomerOwnedIp,
             customerOwnedIpv4Pool: result.CustomerOwnedIpv4Pool,
             carrierIp: result.CarrierIp,
-          } satisfies EipAttrs<EIPProps>;
+          } satisfies EIP["attr"];
         }),
 
         update: Effect.fn(function* ({ id, news, output, session }) {

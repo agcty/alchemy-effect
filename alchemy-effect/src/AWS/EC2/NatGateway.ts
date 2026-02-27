@@ -6,7 +6,7 @@ import * as Schedule from "effect/Schedule";
 
 import type { ScopedPlanStatusSession } from "../../Cli/CLI.ts";
 import type { Input } from "../../Input.ts";
-import { Resource, type ResourceEffect } from "../../Resource.ts";
+import { Resource } from "../../Resource.ts";
 import {
   createAlchemyTagFilters,
   createInternalTags,
@@ -19,28 +19,13 @@ import type { RegionID } from "../Region.ts";
 import type { AllocationId } from "./EIP.ts";
 import type { SubnetId } from "./Subnet.ts";
 
-export const NatGateway = Resource<{
-  <const ID extends string, const Props extends NatGatewayProps>(
-    id: ID,
-    props: Props,
-  ): ResourceEffect<NatGateway<ID, Props>>;
-}>("AWS.EC2.NatGateway");
-
-export interface NatGateway<
-  ID extends string = string,
-  Props extends NatGatewayProps = NatGatewayProps,
-> extends Resource<
-  NatGateway,
-  "AWS.EC2.NatGateway",
-  ID,
-  Props,
-  NatGatewayAttrs<Input.Resolve<Props>>
-> {}
-
 export type NatGatewayId<ID extends string = string> = `nat-${ID}`;
 export const NatGatewayId = <ID extends string>(
   id: ID,
 ): ID & NatGatewayId<ID> => `nat-${id}` as ID & NatGatewayId<ID>;
+
+export type NatGatewayArn =
+  `arn:aws:ec2:${RegionID}:${AccountID}:natgateway/${NatGatewayId}`;
 
 export interface NatGatewayProps {
   /**
@@ -91,81 +76,87 @@ export interface NatGatewayProps {
   tags?: Record<string, Input<string>>;
 }
 
-export interface NatGatewayAttrs<Props extends NatGatewayProps> {
-  /**
-   * The ID of the NAT gateway.
-   */
-  natGatewayId: NatGatewayId;
+export interface NatGateway extends Resource<
+  NatGateway,
+  "AWS.EC2.NatGateway",
+  NatGatewayProps,
+  {
+    /**
+     * The ID of the NAT gateway.
+     */
+    natGatewayId: NatGatewayId;
 
-  /**
-   * The Amazon Resource Name (ARN) of the NAT gateway.
-   */
-  natGatewayArn: `arn:aws:ec2:${RegionID}:${AccountID}:natgateway/${this["natGatewayId"]}`;
+    /**
+     * The Amazon Resource Name (ARN) of the NAT gateway.
+     */
+    natGatewayArn: `arn:aws:ec2:${RegionID}:${AccountID}:natgateway/${string}`;
 
-  /**
-   * The ID of the subnet in which the NAT gateway is located.
-   */
-  subnetId: Props["subnetId"];
+    /**
+     * The ID of the subnet in which the NAT gateway is located.
+     */
+    subnetId: SubnetId;
 
-  /**
-   * The ID of the VPC in which the NAT gateway is located.
-   */
-  vpcId: string;
+    /**
+     * The ID of the VPC in which the NAT gateway is located.
+     */
+    vpcId: string;
 
-  /**
-   * The current state of the NAT gateway.
-   */
-  state: ec2.NatGatewayState;
+    /**
+     * The current state of the NAT gateway.
+     */
+    state: ec2.NatGatewayState;
 
-  /**
-   * The connectivity type of the NAT gateway.
-   */
-  connectivityType: ec2.ConnectivityType;
+    /**
+     * The connectivity type of the NAT gateway.
+     */
+    connectivityType: ec2.ConnectivityType;
 
-  /**
-   * The Elastic IP address associated with the NAT gateway (for public NAT gateways).
-   */
-  publicIp?: string;
-
-  /**
-   * The private IP address associated with the NAT gateway.
-   */
-  privateIp?: string;
-
-  /**
-   * Information about the IP addresses and network interface associated with the NAT gateway.
-   */
-  natGatewayAddresses?: Array<{
-    allocationId?: string;
-    networkInterfaceId?: string;
-    privateIp?: string;
+    /**
+     * The Elastic IP address associated with the NAT gateway (for public NAT gateways).
+     */
     publicIp?: string;
-    associationId?: string;
-    isPrimary?: boolean;
+
+    /**
+     * The private IP address associated with the NAT gateway.
+     */
+    privateIp?: string;
+
+    /**
+     * Information about the IP addresses and network interface associated with the NAT gateway.
+     */
+    natGatewayAddresses?: Array<{
+      allocationId?: string;
+      networkInterfaceId?: string;
+      privateIp?: string;
+      publicIp?: string;
+      associationId?: string;
+      isPrimary?: boolean;
+      failureMessage?: string;
+      status?: ec2.NatGatewayAddressStatus;
+    }>;
+
+    /**
+     * If the NAT gateway could not be created, specifies the error code for the failure.
+     */
+    failureCode?: string;
+
+    /**
+     * If the NAT gateway could not be created, specifies the error message for the failure.
+     */
     failureMessage?: string;
-    status?: ec2.NatGatewayAddressStatus;
-  }>;
 
-  /**
-   * If the NAT gateway could not be created, specifies the error code for the failure.
-   */
-  failureCode?: string;
+    /**
+     * The date and time the NAT gateway was created.
+     */
+    createTime?: string;
 
-  /**
-   * If the NAT gateway could not be created, specifies the error message for the failure.
-   */
-  failureMessage?: string;
-
-  /**
-   * The date and time the NAT gateway was created.
-   */
-  createTime?: string;
-
-  /**
-   * The date and time the NAT gateway was deleted, if applicable.
-   */
-  deleteTime?: string;
-}
+    /**
+     * The date and time the NAT gateway was deleted, if applicable.
+     */
+    deleteTime?: string;
+  }
+> {}
+export const NatGateway = Resource<NatGateway>("AWS.EC2.NatGateway");
 
 export const NatGatewayProvider = () =>
   NatGateway.provider.effect(
@@ -194,17 +185,15 @@ export const NatGatewayProvider = () =>
           ),
         );
 
-      const toAttrs = (
-        gw: ec2.NatGateway,
-      ): NatGatewayAttrs<NatGatewayProps> => {
+      const toAttrs = (gw: ec2.NatGateway): NatGateway["attr"] => {
         const primaryAddress =
           gw.NatGatewayAddresses?.find((a) => a.IsPrimary) ??
           gw.NatGatewayAddresses?.[0];
         return {
           natGatewayId: gw.NatGatewayId as NatGatewayId,
           natGatewayArn:
-            `arn:aws:ec2:${region}:${accountId}:natgateway/${gw.NatGatewayId}` as NatGatewayAttrs<NatGatewayProps>["natGatewayArn"],
-          subnetId: gw.SubnetId as NatGatewayAttrs<NatGatewayProps>["subnetId"],
+            `arn:aws:ec2:${region}:${accountId}:natgateway/${gw.NatGatewayId}` as NatGatewayArn,
+          subnetId: gw.SubnetId as SubnetId,
           vpcId: gw.VpcId!,
           state: gw.State!,
           connectivityType: gw.ConnectivityType!,
