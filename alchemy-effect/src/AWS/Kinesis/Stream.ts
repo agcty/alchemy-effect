@@ -154,7 +154,10 @@ export const StreamProvider = () =>
             );
 
           yield* session.note(`Creating stream ${streamName}...`);
+          console.log("Waiting for stream to be active...");
           yield* waitForStreamActive(streamName);
+          console.log("Stream is active");
+          yield* session.note(`Stream ${streamName} created`);
 
           // Configure encryption if requested
           if (news.encryption) {
@@ -369,6 +372,7 @@ export const StreamProvider = () =>
 
 const waitForStreamActive = (streamName: string) =>
   Effect.gen(function* () {
+    yield* Effect.sleep("2 seconds");
     const { StreamDescriptionSummary } = yield* kinesis.describeStreamSummary({
       StreamName: streamName,
     });

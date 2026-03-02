@@ -30,7 +30,6 @@ export type BucketProps = {
 };
 
 export interface Bucket extends Resource<
-  Bucket,
   "Cloudflare.R2.Bucket",
   BucketProps,
   {

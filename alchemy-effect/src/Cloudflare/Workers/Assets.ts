@@ -83,8 +83,7 @@ export const AssetsProvider = () =>
           Effect.catchIf(
             (error) =>
               error._tag === "PlatformError" &&
-              error.reason._tag === "SystemError" &&
-              error.reason.kind === "NotFound",
+              error.reason._tag === "NotFound",
             () => Effect.succeed(undefined),
           ),
         );

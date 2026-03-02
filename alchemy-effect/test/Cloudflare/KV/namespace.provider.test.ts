@@ -1,9 +1,9 @@
-import { Account } from "@/Cloudflare/Account.ts";
-import { CloudflareApi } from "@/Cloudflare/CloudflareApi.ts";
-import * as KV from "@/Cloudflare/KV/index.ts";
-import * as CloudflareLive from "@/Cloudflare/Live.ts";
-import { apply, destroy } from "@/index.ts";
-import { test } from "@/Test/Vitest.ts";
+import { Account } from "@/Cloudflare/Account";
+import { CloudflareApi } from "@/Cloudflare/CloudflareApi";
+import * as KV from "@/Cloudflare/KV/index";
+import * as CloudflareLive from "@/Cloudflare/Live";
+import { destroy } from "@/Destroy";
+import { test } from "@/Test/Vitest";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -23,44 +23,44 @@ test(
 
     yield* destroy();
 
-    {
-      class TestNamespace extends KV.Namespace("TestNamespace", {
-        title: "test-namespace-initial",
-      }) {}
-
-      const stack = yield* apply(TestNamespace);
-
-      const actualNamespace = yield* api.kv.namespaces.get(
-        stack.TestNamespace.namespaceId,
-        {
-          account_id: accountId,
-        },
-      );
-      expect(actualNamespace.id).toEqual(stack.TestNamespace.namespaceId);
-      expect(actualNamespace.title).toEqual(stack.TestNamespace.title);
-    }
-
-    class TestNamespace extends KV.Namespace("TestNamespace", {
-      title: "test-namespace-updated",
-    }) {}
-
-    const stack = yield* apply(TestNamespace);
+    const namespace = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* KV.Namespace("TestNamespace", {
+          title: "test-namespace-initial",
+        });
+      }),
+    );
 
     const actualNamespace = yield* api.kv.namespaces.get(
-      stack.TestNamespace.namespaceId,
+      namespace.namespaceId,
       {
         account_id: accountId,
       },
     );
-    expect(actualNamespace.title).toEqual("test-namespace-updated");
-    expect(actualNamespace.id).toEqual(stack.TestNamespace.namespaceId);
+    expect(actualNamespace.id).toEqual(namespace.namespaceId);
+    expect(actualNamespace.title).toEqual(namespace.title);
+
+    // Update the namespace
+    const updatedNamespace = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* KV.Namespace("TestNamespace", {
+          title: "test-namespace-updated",
+        });
+      }),
+    );
+
+    const actualUpdatedNamespace = yield* api.kv.namespaces.get(
+      updatedNamespace.namespaceId,
+      {
+        account_id: accountId,
+      },
+    );
+    expect(actualUpdatedNamespace.title).toEqual("test-namespace-updated");
+    expect(actualUpdatedNamespace.id).toEqual(updatedNamespace.namespaceId);
 
     yield* destroy();
 
-    yield* waitForNamespaceToBeDeleted(
-      stack.TestNamespace.namespaceId,
-      accountId,
-    );
+    yield* waitForNamespaceToBeDeleted(namespace.namespaceId, accountId);
   }).pipe(Effect.provide(CloudflareLive.default), logLevel),
 );
 

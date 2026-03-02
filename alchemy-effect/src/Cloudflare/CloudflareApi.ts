@@ -8,6 +8,7 @@ import type { ErrorData } from "cloudflare/resources";
 import { Config } from "effect";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as ServiceMap from "effect/ServiceMap";
 
@@ -54,6 +55,14 @@ export class CloudflareApi extends ServiceMap.Service<
     );
   }),
 }) {}
+
+export const CloudflareApiDefault = () =>
+  Layer.effect(
+    CloudflareApi,
+    Effect.gen(function* () {
+      return yield* CloudflareApi.make();
+    }),
+  );
 
 export class CloudflareApiError extends Data.Error<{
   _tag:

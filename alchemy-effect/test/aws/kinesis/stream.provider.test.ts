@@ -167,7 +167,7 @@ describe.sequential("AWS.Kinesis.Stream", () => {
     "create stream with custom name",
     { timeout: 180_000 },
     Effect.gen(function* () {
-      const customName = `test-custom-kinesis-stream-${Date.now()}`;
+      const customName = `test-custom-kinesis-stream-custom-name-stream`;
 
       const stream = yield* test.deploy(
         Effect.gen(function* () {

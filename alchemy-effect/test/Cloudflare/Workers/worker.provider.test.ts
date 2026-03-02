@@ -1,10 +1,9 @@
 import { Account } from "@/Cloudflare/Account";
-import { CloudflareApi } from "@/cloudflare/api";
-import * as CloudflareLive from "@/cloudflare/live";
-import * as R2 from "@/cloudflare/r2";
-import * as Worker from "@/cloudflare/worker";
-import * as Assets from "@/cloudflare/worker/assets.fetch";
-import { $, apply, destroy } from "@/index";
+import { CloudflareApi } from "@/Cloudflare/CloudflareApi";
+import CloudflareLive from "@/Cloudflare/Live";
+import * as R2 from "@/Cloudflare/R2";
+import * as Worker from "@/Cloudflare/Workers";
+import { destroy } from "@/Destroy";
 import { test } from "@/Test/Vitest";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
@@ -18,8 +17,6 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
-// TODO(sam): it's a hack to have this here - it means the `fetch` functioin of Worker.serve will never be called
-// we're gonna need closure serializer LMAO
 const main = pathe.resolve(import.meta.dirname, "worker.ts");
 
 test(
@@ -30,73 +27,65 @@ test(
 
     yield* destroy();
 
-    {
-      class Bucket extends R2.Bucket("Bucket", {
-        name: "test-bucket-worker",
-        storageClass: "Standard",
-      }) {}
+    const worker = yield* test.deploy(
+      Effect.gen(function* () {
+        const bucket = yield* R2.Bucket("Bucket", {
+          name: "test-bucket-worker",
+          storageClass: "Standard",
+        });
 
-      class TestWorker extends Worker.serve("TestWorker", {
-        fetch: Effect.fn(function* (request) {
-          yield* R2.get(Bucket, "test");
-          return new Response("Hello from TestWorker v1");
-        }),
-      })({
-        main,
-        bindings: $(R2.Bind(Bucket)),
-        subdomain: { enabled: true, previews_enabled: true },
-        compatibility: {
-          date: "2024-01-01",
-        },
-      }) {}
-
-      const stack = yield* apply(TestWorker);
-
-      const actualWorker = yield* api.workers.beta.workers.get(
-        stack.TestWorker.workerName,
-        {
-          account_id: accountId,
-        },
-      );
-      expect(actualWorker.name).toEqual(stack.TestWorker.workerName);
-
-      // Verify the worker is accessible via URL
-      if (stack.TestWorker.url) {
-        yield* Effect.logInfo(`Worker URL: ${stack.TestWorker.url}`);
-      }
-    }
-
-    class TestWorker extends Worker.serve("TestWorker", {
-      fetch: Effect.fn(function* (request) {
-        return new Response("Hello from TestWorker v2");
+        return yield* Worker.Worker("TestWorker", {
+          main,
+          subdomain: { enabled: true, previews_enabled: true },
+          compatibility: {
+            date: "2024-01-01",
+          },
+        });
       }),
-    })({
-      main,
-      bindings: $(),
-      subdomain: { enabled: true, previews_enabled: true },
-      compatibility: {
-        date: "2024-01-01",
-      },
-    }) {}
-
-    const stack = yield* apply(TestWorker);
+    );
 
     const actualWorker = yield* api.workers.beta.workers.get(
-      stack.TestWorker.workerName,
+      worker.workerName,
       {
         account_id: accountId,
       },
     );
-    expect(actualWorker.name).toEqual(stack.TestWorker.workerName);
-    expect(actualWorker.subdomain).toEqual({
+    expect(actualWorker.name).toEqual(worker.workerName);
+
+    // Verify the worker is accessible via URL
+    if (worker.url) {
+      yield* Effect.logInfo(`Worker URL: ${worker.url}`);
+    }
+
+    // Update the worker
+    const updatedWorker = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* Worker.Worker("TestWorker", {
+          main,
+          subdomain: { enabled: true, previews_enabled: true },
+          compatibility: {
+            date: "2024-01-01",
+          },
+        });
+      }),
+    );
+
+    const actualUpdatedWorker = yield* api.workers.beta.workers.get(
+      updatedWorker.workerName,
+      {
+        account_id: accountId,
+      },
+    );
+    expect(actualUpdatedWorker.name).toEqual(updatedWorker.workerName);
+    expect(actualUpdatedWorker.subdomain).toEqual({
       enabled: true,
       previews_enabled: true,
     });
 
     yield* destroy();
 
-    yield* waitForWorkerToBeDeleted(stack.TestWorker.workerId, accountId);
-  }).pipe(Effect.provide(CloudflareLive.providers()), logLevel),
+    yield* waitForWorkerToBeDeleted(worker.workerId, accountId);
+  }).pipe(Effect.provide(CloudflareLive), logLevel),
 );
 
 test(
@@ -107,111 +96,79 @@ test(
 
     yield* destroy();
 
-    {
-      class TestWorkerWithAssets extends Worker.serve("TestWorkerWithAssets", {
-        fetch: Effect.fn(function* (request) {
-          const url = new URL(request.url);
-          if (url.pathname === "/api") {
-            return new Response("Hello from API");
-          }
-          // Serve assets for everything else
-          return yield* Assets.fetch(request);
-        }),
-      })({
-        main,
-        name: "test-worker-with-assets",
-        bindings: $(),
-        assets: pathe.resolve(import.meta.dirname, "assets"),
-        subdomain: { enabled: true, previews_enabled: true },
-        compatibility: {
-          date: "2024-01-01",
-        },
-      }) {}
-
-      const stack = yield* apply(TestWorkerWithAssets);
-
-      const actualWorker = yield* api.workers.beta.workers.get(
-        stack.TestWorkerWithAssets.workerName,
-        {
-          account_id: accountId,
-        },
-      );
-      expect(actualWorker.name).toEqual(stack.TestWorkerWithAssets.workerName);
-
-      // Verify the worker has assets
-      expect(stack.TestWorkerWithAssets.hash.assets).toBeDefined();
-
-      // Verify the worker is accessible via URL
-      if (stack.TestWorkerWithAssets.url) {
-        yield* Effect.logInfo(
-          `Worker with Assets URL: ${stack.TestWorkerWithAssets.url}`,
-        );
-      }
-    }
-
-    {
-      // Update assets by modifying the test
-      class TestWorkerWithAssets extends Worker.serve("TestWorkerWithAssets", {
-        fetch: Effect.fn(function* (request) {
-          const url = new URL(request.url);
-          if (url.pathname === "/api/v2") {
-            return new Response("Hello from API v2");
-          }
-          // Serve assets for everything else
-          return yield* Assets.fetch(request);
-        }),
-      })({
-        main,
-        name: "test-worker-with-assets",
-        bindings: $(),
-        assets: pathe.resolve(import.meta.dirname, "assets"),
-        subdomain: { enabled: true, previews_enabled: true },
-        compatibility: {
-          date: "2024-01-01",
-        },
-      }) {}
-
-      const stack = yield* apply(TestWorkerWithAssets);
-
-      const actualWorker = yield* api.workers.beta.workers.get(
-        stack.TestWorkerWithAssets.workerName,
-        {
-          account_id: accountId,
-        },
-      );
-      expect(actualWorker.name).toEqual(stack.TestWorkerWithAssets.workerName);
-      expect(stack.TestWorkerWithAssets.hash.assets).toBeDefined();
-    }
-
-    class TestWorkerWithAssets extends Worker.serve("TestWorkerWithAssets", {
-      fetch: Effect.fn(function* (request) {
-        const url = new URL(request.url);
-        if (url.pathname === "/api/v2") {
-          return new Response("Hello from API v2");
-        }
-        // Serve assets for everything else
-        return yield* Assets.fetch(request);
+    const worker = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* Worker.Worker("TestWorkerWithAssets", {
+          main,
+          name: "test-worker-with-assets",
+          assets: pathe.resolve(import.meta.dirname, "assets"),
+          subdomain: { enabled: true, previews_enabled: true },
+          compatibility: {
+            date: "2024-01-01",
+          },
+        });
       }),
-    })({
-      main,
-      name: "test-worker-with-assets",
-      bindings: $(),
-      assets: pathe.resolve(import.meta.dirname, "assets"),
-      subdomain: { enabled: true, previews_enabled: true },
-      compatibility: {
-        date: "2024-01-01",
-      },
-    }) {}
+    );
 
-    const stack = yield* apply(TestWorkerWithAssets);
+    const actualWorker = yield* api.workers.beta.workers.get(
+      worker.workerName,
+      {
+        account_id: accountId,
+      },
+    );
+    expect(actualWorker.name).toEqual(worker.workerName);
+
+    // Verify the worker has assets
+    expect(worker.hash?.assets).toBeDefined();
+
+    // Verify the worker is accessible via URL
+    if (worker.url) {
+      yield* Effect.logInfo(`Worker with Assets URL: ${worker.url}`);
+    }
+
+    // Update the worker
+    const updatedWorker = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* Worker.Worker("TestWorkerWithAssets", {
+          main,
+          name: "test-worker-with-assets",
+          assets: pathe.resolve(import.meta.dirname, "assets"),
+          subdomain: { enabled: true, previews_enabled: true },
+          compatibility: {
+            date: "2024-01-01",
+          },
+        });
+      }),
+    );
+
+    const actualUpdatedWorker = yield* api.workers.beta.workers.get(
+      updatedWorker.workerName,
+      {
+        account_id: accountId,
+      },
+    );
+    expect(actualUpdatedWorker.name).toEqual(updatedWorker.workerName);
+    expect(updatedWorker.hash?.assets).toBeDefined();
+
+    // Final update
+    const finalWorker = yield* test.deploy(
+      Effect.gen(function* () {
+        return yield* Worker.Worker("TestWorkerWithAssets", {
+          main,
+          name: "test-worker-with-assets",
+          assets: pathe.resolve(import.meta.dirname, "assets"),
+          subdomain: { enabled: true, previews_enabled: true },
+          compatibility: {
+            date: "2024-01-01",
+          },
+        });
+      }),
+    );
 
     yield* destroy();
 
-    yield* waitForWorkerToBeDeleted(
-      stack.TestWorkerWithAssets.workerId,
-      accountId,
-    );
-  }).pipe(Effect.provide(CloudflareLive.providers()), logLevel),
+    yield* waitForWorkerToBeDeleted(finalWorker.workerId, accountId);
+  }).pipe(Effect.provide(CloudflareLive), logLevel),
 );
 
 const waitForWorkerToBeDeleted = Effect.fn(function* (

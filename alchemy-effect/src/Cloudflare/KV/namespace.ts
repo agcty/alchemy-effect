@@ -14,18 +14,16 @@ export type NamespaceProps = {
   title?: string;
 };
 
-export interface Namespace
-  extends Resource<
-    Namespace,
-    "Cloudflare.KV.Namespace",
-    NamespaceProps,
-    {
-      title: string;
-      namespaceId: string;
-      supportsUrlEncoding: boolean | undefined;
-      accountId: string;
-    }
-  > {}
+export interface Namespace extends Resource<
+  "Cloudflare.KV.Namespace",
+  NamespaceProps,
+  {
+    title: string;
+    namespaceId: string;
+    supportsUrlEncoding: boolean | undefined;
+    accountId: string;
+  }
+> {}
 
 export const Namespace = Resource<Namespace>("Cloudflare.KV.Namespace");
 

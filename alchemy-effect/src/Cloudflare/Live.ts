@@ -3,7 +3,7 @@ import * as Layer from "effect/Layer";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as ESBuild from "../Bundle/ESBuild.ts";
 import * as Account from "./Account.ts";
-import { CloudflareApi } from "./CloudflareApi.ts";
+import { CloudflareApiDefault } from "./CloudflareApi.ts";
 import * as KV from "./KV/index.ts";
 import * as R2 from "./R2/index.ts";
 import { AssetsProvider } from "./Workers/Assets.ts";
@@ -50,7 +50,7 @@ export const resourceProviders = () =>
   Layer.mergeAll(
     Layer.provideMerge(
       WorkerProvider(),
-      Layer.mergeAll(ESBuild.ESBuildProvider(), AssetsProvider()),
+      Layer.mergeAll(ESBuild.ESBuildLive(), AssetsProvider()),
     ),
     KV.NamespaceProvider(),
     R2.BucketProvider(),
@@ -60,12 +60,10 @@ export const distilledCloudflareAuth = () =>
   Layer.provideMerge(Auth.fromEnv(), FetchHttpClient.layer);
 
 export const defaultProviders = () =>
-  resourceProviders().pipe(
-    Layer.provideMerge(distilledCloudflareAuth()),
-  );
+  resourceProviders().pipe(Layer.provideMerge(distilledCloudflareAuth()));
 
 export default defaultProviders().pipe(
   Layer.provideMerge(
-    Layer.mergeAll(Account.fromStageConfig(), CloudflareApi.Default()),
+    Layer.mergeAll(Account.fromStageConfig(), CloudflareApiDefault()),
   ),
 );

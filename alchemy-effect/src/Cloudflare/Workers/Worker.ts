@@ -69,7 +69,6 @@ export interface Worker
   extends
     WorkerExecutionContext,
     Resource<
-      Worker,
       "Cloudflare.Worker",
       WorkerProps,
       {
@@ -79,7 +78,7 @@ export interface Worker
         url: string | undefined;
         tags: string[] | undefined;
         accountId: string;
-        hash: {
+        hash?: {
           assets: string | undefined;
           bundle: string;
         };
@@ -111,7 +110,6 @@ export declare namespace Worker {
 
 export const WorkerProvider = () =>
   Worker.provider.effect(
-    // @ts-expect-error
     Effect.gen(function* () {
       const api = yield* CloudflareApi;
       const accountId = yield* Account;
@@ -215,9 +213,9 @@ export const WorkerProvider = () =>
       const putWorker = Effect.fnUntraced(function* (
         id: string,
         news: WorkerProps,
-        bindings: Worker["binding"][],
+        bindings: Worker["Binding"][],
         olds: WorkerProps | undefined,
-        output: Worker["attr"] | undefined,
+        output: Worker["Attributes"] | undefined,
         session: ScopedPlanStatusSession,
       ) {
         const name = yield* createWorkerName(id, news.name);
@@ -228,7 +226,7 @@ export const WorkerProvider = () =>
         ]).pipe(Effect.orDie);
         metadata.bindings = bindings.flatMap((binding) => binding.bindings);
         if (assets) {
-          if (output?.hash.assets !== assets.hash) {
+          if (output?.hash?.assets !== assets.hash) {
             const { jwt } = yield* upload(accountId, name, assets, session);
             metadata.assets = {
               jwt,
@@ -276,10 +274,10 @@ export const WorkerProvider = () =>
             assets: assets?.hash,
             bundle: bundle.hash,
           },
-        } satisfies Worker["attr"];
+        } satisfies Worker["Attributes"];
       });
 
-      return {
+      return Worker.provider.of({
         stables: ["workerId"],
         diff: Effect.fnUntraced(function* ({ id, news, output }) {
           if (output.accountId !== accountId) {
@@ -294,8 +292,8 @@ export const WorkerProvider = () =>
             prepareBundle(id, news.main),
           ]).pipe(Effect.orDie);
           if (
-            assets?.hash !== output.hash.assets ||
-            bundle.hash !== output.hash.bundle
+            assets?.hash !== output.hash?.assets ||
+            bundle.hash !== output.hash?.bundle
           ) {
             return {
               action: "update",
@@ -362,6 +360,6 @@ export const WorkerProvider = () =>
             })
             .pipe(Effect.catchTag("NotFound", () => Effect.void));
         }),
-      };
+      });
     }),
   );

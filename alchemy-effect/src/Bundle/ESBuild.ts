@@ -29,7 +29,7 @@ export class ESBuild extends ServiceMap.Service<
   }
 >()("ESBuild") {}
 
-export const esBuild = () =>
+export const ESBuildLive = () =>
   Layer.effect(
     ESBuild,
     Effect.gen(function* () {

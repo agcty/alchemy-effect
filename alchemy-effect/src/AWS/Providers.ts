@@ -91,4 +91,4 @@ export const bindings = () =>
     // SQS.QueueEventSourcePolicyLive,
   );
 
-const utils = () => Layer.mergeAll(ESBuild.esBuild());
+const utils = () => Layer.mergeAll(ESBuild.ESBuildLive());
