@@ -1810,7 +1810,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         }).pipe(deploy);
@@ -1831,7 +1831,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -1840,7 +1840,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         }).pipe(deploy);
@@ -1861,7 +1861,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -1884,7 +1884,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -1914,7 +1914,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -1946,7 +1946,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -1978,7 +1978,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -2005,7 +2005,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -2050,7 +2050,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -2059,7 +2059,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -2089,7 +2089,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -2098,7 +2098,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -2131,7 +2131,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -2140,7 +2140,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           const D = yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
           return { A, B, C, D };
         });
@@ -2169,7 +2169,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -2197,7 +2197,7 @@ describe("diamond dependencies (A -> B,C -> D)", () => {
           const B = yield* TestResource("B", { string: A.string });
           const C = yield* TestResource("C", { string: A.string });
           yield* TestResource("D", {
-            string: `${B.string}-${C.string}`,
+            string: Output.interpolate`${B.string}-${C.string}`,
           });
         }).pipe(deploy);
 
@@ -2876,7 +2876,7 @@ describe("static stable properties (provider.stables)", () => {
             const B = yield* TestResource("B", { string: A.stableId });
             const C = yield* TestResource("C", { string: A.stableArn });
             const D = yield* TestResource("D", {
-              string: `${B.stableString}-${C.stableString}`,
+              string: Output.interpolate`${B.stableString}-${C.stableString}`,
             });
             return { A, B, C, D };
           }).pipe(deploy);
@@ -2901,7 +2901,7 @@ describe("static stable properties (provider.stables)", () => {
             const B = yield* TestResource("B", { string: A.stableId });
             const C = yield* TestResource("C", { string: A.stableArn });
             yield* TestResource("D", {
-              string: `${B.stableString}-${C.stableString}`,
+              string: Output.interpolate`${B.stableString}-${C.stableString}`,
             });
           }).pipe(deploy);
           expect((yield* getState("A"))?.status).toEqual("updated");

@@ -74,6 +74,7 @@ export const apply = <P extends Plan>(
       // all resources are deleted, return undefined
       return undefined;
     }
+
     const output = yield* Output.evaluate(plan.output, resources);
     return output;
     // return resources as {

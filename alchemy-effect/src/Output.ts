@@ -5,7 +5,7 @@ import { pipe } from "effect/Function";
 import type { Pipeable } from "effect/Pipeable";
 import { ExecutionContext } from "./Executable.ts";
 import { getRefMetadata, isRef, ref as stageRef, type Ref } from "./Ref.ts";
-import type { Resource, ResourceLike } from "./Resource.ts";
+import { isResource, type Resource, type ResourceLike } from "./Resource.ts";
 import { Stack } from "./Stack.ts";
 import { Stage } from "./Stage.ts";
 import * as State from "./State/State.ts";
@@ -342,7 +342,20 @@ export const evaluate: <A, Upstream extends ResourceLike, Req = never>(
   State.State | Req
 > = (expr, upstream) =>
   Effect.gen(function* () {
-    if (isOutput(expr)) {
+    if (isResource(expr)) {
+      const srcId = expr.LogicalId;
+      const src = upstream[srcId as keyof typeof upstream];
+      if (!src) {
+        // type-safety should prevent this but let the caller decide how to handle it
+        return yield* Effect.fail(
+          new MissingSourceError({
+            message: `Source ${srcId} not found`,
+            srcId,
+          }),
+        );
+      }
+      return src;
+    } else if (isOutput(expr)) {
       if (isResourceExpr(expr)) {
         const srcId = expr.src.LogicalId;
         const src = upstream[srcId as keyof typeof upstream];
