@@ -1,15 +1,38 @@
 {
   "name": "distilled-bundler",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
+  "workspaces": {
+    "catalog": {
+      "esbuild": "0.27.3"
+    }
   },
-  "peerDependencies": {
-    "typescript": "^5"
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "format": "oxfmt",
+    "lint": "oxlint",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "effect": "^4.0.0-beta.29"
+    "@cloudflare/unenv-preset": "^2.15.0",
+    "unenv": "^2.0.0-rc.24"
+  },
+  "devDependencies": {
+    "@effect/vitest": "^4.0.0-beta.29",
+    "@types/bun": "latest",
+    "oxfmt": "^0.37.0",
+    "oxlint": "^1.52.0",
+    "vitest": "^4.0.18"
+  },
+  "peerDependencies": {
+    "effect": "^4.0.0-beta.29",
+    "esbuild": "catalog:",
+    "typescript": "^5"
+  },
+  "peerDependenciesMeta": {
+    "esbuild": {
+      "optional": true
+    }
   }
 }
