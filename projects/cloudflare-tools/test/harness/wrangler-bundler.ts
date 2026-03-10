@@ -11,8 +11,9 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { BundleError, BundlerAdapter } from "./bundler-adapter.js";
-import type { BundleConfig, BundleResult, CfModule } from "./types.js";
+import type { BundleConfig, BundleResult } from "./types.js";
 import { moduleTypeFromExtension } from "./types.js";
+import type { CfModule } from "../../src/index.js";
 
 /**
  * Layer providing the WranglerBundler as a BundlerAdapter.
@@ -40,7 +41,7 @@ export function bundleWithWrangler(config: BundleConfig): Effect.Effect<BundleRe
       const configFile = findConfigFile(config.projectRoot);
       const args = ["deploy", "--dry-run", `--outdir=${outdir}`, `--config=${configFile}`];
 
-      const cmd = `npx wrangler ${args.join(" ")}`;
+      const cmd = `bun wrangler ${args.join(" ")}`;
 
       execSync(cmd, {
         cwd: config.projectRoot,
@@ -111,7 +112,8 @@ function parseOutputDir(outdir: string): BundleResult {
     } else {
       modules.push({
         name: normalizeModuleName(relative),
-        filePath,
+        path: filePath,
+        content: fs.readFileSync(filePath),
         type: moduleType,
       });
     }
@@ -124,9 +126,9 @@ function parseOutputDir(outdir: string): BundleResult {
   }
 
   return {
-    entryPoint,
+    main: entryPoint,
     modules,
-    bundleType: "esm",
+    type: "esm",
     outputDir: outdir,
   };
 }

@@ -27,8 +27,8 @@ describe("nodejs-compat", () => {
 
   describe("wrangler baseline", () => {
     it("builds successfully", () => {
-      expect(wranglerBundle.entryPoint).toBeTruthy();
-      expect(wranglerBundle.bundleType).toBe("esm");
+      expect(wranglerBundle.main).toBeTruthy();
+      expect(wranglerBundle.type).toBe("esm");
     });
 
     it("crypto.getRandomValues works", async () => {
@@ -95,8 +95,8 @@ describe("nodejs-compat", () => {
     });
 
     it("builds successfully with ESM output", () => {
-      expect(distilledBundle.entryPoint).toBeTruthy();
-      expect(distilledBundle.bundleType).toBe("esm");
+      expect(distilledBundle.main).toBeTruthy();
+      expect(distilledBundle.type).toBe("esm");
     });
 
     it("crypto.getRandomValues works", async () => {
@@ -157,20 +157,14 @@ describe("nodejs-compat", () => {
     it("matches wrangler behavior for /test-buffer", async () => {
       await Effect.runPromise(
         Effect.gen(function* () {
-          const wranglerRes = yield* withRunner(
-            { bundle: wranglerBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/test-buffer");
-              return { status: res.status, body: await res.text() };
-            },
-          );
-          const distilledRes = yield* withRunner(
-            { bundle: distilledBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/test-buffer");
-              return { status: res.status, body: await res.text() };
-            },
-          );
+          const wranglerRes = yield* withRunner({ bundle: wranglerBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/test-buffer");
+            return { status: res.status, body: await res.text() };
+          });
+          const distilledRes = yield* withRunner({ bundle: distilledBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/test-buffer");
+            return { status: res.status, body: await res.text() };
+          });
           expect(distilledRes.status).toBe(wranglerRes.status);
           expect(distilledRes.body).toBe(wranglerRes.body);
         }),

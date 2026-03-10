@@ -7,7 +7,7 @@
  */
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import { bundleWithDistilled } from "../harness/distilled-bundler.js";
 import { loadFixture } from "../harness/fixture.js";
 import { withRunner } from "../harness/miniflare-runner.js";
@@ -25,8 +25,8 @@ describe("node-env", () => {
 
   describe("wrangler baseline", () => {
     it("builds successfully", () => {
-      expect(wranglerBundle.entryPoint).toBeTruthy();
-      expect(wranglerBundle.bundleType).toBe("esm");
+      expect(wranglerBundle.main).toBeTruthy();
+      expect(wranglerBundle.type).toBe("esm");
     });
 
     it("replaces process.env.NODE_ENV with 'production'", async () => {
@@ -58,12 +58,12 @@ describe("node-env", () => {
     });
 
     it("builds successfully with ESM output", () => {
-      expect(distilledBundle.entryPoint).toBeTruthy();
-      expect(distilledBundle.bundleType).toBe("esm");
+      expect(distilledBundle.main).toBeTruthy();
+      expect(distilledBundle.type).toBe("esm");
     });
 
     it("inlines process.env.NODE_ENV as 'production' in output", () => {
-      const code = fs.readFileSync(distilledBundle.entryPoint, "utf-8");
+      const code = fs.readFileSync(distilledBundle.main, "utf-8");
       // The define replacement should have inlined the value —
       // process.env.NODE_ENV should NOT appear literally in the output
       expect(code).not.toContain("process.env.NODE_ENV");
@@ -93,20 +93,14 @@ describe("node-env", () => {
     it("matches wrangler behavior for /node-env", async () => {
       await Effect.runPromise(
         Effect.gen(function* () {
-          const wranglerRes = yield* withRunner(
-            { bundle: wranglerBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/node-env");
-              return { status: res.status, body: await res.text() };
-            },
-          );
-          const distilledRes = yield* withRunner(
-            { bundle: distilledBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/node-env");
-              return { status: res.status, body: await res.text() };
-            },
-          );
+          const wranglerRes = yield* withRunner({ bundle: wranglerBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/node-env");
+            return { status: res.status, body: await res.text() };
+          });
+          const distilledRes = yield* withRunner({ bundle: distilledBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/node-env");
+            return { status: res.status, body: await res.text() };
+          });
           expect(distilledRes.status).toBe(wranglerRes.status);
           expect(distilledRes.body).toBe(wranglerRes.body);
         }),

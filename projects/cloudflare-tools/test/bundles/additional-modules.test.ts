@@ -27,8 +27,8 @@ describe("additional-modules", () => {
 
   describe("wrangler baseline", () => {
     it("builds successfully", () => {
-      expect(wranglerBundle.entryPoint).toBeTruthy();
-      expect(wranglerBundle.bundleType).toBe("esm");
+      expect(wranglerBundle.main).toBeTruthy();
+      expect(wranglerBundle.type).toBe("esm");
     });
 
     it("inlines dynamic import targets into the bundle", async () => {
@@ -36,7 +36,7 @@ describe("additional-modules", () => {
       // it inlines the modules using a __glob helper pattern rather than
       // emitting them as separate files. The find_additional_modules feature
       // ensures esbuild can discover the targets, but they end up bundled.
-      const entryContent = fs.readFileSync(wranglerBundle.entryPoint, "utf-8");
+      const entryContent = fs.readFileSync(wranglerBundle.main, "utf-8");
       expect(entryContent).toContain("Hello");
       expect(entryContent).toContain("Bonjour");
     });
@@ -80,12 +80,12 @@ describe("additional-modules", () => {
     });
 
     it("builds successfully with ESM output", () => {
-      expect(distilledBundle.entryPoint).toBeTruthy();
-      expect(distilledBundle.bundleType).toBe("esm");
+      expect(distilledBundle.main).toBeTruthy();
+      expect(distilledBundle.type).toBe("esm");
     });
 
     it("inlines dynamic import targets into the bundle", () => {
-      const entryContent = fs.readFileSync(distilledBundle.entryPoint, "utf-8");
+      const entryContent = fs.readFileSync(distilledBundle.main, "utf-8");
       expect(entryContent).toContain("Hello");
       expect(entryContent).toContain("Bonjour");
     });
@@ -123,20 +123,14 @@ describe("additional-modules", () => {
     it("matches wrangler behavior for /lang/en", async () => {
       await Effect.runPromise(
         Effect.gen(function* () {
-          const wranglerRes = yield* withRunner(
-            { bundle: wranglerBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/lang/en");
-              return { status: res.status, body: await res.text() };
-            },
-          );
-          const distilledRes = yield* withRunner(
-            { bundle: distilledBundle, config },
-            async (r) => {
-              const res = await r.fetch("http://localhost/lang/en");
-              return { status: res.status, body: await res.text() };
-            },
-          );
+          const wranglerRes = yield* withRunner({ bundle: wranglerBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/lang/en");
+            return { status: res.status, body: await res.text() };
+          });
+          const distilledRes = yield* withRunner({ bundle: distilledBundle, config }, async (r) => {
+            const res = await r.fetch("http://localhost/lang/en");
+            return { status: res.status, body: await res.text() };
+          });
           expect(distilledRes.status).toBe(wranglerRes.status);
           expect(distilledRes.body).toBe(wranglerRes.body);
         }),

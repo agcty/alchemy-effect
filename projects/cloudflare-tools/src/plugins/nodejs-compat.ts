@@ -31,12 +31,12 @@ const VIRTUAL_POLYFILL_PREFIX = "_virtual_unenv_global_polyfill-";
  * Regex to match virtual polyfill module paths.
  */
 const VIRTUAL_POLYFILL_RE = new RegExp(
-	`${VIRTUAL_POLYFILL_PREFIX.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}(.+)$`,
+  `${VIRTUAL_POLYFILL_PREFIX.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}(.+)$`,
 );
 
 export interface NodejsCompatOptions {
-	readonly compatibilityDate?: string;
-	readonly compatibilityFlags?: readonly string[];
+  readonly compatibilityDate?: string;
+  readonly compatibilityFlags?: readonly string[];
 }
 
 /**
@@ -47,52 +47,49 @@ export interface NodejsCompatOptions {
  * date and flags.
  */
 export function nodejsCompatPlugin(options: NodejsCompatOptions = {}): Plugin {
-	return {
-		name: "distilled-nodejs-compat",
-		async setup(build) {
-			// Dynamically import ESM-only packages
-			const { defineEnv } = await import("unenv");
-			const { getCloudflarePreset, nonPrefixedNodeModules } = await import(
-				"@cloudflare/unenv-preset"
-			);
+  return {
+    name: "distilled-nodejs-compat",
+    async setup(build) {
+      // Dynamically import ESM-only packages
+      const { defineEnv } = await import("unenv");
+      const { getCloudflarePreset, nonPrefixedNodeModules } =
+        await import("@cloudflare/unenv-preset");
 
-			// Get the resolved environment configuration
-			const { alias, inject, external, polyfill } = defineEnv({
-				presets: [
-					getCloudflarePreset({
-						compatibilityDate: options.compatibilityDate,
-						compatibilityFlags: options.compatibilityFlags
-							? [...options.compatibilityFlags]
-							: undefined,
-					}),
-					{
-						alias: {
-							// Force esbuild to use node implementation of debug
-							debug: "debug",
-						},
-					},
-				],
-				npmShims: true,
-			}).env;
+      // Get the resolved environment configuration
+      const { alias, inject, external, polyfill } = defineEnv({
+        presets: [
+          getCloudflarePreset({
+            compatibilityDate: options.compatibilityDate,
+            compatibilityFlags: options.compatibilityFlags
+              ? [...options.compatibilityFlags]
+              : undefined,
+          }),
+          {
+            alias: {
+              // Force esbuild to use node implementation of debug
+              debug: "debug",
+            },
+          },
+        ],
+        npmShims: true,
+      }).env;
 
-			// Build regex to match all Node.js module specifiers
-			const nodeModulesPattern = nonPrefixedNodeModules
-				.map((m: string) => m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-				.join("|");
-			const nodeJsModuleRegexp = new RegExp(
-				`^(node:)?(${nodeModulesPattern})$`,
-			);
+      // Build regex to match all Node.js module specifiers
+      const nodeModulesPattern = nonPrefixedNodeModules
+        .map((m: string) => m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join("|");
+      const nodeJsModuleRegexp = new RegExp(`^(node:)?(${nodeModulesPattern})$`);
 
-			// --- Handler 1: Convert CJS require() of Node.js builtins to ESM ---
-			handleRequireCallsToNodeJSBuiltins(build, nodeJsModuleRegexp);
+      // --- Handler 1: Convert CJS require() of Node.js builtins to ESM ---
+      handleRequireCallsToNodeJSBuiltins(build, nodeJsModuleRegexp);
 
-			// --- Handler 2: Resolve unenv aliases + externalize native modules ---
-			handleUnenvAliasedPackages(build, alias, external);
+      // --- Handler 2: Resolve unenv aliases + externalize native modules ---
+      handleUnenvAliasedPackages(build, alias, external);
 
-			// --- Handler 3: Inject Node.js globals (process, Buffer, etc.) ---
-			handleNodeJSGlobals(build, inject, polyfill);
-		},
-	};
+      // --- Handler 3: Inject Node.js globals (process, Buffer, etc.) ---
+      handleNodeJSGlobals(build, inject, polyfill);
+    },
+  };
 }
 
 /**
@@ -100,105 +97,101 @@ export function nodejsCompatPlugin(options: NodejsCompatOptions = {}): Plugin {
  * namespace that wraps the import.
  */
 function handleRequireCallsToNodeJSBuiltins(
-	build: Parameters<Plugin["setup"]>[0],
-	nodeJsModuleRegexp: RegExp,
+  build: Parameters<Plugin["setup"]>[0],
+  nodeJsModuleRegexp: RegExp,
 ): void {
-	build.onResolve({ filter: nodeJsModuleRegexp }, (args) => {
-		if (args.kind === "require-call") {
-			return {
-				path: args.path,
-				namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE,
-			};
-		}
-		return undefined;
-	});
+  build.onResolve({ filter: nodeJsModuleRegexp }, (args) => {
+    if (args.kind === "require-call") {
+      return {
+        path: args.path,
+        namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE,
+      };
+    }
+    return undefined;
+  });
 
-	build.onLoad(
-		{ filter: /.*/, namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE },
-		({ path: modulePath }) => {
-			return {
-				contents: [
-					`import libDefault from '${modulePath}';`,
-					`module.exports = libDefault;`,
-				].join("\n"),
-				loader: "js",
-			};
-		},
-	);
+  build.onLoad(
+    { filter: /.*/, namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE },
+    ({ path: modulePath }) => {
+      return {
+        contents: [`import libDefault from '${modulePath}';`, `module.exports = libDefault;`].join(
+          "\n",
+        ),
+        loader: "js",
+      };
+    },
+  );
 }
 
 /**
  * Resolves unenv alias mappings and handles CJS require of aliased npm packages.
  */
 function handleUnenvAliasedPackages(
-	build: Parameters<Plugin["setup"]>[0],
-	alias: Record<string, string>,
-	external: readonly string[],
+  build: Parameters<Plugin["setup"]>[0],
+  alias: Record<string, string>,
+  external: readonly string[],
 ): void {
-	// Resolve all aliases to absolute paths
-	const aliasAbsolute: Record<string, string> = {};
-	for (const [module, unresolvedAlias] of Object.entries(alias)) {
-		try {
-			aliasAbsolute[module] = require.resolve(unresolvedAlias);
-		} catch {
-			// Package not installed, skip
-		}
-	}
+  // Resolve all aliases to absolute paths
+  const aliasAbsolute: Record<string, string> = {};
+  for (const [module, unresolvedAlias] of Object.entries(alias)) {
+    try {
+      aliasAbsolute[module] = require.resolve(unresolvedAlias);
+    } catch {
+      // Package not installed, skip
+    }
+  }
 
-	// Build regex matching all alias keys
-	const aliasKeys = Object.keys(aliasAbsolute);
-	if (aliasKeys.length === 0) return;
+  // Build regex matching all alias keys
+  const aliasKeys = Object.keys(aliasAbsolute);
+  if (aliasKeys.length === 0) return;
 
-	const aliasPattern = aliasKeys
-		.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
-		.join("|");
-	const aliasRegexp = new RegExp(`^(${aliasPattern})$`);
+  const aliasPattern = aliasKeys.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+  const aliasRegexp = new RegExp(`^(${aliasPattern})$`);
 
-	build.onResolve({ filter: aliasRegexp }, (args) => {
-		const unresolvedAlias = alias[args.path];
+  build.onResolve({ filter: aliasRegexp }, (args) => {
+    const unresolvedAlias = alias[args.path];
 
-		// Handle CJS require() of unenv npm shims
-		if (
-			args.kind === "require-call" &&
-			unresolvedAlias &&
-			(unresolvedAlias.startsWith("unenv/npm/") ||
-				unresolvedAlias.startsWith("unenv/mock/"))
-		) {
-			return {
-				path: args.path,
-				namespace: REQUIRED_UNENV_ALIAS_NAMESPACE,
-			};
-		}
+    // Handle CJS require() of unenv npm shims
+    if (
+      args.kind === "require-call" &&
+      unresolvedAlias &&
+      (unresolvedAlias.startsWith("unenv/npm/") || unresolvedAlias.startsWith("unenv/mock/"))
+    ) {
+      return {
+        path: args.path,
+        namespace: REQUIRED_UNENV_ALIAS_NAMESPACE,
+      };
+    }
 
-		// Resolve to absolute path and mark as external if appropriate
-		const resolvedPath = aliasAbsolute[args.path];
-		if (resolvedPath && unresolvedAlias) {
-			return {
-				path: resolvedPath,
-				external: external.includes(unresolvedAlias),
-			};
-		}
+    // Resolve to absolute path and mark as external if appropriate
+    const resolvedPath = aliasAbsolute[args.path];
+    if (resolvedPath && unresolvedAlias) {
+      return {
+        path: resolvedPath,
+        external: external.includes(unresolvedAlias),
+      };
+    }
 
-		return undefined;
-	});
+    return undefined;
+  });
 
-	build.onLoad(
-		{ filter: /.*/, namespace: REQUIRED_UNENV_ALIAS_NAMESPACE },
-		({ path: modulePath }) => {
-			return {
-				contents: [
-					`import * as esm from '${modulePath}';`,
-					`module.exports = Object.entries(esm)`,
-					`  .filter(([k,]) => k !== 'default')`,
-					`  .reduce((cjs, [k, value]) =>`,
-					`    Object.defineProperty(cjs, k, { value, enumerable: true }),`,
-					`    "default" in esm ? esm.default : {}`,
-					`  );`,
-				].join("\n"),
-				loader: "js",
-			};
-		},
-	);
+  build.onLoad(
+    { filter: /.*/, namespace: REQUIRED_UNENV_ALIAS_NAMESPACE },
+    ({ path: modulePath }) => {
+      return {
+        contents: [
+          `import * as esm from '${modulePath}';`,
+          `module.exports = Object.entries(esm)`,
+          `  .filter(([k,]) => k !== 'default')`,
+          `  .reduce((cjs, [k, value]) =>`,
+          `    Object.defineProperty(cjs, k, { value, enumerable: true }),`,
+          `    "default" in esm ? esm.default : {}`,
+          `  );`,
+        ].join("\n"),
+        loader: "js",
+      };
+    },
+  );
 }
 
 /**
@@ -206,99 +199,96 @@ function handleUnenvAliasedPackages(
  * inject mechanism using virtual modules.
  */
 function handleNodeJSGlobals(
-	build: Parameters<Plugin["setup"]>[0],
-	inject: Record<string, string | readonly string[]>,
-	polyfill: readonly string[],
+  build: Parameters<Plugin["setup"]>[0],
+  inject: Record<string, string | readonly string[]>,
+  polyfill: readonly string[],
 ): void {
-	// Parse the inject map into grouped data structures
-	interface InjectedGlobal {
-		injectedName: string;
-		exportName: string;
-		importName: string;
-	}
+  // Parse the inject map into grouped data structures
+  interface InjectedGlobal {
+    injectedName: string;
+    exportName: string;
+    importName: string;
+  }
 
-	const injectsByModule = new Map<string, InjectedGlobal[]>();
+  const injectsByModule = new Map<string, InjectedGlobal[]>();
 
-	for (const [injectedName, value] of Object.entries(inject)) {
-		if (!value) continue;
+  for (const [injectedName, value] of Object.entries(inject)) {
+    if (!value) continue;
 
-		let module: string;
-		let exportName: string;
-		let importName: string;
+    let module: string;
+    let exportName: string;
+    let importName: string;
 
-		if (typeof value === "string") {
-			module = value;
-			exportName = "default";
-			importName = "defaultExport";
-		} else {
-			module = value[0] as string;
-			exportName = value[1] as string;
-			importName = exportName;
-		}
+    if (typeof value === "string") {
+      module = value;
+      exportName = "default";
+      importName = "defaultExport";
+    } else {
+      module = value[0] as string;
+      exportName = value[1] as string;
+      importName = exportName;
+    }
 
-		const existing = injectsByModule.get(module) ?? [];
-		existing.push({ injectedName, exportName, importName });
-		injectsByModule.set(module, existing);
-	}
+    const existing = injectsByModule.get(module) ?? [];
+    existing.push({ injectedName, exportName, importName });
+    injectsByModule.set(module, existing);
+  }
 
-	// Use import.meta.dirname as the base path for virtual module anchoring
-	const prefix = path.resolve(
-		import.meta.dirname,
-		VIRTUAL_POLYFILL_PREFIX,
-	);
+  // Use import.meta.dirname as the base path for virtual module anchoring
+  const prefix = path.resolve(import.meta.dirname, VIRTUAL_POLYFILL_PREFIX);
 
-	// Map virtual module paths to their source module specifiers
-	const virtualModulePathToSpecifier = new Map<string, string>();
-	for (const [moduleSpecifier] of injectsByModule) {
-		const sanitized = moduleSpecifier.replaceAll("/", "-");
-		const virtualPath = prefix + sanitized;
-		virtualModulePathToSpecifier.set(virtualPath, moduleSpecifier);
-	}
+  // Map virtual module paths to their source module specifiers
+  const virtualModulePathToSpecifier = new Map<string, string>();
+  for (const [moduleSpecifier] of injectsByModule) {
+    const sanitized = moduleSpecifier.replaceAll("/", "-");
+    const virtualPath = prefix + sanitized;
+    virtualModulePathToSpecifier.set(virtualPath, moduleSpecifier);
+  }
 
-	// Mutate esbuild's inject option to include our virtual modules + polyfills
-	build.initialOptions.inject = [
-		...(build.initialOptions.inject ?? []),
-		...virtualModulePathToSpecifier.keys(),
-		...polyfill.map((m) => {
-			try {
-				return require.resolve(m);
-			} catch {
-				return m;
-			}
-		}),
-	];
+  // Mutate esbuild's inject option to include our virtual modules + polyfills
+  build.initialOptions.inject = [
+    ...(build.initialOptions.inject ?? []),
+    ...virtualModulePathToSpecifier.keys(),
+    ...polyfill.map((m) => {
+      try {
+        return require.resolve(m);
+      } catch {
+        return m;
+      }
+    }),
+  ];
 
-	// Resolve virtual polyfill paths — tell esbuild they exist as-is
-	build.onResolve({ filter: VIRTUAL_POLYFILL_RE }, ({ path: p }) => {
-		return { path: p };
-	});
+  // Resolve virtual polyfill paths — tell esbuild they exist as-is
+  build.onResolve({ filter: VIRTUAL_POLYFILL_RE }, ({ path: p }) => {
+    return { path: p };
+  });
 
-	// Load virtual polyfill modules — generate code that assigns globals
-	build.onLoad({ filter: VIRTUAL_POLYFILL_RE }, ({ path: p }) => {
-		const moduleSpecifier = virtualModulePathToSpecifier.get(p);
-		if (!moduleSpecifier) return undefined;
+  // Load virtual polyfill modules — generate code that assigns globals
+  build.onLoad({ filter: VIRTUAL_POLYFILL_RE }, ({ path: p }) => {
+    const moduleSpecifier = virtualModulePathToSpecifier.get(p);
+    if (!moduleSpecifier) return undefined;
 
-		const globals = injectsByModule.get(moduleSpecifier);
-		if (!globals) return undefined;
+    const globals = injectsByModule.get(moduleSpecifier);
+    if (!globals) return undefined;
 
-		const lines: string[] = [];
+    const lines: string[] = [];
 
-		// Build import statement
-		const imports = globals.map((g) =>
-			g.exportName === "default"
-				? `default as ${g.importName}`
-				: `${g.exportName} as ${g.importName}`,
-		);
-		lines.push(`import { ${imports.join(", ")} } from "${moduleSpecifier}";`);
+    // Build import statement
+    const imports = globals.map((g) =>
+      g.exportName === "default"
+        ? `default as ${g.importName}`
+        : `${g.exportName} as ${g.importName}`,
+    );
+    lines.push(`import { ${imports.join(", ")} } from "${moduleSpecifier}";`);
 
-		// Build global assignments
-		for (const g of globals) {
-			lines.push(`globalThis.${g.injectedName} = ${g.importName};`);
-		}
+    // Build global assignments
+    for (const g of globals) {
+      lines.push(`globalThis.${g.injectedName} = ${g.importName};`);
+    }
 
-		return {
-			contents: lines.join("\n"),
-			loader: "js",
-		};
-	});
+    return {
+      contents: lines.join("\n"),
+      loader: "js",
+    };
+  });
 }

@@ -5,6 +5,8 @@
  * fixture configs, bundler adapters, and the Miniflare runner.
  */
 
+import type { CfModule, CfModuleType } from "../../src/index.js";
+
 /**
  * Configuration for bundling a fixture. Parsed from wrangler.jsonc.
  */
@@ -59,42 +61,14 @@ export type ModuleRuleType = "ESModule" | "CommonJS" | "CompiledWasm" | "Text" |
  */
 export interface BundleResult {
   /** Absolute path to the main output file */
-  readonly entryPoint: string;
+  readonly main: string;
   /** Additional modules collected during bundling (WASM, text, data, etc.) */
   readonly modules: readonly CfModule[];
   /** The module format of the entry point */
-  readonly bundleType: "esm" | "commonjs";
+  readonly type: "esm" | "commonjs";
   /** Absolute path to the output directory */
   readonly outputDir: string;
 }
-
-/**
- * A collected module (WASM, text, binary, etc.) — part of the bundle output.
- */
-export interface CfModule {
-  /** Module name (relative path within the output) */
-  readonly name: string;
-  /** Absolute path to the module file on disk */
-  readonly filePath: string;
-  /** The Cloudflare module type */
-  readonly type: CfModuleType;
-}
-
-/**
- * Module types used in Cloudflare Worker uploads.
- */
-export type CfModuleType = "esm" | "commonjs" | "compiled-wasm" | "text" | "buffer";
-
-/**
- * Maps CfModuleType to Miniflare's ModuleRuleType.
- */
-export const CfModuleTypeToMiniflare: Record<CfModuleType, string> = {
-  esm: "ESModule",
-  commonjs: "CommonJS",
-  "compiled-wasm": "CompiledWasm",
-  text: "Text",
-  buffer: "Data",
-};
 
 /**
  * Maps file extensions to CfModuleType for parsing wrangler output.
@@ -102,18 +76,18 @@ export const CfModuleTypeToMiniflare: Record<CfModuleType, string> = {
 export function moduleTypeFromExtension(ext: string): CfModuleType | null {
   switch (ext) {
     case ".wasm":
-      return "compiled-wasm";
+      return "CompiledWasm";
     case ".txt":
     case ".html":
     case ".sql":
-      return "text";
+      return "Text";
     case ".bin":
-      return "buffer";
+      return "Data";
     case ".mjs":
     case ".js":
-      return "esm";
+      return "ESModule";
     case ".cjs":
-      return "commonjs";
+      return "CommonJS";
     default:
       return null;
   }

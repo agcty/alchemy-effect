@@ -9,8 +9,7 @@
  */
 import * as Effect from "effect/Effect";
 import { Miniflare } from "miniflare";
-import type { BundleConfig, BundleResult, CfModule } from "./types.js";
-import { CfModuleTypeToMiniflare } from "./types.js";
+import type { BundleConfig, BundleResult } from "./types.js";
 
 /**
  * Options for creating a Miniflare runner.
@@ -62,13 +61,13 @@ export function createRunner(
       }> = [
         // Entry point
         {
-          type: bundle.bundleType === "esm" ? "ESModule" : "CommonJS",
-          path: bundle.entryPoint,
+          type: bundle.type === "esm" ? "ESModule" : "CommonJS",
+          path: bundle.main,
         },
         // Additional modules (WASM, text, data, etc.)
-        ...bundle.modules.map((mod: CfModule) => ({
-          type: CfModuleTypeToMiniflare[mod.type],
-          path: mod.filePath,
+        ...bundle.modules.map((mod) => ({
+          type: mod.type,
+          path: mod.path,
         })),
       ];
 
