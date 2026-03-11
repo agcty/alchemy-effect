@@ -12,13 +12,13 @@ import * as Path from "effect/Path";
 import type { PlatformError } from "effect/PlatformError";
 import * as ServiceMap from "effect/ServiceMap";
 import type { Plugin } from "esbuild";
-import { Esbuild, type EsbuildError } from "./esbuild.js";
+import * as esbuild from "esbuild";
 import { getEntryPointFromMetafile, type MetafileError } from "./metafile.js";
 import type { Module } from "./module.js";
 import { cloudflareInternalPlugin } from "./plugins/cloudflare-internal.js";
 import { createModuleCollector, type Rule } from "./plugins/module-collector.js";
-import { nodejsCompatPlugin } from "./plugins/nodejs-compat.js";
 import { nodejsCompatWarningPlugin } from "./plugins/nodejs-compat-warning.js";
+import { nodejsCompatPlugin } from "./plugins/nodejs-compat.js";
 
 export interface BundleOptions {
   /** Absolute path to the entry point */
@@ -67,7 +67,7 @@ export class BundleFileSystemError extends Data.TaggedError("BundleFileSystemErr
 }> {}
 
 export class BundleEsbuildError extends Data.TaggedError("BundleEsbuildError")<{
-  readonly cause: EsbuildError;
+  readonly cause: esbuild.BuildFailure;
 }> {}
 
 export class BundleMetafileError extends Data.TaggedError("BundleMetafileError")<{
@@ -91,7 +91,6 @@ export class Bundle extends ServiceMap.Service<
 export const BundleLive = Layer.effect(
   Bundle,
   Effect.gen(function* () {
-    const esbuild = yield* Esbuild;
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
@@ -112,6 +111,17 @@ export const BundleLive = Layer.effect(
         { discard: true },
       );
 
+    const build = <T extends esbuild.BuildOptions>(
+      options: esbuild.SameShape<esbuild.BuildOptions, T>,
+    ): Effect.Effect<esbuild.BuildResult<T>, BundleEsbuildError> =>
+      Effect.tryPromise({
+        try: () => esbuild.build(options),
+        catch: (error) =>
+          new BundleEsbuildError({
+            cause: error as esbuild.BuildFailure,
+          }),
+      });
+
     return Bundle.of({
       bundle: (options) =>
         Effect.gen(function* () {
@@ -120,43 +130,41 @@ export const BundleLive = Layer.effect(
 
           const isServiceWorker = options.format === "service-worker";
 
-          const result = yield* esbuild
-            .build({
-              // Common esbuild options matching wrangler's configuration.
-              target: "es2024",
-              conditions: ["workerd", "worker", "browser"],
-              define: {
-                "process.env.NODE_ENV": '"production"',
-                "global.process.env.NODE_ENV": '"production"',
-                "globalThis.process.env.NODE_ENV": '"production"',
-                ...(options.compatibilityDate && options.compatibilityDate >= "2022-03-21"
-                  ? { "navigator.userAgent": '"Cloudflare-Workers"' }
-                  : {}),
-                ...options.define,
-              },
-              loader: {
-                ".js": "jsx",
-                ".mjs": "jsx",
-                ".cjs": "jsx",
-              },
+          const result = yield* build({
+            // Common esbuild options matching wrangler's configuration.
+            target: "es2024",
+            conditions: ["workerd", "worker", "browser"],
+            define: {
+              "process.env.NODE_ENV": '"production"',
+              "global.process.env.NODE_ENV": '"production"',
+              "globalThis.process.env.NODE_ENV": '"production"',
+              ...(options.compatibilityDate && options.compatibilityDate >= "2022-03-21"
+                ? { "navigator.userAgent": '"Cloudflare-Workers"' }
+                : {}),
+              ...options.define,
+            },
+            loader: {
+              ".js": "jsx",
+              ".mjs": "jsx",
+              ".cjs": "jsx",
+            },
 
-              entryPoints: [options.main],
-              bundle: true,
-              absWorkingDir: options.projectRoot,
-              outdir: options.outputDir,
-              format: isServiceWorker ? "iife" : "esm",
-              sourcemap: true,
-              metafile: true,
-              logLevel: "silent",
-              external: ["__STATIC_CONTENT_MANIFEST", ...(options.external ?? [])],
-              plugins: plugins.plugins,
-              minify: options.minify,
-              keepNames: options.keepNames ?? true,
-              tsconfig: options.tsconfig
-                ? path.resolve(options.projectRoot, options.tsconfig)
-                : undefined,
-            })
-            .pipe(Effect.mapError((cause) => new BundleEsbuildError({ cause })));
+            entryPoints: [options.main],
+            bundle: true,
+            absWorkingDir: options.projectRoot,
+            outdir: options.outputDir,
+            format: isServiceWorker ? "iife" : "esm",
+            sourcemap: true,
+            metafile: true,
+            logLevel: "silent",
+            external: ["__STATIC_CONTENT_MANIFEST", ...(options.external ?? [])],
+            plugins: plugins.plugins,
+            minify: options.minify,
+            keepNames: options.keepNames ?? true,
+            tsconfig: options.tsconfig
+              ? path.resolve(options.projectRoot, options.tsconfig)
+              : undefined,
+          });
 
           const entryPointInfo = yield* getEntryPointFromMetafile(
             options.main,

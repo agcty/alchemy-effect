@@ -4,23 +4,19 @@
  * Converts test harness BundleConfig into the bundler's BundleOptions,
  * runs the bundle, and converts the result back to test harness BundleResult.
  */
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Layer } from "effect";
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { BundleLive, Bundle, type BundleOptions } from "../../src/bundle.js";
+import { Bundle, BundleLive, type BundleOptions } from "../../src/bundle.js";
+import type { Module } from "../../src/index.js";
 import { BundleError } from "./bundle-error.js";
 import type { BundleConfig, BundleResult } from "./types.js";
-import type { Module } from "../../src/index.js";
-import { Layer } from "effect";
-import { EsbuildLive } from "../../src/esbuild.js";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
 
-const layers = Layer.provide(
-  BundleLive,
-  Layer.mergeAll(EsbuildLive, NodeFileSystem.layer, NodePath.layer),
-);
+const layers = Layer.provide(BundleLive, Layer.mergeAll(NodeFileSystem.layer, NodePath.layer));
 
 /**
  * Bundles a fixture using distilled-bundler.
