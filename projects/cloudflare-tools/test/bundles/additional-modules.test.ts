@@ -10,7 +10,9 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { bundleWithEsbuild } from "../harness/esbuild-bundler.js";
+import { bundleWithRolldown } from "../harness/rolldown-bundler.js";
 import { loadFixture } from "../harness/fixture.js";
 import { withRunner } from "../harness/miniflare-runner.js";
 import type { BundleConfig, BundleResult } from "../harness/types.js";
@@ -32,6 +34,10 @@ describe("additional-modules", () => {
       name: "esbuild",
       bundler: bundleWithEsbuild,
     },
+      {
+        name: "rolldown",
+        bundler: bundleWithRolldown,
+      },
   ])("$name", ({ bundler }) => {
     let bundle: BundleResult;
 
@@ -44,14 +50,18 @@ describe("additional-modules", () => {
       expect(bundle.type).toBe("esm");
     });
 
-    it("inlines dynamic import targets into the bundle", async () => {
-      // When esbuild handles dynamic imports (import(`./lang/${lang}.js`)),
-      // it inlines the modules using a __glob helper pattern rather than
-      // emitting them as separate files. The find_additional_modules feature
-      // ensures esbuild can discover the targets, but they end up bundled.
+    it("makes dynamic import targets available to the worker", async () => {
       const entryContent = await fs.readFile(bundle.main, "utf-8");
-      expect(entryContent).toContain("Hello");
-      expect(entryContent).toContain("Bonjour");
+      if (entryContent.includes("Hello") && entryContent.includes("Bonjour")) {
+        return;
+      }
+
+      await expect(fs.readFile(path.join(bundle.outputDir, "lang", "en.js"), "utf-8")).resolves.toContain(
+        "Hello",
+      );
+      await expect(fs.readFile(path.join(bundle.outputDir, "lang", "fr.js"), "utf-8")).resolves.toContain(
+        "Bonjour",
+      );
     });
 
     it.effect("dynamic import /lang/en returns English", () =>

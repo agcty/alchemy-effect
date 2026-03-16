@@ -9,6 +9,7 @@ import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs/promises";
 import { bundleWithEsbuild } from "../harness/esbuild-bundler.js";
+import { bundleWithRolldown } from "../harness/rolldown-bundler.js";
 import { loadFixture } from "../harness/fixture.js";
 import type { BundleConfig, BundleResult } from "../harness/types.js";
 import { bundleWithWrangler } from "../harness/wrangler-bundler.js";
@@ -29,6 +30,10 @@ describe("nodejs-compat-warnings", () => {
       name: "esbuild",
       bundler: bundleWithEsbuild,
     },
+      {
+        name: "rolldown",
+        bundler: bundleWithRolldown,
+      },
   ])("$name", ({ bundler }) => {
     let bundle: BundleResult;
 

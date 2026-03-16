@@ -46,6 +46,11 @@
       "bun": "./src/esbuild/index.ts",
       "types": "./dist/esbuild/index.d.ts",
       "import": "./dist/esbuild/index.js"
+    },
+    "./rolldown": {
+      "bun": "./src/rolldown/index.ts",
+      "types": "./dist/rolldown/index.d.ts",
+      "import": "./dist/rolldown/index.js"
     }
   },
   "publishConfig": {
@@ -69,21 +74,27 @@
     "@cloudflare/workers-types": "^4.20260310.1",
     "@effect/platform-node": "^4.0.0-beta.30",
     "@effect/vitest": "^4.0.0-beta.30",
+    "@rspack/core": "^1.7.8",
     "@types/bun": "latest",
     "@types/glob-to-regexp": "^0.4.4",
     "miniflare": "^4.20260310.0",
     "oxfmt": "^0.37.0",
     "oxlint": "^1.52.0",
+    "rolldown": "^1.0.0-rc.9",
     "vitest": "^4.0.18",
     "wrangler": "^4.72.0"
   },
   "peerDependencies": {
     "effect": "^4.0.0-beta.30",
     "esbuild": "catalog:",
+    "rolldown": "^1.0.0-rc.9",
     "typescript": "^5.9.3"
   },
   "peerDependenciesMeta": {
     "esbuild": {
+      "optional": true
+    },
+    "rolldown": {
       "optional": true
     }
   },

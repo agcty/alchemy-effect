@@ -7,6 +7,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { bundleWithEsbuild } from "../harness/esbuild-bundler.js";
+import { bundleWithRolldown } from "../harness/rolldown-bundler.js";
 import { loadFixture } from "../harness/fixture.js";
 import { withRunner } from "../harness/miniflare-runner.js";
 import type { BundleConfig, BundleResult } from "../harness/types.js";
@@ -28,6 +29,10 @@ describe("tsconfig-paths", () => {
       name: "esbuild",
       bundler: bundleWithEsbuild,
     },
+      {
+        name: "rolldown",
+        bundler: bundleWithRolldown,
+      },
   ])("$name", ({ bundler }) => {
     let bundle: BundleResult;
 
