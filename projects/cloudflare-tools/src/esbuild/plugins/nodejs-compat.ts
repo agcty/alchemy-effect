@@ -44,12 +44,17 @@ function handleRequireCallsToNodeJSBuiltins(
     return undefined;
   });
 
-  build.onLoad({ filter: /.*/, namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE }, ({ path: modulePath }) => {
-    return {
-      contents: [`import libDefault from '${modulePath}';`, `module.exports = libDefault;`].join("\n"),
-      loader: "js",
-    };
-  });
+  build.onLoad(
+    { filter: /.*/, namespace: REQUIRED_NODE_BUILT_IN_NAMESPACE },
+    ({ path: modulePath }) => {
+      return {
+        contents: [`import libDefault from '${modulePath}';`, `module.exports = libDefault;`].join(
+          "\n",
+        ),
+        loader: "js",
+      };
+    },
+  );
 }
 
 function handleUnenvAliasedPackages(
@@ -69,7 +74,8 @@ function handleUnenvAliasedPackages(
     if (
       args.kind === "require-call" &&
       resolvedAlias &&
-      (resolvedAlias.source.startsWith("unenv/npm/") || resolvedAlias.source.startsWith("unenv/mock/"))
+      (resolvedAlias.source.startsWith("unenv/npm/") ||
+        resolvedAlias.source.startsWith("unenv/mock/"))
     ) {
       return {
         path: args.path,
@@ -87,20 +93,23 @@ function handleUnenvAliasedPackages(
     return undefined;
   });
 
-  build.onLoad({ filter: /.*/, namespace: REQUIRED_UNENV_ALIAS_NAMESPACE }, ({ path: modulePath }) => {
-    return {
-      contents: [
-        `import * as esm from '${modulePath}';`,
-        `module.exports = Object.entries(esm)`,
-        `  .filter(([k,]) => k !== 'default')`,
-        `  .reduce((cjs, [k, value]) =>`,
-        `    Object.defineProperty(cjs, k, { value, enumerable: true }),`,
-        `    "default" in esm ? esm.default : {}`,
-        `  );`,
-      ].join("\n"),
-      loader: "js",
-    };
-  });
+  build.onLoad(
+    { filter: /.*/, namespace: REQUIRED_UNENV_ALIAS_NAMESPACE },
+    ({ path: modulePath }) => {
+      return {
+        contents: [
+          `import * as esm from '${modulePath}';`,
+          `module.exports = Object.entries(esm)`,
+          `  .filter(([k,]) => k !== 'default')`,
+          `  .reduce((cjs, [k, value]) =>`,
+          `    Object.defineProperty(cjs, k, { value, enumerable: true }),`,
+          `    "default" in esm ? esm.default : {}`,
+          `  );`,
+        ].join("\n"),
+        loader: "js",
+      };
+    },
+  );
 }
 
 function handleNodeJSGlobals(

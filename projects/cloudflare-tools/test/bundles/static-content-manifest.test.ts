@@ -31,14 +31,14 @@ describe("static-content-manifest", () => {
       name: "esbuild",
       bundler: bundleWithEsbuild,
     },
-      {
-        name: "rolldown",
-        bundler: bundleWithRolldown,
-      },
-      {
-        name: "rspack",
-        bundler: bundleWithRspack,
-      },
+    {
+      name: "rolldown",
+      bundler: bundleWithRolldown,
+    },
+    {
+      name: "rspack",
+      bundler: bundleWithRspack,
+    },
   ])("$name", ({ bundler }) => {
     let bundle: BundleResult;
 

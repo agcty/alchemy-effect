@@ -2,7 +2,7 @@ import * as Effect from "effect/Effect";
 import type * as FileSystem from "effect/FileSystem";
 import type * as Path from "effect/Path";
 import type { CloudflareOptions } from "./bundle.js";
-import { BuildError } from "./errors.js";
+import { BuildError } from "./core/Error.js";
 import type { Module } from "./module.js";
 
 const additionalEntryExtensions = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"]);

@@ -10,7 +10,10 @@ import type { Module } from "../../src/index.js";
 import { BundleError } from "./bundle-error.js";
 import type { BundleConfig, BundleResult } from "./types.js";
 
-const layers = Layer.provide(RolldownBundleLive, Layer.mergeAll(NodeFileSystem.layer, NodePath.layer));
+const layers = Layer.provide(
+  RolldownBundleLive,
+  Layer.mergeAll(NodeFileSystem.layer, NodePath.layer),
+);
 
 export function bundleWithRolldown(config: BundleConfig): Effect.Effect<BundleResult, BundleError> {
   return Effect.gen(function* () {
@@ -20,17 +23,16 @@ export function bundleWithRolldown(config: BundleConfig): Effect.Effect<BundleRe
       return yield* fs.makeTempDirectory({
         prefix: "distilled-bundler-rolldown-",
       });
-    })
-      .pipe(
-        Effect.provide(NodeFileSystem.layer),
-        Effect.mapError(
-          (error) =>
-            new BundleError({
-              message: `Failed to create rolldown temp directory: ${String(error)}`,
-              cause: error,
-            }),
-        ),
-      );
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer),
+      Effect.mapError(
+        (error) =>
+          new BundleError({
+            message: `Failed to create rolldown temp directory: ${String(error)}`,
+            cause: error,
+          }),
+      ),
+    );
 
     const options: CloudflareOptions = {
       main: config.entryPoint,

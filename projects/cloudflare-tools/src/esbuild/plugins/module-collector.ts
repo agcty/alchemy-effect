@@ -54,7 +54,12 @@ export function createModuleCollector(options: {
               ? path.basename(importPath)
               : `${hash}-${path.basename(importPath)}`;
 
-            modules[fileName] = { name: fileName, path: filePath, content, type: matched.rule.type };
+            modules[fileName] = {
+              name: fileName,
+              path: filePath,
+              content,
+              type: matched.rule.type,
+            };
 
             return { path: fileName, external: true, watchFiles: [filePath] };
           });

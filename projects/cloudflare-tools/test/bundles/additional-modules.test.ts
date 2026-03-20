@@ -35,14 +35,14 @@ describe("additional-modules", () => {
       name: "esbuild",
       bundler: bundleWithEsbuild,
     },
-      {
-        name: "rolldown",
-        bundler: bundleWithRolldown,
-      },
-      {
-        name: "rspack",
-        bundler: bundleWithRspack,
-      },
+    {
+      name: "rolldown",
+      bundler: bundleWithRolldown,
+    },
+    {
+      name: "rspack",
+      bundler: bundleWithRspack,
+    },
   ])("$name", ({ bundler }) => {
     let bundle: BundleResult;
 
@@ -61,12 +61,12 @@ describe("additional-modules", () => {
         return;
       }
 
-      await expect(fs.readFile(path.join(bundle.outputDir, "lang", "en.js"), "utf-8")).resolves.toContain(
-        "Hello",
-      );
-      await expect(fs.readFile(path.join(bundle.outputDir, "lang", "fr.js"), "utf-8")).resolves.toContain(
-        "Bonjour",
-      );
+      await expect(
+        fs.readFile(path.join(bundle.outputDir, "lang", "en.js"), "utf-8"),
+      ).resolves.toContain("Hello");
+      await expect(
+        fs.readFile(path.join(bundle.outputDir, "lang", "fr.js"), "utf-8"),
+      ).resolves.toContain("Bonjour");
     });
 
     it.effect("dynamic import /lang/en returns English", () =>

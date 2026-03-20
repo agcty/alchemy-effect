@@ -8,7 +8,16 @@ export default function nodeProtocolLoader(source) {
     specifier;
 
   return content
-    .replaceAll(/from\s+["']([^"'`]+)["']/g, (_match, specifier) => `from ${JSON.stringify(rewrite(specifier))}`)
-    .replaceAll(/import\s*\(\s*["']([^"'`]+)["']\s*\)/g, (_match, specifier) => `import(${JSON.stringify(rewrite(specifier))})`)
-    .replaceAll(/require\s*\(\s*["']([^"'`]+)["']\s*\)/g, (_match, specifier) => `require(${JSON.stringify(rewrite(specifier))})`);
+    .replaceAll(
+      /from\s+["']([^"'`]+)["']/g,
+      (_match, specifier) => `from ${JSON.stringify(rewrite(specifier))}`,
+    )
+    .replaceAll(
+      /import\s*\(\s*["']([^"'`]+)["']\s*\)/g,
+      (_match, specifier) => `import(${JSON.stringify(rewrite(specifier))})`,
+    )
+    .replaceAll(
+      /require\s*\(\s*["']([^"'`]+)["']\s*\)/g,
+      (_match, specifier) => `require(${JSON.stringify(rewrite(specifier))})`,
+    );
 }

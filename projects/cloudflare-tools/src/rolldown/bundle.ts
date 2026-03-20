@@ -6,32 +6,32 @@ import * as Queue from "effect/Queue";
 import * as Result from "effect/Result";
 import * as Stream from "effect/Stream";
 import {
-  rolldown,
   type InputOptions,
   type OutputChunk,
   type OutputOptions,
   type Plugin,
+  rolldown,
   watch,
 } from "rolldown";
-import {
-  Bundle,
-  type BundleResult,
-  type CloudflareOptions,
-  writeAdditionalModules,
-} from "../bundle.js";
 import {
   collectAdditionalEntries,
   hasNodejsCompat,
   mapBuildError,
   readEmittedJavaScriptModules,
 } from "../backend-utils.js";
+import {
+  Bundle,
+  type BundleResult,
+  type CloudflareOptions,
+  writeAdditionalModules,
+} from "../bundle.js";
 import { deriveDefines, deriveFormat } from "../cloudflare-defaults.js";
-import { BuildError, type BundleError } from "../errors.js";
+import { BuildError, type BundleError } from "../core/Error.js";
 import type { Module } from "../module.js";
 import { cloudflareInternalPlugin } from "./plugins/cloudflare-internal.js";
 import { createModuleCollector } from "./plugins/module-collector.js";
-import { createNodejsCompat } from "./plugins/nodejs-compat.js";
 import { nodejsCompatWarningPlugin } from "./plugins/nodejs-compat-warning.js";
+import { createNodejsCompat } from "./plugins/nodejs-compat.js";
 
 export type RolldownBundleOptions = CloudflareOptions;
 

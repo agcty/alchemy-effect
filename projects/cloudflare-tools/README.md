@@ -37,7 +37,10 @@ const program = Effect.gen(function* () {
   });
 });
 
-const layer = Layer.provide(EsbuildBundleLive, Layer.mergeAll(NodeFileSystem.layer, NodePath.layer));
+const layer = Layer.provide(
+  EsbuildBundleLive,
+  Layer.mergeAll(NodeFileSystem.layer, NodePath.layer),
+);
 
 const result = await Effect.runPromise(Effect.provide(program, layer));
 console.log(result.main);

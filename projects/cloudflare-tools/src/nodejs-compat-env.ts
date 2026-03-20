@@ -29,7 +29,9 @@ export async function resolveUnenv(options: ResolveUnenvOptions = {}): Promise<U
     presets: [
       getCloudflarePreset({
         compatibilityDate: options.compatibilityDate,
-        compatibilityFlags: options.compatibilityFlags ? [...options.compatibilityFlags] : undefined,
+        compatibilityFlags: options.compatibilityFlags
+          ? [...options.compatibilityFlags]
+          : undefined,
       }),
       {
         alias: {

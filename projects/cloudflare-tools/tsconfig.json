@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.base.json",
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "test/bundles/test.ts"],
   "exclude": ["workers-sdk", "dist"],
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "declaration": true
-  }
+    "declaration": true,
+  },
 }

@@ -9,7 +9,9 @@ export interface NodejsCompatConfig {
   readonly alias: Record<string, string>;
 }
 
-export async function createNodejsCompat(options: NodejsCompatOptions = {}): Promise<NodejsCompatConfig> {
+export async function createNodejsCompat(
+  options: NodejsCompatOptions = {},
+): Promise<NodejsCompatConfig> {
   const env = await resolveUnenv(options);
 
   return {

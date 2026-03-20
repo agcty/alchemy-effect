@@ -1,11 +1,3 @@
-import * as Effect from "effect/Effect";
-import * as FileSystem from "effect/FileSystem";
-import * as Layer from "effect/Layer";
-import * as Path from "effect/Path";
-import * as Queue from "effect/Queue";
-import * as Result from "effect/Result";
-import * as Stream from "effect/Stream";
-import globToRegExp from "glob-to-regexp";
 import {
   DefinePlugin,
   ProvidePlugin,
@@ -16,25 +8,33 @@ import {
   type RspackOptions,
   type Stats,
 } from "@rspack/core";
+import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import * as Queue from "effect/Queue";
+import * as Result from "effect/Result";
+import * as Stream from "effect/Stream";
+import globToRegExp from "glob-to-regexp";
 import crypto from "node:crypto";
 import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import * as nodePath from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  Bundle,
-  type BundleResult,
-  type CloudflareOptions,
-  writeAdditionalModules,
-} from "../bundle.js";
-import {
   collectAdditionalEntries,
   hasNodejsCompat,
   mapBuildError,
   readEmittedJavaScriptModules,
 } from "../backend-utils.js";
+import {
+  Bundle,
+  writeAdditionalModules,
+  type BundleResult,
+  type CloudflareOptions,
+} from "../bundle.js";
 import { deriveDefines } from "../cloudflare-defaults.js";
-import { BuildError, type BundleError } from "../errors.js";
+import { BuildError, type BundleError } from "../core/Error.js";
 import { makeRuleFilters, parseRules } from "../module-rules.js";
 import type { Module } from "../module.js";
 import { resolveUnenv } from "../nodejs-compat-env.js";
@@ -208,9 +208,7 @@ export const RspackBundleLive = Layer.effect(
                   Object.fromEntries(
                     Object.entries(unenv.inject).map(([name, value]) => [
                       name,
-                      typeof value === "string"
-                        ? value
-                        : [String(value[0]), String(value[1])],
+                      typeof value === "string" ? value : [String(value[0]), String(value[1])],
                     ]),
                   ) as ProvidePluginOptions,
                 ),
@@ -360,7 +358,11 @@ const runCompiler = (compiler: Compiler) =>
           if (error) return reject(error);
           if (!stats)
             return reject(
-              new BuildError({ message: "Rspack compilation returned no stats.", errors: [], warnings: [] }),
+              new BuildError({
+                message: "Rspack compilation returned no stats.",
+                errors: [],
+                warnings: [],
+              }),
             );
           resolve(stats);
         });
@@ -399,7 +401,11 @@ const scanModuleAssets = Effect.fn(function* ({
                 const matched = ruleFilters.find(({ filters }) =>
                   filters.some((f) => f.test(relativePath)),
                 );
-                if (!matched || matched.rule.type === "ESModule" || matched.rule.type === "CommonJS") {
+                if (
+                  !matched ||
+                  matched.rule.type === "ESModule" ||
+                  matched.rule.type === "CommonJS"
+                ) {
                   return Effect.void;
                 }
                 return fs.readFile(filePath).pipe(
@@ -409,7 +415,12 @@ const scanModuleAssets = Effect.fn(function* ({
                     const fileName = preserveFileNames
                       ? nodePath.basename(relativePath)
                       : `${hash}-${nodePath.basename(relativePath)}`;
-                    modules.push({ name: fileName, path: filePath, content: buf, type: matched.rule.type });
+                    modules.push({
+                      name: fileName,
+                      path: filePath,
+                      content: buf,
+                      type: matched.rule.type,
+                    });
                   }),
                 );
               }),
@@ -429,7 +440,10 @@ const createModuleRules = (options: CloudflareOptions, path: Path.Path) =>
     if (rule.type === "ESModule" || rule.type === "CommonJS") return [];
     const loader =
       rule.type === "CompiledWasm"
-        ? { loader: wasmLoaderPath, options: { preserveFileNames: options.preserveFileNames ?? false } }
+        ? {
+            loader: wasmLoaderPath,
+            options: { preserveFileNames: options.preserveFileNames ?? false },
+          }
         : rule.type === "Text"
           ? { loader: textLoaderPath }
           : { loader: dataLoaderPath };
@@ -458,18 +472,23 @@ const navigatorUserAgentPlugin = (options: CloudflareOptions) => ({
   apply(compiler: Compiler) {
     if (!options.compatibilityDate || options.compatibilityDate < "2022-03-21") return;
     compiler.hooks.thisCompilation.tap("distilled-navigator-ua", (compilation: any) => {
-      compilation.hooks.processAssets.tap({ name: "distilled-navigator-ua" }, (assets: Record<string, any>) => {
-        for (const [name, source] of Object.entries(assets)) {
-          if (!/\.[cm]?js$/.test(name)) continue;
-          const code = source.source().toString();
-          if (code.includes("navigator.userAgent")) {
-            compilation.updateAsset(
-              name,
-              new sources.RawSource(code.replaceAll("navigator.userAgent", '"Cloudflare-Workers"')),
-            );
+      compilation.hooks.processAssets.tap(
+        { name: "distilled-navigator-ua" },
+        (assets: Record<string, any>) => {
+          for (const [name, source] of Object.entries(assets)) {
+            if (!/\.[cm]?js$/.test(name)) continue;
+            const code = source.source().toString();
+            if (code.includes("navigator.userAgent")) {
+              compilation.updateAsset(
+                name,
+                new sources.RawSource(
+                  code.replaceAll("navigator.userAgent", '"Cloudflare-Workers"'),
+                ),
+              );
+            }
           }
-        }
-      });
+        },
+      );
     });
   },
 });

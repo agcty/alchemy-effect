@@ -10,7 +10,10 @@ import type { Module } from "../../src/index.js";
 import { BundleError } from "./bundle-error.js";
 import type { BundleConfig, BundleResult } from "./types.js";
 
-const layers = Layer.provide(RspackBundleLive, Layer.mergeAll(NodeFileSystem.layer, NodePath.layer));
+const layers = Layer.provide(
+  RspackBundleLive,
+  Layer.mergeAll(NodeFileSystem.layer, NodePath.layer),
+);
 
 export function bundleWithRspack(config: BundleConfig): Effect.Effect<BundleResult, BundleError> {
   return Effect.gen(function* () {

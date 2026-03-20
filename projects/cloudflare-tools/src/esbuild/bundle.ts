@@ -17,13 +17,13 @@ import {
   deriveFormat,
   deriveLoader,
 } from "../cloudflare-defaults.js";
-import { BuildError } from "../errors.js";
+import { BuildError } from "../core/Error.js";
+import { getEntryPointFromMetafile } from "./metafile.js";
 import { cloudflareInternalPlugin } from "./plugins/cloudflare-internal.js";
 import { createModuleCollector } from "./plugins/module-collector.js";
 import { nodejsCompatWarningPlugin } from "./plugins/nodejs-compat-warning.js";
 import { nodejsCompatPlugin } from "./plugins/nodejs-compat.js";
 import { makeWatchPlugin } from "./plugins/watch.js";
-import { getEntryPointFromMetafile } from "./metafile.js";
 
 export type EsbuildBundleOptions = CloudflareOptions;
 
@@ -118,7 +118,6 @@ export const EsbuildBundleLive = Layer.effect(
             warnings: result.warnings,
           });
         }
-
         const entryPointInfo = yield* getEntryPointFromMetafile(result.metafile);
         const resolvedEntryPoint = path.resolve(options.outputDir, entryPointInfo.relativePath);
         const modules = moduleCollector.getModules();

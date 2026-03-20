@@ -5,9 +5,9 @@ import type * as Result from "effect/Result";
 import type * as Scope from "effect/Scope";
 import * as ServiceMap from "effect/ServiceMap";
 import type * as Stream from "effect/Stream";
-import { SystemError, type BundleError } from "./errors.js";
-import type { Module } from "./module.js";
+import { SystemError, type BundleError } from "./core/Error.js";
 import type { Rule } from "./module-rules.js";
+import type { Module } from "./module.js";
 
 /**
  * Cloudflare-specific bundle options shared across backend adapters.

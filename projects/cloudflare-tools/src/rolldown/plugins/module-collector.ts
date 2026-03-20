@@ -19,9 +19,7 @@ export function createModuleCollector(options: {
       modules = {};
     },
     async resolveId(source, importer, extraOptions) {
-      const matched = ruleFilters.find(({ filters }) =>
-        filters.some((f) => f.test(source)),
-      );
+      const matched = ruleFilters.find(({ filters }) => filters.some((f) => f.test(source)));
       if (!matched || matched.rule.type === "ESModule" || matched.rule.type === "CommonJS") {
         return null;
       }
