@@ -143,7 +143,7 @@ export const GetAiGatewayResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       Schema.Array(
         Schema.Struct({
           authorization: Schema.String,
-          headers: Schema.Struct({}),
+          headers: Schema.Record(Schema.String, Schema.Unknown),
           url: Schema.String,
         }),
       ),
@@ -349,7 +349,7 @@ export const ListAiGatewaysResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
             Schema.Array(
               Schema.Struct({
                 authorization: Schema.String,
-                headers: Schema.Struct({}),
+                headers: Schema.Record(Schema.String, Schema.Unknown),
                 url: Schema.String,
               }),
             ),
@@ -682,7 +682,7 @@ export const CreateAiGatewayResponse =
         Schema.Array(
           Schema.Struct({
             authorization: Schema.String,
-            headers: Schema.Struct({}),
+            headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
           }),
         ),
@@ -857,7 +857,7 @@ export const UpdateAiGatewayRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         Schema.Array(
           Schema.Struct({
             authorization: Schema.String,
-            headers: Schema.Struct({}),
+            headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
           }),
         ),
@@ -1011,7 +1011,7 @@ export const UpdateAiGatewayResponse =
         Schema.Array(
           Schema.Struct({
             authorization: Schema.String,
-            headers: Schema.Struct({}),
+            headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
           }),
         ),
@@ -1200,7 +1200,7 @@ export const DeleteAiGatewayResponse =
         Schema.Array(
           Schema.Struct({
             authorization: Schema.String,
-            headers: Schema.Struct({}),
+            headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
           }),
         ),
@@ -3488,7 +3488,9 @@ export const PatchLogRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   id: Schema.String.pipe(T.HttpPath("id")),
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   feedback: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-  metadata: Schema.optional(Schema.Union([Schema.Struct({}), Schema.Null])),
+  metadata: Schema.optional(
+    Schema.Union([Schema.Record(Schema.String, Schema.Unknown), Schema.Null]),
+  ),
   score: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
 }).pipe(
   T.Http({

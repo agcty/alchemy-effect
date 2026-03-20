@@ -299,22 +299,171 @@ export const ListDiscoveryOperationsRequest =
     }),
   ) as unknown as Schema.Schema<ListDiscoveryOperationsRequest>;
 
-export type ListDiscoveryOperationsResponse = unknown;
+export interface ListDiscoveryOperationsResponse {
+  result: {
+    id: string;
+    endpoint: string;
+    host: string;
+    lastUpdated: string;
+    method:
+      | "GET"
+      | "POST"
+      | "HEAD"
+      | "OPTIONS"
+      | "PUT"
+      | "DELETE"
+      | "CONNECT"
+      | "PATCH"
+      | "TRACE";
+    origin: ("ML" | "SessionIdentifier" | "LabelDiscovery")[];
+    state: "review" | "saved" | "ignored";
+    features?: {
+      trafficStats?: {
+        lastUpdated: string;
+        periodSeconds: number;
+        requests: number;
+      } | null;
+    } | null;
+  }[];
+  resultInfo: {
+    count?: number | null;
+    page?: number | null;
+    perPage?: number | null;
+    totalCount?: number | null;
+  };
+}
 
 export const ListDiscoveryOperationsResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<ListDiscoveryOperationsResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    result: Schema.Array(
+      Schema.Struct({
+        id: Schema.String,
+        endpoint: Schema.String,
+        host: Schema.String,
+        lastUpdated: Schema.String,
+        method: Schema.Literals([
+          "GET",
+          "POST",
+          "HEAD",
+          "OPTIONS",
+          "PUT",
+          "DELETE",
+          "CONNECT",
+          "PATCH",
+          "TRACE",
+        ]),
+        origin: Schema.Array(
+          Schema.Literals(["ML", "SessionIdentifier", "LabelDiscovery"]),
+        ),
+        state: Schema.Literals(["review", "saved", "ignored"]),
+        features: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              trafficStats: Schema.optional(
+                Schema.Union([
+                  Schema.Struct({
+                    lastUpdated: Schema.String,
+                    periodSeconds: Schema.Number,
+                    requests: Schema.Number,
+                  }).pipe(
+                    Schema.encodeKeys({
+                      lastUpdated: "last_updated",
+                      periodSeconds: "period_seconds",
+                      requests: "requests",
+                    }),
+                  ),
+                  Schema.Null,
+                ]),
+              ),
+            }).pipe(Schema.encodeKeys({ trafficStats: "traffic_stats" })),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          id: "id",
+          endpoint: "endpoint",
+          host: "host",
+          lastUpdated: "last_updated",
+          method: "method",
+          origin: "origin",
+          state: "state",
+          features: "features",
+        }),
+      ),
+    ),
+    resultInfo: Schema.Struct({
+      count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      page: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      perPage: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      totalCount: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    }).pipe(
+      Schema.encodeKeys({
+        count: "count",
+        page: "page",
+        perPage: "per_page",
+        totalCount: "total_count",
+      }),
+    ),
+  }).pipe(
+    Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
+  ) as unknown as Schema.Schema<ListDiscoveryOperationsResponse>;
 
 export type ListDiscoveryOperationsError = DefaultErrors;
 
-export const listDiscoveryOperations: API.OperationMethod<
+export const listDiscoveryOperations: API.PaginatedOperationMethod<
   ListDiscoveryOperationsRequest,
   ListDiscoveryOperationsResponse,
   ListDiscoveryOperationsError,
   Credentials | HttpClient.HttpClient
-> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+> & {
+  pages: (
+    input: ListDiscoveryOperationsRequest,
+  ) => stream.Stream<
+    ListDiscoveryOperationsResponse,
+    ListDiscoveryOperationsError,
+    Credentials | HttpClient.HttpClient
+  >;
+  items: (input: ListDiscoveryOperationsRequest) => stream.Stream<
+    {
+      id: string;
+      endpoint: string;
+      host: string;
+      lastUpdated: string;
+      method:
+        | "GET"
+        | "POST"
+        | "HEAD"
+        | "OPTIONS"
+        | "PUT"
+        | "DELETE"
+        | "CONNECT"
+        | "PATCH"
+        | "TRACE";
+      origin: ("ML" | "SessionIdentifier" | "LabelDiscovery")[];
+      state: "review" | "saved" | "ignored";
+      features?: {
+        trafficStats?: {
+          lastUpdated: string;
+          periodSeconds: number;
+          requests: number;
+        } | null;
+      } | null;
+    },
+    ListDiscoveryOperationsError,
+    Credentials | HttpClient.HttpClient
+  >;
+} = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListDiscoveryOperationsRequest,
   output: ListDiscoveryOperationsResponse,
   errors: [],
+  pagination: {
+    mode: "page",
+    inputToken: "page",
+    outputToken: "resultInfo.page",
+    items: "result",
+    pageSize: "perPage",
+  } as const,
 }));
 
 export interface PatchDiscoveryOperationRequest {
@@ -380,7 +529,7 @@ export interface BulkPatchDiscoveryOperationsRequest {
 export const BulkPatchDiscoveryOperationsRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
-    body: Schema.Struct({}).pipe(T.HttpBody()),
+    body: Schema.Record(Schema.String, Schema.Unknown).pipe(T.HttpBody()),
   }).pipe(
     T.Http({
       method: "PATCH",
@@ -391,7 +540,7 @@ export const BulkPatchDiscoveryOperationsRequest =
 export type BulkPatchDiscoveryOperationsResponse = Record<string, unknown>;
 
 export const BulkPatchDiscoveryOperationsResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({}).pipe(
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Record(Schema.String, Schema.Unknown).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<BulkPatchDiscoveryOperationsResponse>;
 
@@ -1800,16 +1949,76 @@ export const DeleteOperationRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
 ) as unknown as Schema.Schema<DeleteOperationRequest>;
 
 export interface DeleteOperationResponse {
-  errors: unknown;
-  messages: unknown;
+  errors: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
+  messages: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
   /** Whether the API call was successful. */
   success: true;
 }
 
 export const DeleteOperationResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    errors: Schema.Unknown,
-    messages: Schema.Unknown,
+    errors: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
+    messages: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
     success: Schema.Literal(true),
   }) as unknown as Schema.Schema<DeleteOperationResponse>;
 
@@ -2350,16 +2559,76 @@ export const BulkDeleteOperationsRequest =
   ) as unknown as Schema.Schema<BulkDeleteOperationsRequest>;
 
 export interface BulkDeleteOperationsResponse {
-  errors: unknown;
-  messages: unknown;
+  errors: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
+  messages: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
   /** Whether the API call was successful. */
   success: true;
 }
 
 export const BulkDeleteOperationsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    errors: Schema.Unknown,
-    messages: Schema.Unknown,
+    errors: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
+    messages: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
     success: Schema.Literal(true),
   }) as unknown as Schema.Schema<BulkDeleteOperationsResponse>;
 
@@ -2511,13 +2780,13 @@ export interface PatchOperationSchemaValidationRequest {
   /** Path param: Identifier. */
   zoneId: string;
   /** Body param: */
-  settingsMultipleRequest: unknown;
+  settingsMultipleRequest: Record<string, unknown>;
 }
 
 export const PatchOperationSchemaValidationRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
-    settingsMultipleRequest: Schema.Unknown,
+    settingsMultipleRequest: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     Schema.encodeKeys({ settingsMultipleRequest: "settings_multiple_request" }),
     T.Http({
@@ -2529,7 +2798,7 @@ export const PatchOperationSchemaValidationRequest =
 export type PatchOperationSchemaValidationResponse = Record<string, unknown>;
 
 export const PatchOperationSchemaValidationResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({}).pipe(
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Record(Schema.String, Schema.Unknown).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PatchOperationSchemaValidationResponse>;
 
@@ -2619,10 +2888,28 @@ export const GetSettingSchemaValidationRequest =
     }),
   ) as unknown as Schema.Schema<GetSettingSchemaValidationRequest>;
 
-export type GetSettingSchemaValidationResponse = unknown;
+export interface GetSettingSchemaValidationResponse {
+  /** The default mitigation action used when there is no mitigation action defined on the operation  Mitigation actions are as follows:  - `log` - log request when request does not conform to schema - `blo */
+  validationDefaultMitigationAction?: "none" | "log" | "block" | null;
+  /** When set, this overrides both zone level and operation level mitigation actions.  - `none` will skip running schema validation entirely for the request - `null` indicates that no override is in place */
+  validationOverrideMitigationAction?: "none" | null;
+}
 
 export const GetSettingSchemaValidationResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<GetSettingSchemaValidationResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    validationDefaultMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literals(["none", "log", "block"]), Schema.Null]),
+    ),
+    validationOverrideMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literal("none"), Schema.Null]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({
+      validationDefaultMitigationAction: "validation_default_mitigation_action",
+      validationOverrideMitigationAction:
+        "validation_override_mitigation_action",
+    }),
+  ) as unknown as Schema.Schema<GetSettingSchemaValidationResponse>;
 
 export type GetSettingSchemaValidationError =
   | DefaultErrors
@@ -2675,10 +2962,28 @@ export const PutSettingSchemaValidationRequest =
     }),
   ) as unknown as Schema.Schema<PutSettingSchemaValidationRequest>;
 
-export type PutSettingSchemaValidationResponse = unknown;
+export interface PutSettingSchemaValidationResponse {
+  /** The default mitigation action used when there is no mitigation action defined on the operation  Mitigation actions are as follows:  - `log` - log request when request does not conform to schema - `blo */
+  validationDefaultMitigationAction?: "none" | "log" | "block" | null;
+  /** When set, this overrides both zone level and operation level mitigation actions.  - `none` will skip running schema validation entirely for the request - `null` indicates that no override is in place */
+  validationOverrideMitigationAction?: "none" | null;
+}
 
 export const PutSettingSchemaValidationResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<PutSettingSchemaValidationResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    validationDefaultMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literals(["none", "log", "block"]), Schema.Null]),
+    ),
+    validationOverrideMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literal("none"), Schema.Null]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({
+      validationDefaultMitigationAction: "validation_default_mitigation_action",
+      validationOverrideMitigationAction:
+        "validation_override_mitigation_action",
+    }),
+  ) as unknown as Schema.Schema<PutSettingSchemaValidationResponse>;
 
 export type PutSettingSchemaValidationError =
   | DefaultErrors
@@ -2734,10 +3039,28 @@ export const PatchSettingSchemaValidationRequest =
     }),
   ) as unknown as Schema.Schema<PatchSettingSchemaValidationRequest>;
 
-export type PatchSettingSchemaValidationResponse = unknown;
+export interface PatchSettingSchemaValidationResponse {
+  /** The default mitigation action used when there is no mitigation action defined on the operation  Mitigation actions are as follows:  - `log` - log request when request does not conform to schema - `blo */
+  validationDefaultMitigationAction?: "none" | "log" | "block" | null;
+  /** When set, this overrides both zone level and operation level mitigation actions.  - `none` will skip running schema validation entirely for the request - `null` indicates that no override is in place */
+  validationOverrideMitigationAction?: "none" | null;
+}
 
 export const PatchSettingSchemaValidationResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<PatchSettingSchemaValidationResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    validationDefaultMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literals(["none", "log", "block"]), Schema.Null]),
+    ),
+    validationOverrideMitigationAction: Schema.optional(
+      Schema.Union([Schema.Literal("none"), Schema.Null]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({
+      validationDefaultMitigationAction: "validation_default_mitigation_action",
+      validationOverrideMitigationAction:
+        "validation_override_mitigation_action",
+    }),
+  ) as unknown as Schema.Schema<PatchSettingSchemaValidationResponse>;
 
 export type PatchSettingSchemaValidationError =
   | DefaultErrors
@@ -3161,16 +3484,76 @@ export const DeleteUserSchemaRequest =
   ) as unknown as Schema.Schema<DeleteUserSchemaRequest>;
 
 export interface DeleteUserSchemaResponse {
-  errors: unknown;
-  messages: unknown;
+  errors: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
+  messages: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
   /** Whether the API call was successful. */
   success: true;
 }
 
 export const DeleteUserSchemaResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    errors: Schema.Unknown,
-    messages: Schema.Unknown,
+    errors: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
+    messages: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
     success: Schema.Literal(true),
   }) as unknown as Schema.Schema<DeleteUserSchemaResponse>;
 

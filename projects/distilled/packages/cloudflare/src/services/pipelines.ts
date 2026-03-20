@@ -90,12 +90,8 @@ export interface GetPipelineResponse {
   /** Specifies the pipeline identifier. */
   id: string;
   destination: {
-    batch: {
-      maxBytes?: number | null;
-      maxDurationS?: number | null;
-      maxRows?: number | null;
-    };
-    compression: { type?: "none" | "gzip" | "deflate" | null };
+    batch: { maxBytes: number; maxDurationS: number; maxRows: number };
+    compression: { type: "none" | "gzip" | "deflate" };
     format: "json";
     path: {
       bucket: string;
@@ -126,9 +122,9 @@ export const GetPipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   id: Schema.String,
   destination: Schema.Struct({
     batch: Schema.Struct({
-      maxBytes: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      maxDurationS: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      maxRows: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      maxBytes: Schema.Number,
+      maxDurationS: Schema.Number,
+      maxRows: Schema.Number,
     }).pipe(
       Schema.encodeKeys({
         maxBytes: "max_bytes",
@@ -137,12 +133,7 @@ export const GetPipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       }),
     ),
     compression: Schema.Struct({
-      type: Schema.optional(
-        Schema.Union([
-          Schema.Literals(["none", "gzip", "deflate"]),
-          Schema.Null,
-        ]),
-      ),
+      type: Schema.Literals(["none", "gzip", "deflate"]),
     }),
     format: Schema.Literal("json"),
     path: Schema.Struct({
@@ -228,12 +219,8 @@ export interface ListPipelinesResponse {
   results: {
     id: string;
     destination: {
-      batch: {
-        maxBytes?: number | null;
-        maxDurationS?: number | null;
-        maxRows?: number | null;
-      };
-      compression: { type?: "none" | "gzip" | "deflate" | null };
+      batch: { maxBytes: number; maxDurationS: number; maxRows: number };
+      compression: { type: "none" | "gzip" | "deflate" };
       format: "json";
       path: {
         bucket: string;
@@ -284,11 +271,9 @@ export const ListPipelinesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       id: Schema.String,
       destination: Schema.Struct({
         batch: Schema.Struct({
-          maxBytes: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-          maxDurationS: Schema.optional(
-            Schema.Union([Schema.Number, Schema.Null]),
-          ),
-          maxRows: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          maxBytes: Schema.Number,
+          maxDurationS: Schema.Number,
+          maxRows: Schema.Number,
         }).pipe(
           Schema.encodeKeys({
             maxBytes: "max_bytes",
@@ -297,12 +282,7 @@ export const ListPipelinesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           }),
         ),
         compression: Schema.Struct({
-          type: Schema.optional(
-            Schema.Union([
-              Schema.Literals(["none", "gzip", "deflate"]),
-              Schema.Null,
-            ]),
-          ),
+          type: Schema.Literals(["none", "gzip", "deflate"]),
         }),
         format: Schema.Literal("json"),
         path: Schema.Struct({
@@ -464,12 +444,8 @@ export interface CreatePipelineResponse {
   /** Specifies the pipeline identifier. */
   id: string;
   destination: {
-    batch: {
-      maxBytes?: number | null;
-      maxDurationS?: number | null;
-      maxRows?: number | null;
-    };
-    compression: { type?: "none" | "gzip" | "deflate" | null };
+    batch: { maxBytes: number; maxDurationS: number; maxRows: number };
+    compression: { type: "none" | "gzip" | "deflate" };
     format: "json";
     path: {
       bucket: string;
@@ -501,11 +477,9 @@ export const CreatePipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     id: Schema.String,
     destination: Schema.Struct({
       batch: Schema.Struct({
-        maxBytes: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-        maxDurationS: Schema.optional(
-          Schema.Union([Schema.Number, Schema.Null]),
-        ),
-        maxRows: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+        maxBytes: Schema.Number,
+        maxDurationS: Schema.Number,
+        maxRows: Schema.Number,
       }).pipe(
         Schema.encodeKeys({
           maxBytes: "max_bytes",
@@ -514,12 +488,7 @@ export const CreatePipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         }),
       ),
       compression: Schema.Struct({
-        type: Schema.optional(
-          Schema.Union([
-            Schema.Literals(["none", "gzip", "deflate"]),
-            Schema.Null,
-          ]),
-        ),
+        type: Schema.Literals(["none", "gzip", "deflate"]),
       }),
       format: Schema.Literal("json"),
       path: Schema.Struct({
@@ -682,12 +651,8 @@ export interface UpdatePipelineResponse {
   /** Specifies the pipeline identifier. */
   id: string;
   destination: {
-    batch: {
-      maxBytes?: number | null;
-      maxDurationS?: number | null;
-      maxRows?: number | null;
-    };
-    compression: { type?: "none" | "gzip" | "deflate" | null };
+    batch: { maxBytes: number; maxDurationS: number; maxRows: number };
+    compression: { type: "none" | "gzip" | "deflate" };
     format: "json";
     path: {
       bucket: string;
@@ -719,11 +684,9 @@ export const UpdatePipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     id: Schema.String,
     destination: Schema.Struct({
       batch: Schema.Struct({
-        maxBytes: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-        maxDurationS: Schema.optional(
-          Schema.Union([Schema.Number, Schema.Null]),
-        ),
-        maxRows: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+        maxBytes: Schema.Number,
+        maxDurationS: Schema.Number,
+        maxRows: Schema.Number,
       }).pipe(
         Schema.encodeKeys({
           maxBytes: "max_bytes",
@@ -732,12 +695,7 @@ export const UpdatePipelineResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         }),
       ),
       compression: Schema.Struct({
-        type: Schema.optional(
-          Schema.Union([
-            Schema.Literals(["none", "gzip", "deflate"]),
-            Schema.Null,
-          ]),
-        ),
+        type: Schema.Literals(["none", "gzip", "deflate"]),
       }),
       format: Schema.Literal("json"),
       path: Schema.Struct({
@@ -976,9 +934,10 @@ export interface GetSinkResponse {
             }
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | unknown
         )[]
@@ -986,9 +945,10 @@ export interface GetSinkResponse {
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes" | null;
-          timestampFormat?: "rfc3339" | "unix_millis" | null;
-          unstructured?: boolean | null;
+          metadataKey?: string | null;
+          name?: string | null;
+          required?: boolean | null;
+          sqlName?: string | null;
         }
       | {
           type: "parquet";
@@ -1399,27 +1359,25 @@ export const GetSinkResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 ),
                 Schema.Struct({
                   type: Schema.Literal("json"),
-                  decimalEncoding: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["number", "string", "bytes"]),
-                      Schema.Null,
-                    ]),
+                  metadataKey: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  timestampFormat: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["rfc3339", "unix_millis"]),
-                      Schema.Null,
-                    ]),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  unstructured: Schema.optional(
+                  required: Schema.optional(
                     Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  sqlName: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
                 }).pipe(
                   Schema.encodeKeys({
                     type: "type",
-                    decimalEncoding: "decimal_encoding",
-                    timestampFormat: "timestamp_format",
-                    unstructured: "unstructured",
+                    metadataKey: "metadata_key",
+                    name: "name",
+                    required: "required",
+                    sqlName: "sql_name",
                   }),
                 ),
                 Schema.Unknown,
@@ -1433,27 +1391,25 @@ export const GetSinkResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Union([
               Schema.Struct({
                 type: Schema.Literal("json"),
-                decimalEncoding: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["number", "string", "bytes"]),
-                    Schema.Null,
-                  ]),
+                metadataKey: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                timestampFormat: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["rfc3339", "unix_millis"]),
-                    Schema.Null,
-                  ]),
+                name: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                unstructured: Schema.optional(
+                required: Schema.optional(
                   Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                sqlName: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
               }).pipe(
                 Schema.encodeKeys({
                   type: "type",
-                  decimalEncoding: "decimal_encoding",
-                  timestampFormat: "timestamp_format",
-                  unstructured: "unstructured",
+                  metadataKey: "metadata_key",
+                  name: "name",
+                  required: "required",
+                  sqlName: "sql_name",
                 }),
               ),
               Schema.Struct({
@@ -1656,9 +1612,10 @@ export interface ListSinksResponse {
               }
             | {
                 type: "json";
-                decimalEncoding?: "number" | "string" | "bytes" | null;
-                timestampFormat?: "rfc3339" | "unix_millis" | null;
-                unstructured?: boolean | null;
+                metadataKey?: string | null;
+                name?: string | null;
+                required?: boolean | null;
+                sqlName?: string | null;
               }
             | unknown
           )[]
@@ -1666,9 +1623,10 @@ export interface ListSinksResponse {
       format?:
         | {
             type: "json";
-            decimalEncoding?: "number" | "string" | "bytes" | null;
-            timestampFormat?: "rfc3339" | "unix_millis" | null;
-            unstructured?: boolean | null;
+            metadataKey?: string | null;
+            name?: string | null;
+            required?: boolean | null;
+            sqlName?: string | null;
           }
         | {
             type: "parquet";
@@ -2088,27 +2046,25 @@ export const ListSinksResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                     ),
                     Schema.Struct({
                       type: Schema.Literal("json"),
-                      decimalEncoding: Schema.optional(
-                        Schema.Union([
-                          Schema.Literals(["number", "string", "bytes"]),
-                          Schema.Null,
-                        ]),
+                      metadataKey: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
-                      timestampFormat: Schema.optional(
-                        Schema.Union([
-                          Schema.Literals(["rfc3339", "unix_millis"]),
-                          Schema.Null,
-                        ]),
+                      name: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
-                      unstructured: Schema.optional(
+                      required: Schema.optional(
                         Schema.Union([Schema.Boolean, Schema.Null]),
+                      ),
+                      sqlName: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
                     }).pipe(
                       Schema.encodeKeys({
                         type: "type",
-                        decimalEncoding: "decimal_encoding",
-                        timestampFormat: "timestamp_format",
-                        unstructured: "unstructured",
+                        metadataKey: "metadata_key",
+                        name: "name",
+                        required: "required",
+                        sqlName: "sql_name",
                       }),
                     ),
                     Schema.Unknown,
@@ -2122,27 +2078,25 @@ export const ListSinksResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 Schema.Union([
                   Schema.Struct({
                     type: Schema.Literal("json"),
-                    decimalEncoding: Schema.optional(
-                      Schema.Union([
-                        Schema.Literals(["number", "string", "bytes"]),
-                        Schema.Null,
-                      ]),
+                    metadataKey: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
-                    timestampFormat: Schema.optional(
-                      Schema.Union([
-                        Schema.Literals(["rfc3339", "unix_millis"]),
-                        Schema.Null,
-                      ]),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
-                    unstructured: Schema.optional(
+                    required: Schema.optional(
                       Schema.Union([Schema.Boolean, Schema.Null]),
+                    ),
+                    sqlName: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
                   }).pipe(
                     Schema.encodeKeys({
                       type: "type",
-                      decimalEncoding: "decimal_encoding",
-                      timestampFormat: "timestamp_format",
-                      unstructured: "unstructured",
+                      metadataKey: "metadata_key",
+                      name: "name",
+                      required: "required",
+                      sqlName: "sql_name",
                     }),
                   ),
                   Schema.Struct({
@@ -2355,9 +2309,10 @@ export const listSinks: API.PaginatedOperationMethod<
                 }
               | {
                   type: "json";
-                  decimalEncoding?: "number" | "string" | "bytes" | null;
-                  timestampFormat?: "rfc3339" | "unix_millis" | null;
-                  unstructured?: boolean | null;
+                  metadataKey?: string | null;
+                  name?: string | null;
+                  required?: boolean | null;
+                  sqlName?: string | null;
                 }
               | unknown
             )[]
@@ -2365,9 +2320,10 @@ export const listSinks: API.PaginatedOperationMethod<
         format?:
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | {
               type: "parquet";
@@ -2514,18 +2470,20 @@ export interface CreateSinkRequest {
         }
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes";
-          timestampFormat?: "rfc3339" | "unix_millis";
-          unstructured?: boolean;
+          metadataKey?: string | null;
+          name?: string;
+          required?: boolean;
+          sqlName?: string;
         }
       | unknown
     )[];
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes";
-          timestampFormat?: "rfc3339" | "unix_millis";
-          unstructured?: boolean;
+          metadataKey?: string | null;
+          name?: string;
+          required?: boolean;
+          sqlName?: string;
         }
       | {
           type: "parquet";
@@ -2814,19 +2772,19 @@ export const CreateSinkRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             ),
             Schema.Struct({
               type: Schema.Literal("json"),
-              decimalEncoding: Schema.optional(
-                Schema.Literals(["number", "string", "bytes"]),
+              metadataKey: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
               ),
-              timestampFormat: Schema.optional(
-                Schema.Literals(["rfc3339", "unix_millis"]),
-              ),
-              unstructured: Schema.optional(Schema.Boolean),
+              name: Schema.optional(Schema.String),
+              required: Schema.optional(Schema.Boolean),
+              sqlName: Schema.optional(Schema.String),
             }).pipe(
               Schema.encodeKeys({
                 type: "type",
-                decimalEncoding: "decimal_encoding",
-                timestampFormat: "timestamp_format",
-                unstructured: "unstructured",
+                metadataKey: "metadata_key",
+                name: "name",
+                required: "required",
+                sqlName: "sql_name",
               }),
             ),
             Schema.Unknown,
@@ -2837,19 +2795,19 @@ export const CreateSinkRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         Schema.Union([
           Schema.Struct({
             type: Schema.Literal("json"),
-            decimalEncoding: Schema.optional(
-              Schema.Literals(["number", "string", "bytes"]),
+            metadataKey: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
             ),
-            timestampFormat: Schema.optional(
-              Schema.Literals(["rfc3339", "unix_millis"]),
-            ),
-            unstructured: Schema.optional(Schema.Boolean),
+            name: Schema.optional(Schema.String),
+            required: Schema.optional(Schema.Boolean),
+            sqlName: Schema.optional(Schema.String),
           }).pipe(
             Schema.encodeKeys({
               type: "type",
-              decimalEncoding: "decimal_encoding",
-              timestampFormat: "timestamp_format",
-              unstructured: "unstructured",
+              metadataKey: "metadata_key",
+              name: "name",
+              required: "required",
+              sqlName: "sql_name",
             }),
           ),
           Schema.Struct({
@@ -3010,9 +2968,10 @@ export interface CreateSinkResponse {
             }
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | unknown
         )[]
@@ -3020,9 +2979,10 @@ export interface CreateSinkResponse {
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes" | null;
-          timestampFormat?: "rfc3339" | "unix_millis" | null;
-          unstructured?: boolean | null;
+          metadataKey?: string | null;
+          name?: string | null;
+          required?: boolean | null;
+          sqlName?: string | null;
         }
       | {
           type: "parquet";
@@ -3433,27 +3393,25 @@ export const CreateSinkResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 ),
                 Schema.Struct({
                   type: Schema.Literal("json"),
-                  decimalEncoding: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["number", "string", "bytes"]),
-                      Schema.Null,
-                    ]),
+                  metadataKey: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  timestampFormat: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["rfc3339", "unix_millis"]),
-                      Schema.Null,
-                    ]),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  unstructured: Schema.optional(
+                  required: Schema.optional(
                     Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  sqlName: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
                 }).pipe(
                   Schema.encodeKeys({
                     type: "type",
-                    decimalEncoding: "decimal_encoding",
-                    timestampFormat: "timestamp_format",
-                    unstructured: "unstructured",
+                    metadataKey: "metadata_key",
+                    name: "name",
+                    required: "required",
+                    sqlName: "sql_name",
                   }),
                 ),
                 Schema.Unknown,
@@ -3467,27 +3425,25 @@ export const CreateSinkResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Union([
               Schema.Struct({
                 type: Schema.Literal("json"),
-                decimalEncoding: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["number", "string", "bytes"]),
-                    Schema.Null,
-                  ]),
+                metadataKey: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                timestampFormat: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["rfc3339", "unix_millis"]),
-                    Schema.Null,
-                  ]),
+                name: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                unstructured: Schema.optional(
+                required: Schema.optional(
                   Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                sqlName: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
               }).pipe(
                 Schema.encodeKeys({
                   type: "type",
-                  decimalEncoding: "decimal_encoding",
-                  timestampFormat: "timestamp_format",
-                  unstructured: "unstructured",
+                  metadataKey: "metadata_key",
+                  name: "name",
+                  required: "required",
+                  sqlName: "sql_name",
                 }),
               ),
               Schema.Struct({
@@ -3634,7 +3590,7 @@ export interface ValidateSqlPipelineResponse {
 
 export const ValidateSqlPipelineResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    tables: Schema.Struct({}),
+    tables: Schema.Record(Schema.String, Schema.Unknown),
     graph: Schema.optional(
       Schema.Union([
         Schema.Struct({
@@ -3814,9 +3770,10 @@ export interface GetStreamResponse {
             }
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | unknown
         )[]
@@ -3824,9 +3781,10 @@ export interface GetStreamResponse {
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes" | null;
-          timestampFormat?: "rfc3339" | "unix_millis" | null;
-          unstructured?: boolean | null;
+          metadataKey?: string | null;
+          name?: string | null;
+          required?: boolean | null;
+          sqlName?: string | null;
         }
       | {
           type: "parquet";
@@ -4129,27 +4087,25 @@ export const GetStreamResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 ),
                 Schema.Struct({
                   type: Schema.Literal("json"),
-                  decimalEncoding: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["number", "string", "bytes"]),
-                      Schema.Null,
-                    ]),
+                  metadataKey: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  timestampFormat: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["rfc3339", "unix_millis"]),
-                      Schema.Null,
-                    ]),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  unstructured: Schema.optional(
+                  required: Schema.optional(
                     Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  sqlName: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
                 }).pipe(
                   Schema.encodeKeys({
                     type: "type",
-                    decimalEncoding: "decimal_encoding",
-                    timestampFormat: "timestamp_format",
-                    unstructured: "unstructured",
+                    metadataKey: "metadata_key",
+                    name: "name",
+                    required: "required",
+                    sqlName: "sql_name",
                   }),
                 ),
                 Schema.Unknown,
@@ -4163,27 +4119,25 @@ export const GetStreamResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Union([
               Schema.Struct({
                 type: Schema.Literal("json"),
-                decimalEncoding: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["number", "string", "bytes"]),
-                    Schema.Null,
-                  ]),
+                metadataKey: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                timestampFormat: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["rfc3339", "unix_millis"]),
-                    Schema.Null,
-                  ]),
+                name: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                unstructured: Schema.optional(
+                required: Schema.optional(
                   Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                sqlName: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
               }).pipe(
                 Schema.encodeKeys({
                   type: "type",
-                  decimalEncoding: "decimal_encoding",
-                  timestampFormat: "timestamp_format",
-                  unstructured: "unstructured",
+                  metadataKey: "metadata_key",
+                  name: "name",
+                  required: "required",
+                  sqlName: "sql_name",
                 }),
               ),
               Schema.Struct({
@@ -4368,9 +4322,10 @@ export interface ListStreamsResponse {
               }
             | {
                 type: "json";
-                decimalEncoding?: "number" | "string" | "bytes" | null;
-                timestampFormat?: "rfc3339" | "unix_millis" | null;
-                unstructured?: boolean | null;
+                metadataKey?: string | null;
+                name?: string | null;
+                required?: boolean | null;
+                sqlName?: string | null;
               }
             | unknown
           )[]
@@ -4378,9 +4333,10 @@ export interface ListStreamsResponse {
       format?:
         | {
             type: "json";
-            decimalEncoding?: "number" | "string" | "bytes" | null;
-            timestampFormat?: "rfc3339" | "unix_millis" | null;
-            unstructured?: boolean | null;
+            metadataKey?: string | null;
+            name?: string | null;
+            required?: boolean | null;
+            sqlName?: string | null;
           }
         | {
             type: "parquet";
@@ -4692,27 +4648,25 @@ export const ListStreamsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                     ),
                     Schema.Struct({
                       type: Schema.Literal("json"),
-                      decimalEncoding: Schema.optional(
-                        Schema.Union([
-                          Schema.Literals(["number", "string", "bytes"]),
-                          Schema.Null,
-                        ]),
+                      metadataKey: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
-                      timestampFormat: Schema.optional(
-                        Schema.Union([
-                          Schema.Literals(["rfc3339", "unix_millis"]),
-                          Schema.Null,
-                        ]),
+                      name: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
-                      unstructured: Schema.optional(
+                      required: Schema.optional(
                         Schema.Union([Schema.Boolean, Schema.Null]),
+                      ),
+                      sqlName: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
                       ),
                     }).pipe(
                       Schema.encodeKeys({
                         type: "type",
-                        decimalEncoding: "decimal_encoding",
-                        timestampFormat: "timestamp_format",
-                        unstructured: "unstructured",
+                        metadataKey: "metadata_key",
+                        name: "name",
+                        required: "required",
+                        sqlName: "sql_name",
                       }),
                     ),
                     Schema.Unknown,
@@ -4726,27 +4680,25 @@ export const ListStreamsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 Schema.Union([
                   Schema.Struct({
                     type: Schema.Literal("json"),
-                    decimalEncoding: Schema.optional(
-                      Schema.Union([
-                        Schema.Literals(["number", "string", "bytes"]),
-                        Schema.Null,
-                      ]),
+                    metadataKey: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
-                    timestampFormat: Schema.optional(
-                      Schema.Union([
-                        Schema.Literals(["rfc3339", "unix_millis"]),
-                        Schema.Null,
-                      ]),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
-                    unstructured: Schema.optional(
+                    required: Schema.optional(
                       Schema.Union([Schema.Boolean, Schema.Null]),
+                    ),
+                    sqlName: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
                     ),
                   }).pipe(
                     Schema.encodeKeys({
                       type: "type",
-                      decimalEncoding: "decimal_encoding",
-                      timestampFormat: "timestamp_format",
-                      unstructured: "unstructured",
+                      metadataKey: "metadata_key",
+                      name: "name",
+                      required: "required",
+                      sqlName: "sql_name",
                     }),
                   ),
                   Schema.Struct({
@@ -4936,9 +4888,10 @@ export const listStreams: API.PaginatedOperationMethod<
                 }
               | {
                   type: "json";
-                  decimalEncoding?: "number" | "string" | "bytes" | null;
-                  timestampFormat?: "rfc3339" | "unix_millis" | null;
-                  unstructured?: boolean | null;
+                  metadataKey?: string | null;
+                  name?: string | null;
+                  required?: boolean | null;
+                  sqlName?: string | null;
                 }
               | unknown
             )[]
@@ -4946,9 +4899,10 @@ export const listStreams: API.PaginatedOperationMethod<
         format?:
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | {
               type: "parquet";
@@ -5067,18 +5021,20 @@ export interface CreateStreamRequest {
         }
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes";
-          timestampFormat?: "rfc3339" | "unix_millis";
-          unstructured?: boolean;
+          metadataKey?: string | null;
+          name?: string;
+          required?: boolean;
+          sqlName?: string;
         }
       | unknown
     )[];
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes";
-          timestampFormat?: "rfc3339" | "unix_millis";
-          unstructured?: boolean;
+          metadataKey?: string | null;
+          name?: string;
+          required?: boolean;
+          sqlName?: string;
         }
       | {
           type: "parquet";
@@ -5293,19 +5249,19 @@ export const CreateStreamRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             ),
             Schema.Struct({
               type: Schema.Literal("json"),
-              decimalEncoding: Schema.optional(
-                Schema.Literals(["number", "string", "bytes"]),
+              metadataKey: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
               ),
-              timestampFormat: Schema.optional(
-                Schema.Literals(["rfc3339", "unix_millis"]),
-              ),
-              unstructured: Schema.optional(Schema.Boolean),
+              name: Schema.optional(Schema.String),
+              required: Schema.optional(Schema.Boolean),
+              sqlName: Schema.optional(Schema.String),
             }).pipe(
               Schema.encodeKeys({
                 type: "type",
-                decimalEncoding: "decimal_encoding",
-                timestampFormat: "timestamp_format",
-                unstructured: "unstructured",
+                metadataKey: "metadata_key",
+                name: "name",
+                required: "required",
+                sqlName: "sql_name",
               }),
             ),
             Schema.Unknown,
@@ -5316,19 +5272,19 @@ export const CreateStreamRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         Schema.Union([
           Schema.Struct({
             type: Schema.Literal("json"),
-            decimalEncoding: Schema.optional(
-              Schema.Literals(["number", "string", "bytes"]),
+            metadataKey: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
             ),
-            timestampFormat: Schema.optional(
-              Schema.Literals(["rfc3339", "unix_millis"]),
-            ),
-            unstructured: Schema.optional(Schema.Boolean),
+            name: Schema.optional(Schema.String),
+            required: Schema.optional(Schema.Boolean),
+            sqlName: Schema.optional(Schema.String),
           }).pipe(
             Schema.encodeKeys({
               type: "type",
-              decimalEncoding: "decimal_encoding",
-              timestampFormat: "timestamp_format",
-              unstructured: "unstructured",
+              metadataKey: "metadata_key",
+              name: "name",
+              required: "required",
+              sqlName: "sql_name",
             }),
           ),
           Schema.Struct({
@@ -5479,9 +5435,10 @@ export interface CreateStreamResponse {
             }
           | {
               type: "json";
-              decimalEncoding?: "number" | "string" | "bytes" | null;
-              timestampFormat?: "rfc3339" | "unix_millis" | null;
-              unstructured?: boolean | null;
+              metadataKey?: string | null;
+              name?: string | null;
+              required?: boolean | null;
+              sqlName?: string | null;
             }
           | unknown
         )[]
@@ -5489,9 +5446,10 @@ export interface CreateStreamResponse {
     format?:
       | {
           type: "json";
-          decimalEncoding?: "number" | "string" | "bytes" | null;
-          timestampFormat?: "rfc3339" | "unix_millis" | null;
-          unstructured?: boolean | null;
+          metadataKey?: string | null;
+          name?: string | null;
+          required?: boolean | null;
+          sqlName?: string | null;
         }
       | {
           type: "parquet";
@@ -5794,27 +5752,25 @@ export const CreateStreamResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 ),
                 Schema.Struct({
                   type: Schema.Literal("json"),
-                  decimalEncoding: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["number", "string", "bytes"]),
-                      Schema.Null,
-                    ]),
+                  metadataKey: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  timestampFormat: Schema.optional(
-                    Schema.Union([
-                      Schema.Literals(["rfc3339", "unix_millis"]),
-                      Schema.Null,
-                    ]),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
-                  unstructured: Schema.optional(
+                  required: Schema.optional(
                     Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  sqlName: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
                   ),
                 }).pipe(
                   Schema.encodeKeys({
                     type: "type",
-                    decimalEncoding: "decimal_encoding",
-                    timestampFormat: "timestamp_format",
-                    unstructured: "unstructured",
+                    metadataKey: "metadata_key",
+                    name: "name",
+                    required: "required",
+                    sqlName: "sql_name",
                   }),
                 ),
                 Schema.Unknown,
@@ -5828,27 +5784,25 @@ export const CreateStreamResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Union([
               Schema.Struct({
                 type: Schema.Literal("json"),
-                decimalEncoding: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["number", "string", "bytes"]),
-                    Schema.Null,
-                  ]),
+                metadataKey: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                timestampFormat: Schema.optional(
-                  Schema.Union([
-                    Schema.Literals(["rfc3339", "unix_millis"]),
-                    Schema.Null,
-                  ]),
+                name: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
-                unstructured: Schema.optional(
+                required: Schema.optional(
                   Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                sqlName: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
                 ),
               }).pipe(
                 Schema.encodeKeys({
                   type: "type",
-                  decimalEncoding: "decimal_encoding",
-                  timestampFormat: "timestamp_format",
-                  unstructured: "unstructured",
+                  metadataKey: "metadata_key",
+                  name: "name",
+                  required: "required",
+                  sqlName: "sql_name",
                 }),
               ),
               Schema.Struct({

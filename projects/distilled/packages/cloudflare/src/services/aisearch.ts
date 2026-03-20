@@ -498,7 +498,10 @@ export const ListInstancesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                     Schema.Union([
                       Schema.Struct({
                         includeHeaders: Schema.optional(
-                          Schema.Union([Schema.Struct({}), Schema.Null]),
+                          Schema.Union([
+                            Schema.Record(Schema.String, Schema.Unknown),
+                            Schema.Null,
+                          ]),
                         ),
                         includeImages: Schema.optional(
                           Schema.Union([Schema.Boolean, Schema.Null]),
@@ -1173,7 +1176,9 @@ export const CreateInstanceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         Schema.Struct({
           parseOptions: Schema.optional(
             Schema.Struct({
-              includeHeaders: Schema.optional(Schema.Struct({})),
+              includeHeaders: Schema.optional(
+                Schema.Record(Schema.String, Schema.Unknown),
+              ),
               includeImages: Schema.optional(Schema.Boolean),
               useBrowserRendering: Schema.optional(Schema.Boolean),
             }).pipe(
@@ -1660,7 +1665,10 @@ export const CreateInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                   Schema.Union([
                     Schema.Struct({
                       includeHeaders: Schema.optional(
-                        Schema.Union([Schema.Struct({}), Schema.Null]),
+                        Schema.Union([
+                          Schema.Record(Schema.String, Schema.Unknown),
+                          Schema.Null,
+                        ]),
                       ),
                       includeImages: Schema.optional(
                         Schema.Union([Schema.Boolean, Schema.Null]),
@@ -2178,7 +2186,9 @@ export const UpdateInstanceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         Schema.Struct({
           parseOptions: Schema.optional(
             Schema.Struct({
-              includeHeaders: Schema.optional(Schema.Struct({})),
+              includeHeaders: Schema.optional(
+                Schema.Record(Schema.String, Schema.Unknown),
+              ),
               includeImages: Schema.optional(Schema.Boolean),
               useBrowserRendering: Schema.optional(Schema.Boolean),
             }).pipe(
@@ -2705,7 +2715,10 @@ export const UpdateInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                   Schema.Union([
                     Schema.Struct({
                       includeHeaders: Schema.optional(
-                        Schema.Union([Schema.Struct({}), Schema.Null]),
+                        Schema.Union([
+                          Schema.Record(Schema.String, Schema.Unknown),
+                          Schema.Null,
+                        ]),
                       ),
                       includeImages: Schema.optional(
                         Schema.Union([Schema.Boolean, Schema.Null]),
@@ -3317,7 +3330,10 @@ export const DeleteInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                   Schema.Union([
                     Schema.Struct({
                       includeHeaders: Schema.optional(
-                        Schema.Union([Schema.Struct({}), Schema.Null]),
+                        Schema.Union([
+                          Schema.Record(Schema.String, Schema.Unknown),
+                          Schema.Null,
+                        ]),
                       ),
                       includeImages: Schema.optional(
                         Schema.Union([Schema.Boolean, Schema.Null]),
@@ -3926,7 +3942,10 @@ export const ReadInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
                 Schema.Union([
                   Schema.Struct({
                     includeHeaders: Schema.optional(
-                      Schema.Union([Schema.Struct({}), Schema.Null]),
+                      Schema.Union([
+                        Schema.Record(Schema.String, Schema.Unknown),
+                        Schema.Null,
+                      ]),
                     ),
                     includeImages: Schema.optional(
                       Schema.Union([Schema.Boolean, Schema.Null]),
@@ -4137,10 +4156,10 @@ export const StatsInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   completed: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
   error: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
   fileEmbedErrors: Schema.optional(
-    Schema.Union([Schema.Struct({}), Schema.Null]),
+    Schema.Union([Schema.Record(Schema.String, Schema.Unknown), Schema.Null]),
   ),
   indexSourceErrors: Schema.optional(
-    Schema.Union([Schema.Struct({}), Schema.Null]),
+    Schema.Union([Schema.Record(Schema.String, Schema.Unknown), Schema.Null]),
   ),
   lastActivity: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   queued: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),

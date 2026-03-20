@@ -160,7 +160,7 @@ export const UserAgentAiBotSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UserAgentAiBotSummaryResponse>;
@@ -685,7 +685,7 @@ export const ModelAiInferenceSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ModelAiInferenceSummaryResponse>;
@@ -846,7 +846,7 @@ export const TaskAiInferenceSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<TaskAiInferenceSummaryResponse>;
@@ -1382,7 +1382,7 @@ export const SummaryAiTimeseriesGroupResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryAiTimeseriesGroupResponse>;
@@ -4705,7 +4705,7 @@ export const IndustryAttackLayer3SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<IndustryAttackLayer3SummaryResponse>;
@@ -5034,7 +5034,7 @@ export const VectorAttackLayer3SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<VectorAttackLayer3SummaryResponse>;
@@ -5195,7 +5195,7 @@ export const VerticalAttackLayer3SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<VerticalAttackLayer3SummaryResponse>;
@@ -7560,7 +7560,7 @@ export const IndustryAttackLayer7SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<IndustryAttackLayer7SummaryResponse>;
@@ -7721,7 +7721,7 @@ export const VerticalAttackLayer7SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<VerticalAttackLayer7SummaryResponse>;
@@ -11138,7 +11138,7 @@ export const SummaryBotResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       }),
     ),
   }),
-  summary_0: Schema.Struct({}),
+  summary_0: Schema.Record(Schema.String, Schema.Unknown),
 }).pipe(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<SummaryBotResponse>;
@@ -11492,7 +11492,7 @@ export const SummaryBotWebCrawlerResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryBotWebCrawlerResponse>;
@@ -12919,7 +12919,7 @@ export const ResponseCodeDnsSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ResponseCodeDnsSummaryResponse>;
@@ -13267,7 +13267,7 @@ export const ResponseCodesAs112SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ResponseCodesAs112SummaryResponse>;
@@ -13667,7 +13667,7 @@ export const SummaryCtResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ),
   }),
   summary_0: Schema.Union([
-    Schema.Struct({}),
+    Schema.Record(Schema.String, Schema.Unknown),
     Schema.Struct({
       rfc6962: Schema.String,
       static: Schema.String,
@@ -14353,10 +14353,10 @@ export const GetDatasetRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.Http({ method: "GET", path: "/radar/datasets/{alias}" }),
 ) as unknown as Schema.Schema<GetDatasetRequest>;
 
-export type GetDatasetResponse = unknown;
+export type GetDatasetResponse = string;
 
 export const GetDatasetResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<GetDatasetResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.String as unknown as Schema.Schema<GetDatasetResponse>;
 
 export type GetDatasetError = DefaultErrors;
 
@@ -16132,7 +16132,7 @@ export interface ArcEmailRoutingSummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const ArcEmailRoutingSummaryResponse =
@@ -16209,7 +16209,11 @@ export const ArcEmailRoutingSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ArcEmailRoutingSummaryResponse>;
@@ -16293,7 +16297,7 @@ export interface DkimEmailRoutingSummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const DkimEmailRoutingSummaryResponse =
@@ -16370,7 +16374,11 @@ export const DkimEmailRoutingSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DkimEmailRoutingSummaryResponse>;
@@ -16454,7 +16462,7 @@ export interface DmarcEmailRoutingSummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const DmarcEmailRoutingSummaryResponse =
@@ -16531,7 +16539,11 @@ export const DmarcEmailRoutingSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DmarcEmailRoutingSummaryResponse>;
@@ -16784,7 +16796,7 @@ export interface SpfEmailRoutingSummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const SpfEmailRoutingSummaryResponse =
@@ -16861,7 +16873,11 @@ export const SpfEmailRoutingSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SpfEmailRoutingSummaryResponse>;
@@ -16958,7 +16974,7 @@ export interface ArcEmailRoutingTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const ArcEmailRoutingTimeseriesGroupResponse =
@@ -17042,7 +17058,11 @@ export const ArcEmailRoutingTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ArcEmailRoutingTimeseriesGroupResponse>;
@@ -17135,7 +17155,7 @@ export interface DkimEmailRoutingTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const DkimEmailRoutingTimeseriesGroupResponse =
@@ -17219,7 +17239,11 @@ export const DkimEmailRoutingTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DkimEmailRoutingTimeseriesGroupResponse>;
@@ -17312,7 +17336,7 @@ export interface DmarcEmailRoutingTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const DmarcEmailRoutingTimeseriesGroupResponse =
@@ -17396,7 +17420,11 @@ export const DmarcEmailRoutingTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DmarcEmailRoutingTimeseriesGroupResponse>;
@@ -17674,7 +17702,7 @@ export interface SpfEmailRoutingTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const SpfEmailRoutingTimeseriesGroupResponse =
@@ -17758,7 +17786,11 @@ export const SpfEmailRoutingTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SpfEmailRoutingTimeseriesGroupResponse>;
@@ -17846,7 +17878,7 @@ export interface ArcEmailSecuritySummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const ArcEmailSecuritySummaryResponse =
@@ -17923,7 +17955,11 @@ export const ArcEmailSecuritySummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ArcEmailSecuritySummaryResponse>;
@@ -18007,7 +18043,7 @@ export interface DkimEmailSecuritySummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const DkimEmailSecuritySummaryResponse =
@@ -18084,7 +18120,11 @@ export const DkimEmailSecuritySummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DkimEmailSecuritySummaryResponse>;
@@ -18168,7 +18208,7 @@ export interface DmarcEmailSecuritySummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const DmarcEmailSecuritySummaryResponse =
@@ -18245,7 +18285,11 @@ export const DmarcEmailSecuritySummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DmarcEmailSecuritySummaryResponse>;
@@ -18662,7 +18706,7 @@ export interface SpfEmailSecuritySummaryResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  summary_0: unknown;
+  summary_0: { fail: string; none: string; pass: string };
 }
 
 export const SpfEmailSecuritySummaryResponse =
@@ -18739,7 +18783,11 @@ export const SpfEmailSecuritySummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Unknown,
+    summary_0: Schema.Struct({
+      fail: Schema.String,
+      none: Schema.String,
+      pass: Schema.String,
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SpfEmailSecuritySummaryResponse>;
@@ -19000,7 +19048,7 @@ export interface ArcEmailSecurityTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const ArcEmailSecurityTimeseriesGroupResponse =
@@ -19084,7 +19132,11 @@ export const ArcEmailSecurityTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ArcEmailSecurityTimeseriesGroupResponse>;
@@ -19177,7 +19229,7 @@ export interface DkimEmailSecurityTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const DkimEmailSecurityTimeseriesGroupResponse =
@@ -19261,7 +19313,11 @@ export const DkimEmailSecurityTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DkimEmailSecurityTimeseriesGroupResponse>;
@@ -19354,7 +19410,7 @@ export interface DmarcEmailSecurityTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const DmarcEmailSecurityTimeseriesGroupResponse =
@@ -19438,7 +19494,11 @@ export const DmarcEmailSecurityTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DmarcEmailSecurityTimeseriesGroupResponse>;
@@ -19896,7 +19956,7 @@ export interface SpfEmailSecurityTimeseriesGroupResponse {
       | "RATIO";
     units: { name: string; value: string }[];
   };
-  serie_0: unknown;
+  serie_0: { fail: string[]; none: string[]; pass: string[] };
 }
 
 export const SpfEmailSecurityTimeseriesGroupResponse =
@@ -19980,7 +20040,11 @@ export const SpfEmailSecurityTimeseriesGroupResponse =
         }),
       ),
     }),
-    serie_0: Schema.Unknown,
+    serie_0: Schema.Struct({
+      fail: Schema.Array(Schema.String),
+      none: Schema.Array(Schema.String),
+      pass: Schema.Array(Schema.String),
+    }).pipe(Schema.encodeKeys({ fail: "FAIL", none: "NONE", pass: "PASS" })),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SpfEmailSecurityTimeseriesGroupResponse>;
@@ -30787,7 +30851,7 @@ export const HttpMethodAttackLayer7SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<HttpMethodAttackLayer7SummaryResponse>;
@@ -31835,7 +31899,7 @@ export const MitigationProductAttackLayer7SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<MitigationProductAttackLayer7SummaryResponse>;
@@ -34503,7 +34567,7 @@ export const ManagedRulesAttackLayer7SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ManagedRulesAttackLayer7SummaryResponse>;
@@ -35778,7 +35842,7 @@ export const QueryTypeAs112SummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<QueryTypeAs112SummaryResponse>;
@@ -36126,7 +36190,7 @@ export const QueryTypeDnsSummaryResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<QueryTypeDnsSummaryResponse>;
@@ -36839,7 +36903,7 @@ export const SummaryV2AiBotResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   },
 ).pipe(
   T.ResponsePath("result"),
@@ -37009,7 +37073,7 @@ export const SummaryV2AiInferenceResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2AiInferenceResponse>;
@@ -37190,7 +37254,7 @@ export const SummaryV2As112Response = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   },
 ).pipe(
   T.ResponsePath("result"),
@@ -37378,7 +37442,7 @@ export const SummaryV2AttackLayer3Response =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2AttackLayer3Response>;
@@ -37565,7 +37629,7 @@ export const SummaryV2AttackLayer7Response =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2AttackLayer7Response>;
@@ -37757,7 +37821,7 @@ export const SummaryV2DnsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       }),
     ),
   }),
-  summary_0: Schema.Struct({}),
+  summary_0: Schema.Record(Schema.String, Schema.Unknown),
 }).pipe(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<SummaryV2DnsResponse>;
@@ -37933,7 +37997,7 @@ export const SummaryV2EmailRoutingResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2EmailRoutingResponse>;
@@ -38124,7 +38188,7 @@ export const SummaryV2EmailSecurityResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2EmailSecurityResponse>;
@@ -38314,7 +38378,7 @@ export const SummaryV2HttpResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       }),
     ),
   }),
-  summary_0: Schema.Struct({}),
+  summary_0: Schema.Record(Schema.String, Schema.Unknown),
 }).pipe(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<SummaryV2HttpResponse>;
@@ -38488,7 +38552,7 @@ export const SummaryV2LeakedCredentialResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2LeakedCredentialResponse>;
@@ -38659,7 +38723,7 @@ export const SummaryV2NetflowResponse =
         }),
       ),
     }),
-    summary_0: Schema.Struct({}),
+    summary_0: Schema.Record(Schema.String, Schema.Unknown),
   }).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<SummaryV2NetflowResponse>;

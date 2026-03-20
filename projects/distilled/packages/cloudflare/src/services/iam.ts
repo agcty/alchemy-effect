@@ -991,8 +991,21 @@ export interface GetUserGroupResponse {
     | {
         id?: string | null;
         access?: "allow" | "deny" | null;
-        permissionGroups?: { id: string }[] | null;
-        resourceGroups?: { id: string }[] | null;
+        permissionGroups?:
+          | {
+              id: string;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
+        resourceGroups?:
+          | {
+              id: string;
+              scope: unknown;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
       }[]
     | null;
 }
@@ -1015,6 +1028,22 @@ export const GetUserGroupResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
               Schema.Array(
                 Schema.Struct({
                   id: Schema.String,
+                  meta: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        key: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                        value: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
                 }),
               ),
               Schema.Null,
@@ -1025,6 +1054,23 @@ export const GetUserGroupResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
               Schema.Array(
                 Schema.Struct({
                   id: Schema.String,
+                  scope: Schema.Unknown,
+                  meta: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        key: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                        value: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  name: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
                 }),
               ),
               Schema.Null,
@@ -1102,17 +1148,30 @@ export interface ListUserGroupsResponse {
       | {
           id?: string | null;
           access?: "allow" | "deny" | null;
-          permissionGroups?: { id: string }[] | null;
-          resourceGroups?: { id: string }[] | null;
+          permissionGroups?:
+            | {
+                id: string;
+                meta?: { key?: string | null; value?: string | null } | null;
+                name?: string | null;
+              }[]
+            | null;
+          resourceGroups?:
+            | {
+                id: string;
+                scope: unknown;
+                meta?: { key?: string | null; value?: string | null } | null;
+                name?: string | null;
+              }[]
+            | null;
         }[]
       | null;
   }[];
-  resultInfo: {
+  resultInfo?: {
     count?: number | null;
     page?: number | null;
     perPage?: number | null;
     totalCount?: number | null;
-  };
+  } | null;
 }
 
 export const ListUserGroupsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -1139,6 +1198,22 @@ export const ListUserGroupsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                     Schema.Array(
                       Schema.Struct({
                         id: Schema.String,
+                        meta: Schema.optional(
+                          Schema.Union([
+                            Schema.Struct({
+                              key: Schema.optional(
+                                Schema.Union([Schema.String, Schema.Null]),
+                              ),
+                              value: Schema.optional(
+                                Schema.Union([Schema.String, Schema.Null]),
+                              ),
+                            }),
+                            Schema.Null,
+                          ]),
+                        ),
+                        name: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
                       }),
                     ),
                     Schema.Null,
@@ -1149,6 +1224,23 @@ export const ListUserGroupsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                     Schema.Array(
                       Schema.Struct({
                         id: Schema.String,
+                        scope: Schema.Unknown,
+                        meta: Schema.optional(
+                          Schema.Union([
+                            Schema.Struct({
+                              key: Schema.optional(
+                                Schema.Union([Schema.String, Schema.Null]),
+                              ),
+                              value: Schema.optional(
+                                Schema.Union([Schema.String, Schema.Null]),
+                              ),
+                            }),
+                            Schema.Null,
+                          ]),
+                        ),
+                        name: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
                       }),
                     ),
                     Schema.Null,
@@ -1176,18 +1268,25 @@ export const ListUserGroupsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         }),
       ),
     ),
-    resultInfo: Schema.Struct({
-      count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      page: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      perPage: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      totalCount: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-    }).pipe(
-      Schema.encodeKeys({
-        count: "count",
-        page: "page",
-        perPage: "per_page",
-        totalCount: "total_count",
-      }),
+    resultInfo: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          page: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          perPage: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          totalCount: Schema.optional(
+            Schema.Union([Schema.Number, Schema.Null]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            count: "count",
+            page: "page",
+            perPage: "per_page",
+            totalCount: "total_count",
+          }),
+        ),
+        Schema.Null,
+      ]),
     ),
   },
 ).pipe(
@@ -1219,8 +1318,21 @@ export const listUserGroups: API.PaginatedOperationMethod<
         | {
             id?: string | null;
             access?: "allow" | "deny" | null;
-            permissionGroups?: { id: string }[] | null;
-            resourceGroups?: { id: string }[] | null;
+            permissionGroups?:
+              | {
+                  id: string;
+                  meta?: { key?: string | null; value?: string | null } | null;
+                  name?: string | null;
+                }[]
+              | null;
+            resourceGroups?:
+              | {
+                  id: string;
+                  scope: { key: string; objects: { key: string }[] }[];
+                  meta?: { key?: string | null; value?: string | null } | null;
+                  name?: string | null;
+                }[]
+              | null;
           }[]
         | null;
     },
@@ -1297,8 +1409,21 @@ export interface CreateUserGroupResponse {
     | {
         id?: string | null;
         access?: "allow" | "deny" | null;
-        permissionGroups?: { id: string }[] | null;
-        resourceGroups?: { id: string }[] | null;
+        permissionGroups?:
+          | {
+              id: string;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
+        resourceGroups?:
+          | {
+              id: string;
+              scope: unknown;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
       }[]
     | null;
 }
@@ -1322,6 +1447,22 @@ export const CreateUserGroupResponse =
                 Schema.Array(
                   Schema.Struct({
                     id: Schema.String,
+                    meta: Schema.optional(
+                      Schema.Union([
+                        Schema.Struct({
+                          key: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          value: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                        Schema.Null,
+                      ]),
+                    ),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
                   }),
                 ),
                 Schema.Null,
@@ -1332,6 +1473,23 @@ export const CreateUserGroupResponse =
                 Schema.Array(
                   Schema.Struct({
                     id: Schema.String,
+                    scope: Schema.Unknown,
+                    meta: Schema.optional(
+                      Schema.Union([
+                        Schema.Struct({
+                          key: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          value: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                        Schema.Null,
+                      ]),
+                    ),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
                   }),
                 ),
                 Schema.Null,
@@ -1443,8 +1601,21 @@ export interface UpdateUserGroupResponse {
     | {
         id?: string | null;
         access?: "allow" | "deny" | null;
-        permissionGroups?: { id: string }[] | null;
-        resourceGroups?: { id: string }[] | null;
+        permissionGroups?:
+          | {
+              id: string;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
+        resourceGroups?:
+          | {
+              id: string;
+              scope: unknown;
+              meta?: { key?: string | null; value?: string | null } | null;
+              name?: string | null;
+            }[]
+          | null;
       }[]
     | null;
 }
@@ -1468,6 +1639,22 @@ export const UpdateUserGroupResponse =
                 Schema.Array(
                   Schema.Struct({
                     id: Schema.String,
+                    meta: Schema.optional(
+                      Schema.Union([
+                        Schema.Struct({
+                          key: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          value: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                        Schema.Null,
+                      ]),
+                    ),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
                   }),
                 ),
                 Schema.Null,
@@ -1478,6 +1665,23 @@ export const UpdateUserGroupResponse =
                 Schema.Array(
                   Schema.Struct({
                     id: Schema.String,
+                    scope: Schema.Unknown,
+                    meta: Schema.optional(
+                      Schema.Union([
+                        Schema.Struct({
+                          key: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          value: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                        Schema.Null,
+                      ]),
+                    ),
+                    name: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
                   }),
                 ),
                 Schema.Null,

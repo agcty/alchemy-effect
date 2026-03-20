@@ -28,10 +28,11 @@ export const GetAsnRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.Http({ method: "GET", path: "/accounts/{account_id}/intel/asn/{asn}" }),
 ) as unknown as Schema.Schema<GetAsnRequest>;
 
-export type GetAsnResponse = unknown;
+export type GetAsnResponse = number;
 
-export const GetAsnResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<GetAsnResponse>;
+export const GetAsnResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Number.pipe(
+  T.ResponsePath("result"),
+) as unknown as Schema.Schema<GetAsnResponse>;
 
 export type GetAsnError = DefaultErrors;
 
@@ -2069,10 +2070,10 @@ export const DataIndicatorFeedRequest =
     }),
   ) as unknown as Schema.Schema<DataIndicatorFeedRequest>;
 
-export type DataIndicatorFeedResponse = unknown;
+export type DataIndicatorFeedResponse = string;
 
 export const DataIndicatorFeedResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<DataIndicatorFeedResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.String as unknown as Schema.Schema<DataIndicatorFeedResponse>;
 
 export type DataIndicatorFeedError = DefaultErrors;
 

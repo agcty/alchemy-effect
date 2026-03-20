@@ -248,10 +248,51 @@ export const GetDatabaseRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   }),
 ) as unknown as Schema.Schema<GetDatabaseRequest>;
 
-export type GetDatabaseResponse = unknown;
+export interface GetDatabaseResponse {
+  /** Specifies the timestamp the resource was created as an ISO8601 string. */
+  createdAt?: string | null;
+  /** The D1 database's size, in bytes. */
+  fileSize?: number | null;
+  /** D1 database name. */
+  name?: string | null;
+  numTables?: number | null;
+  /** Configuration for D1 read replication. */
+  readReplication?: { mode: "auto" | "disabled" } | null;
+  /** D1 database identifier (UUID). */
+  uuid?: string | null;
+  version?: string | null;
+}
 
-export const GetDatabaseResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<GetDatabaseResponse>;
+export const GetDatabaseResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  fileSize: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  numTables: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  readReplication: Schema.optional(
+    Schema.Union([
+      Schema.Struct({
+        mode: Schema.Literals(["auto", "disabled"]),
+      }),
+      Schema.Null,
+    ]),
+  ),
+  uuid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  version: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+})
+  .pipe(
+    Schema.encodeKeys({
+      createdAt: "created_at",
+      fileSize: "file_size",
+      name: "name",
+      numTables: "num_tables",
+      readReplication: "read_replication",
+      uuid: "uuid",
+      version: "version",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<GetDatabaseResponse>;
 
 export type GetDatabaseError =
   | DefaultErrors
@@ -297,10 +338,53 @@ export const CreateDatabaseRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.Http({ method: "POST", path: "/accounts/{account_id}/d1/database" }),
 ) as unknown as Schema.Schema<CreateDatabaseRequest>;
 
-export type CreateDatabaseResponse = unknown;
+export interface CreateDatabaseResponse {
+  /** Specifies the timestamp the resource was created as an ISO8601 string. */
+  createdAt?: string | null;
+  /** The D1 database's size, in bytes. */
+  fileSize?: number | null;
+  /** D1 database name. */
+  name?: string | null;
+  numTables?: number | null;
+  /** Configuration for D1 read replication. */
+  readReplication?: { mode: "auto" | "disabled" } | null;
+  /** D1 database identifier (UUID). */
+  uuid?: string | null;
+  version?: string | null;
+}
 
-export const CreateDatabaseResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<CreateDatabaseResponse>;
+export const CreateDatabaseResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    fileSize: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    numTables: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    readReplication: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          mode: Schema.Literals(["auto", "disabled"]),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    uuid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    version: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  },
+)
+  .pipe(
+    Schema.encodeKeys({
+      createdAt: "created_at",
+      fileSize: "file_size",
+      name: "name",
+      numTables: "num_tables",
+      readReplication: "read_replication",
+      uuid: "uuid",
+      version: "version",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<CreateDatabaseResponse>;
 
 export type CreateDatabaseError =
   | DefaultErrors
@@ -340,10 +424,53 @@ export const UpdateDatabaseRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   }),
 ) as unknown as Schema.Schema<UpdateDatabaseRequest>;
 
-export type UpdateDatabaseResponse = unknown;
+export interface UpdateDatabaseResponse {
+  /** Specifies the timestamp the resource was created as an ISO8601 string. */
+  createdAt?: string | null;
+  /** The D1 database's size, in bytes. */
+  fileSize?: number | null;
+  /** D1 database name. */
+  name?: string | null;
+  numTables?: number | null;
+  /** Configuration for D1 read replication. */
+  readReplication?: { mode: "auto" | "disabled" } | null;
+  /** D1 database identifier (UUID). */
+  uuid?: string | null;
+  version?: string | null;
+}
 
-export const UpdateDatabaseResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<UpdateDatabaseResponse>;
+export const UpdateDatabaseResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    fileSize: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    numTables: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    readReplication: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          mode: Schema.Literals(["auto", "disabled"]),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    uuid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    version: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  },
+)
+  .pipe(
+    Schema.encodeKeys({
+      createdAt: "created_at",
+      fileSize: "file_size",
+      name: "name",
+      numTables: "num_tables",
+      readReplication: "read_replication",
+      uuid: "uuid",
+      version: "version",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<UpdateDatabaseResponse>;
 
 export type UpdateDatabaseError =
   | DefaultErrors
@@ -386,10 +513,51 @@ export const PatchDatabaseRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   }),
 ) as unknown as Schema.Schema<PatchDatabaseRequest>;
 
-export type PatchDatabaseResponse = unknown;
+export interface PatchDatabaseResponse {
+  /** Specifies the timestamp the resource was created as an ISO8601 string. */
+  createdAt?: string | null;
+  /** The D1 database's size, in bytes. */
+  fileSize?: number | null;
+  /** D1 database name. */
+  name?: string | null;
+  numTables?: number | null;
+  /** Configuration for D1 read replication. */
+  readReplication?: { mode: "auto" | "disabled" } | null;
+  /** D1 database identifier (UUID). */
+  uuid?: string | null;
+  version?: string | null;
+}
 
-export const PatchDatabaseResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<PatchDatabaseResponse>;
+export const PatchDatabaseResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  fileSize: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  numTables: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  readReplication: Schema.optional(
+    Schema.Union([
+      Schema.Struct({
+        mode: Schema.Literals(["auto", "disabled"]),
+      }),
+      Schema.Null,
+    ]),
+  ),
+  uuid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  version: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+})
+  .pipe(
+    Schema.encodeKeys({
+      createdAt: "created_at",
+      fileSize: "file_size",
+      name: "name",
+      numTables: "num_tables",
+      readReplication: "read_replication",
+      uuid: "uuid",
+      version: "version",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<PatchDatabaseResponse>;
 
 export type PatchDatabaseError =
   | DefaultErrors

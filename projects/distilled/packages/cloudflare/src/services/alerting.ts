@@ -101,7 +101,7 @@ export const ListAvailableAlertsRequest =
 export type ListAvailableAlertsResponse = Record<string, unknown>;
 
 export const ListAvailableAlertsResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({}).pipe(
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Record(Schema.String, Schema.Unknown).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ListAvailableAlertsResponse>;
 
@@ -140,7 +140,7 @@ export const GetDestinationEligibleRequest =
 export type GetDestinationEligibleResponse = Record<string, unknown>;
 
 export const GetDestinationEligibleResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({}).pipe(
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Record(Schema.String, Schema.Unknown).pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetDestinationEligibleResponse>;
 

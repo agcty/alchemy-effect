@@ -194,7 +194,7 @@ export interface GetAddressMapResponse {
   /** Whether the Address Map is enabled or not. Cloudflare's DNS will not respond with IP addresses on an Address Map until the map is enabled. */
   enabled?: boolean | null;
   /** The set of IPs on the Address Map. */
-  ips?: unknown | null;
+  ips?: { createdAt?: string | null; ip?: string | null }[] | null;
   /** Zones and Accounts which will be assigned IPs on this Address Map. A zone membership will take priority over an account membership. */
   memberships?:
     | {
@@ -215,7 +215,19 @@ export const GetAddressMapResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   defaultSni: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
-  ips: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
+  ips: Schema.optional(
+    Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          createdAt: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          ip: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }).pipe(Schema.encodeKeys({ createdAt: "created_at", ip: "ip" })),
+      ),
+      Schema.Null,
+    ]),
+  ),
   memberships: Schema.optional(
     Schema.Union([
       Schema.Array(
@@ -428,7 +440,7 @@ export interface CreateAddressMapResponse {
   /** Whether the Address Map is enabled or not. Cloudflare's DNS will not respond with IP addresses on an Address Map until the map is enabled. */
   enabled?: boolean | null;
   /** The set of IPs on the Address Map. */
-  ips?: unknown | null;
+  ips?: { createdAt?: string | null; ip?: string | null }[] | null;
   /** Zones and Accounts which will be assigned IPs on this Address Map. A zone membership will take priority over an account membership. */
   memberships?:
     | {
@@ -450,7 +462,19 @@ export const CreateAddressMapResponse =
     defaultSni: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
-    ips: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
+    ips: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            createdAt: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            ip: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          }).pipe(Schema.encodeKeys({ createdAt: "created_at", ip: "ip" })),
+        ),
+        Schema.Null,
+      ]),
+    ),
     memberships: Schema.optional(
       Schema.Union([
         Schema.Array(

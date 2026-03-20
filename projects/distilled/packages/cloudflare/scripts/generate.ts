@@ -1022,7 +1022,7 @@ function typeInfoToSchema(
           : "";
         return `Schema.Struct({\n${props}\n${indent}})${encodeKeysPipe}`;
       }
-      return "Schema.Struct({})";
+      return "Schema.Record(Schema.String, Schema.Unknown)";
 
     case "file":
       // File upload schema with trait annotation
@@ -1385,6 +1385,12 @@ function generateOperationSchemaAst(
     }
   }
 
+  if (!resolvedResponseType && op.responseType.kind !== "unknown") {
+    resolvedResponseType = resolveOperationTypeInfo(op, op.responseType);
+    isTypeAlias =
+      resolvedResponseType.kind !== "object" || !resolvedResponseType.properties;
+  }
+
   if (patch?.responseType === "array" && resolvedResponseType) {
     resolvedResponseType = {
       kind: "array",
@@ -1525,16 +1531,12 @@ function generateOperationSchemaAst(
     lines.push(`  ${errorTypeName},`);
     lines.push(`  Credentials | HttpClient.HttpClient`);
     lines.push(`> & {`);
-    lines.push(`  pages: (`);
-    lines.push(`    input: ${requestTypeName},`);
-    lines.push(`  ) => stream.Stream<`);
+    lines.push(`  pages: (input: ${requestTypeName}) => stream.Stream<`);
     lines.push(`    ${responseTypeName},`);
     lines.push(`    ${errorTypeName},`);
     lines.push(`    Credentials | HttpClient.HttpClient`);
     lines.push(`  >;`);
-    lines.push(`  items: (`);
-    lines.push(`    input: ${requestTypeName},`);
-    lines.push(`  ) => stream.Stream<`);
+    lines.push(`  items: (input: ${requestTypeName}) => stream.Stream<`);
     lines.push(`    ${itemTypeName},`);
     lines.push(`    ${errorTypeName},`);
     lines.push(`    Credentials | HttpClient.HttpClient`);
@@ -1817,16 +1819,12 @@ function generateOperationSchema(
     lines.push(`  ${errorTypeName},`);
     lines.push(`  Credentials | HttpClient.HttpClient`);
     lines.push(`> & {`);
-    lines.push(`  pages: (`);
-    lines.push(`    input: ${requestTypeName},`);
-    lines.push(`  ) => stream.Stream<`);
+    lines.push(`  pages: (input: ${requestTypeName}) => stream.Stream<`);
     lines.push(`    ${responseTypeName},`);
     lines.push(`    ${errorTypeName},`);
     lines.push(`    Credentials | HttpClient.HttpClient`);
     lines.push(`  >;`);
-    lines.push(`  items: (`);
-    lines.push(`    input: ${requestTypeName},`);
-    lines.push(`  ) => stream.Stream<`);
+    lines.push(`  items: (input: ${requestTypeName}) => stream.Stream<`);
     lines.push(`    ${itemTypeName},`);
     lines.push(`    ${errorTypeName},`);
     lines.push(`    Credentials | HttpClient.HttpClient`);

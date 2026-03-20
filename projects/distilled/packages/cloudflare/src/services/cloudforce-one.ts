@@ -1716,10 +1716,86 @@ export const GetRequestPriorityRequest =
     }),
   ) as unknown as Schema.Schema<GetRequestPriorityRequest>;
 
-export type GetRequestPriorityResponse = unknown;
+export interface GetRequestPriorityResponse {
+  /** UUID. */
+  id: string;
+  /** Request content. */
+  content: string;
+  created: string;
+  priority: string;
+  /** Requested information from request. */
+  request: string;
+  /** Brief description of the request. */
+  summary: string;
+  /** The CISA defined Traffic Light Protocol (TLP). */
+  tlp: "clear" | "amber" | "amber-strict" | "green" | "red";
+  updated: string;
+  completed?: string | null;
+  /** Tokens for the request messages. */
+  messageTokens?: number | null;
+  /** Readable Request ID. */
+  readableId?: string | null;
+  /** Request Status. */
+  status?:
+    | "open"
+    | "accepted"
+    | "reported"
+    | "approved"
+    | "completed"
+    | "declined"
+    | null;
+  /** Tokens for the request. */
+  tokens?: number | null;
+}
 
 export const GetRequestPriorityResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<GetRequestPriorityResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+    content: Schema.String,
+    created: Schema.String,
+    priority: Schema.String,
+    request: Schema.String,
+    summary: Schema.String,
+    tlp: Schema.Literals(["clear", "amber", "amber-strict", "green", "red"]),
+    updated: Schema.String,
+    completed: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    messageTokens: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    readableId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    status: Schema.optional(
+      Schema.Union([
+        Schema.Literals([
+          "open",
+          "accepted",
+          "reported",
+          "approved",
+          "completed",
+          "declined",
+        ]),
+        Schema.Null,
+      ]),
+    ),
+    tokens: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        content: "content",
+        created: "created",
+        priority: "priority",
+        request: "request",
+        summary: "summary",
+        tlp: "tlp",
+        updated: "updated",
+        completed: "completed",
+        messageTokens: "message_tokens",
+        readableId: "readable_id",
+        status: "status",
+        tokens: "tokens",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetRequestPriorityResponse>;
 
 export type GetRequestPriorityError = DefaultErrors;
 
@@ -1833,10 +1909,86 @@ export const UpdateRequestPriorityRequest =
     }),
   ) as unknown as Schema.Schema<UpdateRequestPriorityRequest>;
 
-export type UpdateRequestPriorityResponse = unknown;
+export interface UpdateRequestPriorityResponse {
+  /** UUID. */
+  id: string;
+  /** Request content. */
+  content: string;
+  created: string;
+  priority: string;
+  /** Requested information from request. */
+  request: string;
+  /** Brief description of the request. */
+  summary: string;
+  /** The CISA defined Traffic Light Protocol (TLP). */
+  tlp: "clear" | "amber" | "amber-strict" | "green" | "red";
+  updated: string;
+  completed?: string | null;
+  /** Tokens for the request messages. */
+  messageTokens?: number | null;
+  /** Readable Request ID. */
+  readableId?: string | null;
+  /** Request Status. */
+  status?:
+    | "open"
+    | "accepted"
+    | "reported"
+    | "approved"
+    | "completed"
+    | "declined"
+    | null;
+  /** Tokens for the request. */
+  tokens?: number | null;
+}
 
 export const UpdateRequestPriorityResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<UpdateRequestPriorityResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+    content: Schema.String,
+    created: Schema.String,
+    priority: Schema.String,
+    request: Schema.String,
+    summary: Schema.String,
+    tlp: Schema.Literals(["clear", "amber", "amber-strict", "green", "red"]),
+    updated: Schema.String,
+    completed: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    messageTokens: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    readableId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    status: Schema.optional(
+      Schema.Union([
+        Schema.Literals([
+          "open",
+          "accepted",
+          "reported",
+          "approved",
+          "completed",
+          "declined",
+        ]),
+        Schema.Null,
+      ]),
+    ),
+    tokens: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        content: "content",
+        created: "created",
+        priority: "priority",
+        request: "request",
+        summary: "summary",
+        tlp: "tlp",
+        updated: "updated",
+        completed: "completed",
+        messageTokens: "message_tokens",
+        readableId: "readable_id",
+        status: "status",
+        tokens: "tokens",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<UpdateRequestPriorityResponse>;
 
 export type UpdateRequestPriorityError = DefaultErrors;
 
@@ -1970,10 +2122,39 @@ export const QuotaRequestPriorityRequest =
     }),
   ) as unknown as Schema.Schema<QuotaRequestPriorityRequest>;
 
-export type QuotaRequestPriorityResponse = unknown;
+export interface QuotaRequestPriorityResponse {
+  /** Anniversary date is when annual quota limit is refreshed. */
+  anniversaryDate?: string | null;
+  /** Quarter anniversary date is when quota limit is refreshed each quarter. */
+  quarterAnniversaryDate?: string | null;
+  /** Tokens for the quarter. */
+  quota?: number | null;
+  /** Tokens remaining for the quarter. */
+  remaining?: number | null;
+}
 
 export const QuotaRequestPriorityResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<QuotaRequestPriorityResponse>;
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    anniversaryDate: Schema.optional(
+      Schema.Union([Schema.String, Schema.Null]),
+    ),
+    quarterAnniversaryDate: Schema.optional(
+      Schema.Union([Schema.String, Schema.Null]),
+    ),
+    quota: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    remaining: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        anniversaryDate: "anniversary_date",
+        quarterAnniversaryDate: "quarter_anniversary_date",
+        quota: "quota",
+        remaining: "remaining",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<QuotaRequestPriorityResponse>;
 
 export type QuotaRequestPriorityError = DefaultErrors;
 
@@ -2611,7 +2792,10 @@ export const CreateThreatEventRequest =
     date: Schema.String,
     event: Schema.String,
     raw: Schema.Struct({
-      data: Schema.Union([Schema.Struct({}), Schema.Null]),
+      data: Schema.Union([
+        Schema.Record(Schema.String, Schema.Unknown),
+        Schema.Null,
+      ]),
       source: Schema.optional(Schema.String),
       tlp: Schema.optional(Schema.String),
     }),
@@ -2767,7 +2951,12 @@ export const PatchThreatEventRequest =
     insight: Schema.optional(Schema.String),
     raw: Schema.optional(
       Schema.Struct({
-        data: Schema.optional(Schema.Union([Schema.Struct({}), Schema.Null])),
+        data: Schema.optional(
+          Schema.Union([
+            Schema.Record(Schema.String, Schema.Unknown),
+            Schema.Null,
+          ]),
+        ),
         source: Schema.optional(Schema.String),
         tlp: Schema.optional(Schema.String),
       }),
@@ -2935,7 +3124,10 @@ export const BulkCreateThreatEventsRequest =
         date: Schema.String,
         event: Schema.String,
         raw: Schema.Struct({
-          data: Schema.Union([Schema.Struct({}), Schema.Null]),
+          data: Schema.Union([
+            Schema.Record(Schema.String, Schema.Unknown),
+            Schema.Null,
+          ]),
           source: Schema.optional(Schema.String),
           tlp: Schema.optional(Schema.String),
         }),

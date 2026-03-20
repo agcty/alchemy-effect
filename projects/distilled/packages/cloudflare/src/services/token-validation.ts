@@ -753,7 +753,12 @@ export const PutConfigurationCredentialRequest =
   ) as unknown as Schema.Schema<PutConfigurationCredentialRequest>;
 
 export interface PutConfigurationCredentialResponse {
-  errors: unknown;
+  errors: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
   keys: (
     | {
         alg: "RS256" | "RS384" | "RS512" | "PS256" | "PS384" | "PS512";
@@ -779,14 +784,44 @@ export interface PutConfigurationCredentialResponse {
         y: string;
       }
   )[];
-  messages: unknown;
+  messages: {
+    code: number;
+    message: string;
+    documentationUrl?: string | null;
+    source?: { pointer?: string | null } | null;
+  }[];
   /** Whether the API call was successful. */
   success: true;
 }
 
 export const PutConfigurationCredentialResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    errors: Schema.Unknown,
+    errors: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
     keys: Schema.Array(
       Schema.Union([
         Schema.Struct({
@@ -821,7 +856,32 @@ export const PutConfigurationCredentialResponse =
         }),
       ]),
     ),
-    messages: Schema.Unknown,
+    messages: Schema.Array(
+      Schema.Struct({
+        code: Schema.Number,
+        message: Schema.String,
+        documentationUrl: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        source: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              pointer: Schema.optional(
+                Schema.Union([Schema.String, Schema.Null]),
+              ),
+            }),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          code: "code",
+          message: "message",
+          documentationUrl: "documentation_url",
+          source: "source",
+        }),
+      ),
+    ),
     success: Schema.Literal(true),
   }) as unknown as Schema.Schema<PutConfigurationCredentialResponse>;
 
