@@ -3,7 +3,7 @@ import * as NodePath from "@effect/platform-node/NodePath";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import * as Bundler from "../../src/core/Bundler.js";
+import * as Bundler from "../../src/Bundler.js";
 import { RolldownBundler } from "../../src/rolldown/index.js";
 import { BundleError } from "./bundle-error.js";
 import type { BundleConfig, BundleResult } from "./types.js";

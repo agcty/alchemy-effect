@@ -1,10 +1,10 @@
 import type { Plugin, RolldownOutput } from "rolldown";
-import type * as Bundler from "../core/Bundler.js";
-import type { Module } from "../core/Module.js";
+import type { Input } from "../Input.js";
+import type { Module } from "../Module.js";
 import { createAdditionalModulesPlugin } from "./additional-modules.js";
 import { cloudflareExternalsPlugin } from "./cloudflare-externals.js";
-import { createNodejsCompatPlugin } from "./nodejs-compat.js";
 import { createNodejsCompatWarningsPlugin } from "./nodejs-compat-warnings.js";
+import { createNodejsCompatPlugin } from "./nodejs-compat.js";
 import { wasmHelperPlugin } from "./wasm-helper.js";
 
 const hasNodejsCompat = (flags?: ReadonlyArray<string>) =>
@@ -20,7 +20,7 @@ export interface PluginChain {
   readonly getWarnings: () => ReadonlyArray<string>;
 }
 
-export async function createPluginChain(options: Bundler.Options): Promise<PluginChain> {
+export async function createPluginChain(options: Input): Promise<PluginChain> {
   const additionalModules = createAdditionalModulesPlugin(options.cloudflare?.additionalModules);
   const warnings = hasNodejsCompat(options.cloudflare?.compatibilityFlags)
     ? undefined

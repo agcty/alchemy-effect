@@ -5,8 +5,8 @@
  * fixture configs, bundler adapters, and the Miniflare runner.
  */
 
-import type { Rule } from "../../src/core/AdditionalModules.js";
-import type { Output } from "../../src/core/Output.js";
+import type { AdditionalModuleRule } from "../../src/Input.js";
+import type { Output } from "../../src/Output.js";
 
 /**
  * Configuration for bundling a fixture. Parsed from wrangler.jsonc.
@@ -23,7 +23,7 @@ export interface BundleConfig {
   /** esbuild define replacements */
   readonly define?: Record<string, string>;
   /** Module rules for non-JS imports */
-  readonly rules?: ReadonlyArray<Rule>;
+  readonly rules?: ReadonlyArray<AdditionalModuleRule>;
   /** Preserve original file names instead of hashing */
   readonly preserveFileNames?: boolean;
   /** Additional modules to mark as external */

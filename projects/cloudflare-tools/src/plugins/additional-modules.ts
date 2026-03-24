@@ -1,15 +1,12 @@
+import globToRegExp from "glob-to-regexp";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import type { ModuleType, Module as OutputModule } from "../core/Module.js";
-import { Module } from "../core/Module.js";
-import { hash } from "../core/Hash.js";
-import {
-  makeRuleFilters,
-  parseRules,
-  type Options as AdditionalModulesOptions,
-} from "../core/AdditionalModules.js";
 import type { OutputAsset, Plugin, RolldownOutput } from "rolldown";
 import { createUnplugin } from "unplugin";
+import { hash } from "../hash.js";
+import type { AdditionalModuleRule, AdditionalModulesOptions } from "../Input.js";
+import type { ModuleType } from "../Module.js";
+import { Module } from "../Module.js";
 
 const MODULE_ID_PREFIX = "__DISTILLED_CLOUDFLARE_MODULE__:";
 
@@ -23,7 +20,45 @@ interface TrackedModule {
 
 interface AdditionalModulesPluginOptions {
   readonly trackedModules: Map<string, TrackedModule>;
-  readonly ruleFilters: ReturnType<typeof makeRuleFilters>;
+  readonly ruleFilters: ReadonlyArray<{
+    readonly rule: AdditionalModuleRule;
+    readonly filters: ReadonlyArray<RegExp>;
+  }>;
+}
+
+const DEFAULT_MODULE_RULES: Array<AdditionalModuleRule> = [
+  { type: "Text", globs: ["**/*.txt", "**/*.html", "**/*.sql"] },
+  { type: "Data", globs: ["**/*.bin"] },
+  { type: "CompiledWasm", globs: ["**/*.wasm", "**/*.wasm?module"] },
+];
+
+function parseRules(
+  userRules: ReadonlyArray<AdditionalModuleRule> = [],
+): ReadonlyArray<AdditionalModuleRule> {
+  const rules: Array<AdditionalModuleRule> = [...userRules, ...DEFAULT_MODULE_RULES];
+
+  const completedRuleLocations: Record<string, number> = {};
+  const rulesToRemove: Array<AdditionalModuleRule> = [];
+  let index = 0;
+
+  for (const rule of rules) {
+    if (rule.type in completedRuleLocations) {
+      rulesToRemove.push(rule);
+    }
+    if (!(rule.type in completedRuleLocations) && rule.fallthrough !== true) {
+      completedRuleLocations[rule.type] = index;
+    }
+    index++;
+  }
+
+  for (const rule of rulesToRemove) {
+    const idx = rules.indexOf(rule);
+    if (idx !== -1) {
+      rules.splice(idx, 1);
+    }
+  }
+
+  return rules;
 }
 
 const additionalModules = createUnplugin<AdditionalModulesPluginOptions>((options) => ({
@@ -59,23 +94,25 @@ const additionalModules = createUnplugin<AdditionalModulesPluginOptions>((option
 
 export function createAdditionalModulesPlugin(options: AdditionalModulesOptions | undefined): {
   readonly plugins: ReadonlyArray<Plugin>;
-  readonly rewrite: (
-    output: RolldownOutput,
-    directory: string,
-  ) => Promise<ReadonlyArray<OutputModule>>;
+  readonly rewrite: (output: RolldownOutput, directory: string) => Promise<ReadonlyArray<Module>>;
 } {
   const trackedModules = new Map<string, TrackedModule>();
   const preserveFileNames = options?.preserveFileNames ?? false;
+
+  const ruleFilters = parseRules(options?.rules).map((rule) => ({
+    rule,
+    filters: rule.globs.map((glob) => globToRegExp(glob)),
+  }));
 
   return {
     plugins: [
       additionalModules.rolldown({
         trackedModules,
-        ruleFilters: makeRuleFilters(parseRules(options?.rules)),
+        ruleFilters,
       }) as Plugin,
     ],
     rewrite: async (output, directory) => {
-      const modules: Array<OutputModule> = [];
+      const modules: Array<Module> = [];
       const assets = new Map<string, TrackedModule>();
 
       for (const tracked of trackedModules.values()) {

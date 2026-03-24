@@ -2,13 +2,6 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
 import { readFile } from "node:fs/promises";
-import * as Bundler from "../core/Bundler.js";
-import { BuildError, SystemError, ValidationError } from "../core/Error.js";
-import { hash } from "../core/Hash.js";
-import { Module } from "../core/Module.js";
-import { Output } from "../core/Output.js";
-import { createPluginChain } from "../plugins/index.js";
-import { isSourceMapAsset } from "../plugins/additional-modules.js";
 import type {
   InputOptions,
   OutputAsset,
@@ -17,22 +10,18 @@ import type {
   RolldownOutput,
 } from "rolldown";
 import { rolldown } from "rolldown";
+import * as Bundler from "../Bundler.js";
+import type { Diagnostic, DiagnosticLocation } from "../Error.js";
+import { BuildError, SystemError, ValidationError } from "../Error.js";
+import { hash } from "../hash.js";
+import type { Input } from "../Input.js";
+import { Module } from "../Module.js";
+import { Output } from "../Output.js";
+import { isSourceMapAsset } from "../plugins/additional-modules.js";
+import { createPluginChain } from "../plugins/index.js";
 
 const hasNodejsCompat = (flags?: ReadonlyArray<string>) =>
   flags?.some((flag) => flag === "nodejs_compat" || flag === "nodejs_compat_v2") ?? false;
-
-interface DiagnosticLocation {
-  readonly file: string;
-  readonly line: number;
-  readonly column: number;
-}
-
-interface DiagnosticEntry {
-  readonly message: string;
-  readonly plugin: string | undefined;
-  readonly severity: "error" | "warning";
-  readonly location: DiagnosticLocation | undefined;
-}
 
 const toLocation = (value: unknown): DiagnosticLocation | undefined => {
   if (!value || typeof value !== "object") {
@@ -49,7 +38,7 @@ const toLocation = (value: unknown): DiagnosticLocation | undefined => {
   return { file, line, column };
 };
 
-const toDiagnostic = (value: unknown, severity: "error" | "warning"): DiagnosticEntry => {
+const toDiagnostic = (value: unknown, severity: "error" | "warning"): Diagnostic => {
   const record =
     value && typeof value === "object" ? (value as Record<string, unknown>) : undefined;
   return {
@@ -84,7 +73,7 @@ const toBuildError = (cause: unknown): BuildError =>
         ],
       });
 
-const deriveDefines = (options: Bundler.Options) => {
+const deriveDefines = (options: Input) => {
   const compatDate = options.cloudflare?.compatibilityDate;
   const nodejsCompat = hasNodejsCompat(options.cloudflare?.compatibilityFlags);
 
@@ -130,7 +119,7 @@ const createSourceMapModule = (asset: OutputAsset) => {
 };
 
 const createInputOptions = Effect.fn("createInputOptions")(function* (
-  options: Bundler.Options,
+  options: Input,
   path: Path.Path,
 ) {
   const rootDir = path.resolve(options.rootDir ?? process.cwd());

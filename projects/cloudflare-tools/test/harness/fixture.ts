@@ -7,7 +7,7 @@
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { Rule } from "../../src/core/AdditionalModules.js";
+import type { AdditionalModuleRule } from "../../src/Input.js";
 import type { BundleConfig, DurableObjectBinding } from "./types.js";
 
 /**
@@ -44,7 +44,7 @@ export function loadFixture(fixtureName: string): Effect.Effect<BundleConfig> {
     const compatibilityFlags = (config.compatibility_flags as Array<string>) ?? [];
 
     // Extract module rules
-    const rules = config.rules as Array<Rule> | undefined;
+    const rules = config.rules as Array<AdditionalModuleRule> | undefined;
 
     // Extract durable object bindings
     const doConfig = config.durable_objects as

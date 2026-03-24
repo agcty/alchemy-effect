@@ -1,19 +1,6 @@
-import type * as Effect from "effect/Effect";
-import * as ServiceMap from "effect/ServiceMap";
-import type * as AdditionalModules from "./AdditionalModules.js";
-import type { BundleError } from "./Error.js";
-import type { Output } from "./Output.js";
+import type { ModuleType } from "./Module.js";
 
-export interface Cloudflare {
-  /** Cloudflare Workers compatibility date. */
-  readonly compatibilityDate?: string;
-  /** Cloudflare Workers compatibility flags such as `nodejs_compat`. */
-  readonly compatibilityFlags?: ReadonlyArray<string>;
-  /** Rules for additional non-JS modules. */
-  readonly additionalModules?: AdditionalModules.Options;
-}
-
-export interface Options {
+export interface Input {
   /** The absolute or relative path to the Worker entry module. */
   readonly main: string;
   /** The project root. Defaults to the current working directory. */
@@ -36,9 +23,22 @@ export interface Options {
   readonly cloudflare?: Cloudflare;
 }
 
-export class Bundler extends ServiceMap.Service<
-  Bundler,
-  {
-    readonly build: (options: Options) => Effect.Effect<Output, BundleError>;
-  }
->()("@distilled.cloud/cloudflare-bundler/Bundler") {}
+export interface Cloudflare {
+  /** Cloudflare Workers compatibility date. */
+  readonly compatibilityDate?: string;
+  /** Cloudflare Workers compatibility flags such as `nodejs_compat`. */
+  readonly compatibilityFlags?: ReadonlyArray<string>;
+  /** Rules for additional non-JS modules. */
+  readonly additionalModules?: AdditionalModulesOptions;
+}
+
+export interface AdditionalModulesOptions {
+  readonly rules?: ReadonlyArray<AdditionalModuleRule>;
+  readonly preserveFileNames?: boolean;
+}
+
+export interface AdditionalModuleRule {
+  readonly type: ModuleType;
+  readonly globs: ReadonlyArray<string>;
+  readonly fallthrough?: boolean;
+}

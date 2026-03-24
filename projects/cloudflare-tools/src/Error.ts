@@ -9,6 +9,7 @@ export const DiagnosticLocation = Schema.Struct({
   line: Schema.Number,
   column: Schema.Number,
 });
+export type DiagnosticLocation = typeof DiagnosticLocation.Type;
 
 export const Diagnostic = Schema.Struct({
   message: Schema.String,
@@ -16,6 +17,7 @@ export const Diagnostic = Schema.Struct({
   severity: Schema.Literals(["error", "warning"]),
   location: Schema.optional(DiagnosticLocation),
 });
+export type Diagnostic = typeof Diagnostic.Type;
 
 export class BuildError extends Schema.TaggedErrorClass<BuildError>()("BuildError", {
   message: Schema.String,
