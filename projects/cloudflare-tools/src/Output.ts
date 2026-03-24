@@ -3,13 +3,11 @@ import { Module, MODULE_TYPE_TO_CONTENT_TYPE } from "./Module.js";
 
 export class Output extends Schema.Class<Output>("distilled-core/Output")({
   /** The absolute path to the output directory. */
-  directory: Schema.String,
+  outDir: Schema.String,
   /** The relative path to the main entry point. */
   main: Schema.String,
   /** All modules produced during bundling. */
   modules: Schema.Array(Module),
-  /** The module format of the entry point. */
-  format: Schema.Literal("esm"),
   /** The warnings produced during bundling. */
   warnings: Schema.Array(Schema.String),
 }) {}

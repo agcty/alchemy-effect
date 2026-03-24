@@ -248,10 +248,9 @@ export const RolldownBundler = Layer.effect(
           }
 
           return new Output({
-            directory: outDir,
+            outDir,
             main: entryChunk.fileName,
             modules: [...bundledModules, ...additionalModules],
-            format: "esm",
             warnings: [...pluginChain.getWarnings()],
           });
         } finally {
