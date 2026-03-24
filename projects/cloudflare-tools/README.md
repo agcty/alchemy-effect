@@ -56,9 +56,9 @@ console.log(result.directory, result.main, result.modules);
 
 The public API is centered on:
 
-- `Bundler` in `src/core/Bundler.ts`
-- `Output` in `src/core/Output.ts`
-- `Module` in `src/core/Module.ts`
+- `Bundler` in `src/Bundler.ts`
+- `Output` in `src/Output.ts`
+- `Module` in `src/Module.ts`
 
 The current backend is:
 
