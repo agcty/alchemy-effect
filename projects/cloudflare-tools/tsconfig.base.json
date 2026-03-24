@@ -10,7 +10,7 @@
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true,
     "strict": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
