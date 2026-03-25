@@ -18,7 +18,7 @@ const newTag = `cloudflare-bundler@${version}`;
 
 await $`git add ${PACKAGE_DIRECTORY}/package.json`;
 await $`git commit -m "chore(release): cloudflare-bundler v${version}"`;
-await $`git tag ${newTag}`;
+await $`git tag -a ${newTag} -m ${newTag}`;
 await $`git push --follow-tags`;
 
 await $.cwd(PACKAGE_DIRECTORY)`npm publish --provenance --access public`;
