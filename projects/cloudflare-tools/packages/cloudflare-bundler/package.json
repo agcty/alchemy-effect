@@ -61,21 +61,20 @@
     "unplugin": "^3.0.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260310.1",
-    "@effect/platform-node": "^4.0.0-beta.38",
-    "@effect/vitest": "^4.0.0-beta.38",
+    "@cloudflare/workers-types": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
     "@types/bun": "latest",
     "@types/glob-to-regexp": "^0.4.4",
     "@types/node": "^22.0.0",
     "miniflare": "^4.20260317.0",
-    "rolldown": "^1.0.0-rc.10",
-    "typescript": "^6.0.2",
-    "vitest": "^4.1.1"
+    "rolldown": "^1.0.0-rc.9",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "peerDependencies": {
-    "effect": "^4.0.0-beta.38",
-    "rolldown": "^1.0.0-rc.9",
-    "typescript": "^6.0.2"
+    "effect": "catalog:",
+    "rolldown": "^1.0.0-rc.9"
   },
   "peerDependenciesMeta": {
     "rolldown": {

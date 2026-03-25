@@ -12,9 +12,19 @@
     "type": "git",
     "url": "git+https://github.com/alchemy-run/cloudflare-bundler.git"
   },
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "catalog": {
+      "@cloudflare/workers-types": "^4.20260310.1",
+      "@effect/platform-node": "^4.0.0-beta.38",
+      "@effect/vitest": "^4.0.0-beta.38",
+      "effect": "^4.0.0-beta.38",
+      "typescript": "^6.0.2",
+      "vitest": "^4.1.1"
+    }
+  },
   "type": "module",
   "scripts": {
     "build": "bun run --filter '@distilled.cloud/cloudflare-bundler' build",
@@ -31,7 +41,7 @@
     "effect-solutions": "^0.5.2",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
-    "typescript": "^6.0.2"
+    "typescript": "catalog:"
   },
   "packageManager": "bun@1.3.11"
 }
