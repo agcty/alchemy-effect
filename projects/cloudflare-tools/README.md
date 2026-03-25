@@ -4,8 +4,8 @@ Monorepo for **Effect-native Cloudflare** developer tools, published under [`@di
 
 ## Packages
 
-| Package | Description |
-| --- | --- |
+| Package                                                              | Description                                                     |
+| -------------------------------------------------------------------- | --------------------------------------------------------------- |
 | [`@distilled.cloud/cloudflare-bundler`](packages/cloudflare-bundler) | Effect-native bundler for Cloudflare Workers (Rolldown-backed). |
 
 ## Development

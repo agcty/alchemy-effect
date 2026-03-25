@@ -19,8 +19,8 @@
   "scripts": {
     "build": "bun run --filter '@distilled.cloud/cloudflare-bundler' build",
     "build:clean": "bun run --filter '@distilled.cloud/cloudflare-bundler' build:clean",
-    "format": "oxfmt packages scripts",
-    "lint": "oxlint packages scripts",
+    "format": "oxfmt",
+    "lint": "oxlint",
     "test": "bun run --filter '@distilled.cloud/cloudflare-bundler' test",
     "test:watch": "bun run --filter '@distilled.cloud/cloudflare-bundler' test:watch",
     "typecheck": "bun run scripts/typecheck.ts",
