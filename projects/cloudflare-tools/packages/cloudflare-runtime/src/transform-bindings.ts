@@ -1,8 +1,8 @@
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";
 import * as Schema from "effect/Schema";
-import type { Binding } from "./Binding";
-import type { Worker_Binding } from "./runtime/config.types";
+import type { Binding } from "./Binding.js";
+import type { Worker_Binding } from "./runtime/config.types.js";
 
 export class UnsupportedBindingError extends Schema.TaggedErrorClass<UnsupportedBindingError>()(
   "UnsupportedBindingError",
