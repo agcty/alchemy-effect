@@ -151,7 +151,7 @@ jobs:
   # ── Step 3: Build & publish all other SDKs in parallel ──
   publish-aws:
     needs: [bump, publish-core]
-    runs-on: ubuntu-large-arm
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
         with:
