@@ -7772,6 +7772,7 @@ export const PutScriptResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export type PutScriptError =
   | DefaultErrors
   | InvalidRoute
+  | InvalidWorkerScript
   | DurableObjectMustBeSqlite;
 
 export const putScript: API.OperationMethod<
@@ -7782,7 +7783,7 @@ export const putScript: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutScriptRequest,
   output: PutScriptResponse,
-  errors: [InvalidRoute, DurableObjectMustBeSqlite],
+  errors: [InvalidRoute, InvalidWorkerScript, DurableObjectMustBeSqlite],
 }));
 
 export interface DeleteScriptRequest {
