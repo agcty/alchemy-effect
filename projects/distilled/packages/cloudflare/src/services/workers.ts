@@ -994,6 +994,7 @@ export interface GetBetaWorkerVersionResponse {
             scriptName?: string | null;
           }
         | { name: string; part: string; type: "wasm_module" }
+        | { name: string; type: "worker_loader" }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -1399,6 +1400,10 @@ export const GetBetaWorkerVersionResponse =
               part: Schema.String,
               type: Schema.Literal("wasm_module"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("worker_loader"),
+            }),
           ]),
         ),
         Schema.Null,
@@ -1718,6 +1723,7 @@ export interface ListBetaWorkerVersionsResponse {
               scriptName?: string | null;
             }
           | { name: string; part: string; type: "wasm_module" }
+          | { name: string; type: "worker_loader" }
         )[]
       | null;
     compatibilityDate?: string | null;
@@ -2131,6 +2137,10 @@ export const ListBetaWorkerVersionsResponse =
                   name: Schema.String,
                   part: Schema.String,
                   type: Schema.Literal("wasm_module"),
+                }),
+                Schema.Struct({
+                  name: Schema.String,
+                  type: Schema.Literal("worker_loader"),
                 }),
               ]),
             ),
@@ -2620,6 +2630,7 @@ export interface CreateBetaWorkerVersionRequest {
         scriptName?: string;
       }
     | { name: string; part: string; type: "wasm_module" }
+    | { name: string; type: "worker_loader" }
   )[];
   /** Body param: Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
   compatibilityDate?: string;
@@ -2971,6 +2982,10 @@ export const CreateBetaWorkerVersionRequest =
             part: Schema.String,
             type: Schema.Literal("wasm_module"),
           }),
+          Schema.Struct({
+            name: Schema.String,
+            type: Schema.Literal("worker_loader"),
+          }),
         ]),
       ),
     ),
@@ -3242,6 +3257,7 @@ export interface CreateBetaWorkerVersionResponse {
             scriptName?: string | null;
           }
         | { name: string; part: string; type: "wasm_module" }
+        | { name: string; type: "worker_loader" }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -3646,6 +3662,10 @@ export const CreateBetaWorkerVersionResponse =
               name: Schema.String,
               part: Schema.String,
               type: Schema.Literal("wasm_module"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("worker_loader"),
             }),
           ]),
         ),
@@ -4708,7 +4728,7 @@ export interface QueryObservabilityTelemetryResponse {
     id: string;
     accountId: string;
     dry: boolean;
-    environmentId: string;
+    environmentId?: string | null;
     granularity: number;
     query: {
       id: string;
@@ -4827,7 +4847,7 @@ export interface QueryObservabilityTelemetryResponse {
     status: "STARTED" | "COMPLETED";
     timeframe: { from: number; to: number };
     userId: string;
-    workspaceId: string;
+    workspaceId?: string | null;
     created?: string | null;
     statistics?: {
       bytesRead: number;
@@ -5007,6 +5027,7 @@ export interface QueryObservabilityTelemetryResponse {
               interval: number;
               lastSeen?: string | null;
               bin?: unknown | null;
+              countErrors?: number | null;
             };
             count: number;
             interval: number;
@@ -5017,8 +5038,9 @@ export interface QueryObservabilityTelemetryResponse {
           time: string;
         }[]
       | null;
+    statistics?: unknown | null;
   } | null;
-  invocations?: Record<string, unknown> | null;
+  invocations?: unknown | null;
   patterns?:
     | {
         count: number;
@@ -5057,7 +5079,9 @@ export const QueryObservabilityTelemetryResponse =
       id: Schema.String,
       accountId: Schema.String,
       dry: Schema.Boolean,
-      environmentId: Schema.String,
+      environmentId: Schema.optional(
+        Schema.Union([Schema.String, Schema.Null]),
+      ),
       granularity: Schema.Number,
       query: Schema.Struct({
         id: Schema.String,
@@ -5259,7 +5283,7 @@ export const QueryObservabilityTelemetryResponse =
         to: Schema.Number,
       }),
       userId: Schema.String,
-      workspaceId: Schema.String,
+      workspaceId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       created: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       statistics: Schema.optional(
         Schema.Union([
@@ -5699,6 +5723,9 @@ export const QueryObservabilityTelemetryResponse =
                         bin: Schema.optional(
                           Schema.Union([Schema.Unknown, Schema.Null]),
                         ),
+                        countErrors: Schema.optional(
+                          Schema.Union([Schema.Number, Schema.Null]),
+                        ),
                       }).pipe(
                         Schema.encodeKeys({
                           count: "_count",
@@ -5706,6 +5733,7 @@ export const QueryObservabilityTelemetryResponse =
                           interval: "_interval",
                           lastSeen: "_lastSeen",
                           bin: "bin",
+                          countErrors: "_countErrors",
                         }),
                       ),
                       count: Schema.Number,
@@ -5728,13 +5756,14 @@ export const QueryObservabilityTelemetryResponse =
               Schema.Null,
             ]),
           ),
+          statistics: Schema.optional(
+            Schema.Union([Schema.Unknown, Schema.Null]),
+          ),
         }),
         Schema.Null,
       ]),
     ),
-    invocations: Schema.optional(
-      Schema.Union([Schema.Record(Schema.String, Schema.Unknown), Schema.Null]),
-    ),
+    invocations: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
     patterns: Schema.optional(
       Schema.Union([
         Schema.Array(
@@ -9091,6 +9120,7 @@ export interface GetScriptScriptAndVersionSettingResponse {
             scriptName?: string | null;
           }
         | { name: string; part: string; type: "wasm_module" }
+        | { name: string; type: "worker_loader" }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -9412,6 +9442,10 @@ export const GetScriptScriptAndVersionSettingResponse =
               part: Schema.String,
               type: Schema.Literal("wasm_module"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("worker_loader"),
+            }),
           ]),
         ),
         Schema.Null,
@@ -9624,6 +9658,7 @@ export interface PatchScriptScriptAndVersionSettingRequest {
           scriptName?: string;
         }
       | { name: string; part: string; type: "wasm_module" }
+      | { name: string; type: "worker_loader" }
     )[];
     compatibilityDate?: string;
     compatibilityFlags?: string[];
@@ -9949,6 +9984,10 @@ export const PatchScriptScriptAndVersionSettingRequest =
                 part: Schema.String,
                 type: Schema.Literal("wasm_module"),
               }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("worker_loader"),
+              }),
             ]),
           ),
         ),
@@ -10249,6 +10288,7 @@ export interface PatchScriptScriptAndVersionSettingResponse {
             scriptName?: string | null;
           }
         | { name: string; part: string; type: "wasm_module" }
+        | { name: string; type: "worker_loader" }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -10569,6 +10609,10 @@ export const PatchScriptScriptAndVersionSettingResponse =
               name: Schema.String,
               part: Schema.String,
               type: Schema.Literal("wasm_module"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("worker_loader"),
             }),
           ]),
         ),
@@ -11889,6 +11933,7 @@ export interface GetScriptVersionResponse {
               scriptName?: string | null;
             }
           | { name: string; part: string; type: "wasm_module" }
+          | { name: string; type: "worker_loader" }
         )[]
       | null;
     script?: {
@@ -12221,6 +12266,10 @@ export const GetScriptVersionResponse =
                 name: Schema.String,
                 part: Schema.String,
                 type: Schema.Literal("wasm_module"),
+              }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("worker_loader"),
               }),
             ]),
           ),
@@ -12666,6 +12715,7 @@ export interface CreateScriptVersionRequest {
           scriptName?: string;
         }
       | { name: string; part: string; type: "wasm_module" }
+      | { name: string; type: "worker_loader" }
     )[];
     compatibilityDate?: string;
     compatibilityFlags?: string[];
@@ -12954,6 +13004,10 @@ export const CreateScriptVersionRequest =
               part: Schema.String,
               type: Schema.Literal("wasm_module"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("worker_loader"),
+            }),
           ]),
         ),
       ),
@@ -13082,6 +13136,7 @@ export interface CreateScriptVersionResponse {
               scriptName?: string | null;
             }
           | { name: string; part: string; type: "wasm_module" }
+          | { name: string; type: "worker_loader" }
         )[]
       | null;
     script?: {
@@ -13416,6 +13471,10 @@ export const CreateScriptVersionResponse =
                 name: Schema.String,
                 part: Schema.String,
                 type: Schema.Literal("wasm_module"),
+              }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("worker_loader"),
               }),
             ]),
           ),
