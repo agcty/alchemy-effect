@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.7.8](https://github.com/alchemy-run/distilled/releases/tag/v0.7.8) (2026-04-03)
+
+### Bug Fixes
+
+- **cloudflare**: patch worker_loader binding in other Worker APIs - by sam in [#181](https://github.com/alchemy-run/distilled/pull/181) [(c48a640)](https://github.com/alchemy-run/distilled/commit/c48a640327e8a6edd1dbdd9140c1d7602dfd17ef)
+
 ## [v0.7.7](https://github.com/alchemy-run/distilled/releases/tag/v0.7.7) (2026-04-03)
 
 ### Bug Fixes
