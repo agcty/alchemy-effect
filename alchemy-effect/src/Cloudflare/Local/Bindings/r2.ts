@@ -5,10 +5,11 @@ import {
   Rpc,
   RpcClient,
   RpcGroup,
-  RpcSerialization,
 } from "effect/unstable/rpc";
-import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import {
+  makeWorkerRpcProtocol,
+  runWorkerRpc,
+} from "../http-rpc-client.ts";
 
 // ---------------------------------------------------------------------------
 // Schema
@@ -232,7 +233,7 @@ export function makeR2Facade(
 ): R2BucketFacade {
   return {
     async get(key) {
-      const result = await Effect.runPromise(client.r2Get({ bucket, key }));
+      const result = await runWorkerRpc(client.r2Get({ bucket, key }));
       if (!result) return null;
       const { base64Body, ...info } = result;
       const bytes = base64Body ? fromBase64(base64Body) : new Uint8Array(0);
@@ -257,7 +258,7 @@ export function makeR2Facade(
       };
     },
     async put(key, value, options) {
-      return Effect.runPromise(
+      return runWorkerRpc(
         client.r2Put({
           bucket,
           key,
@@ -269,13 +270,13 @@ export function makeR2Facade(
     },
     async delete(keys) {
       const keyArray = typeof keys === "string" ? [keys] : keys;
-      await Effect.runPromise(client.r2Delete({ bucket, keys: keyArray }));
+      await runWorkerRpc(client.r2Delete({ bucket, keys: keyArray }));
     },
     async head(key) {
-      return Effect.runPromise(client.r2Head({ bucket, key }));
+      return runWorkerRpc(client.r2Head({ bucket, key }));
     },
     async list(options) {
-      return Effect.runPromise(client.r2List({ bucket, ...options }));
+      return runWorkerRpc(client.r2List({ bucket, ...options }));
     },
   };
 }
@@ -286,14 +287,7 @@ export function makeR2Facade(
  */
 export const makeR2Client = (workerUrl: string) =>
   Effect.gen(function* () {
-    const baseClient = yield* HttpClient.HttpClient;
-    const rpcClient = HttpClient.mapRequest(
-      baseClient,
-      HttpClientRequest.prependUrl(`${workerUrl}/rpc`),
-    );
-    const protocol = yield* RpcClient.makeProtocolHttp(rpcClient).pipe(
-      Effect.provide(RpcSerialization.layerJson),
-    );
+    const protocol = yield* makeWorkerRpcProtocol(workerUrl);
     const client = yield* RpcClient.make(R2Rpcs).pipe(
       Effect.provideService(RpcClient.Protocol, protocol),
     );

@@ -45,11 +45,12 @@ export const makeHibernatableProtocols = (ws: { send(data: string | Uint8Array):
     const disconnects = yield* Queue.unbounded<number>();
 
     const serialization = RpcSerialization.json;
-    const serverParser = serialization.makeUnsafe();
-    const clientParser = serialization.makeUnsafe();
+    // One encoder/decoder pair for both directions (JSON is stateless; matches
+    // `makeMultiplexedProtocols` / Workers hibernation — avoids split-parser edge cases).
+    const wire = serialization.makeUnsafe();
 
-    const writeSerialized = (parser: ReturnType<typeof serialization.makeUnsafe>, msg: unknown) => {
-      const encoded = parser.encode(msg);
+    const writeSerialized = (msg: unknown) => {
+      const encoded = wire.encode(msg);
       if (encoded === undefined) return Effect.void;
       return Effect.sync(() => ws.send(encoded));
     };
@@ -65,7 +66,7 @@ export const makeHibernatableProtocols = (ws: { send(data: string | Uint8Array):
         return {
           disconnects,
           send: (_clientId: number, response: FromServerEncoded) =>
-            writeSerialized(serverParser, response),
+            writeSerialized(response),
           end: () => Effect.void,
           clientIds: Effect.succeed(new Set([0])),
           initialMessage: Effect.succeedNone,
@@ -84,7 +85,7 @@ export const makeHibernatableProtocols = (ws: { send(data: string | Uint8Array):
 
         return {
           send: (request: FromClientEncoded) =>
-            writeSerialized(clientParser, request),
+            writeSerialized(request),
           supportsAck: true,
           supportsTransferables: false,
         };

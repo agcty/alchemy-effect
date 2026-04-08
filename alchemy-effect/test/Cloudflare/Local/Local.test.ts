@@ -1,35 +1,45 @@
-import cloudflarePlugin from "@distilled.cloud/cloudflare-rolldown-plugin";
+import * as Bundle from "@/Bundle/Bundle";
+import { Account, fromEnv as accountFromEnv } from "@/Cloudflare/Account";
+import {
+  makeQueueClient,
+  makeQueueConsumer,
+  type QueueBatch,
+} from "@/Cloudflare/Local/Bindings/queue";
+import { makeR2Client } from "@/Cloudflare/Local/Bindings/r2";
+import { connect } from "@/Cloudflare/Local/local-client";
+import { LocalRpcs } from "@/Cloudflare/Local/rpc-schema";
+import { CloudflareLogs, type TelemetryFilter } from "@/Cloudflare/Logs";
+import type { LogLine } from "@/Provider";
 import * as cf from "@distilled.cloud/cloudflare";
+import cloudflarePlugin from "@distilled.cloud/cloudflare-rolldown-plugin";
+import * as queuesApi from "@distilled.cloud/cloudflare/queues";
 import * as r2Api from "@distilled.cloud/cloudflare/r2";
 import * as workers from "@distilled.cloud/cloudflare/workers";
 import { NodeServices } from "@effect/platform-node";
-import { describe, expect, it } from "@effect/vitest";
+import { afterAll, afterEach, describe, expect, it } from "@effect/vitest";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
+import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as Socket from "effect/unstable/socket/Socket";
 import * as NodePath from "node:path";
-import * as Bundle from "@/Bundle/Bundle";
-import { Account, fromEnv as accountFromEnv } from "@/Cloudflare/Account";
-import { connect } from "@/Cloudflare/Local/local-client";
-import { makeR2Client } from "@/Cloudflare/Local/Bindings/r2";
-import { LocalRpcs } from "@/Cloudflare/Local/rpc-schema";
-
 const PROXY_WORKER_ENTRY = NodePath.resolve(
   import.meta.dirname,
   "../../../src/Cloudflare/Local/proxy-worker.ts",
 );
 
-const credentials = Layer.mergeAll(cf.CredentialsFromEnv, FetchHttpClient.layer);
+const credentials = Layer.mergeAll(
+  cf.CredentialsFromEnv,
+  FetchHttpClient.layer,
+);
 const platform = NodeServices.layer;
 
 const configProviderLayer = Layer.effect(
   ConfigProvider.ConfigProvider,
-  Effect.map(
-    ConfigProvider.fromDotEnv({ path: ".env" }),
-    (dotEnv) => ConfigProvider.orElse(dotEnv, ConfigProvider.fromEnv()),
+  Effect.map(ConfigProvider.fromDotEnv({ path: ".env" }), (dotEnv) =>
+    ConfigProvider.orElse(dotEnv, ConfigProvider.fromEnv()),
   ),
 );
 
@@ -45,6 +55,7 @@ const bundleProxyWorker = Effect.gen(function* () {
       plugins: [
         cloudflarePlugin({
           compatibilityDate: "2026-03-10",
+          compatibilityFlags: ["nodejs_compat"],
         }),
       ],
       checks: { unresolvedImport: false },
@@ -71,8 +82,9 @@ const bundleProxyWorker = Effect.gen(function* () {
   };
 });
 
-const deployProxyWorker = (
+const deployBundledProxyWorker = (
   scriptName: string,
+  bundle: Effect.Success<typeof bundleProxyWorker>,
   extraBindings?: workers.PutScriptRequest["metadata"]["bindings"],
 ) =>
   Effect.gen(function* () {
@@ -80,12 +92,6 @@ const deployProxyWorker = (
     const putScript = yield* workers.putScript;
     const createSubdomain = yield* workers.createScriptSubdomain;
     const getSubdomain = yield* workers.getSubdomain;
-
-    yield* Effect.logInfo("Bundling proxy worker...");
-    const bundle = yield* bundleProxyWorker;
-    yield* Effect.logInfo(
-      `Bundled ${bundle.files.length} files, main: ${bundle.mainModule}`,
-    );
 
     const bindings: workers.PutScriptRequest["metadata"]["bindings"] = [
       {
@@ -171,31 +177,235 @@ const deployProxyWorker = (
         const res = await fetch(`${workerUrl}/health`);
         if (!res.ok) throw new Error(`Health check failed: ${res.status}`);
       }),
-      Schedule.exponential("500 millis").pipe(
-        Schedule.compose(Schedule.recurs(20)),
-      ),
+      Schedule.exponential("500 millis").pipe(Schedule.take(20)),
     );
     yield* Effect.logInfo("Worker is reachable");
 
     return workerUrl;
   });
 
+const deployProxyWorker = (
+  scriptName: string,
+  extraBindings?: workers.PutScriptRequest["metadata"]["bindings"],
+) =>
+  Effect.gen(function* () {
+    yield* Effect.logInfo("Bundling proxy worker...");
+    const bundle = yield* bundleProxyWorker;
+    yield* Effect.logInfo(
+      `Bundled ${bundle.files.length} files, main: ${bundle.mainModule}`,
+    );
+    return yield* deployBundledProxyWorker(scriptName, bundle, extraBindings);
+  });
+
+const forceDeleteScript = (accountId: string, scriptName: string) =>
+  workers.deleteScript({ accountId, scriptName, force: true }).pipe(
+    Effect.tapError((err) =>
+      Effect.logWarning(`Error deleting worker ${scriptName}: ${String(err)}`),
+    ),
+    Effect.retry({
+      while: (err) => err._tag === "QueueConsumerConflict",
+      schedule: Schedule.fixed("500 millis").pipe(Schedule.take(10)),
+    }),
+    Effect.catchTag("WorkerNotFound", () => Effect.void),
+  );
+
 const deleteProxyWorker = (scriptName: string) =>
   Effect.gen(function* () {
     const accountId = yield* Account;
-    const deleteScript = yield* workers.deleteScript;
-    yield* deleteScript({ accountId, scriptName }).pipe(
-      Effect.catchTag("WorkerNotFound", () => Effect.void),
-    );
+    yield* forceDeleteScript(accountId, scriptName);
     yield* Effect.logInfo(`Proxy worker ${scriptName} deleted`);
   });
 
-describe("Cloudflare Local RPC", () => {
+const noopQueueHandler = {
+  localQueueBatch: () =>
+    Effect.succeed({
+      ackedIds: [],
+      retriedIds: [],
+      ackAll: false,
+      retryAll: false,
+    }),
+};
+
+const workerScriptFilters = (scriptName: string): TelemetryFilter[] => [
+  {
+    key: "$workers.scriptName",
+    operation: "eq",
+    type: "string",
+    value: scriptName,
+  },
+];
+
+/** Set from each live test; failures are queued for `afterAll` telemetry dump. */
+let telemetryDumpTarget:
+  | { accountId: string; scriptName: string; since: Date }
+  | undefined;
+
+const pendingFailedTelemetryDumps: Array<{
+  accountId: string;
+  scriptName: string;
+  since: Date;
+}> = [];
+
+const registerTelemetryDumpTarget = (
+  accountId: string,
+  scriptName: string,
+  since = new Date(),
+) =>
+  Effect.sync(() => {
+    telemetryDumpTarget = { accountId, scriptName, since };
+  });
+
+const dumpWorkerLogsToConsole = (
+  accountId: string,
+  scriptName: string,
+  since: Date,
+) =>
+  Effect.gen(function* () {
+    // Cloudflare observability can lag slightly behind the test process.
+    yield* Effect.sleep("2 seconds");
+    const telemetry = yield* CloudflareLogs;
+    const lines = yield* telemetry
+      .queryLogs({
+        accountId,
+        filters: workerScriptFilters(scriptName),
+        options: { since, limit: 200 },
+      })
+      .pipe(
+        Effect.catch((e) =>
+          Effect.gen(function* () {
+            yield* Effect.logWarning(
+              `CloudflareLogs.queryLogs failed: ${String(e)}`,
+            );
+            return [] as LogLine[];
+          }),
+        ),
+      );
+
+    yield* Effect.logError(
+      `--- Cloudflare worker logs (script=${scriptName}, since=${since.toISOString()}, limit=200) ---`,
+    );
+    for (const line of [...lines].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    )) {
+      const row = `[${line.timestamp.toISOString()}] ${line.message}`;
+      console.error(row);
+      yield* Effect.logError(row);
+    }
+    console.error("--- end Cloudflare worker logs ---");
+    yield* Effect.logError("--- end Cloudflare worker logs ---");
+  });
+
+const QUEUE_NAME_PREFIX = "alchemy-local-queue-test-";
+const PROXY_WORKER_PREFIX = "alchemy-local-rpc-queue-";
+
+const deleteConsumersForQueue = (accountId: string, queueId: string) =>
+  Stream.runForEach(
+    queuesApi.listConsumers.pages({ accountId, queueId }),
+    (page) =>
+      Effect.forEach(
+        (page.result ?? []).filter((c) => !!c.consumerId),
+        (c) =>
+          Effect.gen(function* () {
+            yield* Effect.logInfo(
+              `Deleting consumer ${c.consumerId} on queue ${queueId}...`,
+            );
+            yield* queuesApi
+              .deleteConsumer({
+                accountId,
+                queueId,
+                consumerId: c.consumerId!,
+              })
+              .pipe(Effect.ignore);
+          }),
+        { concurrency: 8, discard: true },
+      ),
+  );
+
+const deleteQueuesByPrefix = (accountId: string, prefix: string) =>
+  Stream.runForEach(queuesApi.listQueues.pages({ accountId }), (page) =>
+    Effect.forEach(
+      (page.result ?? []).filter(
+        (queue) =>
+          !!queue.queueId &&
+          !!queue.queueName &&
+          queue.queueName.startsWith(prefix),
+      ),
+      (queue) =>
+        Effect.gen(function* () {
+          yield* deleteConsumersForQueue(accountId, queue.queueId!);
+          yield* Effect.logInfo(
+            `Deleting queue ${queue.queueName} (${queue.queueId})...`,
+          );
+          yield* queuesApi
+            .deleteQueue({ accountId, queueId: queue.queueId! })
+            .pipe(Effect.ignore);
+        }),
+      { concurrency: 8, discard: true },
+    ),
+  );
+
+const deleteProxyWorkersByPrefix = (accountId: string, prefix: string) =>
+  Stream.runForEach(workers.listScripts.pages({ accountId }), (page) =>
+    Effect.forEach(
+      (page.result ?? []).filter(
+        (script) => !!script.id && script.id.startsWith(prefix),
+      ),
+      (script) =>
+        Effect.gen(function* () {
+          yield* Effect.logInfo(`Deleting proxy worker ${script.id}...`);
+          yield* forceDeleteScript(accountId, script.id!);
+        }),
+      { concurrency: 8, discard: true },
+    ),
+  );
+
+const cleanupOrphanedResources = (accountId: string) =>
+  Effect.gen(function* () {
+    yield* deleteQueuesByPrefix(accountId, QUEUE_NAME_PREFIX);
+    yield* deleteProxyWorkersByPrefix(accountId, PROXY_WORKER_PREFIX);
+  });
+
+describe.sequential("Cloudflare Local RPC", () => {
+  afterEach((ctx) => {
+    const target = telemetryDumpTarget;
+    telemetryDumpTarget = undefined;
+    if (!target) return;
+    const failed =
+      (ctx as { task?: { result?: { state?: string } } }).task?.result
+        ?.state === "fail";
+    if (!failed) return;
+    pendingFailedTelemetryDumps.push(target);
+  });
+
+  afterAll(() =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const targets = pendingFailedTelemetryDumps.splice(
+          0,
+          pendingFailedTelemetryDumps.length,
+        );
+        for (const t of targets) {
+          yield* dumpWorkerLogsToConsole(t.accountId, t.scriptName, t.since);
+        }
+      }).pipe(
+        Effect.provide(layers),
+        Effect.scoped,
+        Effect.catch((e) =>
+          Effect.sync(() => {
+            console.error("[telemetry dump]", e);
+          }),
+        ),
+      ),
+    ),
+  );
+
   it.live(
     "bi-directional RPC over WebSocket",
     () =>
       Effect.gen(function* () {
+        const accountId = yield* Account;
         const scriptName = "alchemy-local-rpc-ws";
+        yield* registerTelemetryDumpTarget(accountId, scriptName);
         yield* deleteProxyWorker(scriptName).pipe(Effect.ignore);
 
         const workerUrl = yield* deployProxyWorker(scriptName);
@@ -209,6 +419,7 @@ describe("Cloudflare Local RPC", () => {
               LocalRpcs.toLayer({
                 localPing: () => Effect.succeed({ ts: Date.now() }),
                 localEcho: ({ message }) => Effect.succeed({ message }),
+                ...noopQueueHandler,
               }),
             ),
             Effect.provide(Socket.layerWebSocketConstructorGlobal),
@@ -234,19 +445,22 @@ describe("Cloudflare Local RPC", () => {
           );
           yield* Effect.sleep("1 second");
 
-          const callLocalResult = yield* Effect.tryPromise(async () => {
-            const res = await fetch(`${workerUrl}/test-call-local`);
-            if (!res.ok) {
-              const body = await res.text();
-              throw new Error(
-                `test-call-local failed: ${res.status} ${body}`,
-              );
-            }
-            return res.json() as Promise<{
-              ping: { ts: number };
-              echo: { message: string };
-            }>;
-          });
+          const callLocalResult = yield* Effect.retry(
+            Effect.tryPromise(async () => {
+              const res = await fetch(`${workerUrl}/test-call-local`);
+              if (!res.ok) {
+                const body = await res.text();
+                throw new Error(
+                  `test-call-local failed: ${res.status} ${body}`,
+                );
+              }
+              return res.json() as Promise<{
+                ping: { ts: number };
+                echo: { message: string };
+              }>;
+            }),
+            Schedule.exponential("500 millis").pipe(Schedule.take(5)),
+          );
 
           expect(callLocalResult.ping.ts).toBeTypeOf("number");
           expect(callLocalResult.ping.ts).toBeGreaterThan(0);
@@ -256,7 +470,7 @@ describe("Cloudflare Local RPC", () => {
           yield* deleteProxyWorker(scriptName).pipe(Effect.ignore);
         }
       }).pipe(Effect.scoped, Effect.provide(layers)),
-    { timeout: 120_000 },
+    { timeout: 30_000 },
   );
 
   it.live(
@@ -265,6 +479,7 @@ describe("Cloudflare Local RPC", () => {
       Effect.gen(function* () {
         const accountId = yield* Account;
         const scriptName = "alchemy-local-rpc-r2";
+        yield* registerTelemetryDumpTarget(accountId, scriptName);
         yield* deleteProxyWorker(scriptName).pipe(Effect.ignore);
 
         const R2_BUCKET_NAME = "alchemy-local-r2-test";
@@ -338,6 +553,110 @@ describe("Cloudflare Local RPC", () => {
             .pipe(Effect.ignore);
         }
       }).pipe(Effect.scoped, Effect.provide(layers)),
-    { timeout: 120_000 },
+    { timeout: 30_000 },
+  );
+
+  it.live(
+    "Queue binding: send via HTTP RPC, receive via WebSocket RPC",
+    () =>
+      Effect.gen(function* () {
+        const accountId = yield* Account;
+        const startedAt = new Date();
+        const suffix = crypto.randomUUID().slice(0, 8);
+        const scriptName = `${PROXY_WORKER_PREFIX}${suffix}`;
+        const QUEUE_NAME = `${QUEUE_NAME_PREFIX}${suffix}`;
+        yield* registerTelemetryDumpTarget(accountId, scriptName, startedAt);
+
+        yield* Effect.logInfo("Cleaning up orphaned resources...");
+        yield* cleanupOrphanedResources(accountId);
+
+        yield* Effect.logInfo(`Creating queue ${QUEUE_NAME}...`);
+        const queueResult = yield* queuesApi.createQueue({
+          accountId,
+          queueName: QUEUE_NAME,
+        });
+        const queueId = queueResult.queueId!;
+        yield* Effect.logInfo(`Queue created: ${queueId}`);
+
+        yield* Effect.logInfo("Deploying worker...");
+        const workerUrl = yield* deployProxyWorker(scriptName, [
+          {
+            type: "queue",
+            name: "MY_QUEUE",
+            queueName: QUEUE_NAME,
+          },
+        ]);
+
+        yield* Effect.logInfo(`Registering consumer ${scriptName} on queue...`);
+        yield* queuesApi.createConsumer({
+          accountId,
+          queueId,
+          scriptName,
+          type: "worker",
+          settings: { batchSize: 1, maxWaitTimeMs: 1000 },
+        });
+        yield* Effect.logInfo("Consumer registered");
+
+        try {
+          let resolveReceived: () => void;
+          const receivedPromise = new Promise<void>(
+            (r) => (resolveReceived = r),
+          );
+          const received: Array<{ id: string; body: unknown; acked: boolean }> =
+            [];
+
+          yield* Effect.logInfo("Connecting WebSocket session...");
+          yield* connect(`${workerUrl}/ws`).pipe(
+            Effect.provide(
+              LocalRpcs.toLayer({
+                localPing: () => Effect.succeed({ ts: Date.now() }),
+                localEcho: ({ message }) => Effect.succeed({ message }),
+                ...makeQueueConsumer(async (batch: QueueBatch) => {
+                  for (const msg of batch.messages) {
+                    await msg.ack();
+                    received.push({
+                      id: msg.id,
+                      body: msg.body,
+                      acked: true,
+                    });
+                  }
+                  resolveReceived!();
+                }),
+              }),
+            ),
+            Effect.provide(Socket.layerWebSocketConstructorGlobal),
+          );
+
+          yield* Effect.logInfo("Verifying consumer is registered...");
+          const consumers = yield* queuesApi
+            .listConsumers({ accountId, queueId })
+            .pipe(Effect.map((r) => r.result ?? []));
+          yield* Effect.logInfo(
+            `Consumers: ${JSON.stringify(consumers.map((c) => ({ id: c.consumerId, script: "script" in c ? c.script : undefined })))}`,
+          );
+
+          yield* Effect.logInfo("Sending message via worker RPC...");
+          const { queue: queueFacade } = yield* makeQueueClient(workerUrl);
+          yield* Effect.promise(() =>
+            queueFacade("MY_QUEUE").send(
+              { hello: "world" },
+              { contentType: "json" },
+            ),
+          );
+          yield* Effect.logInfo("Message sent");
+
+          yield* Effect.logInfo("Waiting for delivery...");
+          yield* Effect.tryPromise(() => receivedPromise);
+
+          expect(received.length).toBeGreaterThanOrEqual(1);
+          const body = received[0].body as Record<string, unknown>;
+          expect(body.hello).toBe("world");
+          expect(received[0].acked).toBe(true);
+          yield* Effect.logInfo("Queue message received and acked!");
+        } finally {
+          yield* cleanupOrphanedResources(accountId);
+        }
+      }).pipe(Effect.scoped, Effect.provide(layers)),
+    { timeout: 300_000 },
   );
 });
