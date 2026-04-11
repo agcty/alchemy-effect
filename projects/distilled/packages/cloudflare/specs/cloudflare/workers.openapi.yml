@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Cloudflare WORKERS API
+  title: Cloudflare Workers API
   version: 0.0.0
 servers:
   - url: https://api.cloudflare.com/client/v4
@@ -8395,6 +8395,818 @@ paths:
       x-distilled-errors:
         WorkerNotFound:
           - code: 10007
+  /accounts/{account_id}/workers/scripts/{script_name}/edge-preview:
+    post:
+      operationId: createScriptEdgePreview
+      summary: Upload a worker script and create an edge preview token
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: script_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cf-preview-upload-config-token
+          in: header
+          required: true
+          description: The session token returned by createZoneEdgePreviewSession or
+            createSubdomainEdgePreviewSession.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    main_module:
+                      type: string
+                      description: Entry point module name (ES module format).
+                    body_part:
+                      type: string
+                      description: Entry point part name (service worker format).
+                    compatibility_date:
+                      type: string
+                    compatibility_flags:
+                      type: array
+                      items:
+                        type: string
+                    usage_model:
+                      type: string
+                      enum:
+                        - bundled
+                        - unbound
+                        - standard
+                    bindings:
+                      type: array
+                      items:
+                        oneOf:
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - plain_text
+                              name:
+                                type: string
+                              text:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - text
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - secret_text
+                              name:
+                                type: string
+                              text:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - text
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - json
+                              name:
+                                type: string
+                              json: {}
+                            required:
+                              - type
+                              - name
+                              - json
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - kv_namespace
+                              name:
+                                type: string
+                              namespace_id:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - namespace_id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - durable_object_namespace
+                              name:
+                                type: string
+                              class_name:
+                                type: string
+                              script_name:
+                                type: string
+                              environment:
+                                type: string
+                              namespace_id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - class_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - r2_bucket
+                              name:
+                                type: string
+                              bucket_name:
+                                type: string
+                              jurisdiction:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - bucket_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - d1
+                              name:
+                                type: string
+                              id:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - queue
+                              name:
+                                type: string
+                              queue_name:
+                                type: string
+                              delivery_delay:
+                                type: number
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - queue_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - service
+                              name:
+                                type: string
+                              service:
+                                type: string
+                              environment:
+                                type: string
+                              entrypoint:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - service
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai
+                              name:
+                                type: string
+                              staging:
+                                type: boolean
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - browser
+                              name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - images
+                              name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - vectorize
+                              name:
+                                type: string
+                              index_name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - index_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - workflow
+                              name:
+                                type: string
+                              workflow_name:
+                                type: string
+                              class_name:
+                                type: string
+                              script_name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - workflow_name
+                              - class_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - hyperdrive
+                              name:
+                                type: string
+                              id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - analytics_engine
+                              name:
+                                type: string
+                              dataset:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - dispatch_namespace
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                              outbound:
+                                type: object
+                                properties:
+                                  worker:
+                                    type: object
+                                    properties:
+                                      service:
+                                        type: string
+                                      environment:
+                                        type: string
+                                  params:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                      required:
+                                        - name
+                            required:
+                              - type
+                              - name
+                              - namespace
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - send_email
+                              name:
+                                type: string
+                              destination_address:
+                                type: string
+                              allowed_destination_addresses:
+                                type: array
+                                items:
+                                  type: string
+                              allowed_sender_addresses:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - mtls_certificate
+                              name:
+                                type: string
+                              certificate_id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - certificate_id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - wasm_module
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - text_blob
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - data_blob
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - pipelines
+                              name:
+                                type: string
+                              pipeline:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - pipeline
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - secrets_store_secret
+                              name:
+                                type: string
+                              store_id:
+                                type: string
+                              secret_name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - store_id
+                              - secret_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - stream
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - media
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - version_metadata
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - assets
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - worker_loader
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - logfwdr
+                              name:
+                                type: string
+                              destination:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - destination
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai_search_namespace
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - namespace
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai_search
+                              name:
+                                type: string
+                              instance_name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - instance_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ratelimit
+                              name:
+                                type: string
+                              namespace_id:
+                                type: string
+                              simple:
+                                type: object
+                                properties:
+                                  limit:
+                                    type: number
+                                  period:
+                                    type: number
+                                    enum:
+                                      - 10
+                                      - 60
+                                required:
+                                  - limit
+                                  - period
+                            required:
+                              - type
+                              - name
+                              - namespace_id
+                              - simple
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - inherit
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                    keep_bindings:
+                      type: array
+                      items:
+                        type: string
+                    migrations:
+                      type: object
+                      properties:
+                        old_tag:
+                          type: string
+                        new_tag:
+                          type: string
+                        steps:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              new_classes:
+                                type: array
+                                items:
+                                  type: string
+                              new_sqlite_classes:
+                                type: array
+                                items:
+                                  type: string
+                              renamed_classes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    from:
+                                      type: string
+                                    to:
+                                      type: string
+                              deleted_classes:
+                                type: array
+                                items:
+                                  type: string
+                    capnp_schema:
+                      type: string
+                    logpush:
+                      type: boolean
+                    placement:
+                      oneOf:
+                        - type: object
+                          properties:
+                            mode:
+                              type: string
+                              enum:
+                                - smart
+                            hint:
+                              type: string
+                          required:
+                            - mode
+                        - type: object
+                          properties:
+                            region:
+                              type: string
+                          required:
+                            - region
+                        - type: object
+                          properties:
+                            host:
+                              type: string
+                          required:
+                            - host
+                        - type: object
+                          properties:
+                            hostname:
+                              type: string
+                          required:
+                            - hostname
+                    tail_consumers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          service:
+                            type: string
+                          environment:
+                            type: string
+                        required:
+                          - service
+                    streaming_tail_consumers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          service:
+                            type: string
+                          environment:
+                            type: string
+                        required:
+                          - service
+                    limits:
+                      type: object
+                      properties:
+                        cpu_ms:
+                          type: number
+                        subrequests:
+                          type: number
+                    assets:
+                      type: object
+                      properties:
+                        jwt:
+                          type: string
+                        config:
+                          type: object
+                          properties:
+                            html_handling:
+                              type: string
+                              enum:
+                                - auto-trailing-slash
+                                - force-trailing-slash
+                                - drop-trailing-slash
+                                - none
+                            not_found_handling:
+                              type: string
+                              enum:
+                                - single-page-application
+                                - 404-page
+                                - none
+                            run_worker_first:
+                              oneOf:
+                                - type: boolean
+                                - type: array
+                                  items:
+                                    type: string
+                            _redirects:
+                              type: string
+                            _headers:
+                              type: string
+                    observability:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        head_sampling_rate:
+                          type: number
+                        logs:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                            head_sampling_rate:
+                              type: number
+                            invocation_logs:
+                              type: boolean
+                            persist:
+                              type: boolean
+                            destinations:
+                              type: array
+                              items:
+                                type: string
+                        traces:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                            head_sampling_rate:
+                              type: number
+                            persist:
+                              type: boolean
+                            destinations:
+                              type: array
+                              items:
+                                type: string
+                    containers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          class_name:
+                            type: string
+                        required:
+                          - class_name
+                    annotations: {}
+                    keep_assets:
+                      type: boolean
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Module files comprising the worker script.
+                wrangler_session_config:
+                  oneOf:
+                    - type: object
+                      properties:
+                        workers_dev:
+                          type: boolean
+                          enum:
+                            - true
+                        minimal_mode:
+                          type: boolean
+                      required:
+                        - workers_dev
+                    - type: object
+                      properties:
+                        routes:
+                          type: array
+                          items:
+                            type: string
+                        minimal_mode:
+                          type: boolean
+                      required:
+                        - routes
+      responses:
+        "200":
+          description: Edge preview token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preview_token:
+                    type: string
+                    description: Token to send as cf-workers-preview-token header when making
+                      requests to the preview host.
+                  tail_url:
+                    type: string
+                    description: URL for tailing live logs from the preview worker.
+                required:
+                  - preview_token
+                  - tail_url
+      x-distilled-response-path: result
   /accounts/{account_id}/workers/scripts/{scriptName}/schedules:
     get:
       operationId: getScriptSchedule
@@ -13866,6 +14678,823 @@ paths:
       x-distilled-errors:
         WorkerNotFound:
           - code: 10007
+  /accounts/{account_id}/workers/services/{service_name}/environments/{environment_name}/edge-preview:
+    post:
+      operationId: createServiceEdgePreview
+      summary: Upload a worker to a service environment and create an edge preview token
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: service_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: environment_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: cf-preview-upload-config-token
+          in: header
+          required: true
+          description: The session token returned by createZoneEdgePreviewSession or
+            createSubdomainEdgePreviewSession.
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: object
+                  properties:
+                    main_module:
+                      type: string
+                      description: Entry point module name (ES module format).
+                    body_part:
+                      type: string
+                      description: Entry point part name (service worker format).
+                    compatibility_date:
+                      type: string
+                    compatibility_flags:
+                      type: array
+                      items:
+                        type: string
+                    usage_model:
+                      type: string
+                      enum:
+                        - bundled
+                        - unbound
+                        - standard
+                    bindings:
+                      type: array
+                      items:
+                        oneOf:
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - plain_text
+                              name:
+                                type: string
+                              text:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - text
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - secret_text
+                              name:
+                                type: string
+                              text:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - text
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - json
+                              name:
+                                type: string
+                              json: {}
+                            required:
+                              - type
+                              - name
+                              - json
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - kv_namespace
+                              name:
+                                type: string
+                              namespace_id:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - namespace_id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - durable_object_namespace
+                              name:
+                                type: string
+                              class_name:
+                                type: string
+                              script_name:
+                                type: string
+                              environment:
+                                type: string
+                              namespace_id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - class_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - r2_bucket
+                              name:
+                                type: string
+                              bucket_name:
+                                type: string
+                              jurisdiction:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - bucket_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - d1
+                              name:
+                                type: string
+                              id:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - queue
+                              name:
+                                type: string
+                              queue_name:
+                                type: string
+                              delivery_delay:
+                                type: number
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - queue_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - service
+                              name:
+                                type: string
+                              service:
+                                type: string
+                              environment:
+                                type: string
+                              entrypoint:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - service
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai
+                              name:
+                                type: string
+                              staging:
+                                type: boolean
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - browser
+                              name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - images
+                              name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - vectorize
+                              name:
+                                type: string
+                              index_name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - index_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - workflow
+                              name:
+                                type: string
+                              workflow_name:
+                                type: string
+                              class_name:
+                                type: string
+                              script_name:
+                                type: string
+                              raw:
+                                type: boolean
+                            required:
+                              - type
+                              - name
+                              - workflow_name
+                              - class_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - hyperdrive
+                              name:
+                                type: string
+                              id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - analytics_engine
+                              name:
+                                type: string
+                              dataset:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - dispatch_namespace
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                              outbound:
+                                type: object
+                                properties:
+                                  worker:
+                                    type: object
+                                    properties:
+                                      service:
+                                        type: string
+                                      environment:
+                                        type: string
+                                  params:
+                                    type: array
+                                    items:
+                                      type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                      required:
+                                        - name
+                            required:
+                              - type
+                              - name
+                              - namespace
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - send_email
+                              name:
+                                type: string
+                              destination_address:
+                                type: string
+                              allowed_destination_addresses:
+                                type: array
+                                items:
+                                  type: string
+                              allowed_sender_addresses:
+                                type: array
+                                items:
+                                  type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - mtls_certificate
+                              name:
+                                type: string
+                              certificate_id:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - certificate_id
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - wasm_module
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - text_blob
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - data_blob
+                              name:
+                                type: string
+                              part:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - part
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - pipelines
+                              name:
+                                type: string
+                              pipeline:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - pipeline
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - secrets_store_secret
+                              name:
+                                type: string
+                              store_id:
+                                type: string
+                              secret_name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - store_id
+                              - secret_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - stream
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - media
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - version_metadata
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - assets
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - worker_loader
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - logfwdr
+                              name:
+                                type: string
+                              destination:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - destination
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai_search_namespace
+                              name:
+                                type: string
+                              namespace:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - namespace
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ai_search
+                              name:
+                                type: string
+                              instance_name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                              - instance_name
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - ratelimit
+                              name:
+                                type: string
+                              namespace_id:
+                                type: string
+                              simple:
+                                type: object
+                                properties:
+                                  limit:
+                                    type: number
+                                  period:
+                                    type: number
+                                    enum:
+                                      - 10
+                                      - 60
+                                required:
+                                  - limit
+                                  - period
+                            required:
+                              - type
+                              - name
+                              - namespace_id
+                              - simple
+                          - type: object
+                            properties:
+                              type:
+                                type: string
+                                enum:
+                                  - inherit
+                              name:
+                                type: string
+                            required:
+                              - type
+                              - name
+                    keep_bindings:
+                      type: array
+                      items:
+                        type: string
+                    migrations:
+                      type: object
+                      properties:
+                        old_tag:
+                          type: string
+                        new_tag:
+                          type: string
+                        steps:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              new_classes:
+                                type: array
+                                items:
+                                  type: string
+                              new_sqlite_classes:
+                                type: array
+                                items:
+                                  type: string
+                              renamed_classes:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    from:
+                                      type: string
+                                    to:
+                                      type: string
+                              deleted_classes:
+                                type: array
+                                items:
+                                  type: string
+                    capnp_schema:
+                      type: string
+                    logpush:
+                      type: boolean
+                    placement:
+                      oneOf:
+                        - type: object
+                          properties:
+                            mode:
+                              type: string
+                              enum:
+                                - smart
+                            hint:
+                              type: string
+                          required:
+                            - mode
+                        - type: object
+                          properties:
+                            region:
+                              type: string
+                          required:
+                            - region
+                        - type: object
+                          properties:
+                            host:
+                              type: string
+                          required:
+                            - host
+                        - type: object
+                          properties:
+                            hostname:
+                              type: string
+                          required:
+                            - hostname
+                    tail_consumers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          service:
+                            type: string
+                          environment:
+                            type: string
+                        required:
+                          - service
+                    streaming_tail_consumers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          service:
+                            type: string
+                          environment:
+                            type: string
+                        required:
+                          - service
+                    limits:
+                      type: object
+                      properties:
+                        cpu_ms:
+                          type: number
+                        subrequests:
+                          type: number
+                    assets:
+                      type: object
+                      properties:
+                        jwt:
+                          type: string
+                        config:
+                          type: object
+                          properties:
+                            html_handling:
+                              type: string
+                              enum:
+                                - auto-trailing-slash
+                                - force-trailing-slash
+                                - drop-trailing-slash
+                                - none
+                            not_found_handling:
+                              type: string
+                              enum:
+                                - single-page-application
+                                - 404-page
+                                - none
+                            run_worker_first:
+                              oneOf:
+                                - type: boolean
+                                - type: array
+                                  items:
+                                    type: string
+                            _redirects:
+                              type: string
+                            _headers:
+                              type: string
+                    observability:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                        head_sampling_rate:
+                          type: number
+                        logs:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                            head_sampling_rate:
+                              type: number
+                            invocation_logs:
+                              type: boolean
+                            persist:
+                              type: boolean
+                            destinations:
+                              type: array
+                              items:
+                                type: string
+                        traces:
+                          type: object
+                          properties:
+                            enabled:
+                              type: boolean
+                            head_sampling_rate:
+                              type: number
+                            persist:
+                              type: boolean
+                            destinations:
+                              type: array
+                              items:
+                                type: string
+                    containers:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          class_name:
+                            type: string
+                        required:
+                          - class_name
+                    annotations: {}
+                    keep_assets:
+                      type: boolean
+                    tags:
+                      type: array
+                      items:
+                        type: string
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Module files comprising the worker script.
+                wrangler_session_config:
+                  oneOf:
+                    - type: object
+                      properties:
+                        workers_dev:
+                          type: boolean
+                          enum:
+                            - true
+                        minimal_mode:
+                          type: boolean
+                      required:
+                        - workers_dev
+                    - type: object
+                      properties:
+                        routes:
+                          type: array
+                          items:
+                            type: string
+                        minimal_mode:
+                          type: boolean
+                      required:
+                        - routes
+      responses:
+        "200":
+          description: Edge preview token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  preview_token:
+                    type: string
+                    description: Token to send as cf-workers-preview-token header when making
+                      requests to the preview host.
+                  tail_url:
+                    type: string
+                    description: URL for tailing live logs from the preview worker.
+                required:
+                  - preview_token
+                  - tail_url
+      x-distilled-response-path: result
   /accounts/{account_id}/workers/subdomain:
     get:
       operationId: getSubdomain
@@ -13953,3 +15582,59 @@ paths:
       x-distilled-errors:
         InvalidRoute:
           - code: 7003
+  /accounts/{account_id}/workers/subdomain/edge-preview:
+    get:
+      operationId: createSubdomainEdgePreviewSession
+      summary: Create an edge preview session on the workers.dev subdomain
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Edge preview session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Session token used as cf-preview-upload-config-token when uploading
+                      a preview worker.
+                  exchange_url:
+                    type: string
+                    description: Optional URL to exchange the token for a re-encoded version.
+                required:
+                  - token
+      x-distilled-response-path: result
+  /zones/{zone_id}/workers/edge-preview:
+    get:
+      operationId: createZoneEdgePreviewSession
+      summary: Create an edge preview session scoped to a zone
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Edge preview session
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Session token used as cf-preview-upload-config-token when uploading
+                      a preview worker.
+                  exchange_url:
+                    type: string
+                    description: Optional URL to exchange the token for a re-encoded version.
+                required:
+                  - token
+      x-distilled-response-path: result

@@ -1719,7 +1719,9 @@ function schemaObjectToTypeInfo(
   let typeInfo: TypeInfo;
   switch (rawType) {
     case "string":
-      typeInfo = { kind: "primitive", value: "string" };
+      typeInfo = "format" in schema && schema.format === "binary"
+        ? { kind: "file" }
+        : { kind: "primitive", value: "string" };
       break;
     case "integer":
     case "number":

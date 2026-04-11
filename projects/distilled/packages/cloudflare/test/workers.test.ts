@@ -2234,6 +2234,153 @@ describe("Workers", () => {
   });
 
   // ==========================================================================
+  // Edge Preview
+  // ==========================================================================
+  describe("createSubdomainEdgePreviewSession", () => {
+    test("happy path - creates an edge preview session on workers.dev subdomain", () =>
+      Effect.gen(function* () {
+        const result = yield* Workers.createSubdomainEdgePreviewSession({
+          accountId: accountId(),
+        });
+
+        expect(result).toBeDefined();
+        expect(typeof result.token).toBe("string");
+        expect(result.token.length).toBeGreaterThan(0);
+      }));
+
+    test("error - InvalidRoute for invalid accountId", () =>
+      Workers.createSubdomainEdgePreviewSession({
+        accountId: "invalid-account-id-000",
+      }).pipe(
+        Effect.flip,
+        Effect.map((e) => expect(e._tag).toBe("InvalidRoute")),
+      ));
+  });
+
+  describe("createZoneEdgePreviewSession", () => {
+    test.skipIf(!hasZoneId())(
+      "happy path - creates an edge preview session scoped to a zone",
+      () =>
+        Effect.gen(function* () {
+          const result = yield* Workers.createZoneEdgePreviewSession({
+            zoneId: zoneId(),
+          });
+
+          expect(result).toBeDefined();
+          expect(typeof result.token).toBe("string");
+          expect(result.token.length).toBeGreaterThan(0);
+        }),
+    );
+  });
+
+  describe("createScriptEdgePreview", () => {
+    test("happy path - uploads worker and gets preview token", () =>
+      withScript(scriptName("edge-preview"), (name) =>
+        Effect.gen(function* () {
+          const session =
+            yield* Workers.createSubdomainEdgePreviewSession({
+              accountId: accountId(),
+            });
+
+          const scriptFile = new File([workerModuleSource], "index.mjs", {
+            type: "application/javascript+module",
+          });
+
+          const result = yield* Workers.createScriptEdgePreview({
+            accountId: accountId(),
+            scriptName: name,
+            cfPreviewUploadConfigToken: session.token,
+            metadata: {
+              mainModule: "index.mjs",
+              compatibilityDate: "2024-01-01",
+            },
+            files: [scriptFile],
+            wranglerSessionConfig: { workersDev: true },
+          });
+
+          expect(result).toBeDefined();
+          expect(typeof result.previewToken).toBe("string");
+          expect(result.previewToken.length).toBeGreaterThan(0);
+          expect(typeof result.tailUrl).toBe("string");
+        }),
+      ));
+
+    test("happy path - uploads worker with bindings and minimal mode", () =>
+      withScript(scriptName("edge-preview-raw"), (name) =>
+        Effect.gen(function* () {
+          const session =
+            yield* Workers.createSubdomainEdgePreviewSession({
+              accountId: accountId(),
+            });
+
+          const scriptFile = new File([workerModuleSource], "index.mjs", {
+            type: "application/javascript+module",
+          });
+
+          const result = yield* Workers.createScriptEdgePreview({
+            accountId: accountId(),
+            scriptName: name,
+            cfPreviewUploadConfigToken: session.token,
+            metadata: {
+              mainModule: "index.mjs",
+              compatibilityDate: "2024-01-01",
+              bindings: [
+                { type: "plain_text", name: "GREETING", text: "hello" },
+              ],
+            },
+            files: [scriptFile],
+            wranglerSessionConfig: { workersDev: true, minimalMode: true },
+          });
+
+          expect(result).toBeDefined();
+          expect(typeof result.previewToken).toBe("string");
+          expect(typeof result.tailUrl).toBe("string");
+        }),
+      ));
+
+    test("error - InvalidRoute for invalid accountId", () =>
+      Workers.createScriptEdgePreview({
+        accountId: "invalid-account-id-000",
+        scriptName: "distilled-cf-workers-nonexistent-preview-xyz",
+        cfPreviewUploadConfigToken: "invalid-token",
+        metadata: {
+          mainModule: "index.mjs",
+        },
+        files: [
+          new File(["export default {}"], "index.mjs", {
+            type: "application/javascript+module",
+          }),
+        ],
+        wranglerSessionConfig: { workersDev: true },
+      }).pipe(
+        Effect.flip,
+        Effect.map((e) => expect(e._tag).toBe("InvalidRoute")),
+      ));
+  });
+
+  describe("createServiceEdgePreview", () => {
+    test("error - InvalidRoute for invalid accountId", () =>
+      Workers.createServiceEdgePreview({
+        accountId: "invalid-account-id-000",
+        serviceName: "distilled-cf-workers-nonexistent-svc-xyz",
+        environmentName: "production",
+        cfPreviewUploadConfigToken: "invalid-token",
+        metadata: {
+          mainModule: "index.mjs",
+        },
+        files: [
+          new File(["export default {}"], "index.mjs", {
+            type: "application/javascript+module",
+          }),
+        ],
+        wranglerSessionConfig: { workersDev: true },
+      }).pipe(
+        Effect.flip,
+        Effect.map((e) => expect(e._tag).toBe("InvalidRoute")),
+      ));
+  });
+
+  // ==========================================================================
   // Subdomain (account-level)
   // ==========================================================================
   describe("getSubdomain", () => {

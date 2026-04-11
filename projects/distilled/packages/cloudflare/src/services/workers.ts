@@ -8894,6 +8894,760 @@ export const deleteScriptDeployment: API.OperationMethod<
 }));
 
 // =============================================================================
+// ScriptEdgePreview
+// =============================================================================
+
+export interface CreateScriptEdgePreviewRequest {
+  accountId: string;
+  scriptName: string;
+  /** The session token returned by createZoneEdgePreviewSession or createSubdomainEdgePreviewSession. */
+  cfPreviewUploadConfigToken: string;
+  metadata?: {
+    mainModule?: string;
+    bodyPart?: string;
+    compatibilityDate?: string;
+    compatibilityFlags?: string[];
+    usageModel?: "bundled" | "unbound" | "standard";
+    bindings?: (
+      | { type: "plain_text"; name: string; text: string }
+      | { type: "secret_text"; name: string; text: string }
+      | { type: "json"; name: string; json: unknown }
+      | {
+          type: "kv_namespace";
+          name: string;
+          namespaceId: string;
+          raw?: boolean;
+        }
+      | {
+          type: "durable_object_namespace";
+          name: string;
+          className: string;
+          scriptName?: string;
+          environment?: string;
+          namespaceId?: string;
+        }
+      | {
+          type: "r2_bucket";
+          name: string;
+          bucketName: string;
+          jurisdiction?: string;
+          raw?: boolean;
+        }
+      | { type: "d1"; name: string; id: string; raw?: boolean }
+      | {
+          type: "queue";
+          name: string;
+          queueName: string;
+          deliveryDelay?: number;
+          raw?: boolean;
+        }
+      | {
+          type: "service";
+          name: string;
+          service: string;
+          environment?: string;
+          entrypoint?: string;
+        }
+      | { type: "ai"; name: string; staging?: boolean; raw?: boolean }
+      | { type: "browser"; name: string; raw?: boolean }
+      | { type: "images"; name: string; raw?: boolean }
+      | { type: "vectorize"; name: string; indexName: string; raw?: boolean }
+      | {
+          type: "workflow";
+          name: string;
+          workflowName: string;
+          className: string;
+          scriptName?: string;
+          raw?: boolean;
+        }
+      | { type: "hyperdrive"; name: string; id: string }
+      | { type: "analytics_engine"; name: string; dataset?: string }
+      | {
+          type: "dispatch_namespace";
+          name: string;
+          namespace: string;
+          outbound?: {
+            worker?: { service?: string; environment?: string };
+            params?: { name: string }[];
+          };
+        }
+      | {
+          type: "send_email";
+          name: string;
+          destinationAddress?: string;
+          allowedDestinationAddresses?: string[];
+          allowedSenderAddresses?: string[];
+        }
+      | { type: "mtls_certificate"; name: string; certificateId: string }
+      | { type: "wasm_module"; name: string; part: string }
+      | { type: "text_blob"; name: string; part: string }
+      | { type: "data_blob"; name: string; part: string }
+      | { type: "pipelines"; name: string; pipeline: string }
+      | {
+          type: "secrets_store_secret";
+          name: string;
+          storeId: string;
+          secretName: string;
+        }
+      | { type: "stream"; name: string }
+      | { type: "media"; name: string }
+      | { type: "version_metadata"; name: string }
+      | { type: "assets"; name: string }
+      | { type: "worker_loader"; name: string }
+      | { type: "logfwdr"; name: string; destination: string }
+      | { type: "ai_search_namespace"; name: string; namespace: string }
+      | { type: "ai_search"; name: string; instanceName: string }
+      | {
+          type: "ratelimit";
+          name: string;
+          namespaceId: string;
+          simple: { limit: number; period: "10" | "60" };
+        }
+      | { type: "inherit"; name: string }
+    )[];
+    keepBindings?: string[];
+    migrations?: {
+      oldTag?: string;
+      newTag?: string;
+      steps?: {
+        newClasses?: string[];
+        newSqliteClasses?: string[];
+        renamedClasses?: { from?: string; to?: string }[];
+        deletedClasses?: string[];
+      }[];
+    };
+    capnpSchema?: string;
+    logpush?: boolean;
+    placement?:
+      | { mode: "smart"; hint?: string }
+      | { region: string }
+      | { host: string }
+      | { hostname: string };
+    tailConsumers?: { service: string; environment?: string }[];
+    streamingTailConsumers?: { service: string; environment?: string }[];
+    limits?: { cpuMs?: number; subrequests?: number };
+    assets?: {
+      jwt?: string;
+      config?: {
+        htmlHandling?:
+          | "auto-trailing-slash"
+          | "force-trailing-slash"
+          | "drop-trailing-slash"
+          | "none";
+        notFoundHandling?: "single-page-application" | "404-page" | "none";
+        runWorkerFirst?: boolean | string[];
+        redirects?: string;
+        headers?: string;
+      };
+    };
+    observability?: {
+      enabled?: boolean;
+      headSamplingRate?: number;
+      logs?: {
+        enabled?: boolean;
+        headSamplingRate?: number;
+        invocationLogs?: boolean;
+        persist?: boolean;
+        destinations?: string[];
+      };
+      traces?: {
+        enabled?: boolean;
+        headSamplingRate?: number;
+        persist?: boolean;
+        destinations?: string[];
+      };
+    };
+    containers?: { className: string }[];
+    annotations?: unknown;
+    keepAssets?: boolean;
+    tags?: string[];
+  };
+  /** Module files comprising the worker script. */
+  files?: (File | Blob)[];
+  wranglerSessionConfig?:
+    | { workersDev: true; minimalMode?: boolean }
+    | { routes: string[]; minimalMode?: boolean };
+}
+
+export const CreateScriptEdgePreviewRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    scriptName: Schema.String.pipe(T.HttpPath("script_name")),
+    cfPreviewUploadConfigToken: Schema.String.pipe(
+      T.HttpHeader("cf-preview-upload-config-token"),
+    ),
+    metadata: Schema.optional(
+      Schema.Struct({
+        mainModule: Schema.optional(Schema.String),
+        bodyPart: Schema.optional(Schema.String),
+        compatibilityDate: Schema.optional(Schema.String),
+        compatibilityFlags: Schema.optional(Schema.Array(Schema.String)),
+        usageModel: Schema.optional(
+          Schema.Literals(["bundled", "unbound", "standard"]),
+        ),
+        bindings: Schema.optional(
+          Schema.Array(
+            Schema.Union([
+              Schema.Struct({
+                type: Schema.Literal("plain_text"),
+                name: Schema.String,
+                text: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("secret_text"),
+                name: Schema.String,
+                text: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("json"),
+                name: Schema.String,
+                json: Schema.Unknown,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("kv_namespace"),
+                name: Schema.String,
+                namespaceId: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  namespaceId: "namespace_id",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("durable_object_namespace"),
+                name: Schema.String,
+                className: Schema.String,
+                scriptName: Schema.optional(Schema.String),
+                environment: Schema.optional(Schema.String),
+                namespaceId: Schema.optional(Schema.String),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  className: "class_name",
+                  scriptName: "script_name",
+                  environment: "environment",
+                  namespaceId: "namespace_id",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("r2_bucket"),
+                name: Schema.String,
+                bucketName: Schema.String,
+                jurisdiction: Schema.optional(Schema.String),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  bucketName: "bucket_name",
+                  jurisdiction: "jurisdiction",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("d1"),
+                name: Schema.String,
+                id: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("queue"),
+                name: Schema.String,
+                queueName: Schema.String,
+                deliveryDelay: Schema.optional(Schema.Number),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  queueName: "queue_name",
+                  deliveryDelay: "delivery_delay",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("service"),
+                name: Schema.String,
+                service: Schema.String,
+                environment: Schema.optional(Schema.String),
+                entrypoint: Schema.optional(Schema.String),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai"),
+                name: Schema.String,
+                staging: Schema.optional(Schema.Boolean),
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("browser"),
+                name: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("images"),
+                name: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("vectorize"),
+                name: Schema.String,
+                indexName: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  indexName: "index_name",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("workflow"),
+                name: Schema.String,
+                workflowName: Schema.String,
+                className: Schema.String,
+                scriptName: Schema.optional(Schema.String),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  workflowName: "workflow_name",
+                  className: "class_name",
+                  scriptName: "script_name",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("hyperdrive"),
+                name: Schema.String,
+                id: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("analytics_engine"),
+                name: Schema.String,
+                dataset: Schema.optional(Schema.String),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("dispatch_namespace"),
+                name: Schema.String,
+                namespace: Schema.String,
+                outbound: Schema.optional(
+                  Schema.Struct({
+                    worker: Schema.optional(
+                      Schema.Struct({
+                        service: Schema.optional(Schema.String),
+                        environment: Schema.optional(Schema.String),
+                      }),
+                    ),
+                    params: Schema.optional(
+                      Schema.Array(
+                        Schema.Struct({
+                          name: Schema.String,
+                        }),
+                      ),
+                    ),
+                  }),
+                ),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("send_email"),
+                name: Schema.String,
+                destinationAddress: Schema.optional(Schema.String),
+                allowedDestinationAddresses: Schema.optional(
+                  Schema.Array(Schema.String),
+                ),
+                allowedSenderAddresses: Schema.optional(
+                  Schema.Array(Schema.String),
+                ),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  destinationAddress: "destination_address",
+                  allowedDestinationAddresses: "allowed_destination_addresses",
+                  allowedSenderAddresses: "allowed_sender_addresses",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("mtls_certificate"),
+                name: Schema.String,
+                certificateId: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  certificateId: "certificate_id",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("wasm_module"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("text_blob"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("data_blob"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("pipelines"),
+                name: Schema.String,
+                pipeline: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("secrets_store_secret"),
+                name: Schema.String,
+                storeId: Schema.String,
+                secretName: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  storeId: "store_id",
+                  secretName: "secret_name",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("stream"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("media"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("version_metadata"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("assets"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("worker_loader"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("logfwdr"),
+                name: Schema.String,
+                destination: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai_search_namespace"),
+                name: Schema.String,
+                namespace: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai_search"),
+                name: Schema.String,
+                instanceName: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  instanceName: "instance_name",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("ratelimit"),
+                name: Schema.String,
+                namespaceId: Schema.String,
+                simple: Schema.Struct({
+                  limit: Schema.Number,
+                  period: Schema.Literals(["10", "60"]),
+                }),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  namespaceId: "namespace_id",
+                  simple: "simple",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("inherit"),
+                name: Schema.String,
+              }),
+            ]),
+          ),
+        ),
+        keepBindings: Schema.optional(Schema.Array(Schema.String)),
+        migrations: Schema.optional(
+          Schema.Struct({
+            oldTag: Schema.optional(Schema.String),
+            newTag: Schema.optional(Schema.String),
+            steps: Schema.optional(
+              Schema.Array(
+                Schema.Struct({
+                  newClasses: Schema.optional(Schema.Array(Schema.String)),
+                  newSqliteClasses: Schema.optional(
+                    Schema.Array(Schema.String),
+                  ),
+                  renamedClasses: Schema.optional(
+                    Schema.Array(
+                      Schema.Struct({
+                        from: Schema.optional(Schema.String),
+                        to: Schema.optional(Schema.String),
+                      }),
+                    ),
+                  ),
+                  deletedClasses: Schema.optional(Schema.Array(Schema.String)),
+                }).pipe(
+                  Schema.encodeKeys({
+                    newClasses: "new_classes",
+                    newSqliteClasses: "new_sqlite_classes",
+                    renamedClasses: "renamed_classes",
+                    deletedClasses: "deleted_classes",
+                  }),
+                ),
+              ),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              oldTag: "old_tag",
+              newTag: "new_tag",
+              steps: "steps",
+            }),
+          ),
+        ),
+        capnpSchema: Schema.optional(Schema.String),
+        logpush: Schema.optional(Schema.Boolean),
+        placement: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              mode: Schema.Literal("smart"),
+              hint: Schema.optional(Schema.String),
+            }),
+            Schema.Struct({
+              region: Schema.String,
+            }),
+            Schema.Struct({
+              host: Schema.String,
+            }),
+            Schema.Struct({
+              hostname: Schema.String,
+            }),
+          ]),
+        ),
+        tailConsumers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              service: Schema.String,
+              environment: Schema.optional(Schema.String),
+            }),
+          ),
+        ),
+        streamingTailConsumers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              service: Schema.String,
+              environment: Schema.optional(Schema.String),
+            }),
+          ),
+        ),
+        limits: Schema.optional(
+          Schema.Struct({
+            cpuMs: Schema.optional(Schema.Number),
+            subrequests: Schema.optional(Schema.Number),
+          }).pipe(
+            Schema.encodeKeys({ cpuMs: "cpu_ms", subrequests: "subrequests" }),
+          ),
+        ),
+        assets: Schema.optional(
+          Schema.Struct({
+            jwt: Schema.optional(Schema.String),
+            config: Schema.optional(
+              Schema.Struct({
+                htmlHandling: Schema.optional(
+                  Schema.Literals([
+                    "auto-trailing-slash",
+                    "force-trailing-slash",
+                    "drop-trailing-slash",
+                    "none",
+                  ]),
+                ),
+                notFoundHandling: Schema.optional(
+                  Schema.Literals([
+                    "single-page-application",
+                    "404-page",
+                    "none",
+                  ]),
+                ),
+                runWorkerFirst: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Array(Schema.String)]),
+                ),
+                redirects: Schema.optional(Schema.String),
+                headers: Schema.optional(Schema.String),
+              }).pipe(
+                Schema.encodeKeys({
+                  htmlHandling: "html_handling",
+                  notFoundHandling: "not_found_handling",
+                  runWorkerFirst: "run_worker_first",
+                  redirects: "_redirects",
+                  headers: "_headers",
+                }),
+              ),
+            ),
+          }),
+        ),
+        observability: Schema.optional(
+          Schema.Struct({
+            enabled: Schema.optional(Schema.Boolean),
+            headSamplingRate: Schema.optional(Schema.Number),
+            logs: Schema.optional(
+              Schema.Struct({
+                enabled: Schema.optional(Schema.Boolean),
+                headSamplingRate: Schema.optional(Schema.Number),
+                invocationLogs: Schema.optional(Schema.Boolean),
+                persist: Schema.optional(Schema.Boolean),
+                destinations: Schema.optional(Schema.Array(Schema.String)),
+              }).pipe(
+                Schema.encodeKeys({
+                  enabled: "enabled",
+                  headSamplingRate: "head_sampling_rate",
+                  invocationLogs: "invocation_logs",
+                  persist: "persist",
+                  destinations: "destinations",
+                }),
+              ),
+            ),
+            traces: Schema.optional(
+              Schema.Struct({
+                enabled: Schema.optional(Schema.Boolean),
+                headSamplingRate: Schema.optional(Schema.Number),
+                persist: Schema.optional(Schema.Boolean),
+                destinations: Schema.optional(Schema.Array(Schema.String)),
+              }).pipe(
+                Schema.encodeKeys({
+                  enabled: "enabled",
+                  headSamplingRate: "head_sampling_rate",
+                  persist: "persist",
+                  destinations: "destinations",
+                }),
+              ),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              enabled: "enabled",
+              headSamplingRate: "head_sampling_rate",
+              logs: "logs",
+              traces: "traces",
+            }),
+          ),
+        ),
+        containers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              className: Schema.String,
+            }).pipe(Schema.encodeKeys({ className: "class_name" })),
+          ),
+        ),
+        annotations: Schema.optional(Schema.Unknown),
+        keepAssets: Schema.optional(Schema.Boolean),
+        tags: Schema.optional(Schema.Array(Schema.String)),
+      }).pipe(
+        Schema.encodeKeys({
+          mainModule: "main_module",
+          bodyPart: "body_part",
+          compatibilityDate: "compatibility_date",
+          compatibilityFlags: "compatibility_flags",
+          usageModel: "usage_model",
+          bindings: "bindings",
+          keepBindings: "keep_bindings",
+          migrations: "migrations",
+          capnpSchema: "capnp_schema",
+          logpush: "logpush",
+          placement: "placement",
+          tailConsumers: "tail_consumers",
+          streamingTailConsumers: "streaming_tail_consumers",
+          limits: "limits",
+          assets: "assets",
+          observability: "observability",
+          containers: "containers",
+          annotations: "annotations",
+          keepAssets: "keep_assets",
+          tags: "tags",
+        }),
+      ),
+    ),
+    files: Schema.optional(
+      Schema.Array(UploadableSchema.pipe(T.HttpFormDataFile())),
+    ),
+    wranglerSessionConfig: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          workersDev: Schema.Literal(true),
+          minimalMode: Schema.optional(Schema.Boolean),
+        }).pipe(
+          Schema.encodeKeys({
+            workersDev: "workers_dev",
+            minimalMode: "minimal_mode",
+          }),
+        ),
+        Schema.Struct({
+          routes: Schema.Array(Schema.String),
+          minimalMode: Schema.optional(Schema.Boolean),
+        }).pipe(
+          Schema.encodeKeys({ routes: "routes", minimalMode: "minimal_mode" }),
+        ),
+      ]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({
+      metadata: "metadata",
+      files: "files",
+      wranglerSessionConfig: "wrangler_session_config",
+    }),
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/workers/scripts/{script_name}/edge-preview",
+      contentType: "multipart",
+    }),
+  ) as unknown as Schema.Schema<CreateScriptEdgePreviewRequest>;
+
+export interface CreateScriptEdgePreviewResponse {
+  /** Token to send as cf-workers-preview-token header when making requests to the preview host. */
+  previewToken: string;
+  /** URL for tailing live logs from the preview worker. */
+  tailUrl: string;
+}
+
+export const CreateScriptEdgePreviewResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    previewToken: Schema.String,
+    tailUrl: Schema.String,
+  })
+    .pipe(
+      Schema.encodeKeys({ previewToken: "preview_token", tailUrl: "tail_url" }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateScriptEdgePreviewResponse>;
+
+export type CreateScriptEdgePreviewError = DefaultErrors;
+
+export const createScriptEdgePreview: API.OperationMethod<
+  CreateScriptEdgePreviewRequest,
+  CreateScriptEdgePreviewResponse,
+  CreateScriptEdgePreviewError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateScriptEdgePreviewRequest,
+  output: CreateScriptEdgePreviewResponse,
+  errors: [],
+}));
+
+// =============================================================================
 // ScriptSchedule
 // =============================================================================
 
@@ -13657,6 +14411,762 @@ export const createScriptVersion: API.OperationMethod<
 }));
 
 // =============================================================================
+// ServiceEdgePreview
+// =============================================================================
+
+export interface CreateServiceEdgePreviewRequest {
+  accountId: string;
+  serviceName: string;
+  environmentName: string;
+  /** The session token returned by createZoneEdgePreviewSession or createSubdomainEdgePreviewSession. */
+  cfPreviewUploadConfigToken: string;
+  metadata?: {
+    mainModule?: string;
+    bodyPart?: string;
+    compatibilityDate?: string;
+    compatibilityFlags?: string[];
+    usageModel?: "bundled" | "unbound" | "standard";
+    bindings?: (
+      | { type: "plain_text"; name: string; text: string }
+      | { type: "secret_text"; name: string; text: string }
+      | { type: "json"; name: string; json: unknown }
+      | {
+          type: "kv_namespace";
+          name: string;
+          namespaceId: string;
+          raw?: boolean;
+        }
+      | {
+          type: "durable_object_namespace";
+          name: string;
+          className: string;
+          scriptName?: string;
+          environment?: string;
+          namespaceId?: string;
+        }
+      | {
+          type: "r2_bucket";
+          name: string;
+          bucketName: string;
+          jurisdiction?: string;
+          raw?: boolean;
+        }
+      | { type: "d1"; name: string; id: string; raw?: boolean }
+      | {
+          type: "queue";
+          name: string;
+          queueName: string;
+          deliveryDelay?: number;
+          raw?: boolean;
+        }
+      | {
+          type: "service";
+          name: string;
+          service: string;
+          environment?: string;
+          entrypoint?: string;
+        }
+      | { type: "ai"; name: string; staging?: boolean; raw?: boolean }
+      | { type: "browser"; name: string; raw?: boolean }
+      | { type: "images"; name: string; raw?: boolean }
+      | { type: "vectorize"; name: string; indexName: string; raw?: boolean }
+      | {
+          type: "workflow";
+          name: string;
+          workflowName: string;
+          className: string;
+          scriptName?: string;
+          raw?: boolean;
+        }
+      | { type: "hyperdrive"; name: string; id: string }
+      | { type: "analytics_engine"; name: string; dataset?: string }
+      | {
+          type: "dispatch_namespace";
+          name: string;
+          namespace: string;
+          outbound?: {
+            worker?: { service?: string; environment?: string };
+            params?: { name: string }[];
+          };
+        }
+      | {
+          type: "send_email";
+          name: string;
+          destinationAddress?: string;
+          allowedDestinationAddresses?: string[];
+          allowedSenderAddresses?: string[];
+        }
+      | { type: "mtls_certificate"; name: string; certificateId: string }
+      | { type: "wasm_module"; name: string; part: string }
+      | { type: "text_blob"; name: string; part: string }
+      | { type: "data_blob"; name: string; part: string }
+      | { type: "pipelines"; name: string; pipeline: string }
+      | {
+          type: "secrets_store_secret";
+          name: string;
+          storeId: string;
+          secretName: string;
+        }
+      | { type: "stream"; name: string }
+      | { type: "media"; name: string }
+      | { type: "version_metadata"; name: string }
+      | { type: "assets"; name: string }
+      | { type: "worker_loader"; name: string }
+      | { type: "logfwdr"; name: string; destination: string }
+      | { type: "ai_search_namespace"; name: string; namespace: string }
+      | { type: "ai_search"; name: string; instanceName: string }
+      | {
+          type: "ratelimit";
+          name: string;
+          namespaceId: string;
+          simple: { limit: number; period: "10" | "60" };
+        }
+      | { type: "inherit"; name: string }
+    )[];
+    keepBindings?: string[];
+    migrations?: {
+      oldTag?: string;
+      newTag?: string;
+      steps?: {
+        newClasses?: string[];
+        newSqliteClasses?: string[];
+        renamedClasses?: { from?: string; to?: string }[];
+        deletedClasses?: string[];
+      }[];
+    };
+    capnpSchema?: string;
+    logpush?: boolean;
+    placement?:
+      | { mode: "smart"; hint?: string }
+      | { region: string }
+      | { host: string }
+      | { hostname: string };
+    tailConsumers?: { service: string; environment?: string }[];
+    streamingTailConsumers?: { service: string; environment?: string }[];
+    limits?: { cpuMs?: number; subrequests?: number };
+    assets?: {
+      jwt?: string;
+      config?: {
+        htmlHandling?:
+          | "auto-trailing-slash"
+          | "force-trailing-slash"
+          | "drop-trailing-slash"
+          | "none";
+        notFoundHandling?: "single-page-application" | "404-page" | "none";
+        runWorkerFirst?: boolean | string[];
+        redirects?: string;
+        headers?: string;
+      };
+    };
+    observability?: {
+      enabled?: boolean;
+      headSamplingRate?: number;
+      logs?: {
+        enabled?: boolean;
+        headSamplingRate?: number;
+        invocationLogs?: boolean;
+        persist?: boolean;
+        destinations?: string[];
+      };
+      traces?: {
+        enabled?: boolean;
+        headSamplingRate?: number;
+        persist?: boolean;
+        destinations?: string[];
+      };
+    };
+    containers?: { className: string }[];
+    annotations?: unknown;
+    keepAssets?: boolean;
+    tags?: string[];
+  };
+  /** Module files comprising the worker script. */
+  files?: (File | Blob)[];
+  wranglerSessionConfig?:
+    | { workersDev: true; minimalMode?: boolean }
+    | { routes: string[]; minimalMode?: boolean };
+}
+
+export const CreateServiceEdgePreviewRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    serviceName: Schema.String.pipe(T.HttpPath("service_name")),
+    environmentName: Schema.String.pipe(T.HttpPath("environment_name")),
+    cfPreviewUploadConfigToken: Schema.String.pipe(
+      T.HttpHeader("cf-preview-upload-config-token"),
+    ),
+    metadata: Schema.optional(
+      Schema.Struct({
+        mainModule: Schema.optional(Schema.String),
+        bodyPart: Schema.optional(Schema.String),
+        compatibilityDate: Schema.optional(Schema.String),
+        compatibilityFlags: Schema.optional(Schema.Array(Schema.String)),
+        usageModel: Schema.optional(
+          Schema.Literals(["bundled", "unbound", "standard"]),
+        ),
+        bindings: Schema.optional(
+          Schema.Array(
+            Schema.Union([
+              Schema.Struct({
+                type: Schema.Literal("plain_text"),
+                name: Schema.String,
+                text: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("secret_text"),
+                name: Schema.String,
+                text: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("json"),
+                name: Schema.String,
+                json: Schema.Unknown,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("kv_namespace"),
+                name: Schema.String,
+                namespaceId: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  namespaceId: "namespace_id",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("durable_object_namespace"),
+                name: Schema.String,
+                className: Schema.String,
+                scriptName: Schema.optional(Schema.String),
+                environment: Schema.optional(Schema.String),
+                namespaceId: Schema.optional(Schema.String),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  className: "class_name",
+                  scriptName: "script_name",
+                  environment: "environment",
+                  namespaceId: "namespace_id",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("r2_bucket"),
+                name: Schema.String,
+                bucketName: Schema.String,
+                jurisdiction: Schema.optional(Schema.String),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  bucketName: "bucket_name",
+                  jurisdiction: "jurisdiction",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("d1"),
+                name: Schema.String,
+                id: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("queue"),
+                name: Schema.String,
+                queueName: Schema.String,
+                deliveryDelay: Schema.optional(Schema.Number),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  queueName: "queue_name",
+                  deliveryDelay: "delivery_delay",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("service"),
+                name: Schema.String,
+                service: Schema.String,
+                environment: Schema.optional(Schema.String),
+                entrypoint: Schema.optional(Schema.String),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai"),
+                name: Schema.String,
+                staging: Schema.optional(Schema.Boolean),
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("browser"),
+                name: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("images"),
+                name: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("vectorize"),
+                name: Schema.String,
+                indexName: Schema.String,
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  indexName: "index_name",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("workflow"),
+                name: Schema.String,
+                workflowName: Schema.String,
+                className: Schema.String,
+                scriptName: Schema.optional(Schema.String),
+                raw: Schema.optional(Schema.Boolean),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  workflowName: "workflow_name",
+                  className: "class_name",
+                  scriptName: "script_name",
+                  raw: "raw",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("hyperdrive"),
+                name: Schema.String,
+                id: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("analytics_engine"),
+                name: Schema.String,
+                dataset: Schema.optional(Schema.String),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("dispatch_namespace"),
+                name: Schema.String,
+                namespace: Schema.String,
+                outbound: Schema.optional(
+                  Schema.Struct({
+                    worker: Schema.optional(
+                      Schema.Struct({
+                        service: Schema.optional(Schema.String),
+                        environment: Schema.optional(Schema.String),
+                      }),
+                    ),
+                    params: Schema.optional(
+                      Schema.Array(
+                        Schema.Struct({
+                          name: Schema.String,
+                        }),
+                      ),
+                    ),
+                  }),
+                ),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("send_email"),
+                name: Schema.String,
+                destinationAddress: Schema.optional(Schema.String),
+                allowedDestinationAddresses: Schema.optional(
+                  Schema.Array(Schema.String),
+                ),
+                allowedSenderAddresses: Schema.optional(
+                  Schema.Array(Schema.String),
+                ),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  destinationAddress: "destination_address",
+                  allowedDestinationAddresses: "allowed_destination_addresses",
+                  allowedSenderAddresses: "allowed_sender_addresses",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("mtls_certificate"),
+                name: Schema.String,
+                certificateId: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  certificateId: "certificate_id",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("wasm_module"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("text_blob"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("data_blob"),
+                name: Schema.String,
+                part: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("pipelines"),
+                name: Schema.String,
+                pipeline: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("secrets_store_secret"),
+                name: Schema.String,
+                storeId: Schema.String,
+                secretName: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  storeId: "store_id",
+                  secretName: "secret_name",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("stream"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("media"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("version_metadata"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("assets"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("worker_loader"),
+                name: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("logfwdr"),
+                name: Schema.String,
+                destination: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai_search_namespace"),
+                name: Schema.String,
+                namespace: Schema.String,
+              }),
+              Schema.Struct({
+                type: Schema.Literal("ai_search"),
+                name: Schema.String,
+                instanceName: Schema.String,
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  instanceName: "instance_name",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("ratelimit"),
+                name: Schema.String,
+                namespaceId: Schema.String,
+                simple: Schema.Struct({
+                  limit: Schema.Number,
+                  period: Schema.Literals(["10", "60"]),
+                }),
+              }).pipe(
+                Schema.encodeKeys({
+                  type: "type",
+                  name: "name",
+                  namespaceId: "namespace_id",
+                  simple: "simple",
+                }),
+              ),
+              Schema.Struct({
+                type: Schema.Literal("inherit"),
+                name: Schema.String,
+              }),
+            ]),
+          ),
+        ),
+        keepBindings: Schema.optional(Schema.Array(Schema.String)),
+        migrations: Schema.optional(
+          Schema.Struct({
+            oldTag: Schema.optional(Schema.String),
+            newTag: Schema.optional(Schema.String),
+            steps: Schema.optional(
+              Schema.Array(
+                Schema.Struct({
+                  newClasses: Schema.optional(Schema.Array(Schema.String)),
+                  newSqliteClasses: Schema.optional(
+                    Schema.Array(Schema.String),
+                  ),
+                  renamedClasses: Schema.optional(
+                    Schema.Array(
+                      Schema.Struct({
+                        from: Schema.optional(Schema.String),
+                        to: Schema.optional(Schema.String),
+                      }),
+                    ),
+                  ),
+                  deletedClasses: Schema.optional(Schema.Array(Schema.String)),
+                }).pipe(
+                  Schema.encodeKeys({
+                    newClasses: "new_classes",
+                    newSqliteClasses: "new_sqlite_classes",
+                    renamedClasses: "renamed_classes",
+                    deletedClasses: "deleted_classes",
+                  }),
+                ),
+              ),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              oldTag: "old_tag",
+              newTag: "new_tag",
+              steps: "steps",
+            }),
+          ),
+        ),
+        capnpSchema: Schema.optional(Schema.String),
+        logpush: Schema.optional(Schema.Boolean),
+        placement: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              mode: Schema.Literal("smart"),
+              hint: Schema.optional(Schema.String),
+            }),
+            Schema.Struct({
+              region: Schema.String,
+            }),
+            Schema.Struct({
+              host: Schema.String,
+            }),
+            Schema.Struct({
+              hostname: Schema.String,
+            }),
+          ]),
+        ),
+        tailConsumers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              service: Schema.String,
+              environment: Schema.optional(Schema.String),
+            }),
+          ),
+        ),
+        streamingTailConsumers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              service: Schema.String,
+              environment: Schema.optional(Schema.String),
+            }),
+          ),
+        ),
+        limits: Schema.optional(
+          Schema.Struct({
+            cpuMs: Schema.optional(Schema.Number),
+            subrequests: Schema.optional(Schema.Number),
+          }).pipe(
+            Schema.encodeKeys({ cpuMs: "cpu_ms", subrequests: "subrequests" }),
+          ),
+        ),
+        assets: Schema.optional(
+          Schema.Struct({
+            jwt: Schema.optional(Schema.String),
+            config: Schema.optional(
+              Schema.Struct({
+                htmlHandling: Schema.optional(
+                  Schema.Literals([
+                    "auto-trailing-slash",
+                    "force-trailing-slash",
+                    "drop-trailing-slash",
+                    "none",
+                  ]),
+                ),
+                notFoundHandling: Schema.optional(
+                  Schema.Literals([
+                    "single-page-application",
+                    "404-page",
+                    "none",
+                  ]),
+                ),
+                runWorkerFirst: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Array(Schema.String)]),
+                ),
+                redirects: Schema.optional(Schema.String),
+                headers: Schema.optional(Schema.String),
+              }).pipe(
+                Schema.encodeKeys({
+                  htmlHandling: "html_handling",
+                  notFoundHandling: "not_found_handling",
+                  runWorkerFirst: "run_worker_first",
+                  redirects: "_redirects",
+                  headers: "_headers",
+                }),
+              ),
+            ),
+          }),
+        ),
+        observability: Schema.optional(
+          Schema.Struct({
+            enabled: Schema.optional(Schema.Boolean),
+            headSamplingRate: Schema.optional(Schema.Number),
+            logs: Schema.optional(
+              Schema.Struct({
+                enabled: Schema.optional(Schema.Boolean),
+                headSamplingRate: Schema.optional(Schema.Number),
+                invocationLogs: Schema.optional(Schema.Boolean),
+                persist: Schema.optional(Schema.Boolean),
+                destinations: Schema.optional(Schema.Array(Schema.String)),
+              }).pipe(
+                Schema.encodeKeys({
+                  enabled: "enabled",
+                  headSamplingRate: "head_sampling_rate",
+                  invocationLogs: "invocation_logs",
+                  persist: "persist",
+                  destinations: "destinations",
+                }),
+              ),
+            ),
+            traces: Schema.optional(
+              Schema.Struct({
+                enabled: Schema.optional(Schema.Boolean),
+                headSamplingRate: Schema.optional(Schema.Number),
+                persist: Schema.optional(Schema.Boolean),
+                destinations: Schema.optional(Schema.Array(Schema.String)),
+              }).pipe(
+                Schema.encodeKeys({
+                  enabled: "enabled",
+                  headSamplingRate: "head_sampling_rate",
+                  persist: "persist",
+                  destinations: "destinations",
+                }),
+              ),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              enabled: "enabled",
+              headSamplingRate: "head_sampling_rate",
+              logs: "logs",
+              traces: "traces",
+            }),
+          ),
+        ),
+        containers: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              className: Schema.String,
+            }).pipe(Schema.encodeKeys({ className: "class_name" })),
+          ),
+        ),
+        annotations: Schema.optional(Schema.Unknown),
+        keepAssets: Schema.optional(Schema.Boolean),
+        tags: Schema.optional(Schema.Array(Schema.String)),
+      }).pipe(
+        Schema.encodeKeys({
+          mainModule: "main_module",
+          bodyPart: "body_part",
+          compatibilityDate: "compatibility_date",
+          compatibilityFlags: "compatibility_flags",
+          usageModel: "usage_model",
+          bindings: "bindings",
+          keepBindings: "keep_bindings",
+          migrations: "migrations",
+          capnpSchema: "capnp_schema",
+          logpush: "logpush",
+          placement: "placement",
+          tailConsumers: "tail_consumers",
+          streamingTailConsumers: "streaming_tail_consumers",
+          limits: "limits",
+          assets: "assets",
+          observability: "observability",
+          containers: "containers",
+          annotations: "annotations",
+          keepAssets: "keep_assets",
+          tags: "tags",
+        }),
+      ),
+    ),
+    files: Schema.optional(
+      Schema.Array(UploadableSchema.pipe(T.HttpFormDataFile())),
+    ),
+    wranglerSessionConfig: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          workersDev: Schema.Literal(true),
+          minimalMode: Schema.optional(Schema.Boolean),
+        }).pipe(
+          Schema.encodeKeys({
+            workersDev: "workers_dev",
+            minimalMode: "minimal_mode",
+          }),
+        ),
+        Schema.Struct({
+          routes: Schema.Array(Schema.String),
+          minimalMode: Schema.optional(Schema.Boolean),
+        }).pipe(
+          Schema.encodeKeys({ routes: "routes", minimalMode: "minimal_mode" }),
+        ),
+      ]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({
+      metadata: "metadata",
+      files: "files",
+      wranglerSessionConfig: "wrangler_session_config",
+    }),
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/workers/services/{service_name}/environments/{environment_name}/edge-preview",
+      contentType: "multipart",
+    }),
+  ) as unknown as Schema.Schema<CreateServiceEdgePreviewRequest>;
+
+export interface CreateServiceEdgePreviewResponse {
+  /** Token to send as cf-workers-preview-token header when making requests to the preview host. */
+  previewToken: string;
+  /** URL for tailing live logs from the preview worker. */
+  tailUrl: string;
+}
+
+export const CreateServiceEdgePreviewResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    previewToken: Schema.String,
+    tailUrl: Schema.String,
+  })
+    .pipe(
+      Schema.encodeKeys({ previewToken: "preview_token", tailUrl: "tail_url" }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateServiceEdgePreviewResponse>;
+
+export type CreateServiceEdgePreviewError = DefaultErrors;
+
+export const createServiceEdgePreview: API.OperationMethod<
+  CreateServiceEdgePreviewRequest,
+  CreateServiceEdgePreviewResponse,
+  CreateServiceEdgePreviewError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateServiceEdgePreviewRequest,
+  output: CreateServiceEdgePreviewResponse,
+  errors: [],
+}));
+
+// =============================================================================
 // Subdomain
 // =============================================================================
 
@@ -13763,4 +15273,97 @@ export const deleteSubdomain: API.OperationMethod<
   input: DeleteSubdomainRequest,
   output: DeleteSubdomainResponse,
   errors: [InvalidRoute],
+}));
+
+// =============================================================================
+// SubdomainEdgePreviewSession
+// =============================================================================
+
+export interface CreateSubdomainEdgePreviewSessionRequest {
+  accountId: string;
+}
+
+export const CreateSubdomainEdgePreviewSessionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/workers/subdomain/edge-preview",
+    }),
+  ) as unknown as Schema.Schema<CreateSubdomainEdgePreviewSessionRequest>;
+
+export interface CreateSubdomainEdgePreviewSessionResponse {
+  /** Session token used as cf-preview-upload-config-token when uploading a preview worker. */
+  token: string;
+  /** Optional URL to exchange the token for a re-encoded version. */
+  exchangeUrl?: string | null;
+}
+
+export const CreateSubdomainEdgePreviewSessionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    token: Schema.String,
+    exchangeUrl: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(Schema.encodeKeys({ token: "token", exchangeUrl: "exchange_url" }))
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateSubdomainEdgePreviewSessionResponse>;
+
+export type CreateSubdomainEdgePreviewSessionError = DefaultErrors;
+
+export const createSubdomainEdgePreviewSession: API.OperationMethod<
+  CreateSubdomainEdgePreviewSessionRequest,
+  CreateSubdomainEdgePreviewSessionResponse,
+  CreateSubdomainEdgePreviewSessionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateSubdomainEdgePreviewSessionRequest,
+  output: CreateSubdomainEdgePreviewSessionResponse,
+  errors: [],
+}));
+
+// =============================================================================
+// ZoneEdgePreviewSession
+// =============================================================================
+
+export interface CreateZoneEdgePreviewSessionRequest {
+  zoneId: string;
+}
+
+export const CreateZoneEdgePreviewSessionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+  }).pipe(
+    T.Http({ method: "GET", path: "/zones/{zone_id}/workers/edge-preview" }),
+  ) as unknown as Schema.Schema<CreateZoneEdgePreviewSessionRequest>;
+
+export interface CreateZoneEdgePreviewSessionResponse {
+  /** Session token used as cf-preview-upload-config-token when uploading a preview worker. */
+  token: string;
+  /** Optional URL to exchange the token for a re-encoded version. */
+  exchangeUrl?: string | null;
+}
+
+export const CreateZoneEdgePreviewSessionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    token: Schema.String,
+    exchangeUrl: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(Schema.encodeKeys({ token: "token", exchangeUrl: "exchange_url" }))
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateZoneEdgePreviewSessionResponse>;
+
+export type CreateZoneEdgePreviewSessionError = DefaultErrors;
+
+export const createZoneEdgePreviewSession: API.OperationMethod<
+  CreateZoneEdgePreviewSessionRequest,
+  CreateZoneEdgePreviewSessionResponse,
+  CreateZoneEdgePreviewSessionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateZoneEdgePreviewSessionRequest,
+  output: CreateZoneEdgePreviewSessionResponse,
+  errors: [],
 }));
