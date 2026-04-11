@@ -425,7 +425,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.readInstance({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-nonexistent",
+        id: "distilled-cf-aisearch-nonexistent-this-id-is-intentionally-longer-than-sixty-four-characters",
       }).pipe(
         Effect.flip,
         Effect.map((e) => expect(e._tag).toBe("ValidationError")),
@@ -516,7 +516,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.deleteInstance({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-delete-nonexistent",
+        id: "distilled-cf-aisearch-delete-nonexistent-this-id-is-intentionally-longer-than-sixty-four-chars",
       }).pipe(
         Effect.flip,
         Effect.map((e) => expect(e._tag).toBe("ValidationError")),
@@ -560,7 +560,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.statsInstance({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-stats-nonexistent",
+        id: "distilled-cf-aisearch-stats-nonexistent-this-id-is-intentionally-longer-than-sixty-four-chars",
       }).pipe(
         Effect.flip,
         Effect.map((e) => expect(e._tag).toBe("ValidationError")),
@@ -597,7 +597,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.updateInstance({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-update-nonexistent",
+        id: "distilled-cf-aisearch-update-nonexistent-this-id-is-intentionally-longer-than-sixty-four-chars",
       }).pipe(
         Effect.flip,
         Effect.map((e) => expect(e._tag).toBe("ValidationError")),
@@ -620,7 +620,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.getInstanceItem({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-item-nonexistent",
+        id: "distilled-cf-aisearch-item-nonexistent-this-id-is-intentionally-longer-than-sixty-four-chars",
         itemId: "nonexistent-item",
       }).pipe(
         Effect.flip,
@@ -645,7 +645,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.getInstanceJob({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-job-nonexistent",
+        id: "distilled-cf-aisearch-job-nonexistent-this-id-is-intentionally-longer-than-sixty-four-characters",
         jobId: "nonexistent-job",
       }).pipe(
         Effect.flip,
@@ -690,7 +690,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.createInstanceJob({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-createjob-nonexistent",
+        id: "distilled-cf-aisearch-createjob-nonexistent-this-id-is-intentionally-longer-than-sixty-four-ch",
       }).pipe(
         Effect.flip,
         Effect.map((e) => expect(e._tag).toBe("ValidationError")),
@@ -713,7 +713,7 @@ describe("AISearch", () => {
     test("error - ValidationError for instance id too long", () =>
       AISearch.logsInstanceJob({
         accountId: accountId(),
-        id: "distilled-cf-aisearch-logs-nonexistent",
+        id: "distilled-cf-aisearch-logs-nonexistent-this-id-is-intentionally-longer-than-sixty-four-chars",
         jobId: "nonexistent-job",
       }).pipe(
         Effect.flip,
