@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.7.12](https://github.com/alchemy-run/distilled/releases/tag/v0.7.12) (2026-04-11)
+
+### Features
+
+- **cloudflare**: add workers edge preview routes - by @john-royal [(42b7663)](https://github.com/alchemy-run/distilled/commit/42b7663b60c2db3800a990a639534cf243eddab2)
+
+### Bug Fixes
+
+- **cloudflare**: add InvalidRoute error for edge preview route and handle "wrangler-session-config" property - by @john-royal [(6e32d66)](https://github.com/alchemy-run/distilled/commit/6e32d66b130575fad9147bc3a3717d6ac10b94ca)
+
 ## [v0.7.11](https://github.com/alchemy-run/distilled/releases/tag/v0.7.11) (2026-04-08)
 
 ### Bug Fixes
