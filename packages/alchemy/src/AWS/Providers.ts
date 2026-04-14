@@ -1,3 +1,4 @@
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
 import { Command, CommandProvider } from "../Build/Command.ts";
 import * as Provider from "../Provider.ts";
@@ -522,4 +523,16 @@ export const providers = () =>
     Layer.provideMerge(Endpoint.fromStageConfig()),
     Layer.provideMerge(DefaultStageConfig),
     Layer.orDie,
+  );
+
+/**
+ * Minimal AWS credential and account context without registering any resource
+ * providers.
+ */
+export const credentials = () =>
+  pipe(
+    Account.fromStageConfig(),
+    Layer.provideMerge(Region.fromStageConfig()),
+    Layer.provideMerge(Credentials.fromStageConfig()),
+    Layer.provideMerge(Endpoint.fromStageConfig()),
   );
