@@ -3,6 +3,7 @@ import * as Effect from "effect/Effect";
 import type * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import type { PlatformError } from "effect/PlatformError";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import type { AwsLoginError } from "./AWS/index.ts";
 import * as AWS from "./AWS/index.ts";
 import * as Cloudflare from "./Cloudflare/index.ts";
@@ -86,7 +87,7 @@ const configureProvider = (
 ): Effect.Effect<
   AWS.AwsAuthConfig | Cloudflare.CloudflareAuthConfig | "remove" | undefined,
   PlatformError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | ChildProcessSpawner
 > => {
   return providers[key].configure(profileName, isReconfigure);
 };
@@ -94,7 +95,7 @@ const configureProvider = (
 const loginProvider = (
   key: ProviderKey,
   config: AWS.AwsAuthConfig | Cloudflare.CloudflareAuthConfig,
-): Effect.Effect<void, AwsLoginError> => {
+): Effect.Effect<void, AwsLoginError | Cloudflare.OAuthClient.OAuthError | PlatformError, FileSystem.FileSystem | ChildProcessSpawner> => {
   if (key === "aws") return AWS.login(config as AWS.AwsAuthConfig);
   return Cloudflare.login(config as Cloudflare.CloudflareAuthConfig);
 };
@@ -116,8 +117,8 @@ export const configure = (
   profileName: string,
 ): Effect.Effect<
   boolean,
-  AwsLoginError | PlatformError,
-  FileSystem.FileSystem
+  AwsLoginError | Cloudflare.OAuthClient.OAuthError | PlatformError,
+  FileSystem.FileSystem | ChildProcessSpawner
 > =>
   Effect.gen(function* () {
     const existing = yield* getProfile(profileName);
@@ -135,8 +136,8 @@ const configureFirstTime = (
   profileName: string,
 ): Effect.Effect<
   boolean,
-  AwsLoginError | PlatformError,
-  FileSystem.FileSystem
+  AwsLoginError | Cloudflare.OAuthClient.OAuthError | PlatformError,
+  FileSystem.FileSystem | ChildProcessSpawner
 > =>
   Effect.gen(function* () {
     const selected = yield* Effect.promise(() =>
@@ -186,8 +187,8 @@ const configureExisting = (
   existing: AlchemyProfile,
 ): Effect.Effect<
   boolean,
-  AwsLoginError | PlatformError,
-  FileSystem.FileSystem
+  AwsLoginError | Cloudflare.OAuthClient.OAuthError | PlatformError,
+  FileSystem.FileSystem | ChildProcessSpawner
 > =>
   Effect.gen(function* () {
     const enabled = ALL_PROVIDERS.filter((k) => existing[k]);
@@ -272,7 +273,7 @@ const configureExisting = (
 
 export const login = (
   profileName: string,
-): Effect.Effect<void, AwsLoginError | PlatformError, FileSystem.FileSystem> =>
+): Effect.Effect<void, AwsLoginError | Cloudflare.OAuthClient.OAuthError | PlatformError, FileSystem.FileSystem | ChildProcessSpawner> =>
   Effect.gen(function* () {
     const profile = yield* getProfile(profileName);
 

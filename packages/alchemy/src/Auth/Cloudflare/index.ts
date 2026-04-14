@@ -1,4 +1,5 @@
 import * as p from "@clack/prompts";
+import * as cfAccounts from "@distilled.cloud/cloudflare/accounts";
 import * as CfCredentialsModule from "@distilled.cloud/cloudflare/Credentials";
 import * as Effect from "effect/Effect";
 import type * as FileSystem from "effect/FileSystem";
@@ -6,6 +7,9 @@ import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import type { PlatformError } from "effect/PlatformError";
 import * as Redacted from "effect/Redacted";
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
+import { ChildProcess } from "effect/unstable/process";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import { StageConfig } from "../../Cloudflare/StageConfig.ts";
 import type { AuthProvider } from "../AuthProvider.ts";
 import {
@@ -15,15 +19,23 @@ import {
   readCredentials,
   writeCredentials,
 } from "../Credentials.ts";
+import * as OAuthClient from "./OAuthClient.ts";
+import { ALL_SCOPES, DEFAULT_SCOPES } from "./Scopes.ts";
+
+export type { OAuthCredentials } from "./OAuthClient.ts";
+export { ALL_SCOPES, DEFAULT_SCOPES } from "./Scopes.ts";
+export { OAuthClient };
 
 export type CloudflareAuthConfig =
   | { method: "env"; accountId?: string }
   | { method: "stored"; credentialType: "apiToken"; accountId?: string }
-  | { method: "stored"; credentialType: "apiKey"; accountId?: string };
+  | { method: "stored"; credentialType: "apiKey"; accountId?: string }
+  | { method: "oauth"; scopes: string[]; accountId?: string };
 
 export type CloudflareStoredCredentials =
   | { type: "apiToken"; apiToken: string }
-  | { type: "apiKey"; apiKey: string; email: string };
+  | { type: "apiKey"; apiKey: string; email: string }
+  | OAuthClient.OAuthCredentials;
 
 export type CloudflareResolvedCredentials =
   | {
@@ -35,6 +47,12 @@ export type CloudflareResolvedCredentials =
       type: "apiKey";
       apiKey: Redacted.Redacted<string>;
       email: string;
+      source: string;
+    }
+  | {
+      type: "oauth";
+      accessToken: Redacted.Redacted<string>;
+      expires: number;
       source: string;
     };
 
@@ -86,6 +104,12 @@ export const resolveFromStored = (
         email: c.email,
         source,
       })),
+      Match.when({ type: "oauth" }, (c) => ({
+        type: "oauth" as const,
+        accessToken: Redacted.make(c.access),
+        expires: c.expires,
+        source,
+      })),
       Match.exhaustive,
     );
   });
@@ -104,20 +128,167 @@ const promptAccountId = (): Effect.Effect<string | undefined> =>
     return result || undefined;
   });
 
+const promptOAuthScopes = (): Effect.Effect<string[] | undefined> =>
+  Effect.gen(function* () {
+    const customize = yield* Effect.promise(() =>
+      p.confirm({
+        message: "Customize OAuth scopes? (default covers typical use cases)",
+        initialValue: false,
+      }),
+    );
+    if (p.isCancel(customize)) return undefined;
+
+    if (!customize) return [...DEFAULT_SCOPES];
+
+    const selected = yield* Effect.promise(() =>
+      p.multiselect({
+        message: "Select OAuth scopes",
+        initialValues: DEFAULT_SCOPES as string[],
+        options: Object.entries(ALL_SCOPES).map(([value, hint]) => ({
+          value: value as string,
+          label: value,
+          hint,
+        })),
+        required: true,
+      }),
+    );
+    if (p.isCancel(selected)) return undefined;
+    return selected as string[];
+  });
+
+// ── Cloudflare Accounts API ──────────────────────────────────────────
+
+/**
+ * Provide a temporary Credentials + HttpClient layer from a raw OAuth
+ * access token so we can call the distilled SDK outside of a full stack.
+ */
+const withOAuthCredentials = <A, E>(
+  accessToken: string,
+  effect: Effect.Effect<
+    A,
+    E,
+    | CfCredentialsModule.Credentials
+    | import("effect/unstable/http/HttpClient").HttpClient
+  >,
+): Effect.Effect<A, E> =>
+  Effect.provide(
+    effect,
+    Layer.mergeAll(
+      CfCredentialsModule.fromOAuth({
+        load: Effect.succeed({ accessToken }),
+        refresh: () =>
+          Effect.die("refresh not expected during account selection"),
+      }),
+      FetchHttpClient.layer,
+    ),
+  );
+
+const selectAccount = (
+  accessToken: string,
+): Effect.Effect<string | undefined, cfAccounts.ListAccountsError> =>
+  Effect.gen(function* () {
+    const list = yield* cfAccounts.listAccounts;
+    const response = yield* list({});
+    const accounts = response.result;
+    if (accounts.length === 0) {
+      p.log.warn("No Cloudflare accounts found for this credential.");
+      return undefined;
+    }
+    if (accounts.length === 1) {
+      const account = accounts[0]!;
+      p.log.info(`Using account: ${account.name} (${account.id})`);
+      return account.id;
+    }
+    const selected = yield* Effect.promise(() =>
+      p.select({
+        message: "Select a Cloudflare account",
+        options: accounts.map((a) => ({
+          value: a.id,
+          label: a.name,
+          hint: a.id,
+        })),
+      }),
+    );
+    if (p.isCancel(selected)) return undefined;
+    return selected;
+  }).pipe((effect) => withOAuthCredentials(accessToken, effect));
+
+/**
+ * Run the Cloudflare OAuth login flow: open browser, wait for callback,
+ * exchange code for credentials, and persist them.
+ *
+ * Returns the OAuth credentials so callers can use the access token
+ * (e.g. to list accounts).
+ */
+const openInBrowser = (
+  url: string,
+): Effect.Effect<void, never, ChildProcessSpawner> =>
+  Effect.gen(function* () {
+    const cmd =
+      process.platform === "win32"
+        ? "start"
+        : process.platform === "darwin"
+          ? "open"
+          : "xdg-open";
+    const args = process.platform === "win32" ? ["", url] : [url];
+    const handle = yield* ChildProcess.make(cmd, args, { shell: true });
+    yield* handle.exitCode;
+  }).pipe(
+    Effect.scoped,
+    Effect.catch(() =>
+      Effect.sync(() =>
+        p.log.warn(
+          "Could not open browser automatically. Please open the URL above manually.",
+        ),
+      ),
+    ),
+  );
+
+export const oauthLogin = (
+  profileName: string,
+  scopes: string[],
+): Effect.Effect<
+  OAuthClient.OAuthCredentials,
+  OAuthClient.OAuthError | PlatformError,
+  FileSystem.FileSystem | ChildProcessSpawner
+> =>
+  Effect.gen(function* () {
+    const allScopes = [...scopes, "offline_access"];
+    const authorization = OAuthClient.authorize(allScopes);
+
+    p.log.info(`Opening browser for Cloudflare OAuth login...`);
+    p.log.info(authorization.url);
+
+    yield* openInBrowser(authorization.url);
+
+    p.log.info("Waiting for authorization (up to 5 minutes)...");
+
+    const credentials = yield* OAuthClient.callback(authorization);
+
+    yield* writeCredentials(profileName, "cloudflare", credentials);
+    p.log.success("Cloudflare OAuth credentials saved.");
+    return credentials;
+  });
+
 export const configure = (
   profileName: string,
   isReconfigure = false,
 ): Effect.Effect<
   CloudflareAuthConfig | "remove" | undefined,
   PlatformError,
-  FileSystem.FileSystem
+  FileSystem.FileSystem | ChildProcessSpawner
 > =>
   Effect.gen(function* () {
     const options: {
-      value: "env" | "stored" | "remove";
+      value: "oauth" | "env" | "stored" | "remove";
       label: string;
       hint?: string;
     }[] = [
+      {
+        value: "oauth",
+        label: "OAuth (SSO)",
+        hint: "recommended — browser-based login with automatic token refresh",
+      },
       {
         value: "env",
         label: "Environment Variables",
@@ -147,6 +318,35 @@ export const configure = (
 
     return yield* Match.value(method).pipe(
       Match.when("remove", () => Effect.succeed("remove" as const)),
+      Match.when("oauth", () =>
+        Effect.gen(function* () {
+          const scopes = yield* promptOAuthScopes();
+          if (scopes === undefined) return undefined;
+
+          const oauthCreds = yield* oauthLogin(profileName, scopes).pipe(
+            Effect.catchTag("OAuthError", (err) => {
+              p.log.error(`OAuth login failed: ${err.errorDescription}`);
+              return Effect.succeed(undefined);
+            }),
+          );
+          if (!oauthCreds) return undefined;
+
+          const accountId = yield* selectAccount(oauthCreds.access).pipe(
+            Effect.catch((err) => {
+              p.log.warn(
+                `Could not list accounts: ${err}. You can set CLOUDFLARE_ACCOUNT_ID instead.`,
+              );
+              return Effect.succeed(undefined);
+            }),
+          );
+          if (accountId === undefined) return undefined;
+          return {
+            method: "oauth" as const,
+            scopes,
+            ...(accountId ? { accountId } : {}),
+          };
+        }),
+      ),
       Match.when("env", () =>
         Effect.gen(function* () {
           const accountId = yield* promptAccountId();
@@ -243,7 +443,13 @@ export const configure = (
 
 const matchMethod = Match.discriminator("method");
 
-export const login = (config: CloudflareAuthConfig): Effect.Effect<void> =>
+export const login = (
+  config: CloudflareAuthConfig,
+): Effect.Effect<
+  void,
+  OAuthClient.OAuthError | PlatformError,
+  FileSystem.FileSystem | ChildProcessSpawner
+> =>
   Match.value(config).pipe(
     matchMethod("env", () =>
       Effect.sync(() =>
@@ -256,6 +462,33 @@ export const login = (config: CloudflareAuthConfig): Effect.Effect<void> =>
       Effect.sync(() =>
         p.log.info("Cloudflare: using stored credentials — no login required."),
       ),
+    ),
+    matchMethod("oauth", (c) =>
+      Effect.gen(function* () {
+        // Check if stored OAuth credentials are still valid
+        const creds = yield* readCredentials<OAuthClient.OAuthCredentials>(
+          "default",
+          "cloudflare",
+        );
+        if (creds?.type === "oauth" && creds.expires > Date.now() + 10_000) {
+          p.log.info("Cloudflare: OAuth credentials are still valid.");
+          return;
+        }
+        if (creds?.type === "oauth") {
+          // Try to refresh
+          p.log.info("Cloudflare: refreshing OAuth credentials...");
+          const refreshed = yield* OAuthClient.refresh(creds).pipe(
+            Effect.catchTag("OAuthError", () => Effect.succeed(undefined)),
+          );
+          if (refreshed) {
+            yield* writeCredentials("default", "cloudflare", refreshed);
+            p.log.success("Cloudflare OAuth credentials refreshed.");
+            return;
+          }
+        }
+        // Fall back to full login
+        yield* oauthLogin("default", c.scopes);
+      }),
     ),
     Match.exhaustive,
   );
@@ -278,6 +511,27 @@ export const logout = (
         ),
       ),
     ),
+    matchMethod("oauth", () =>
+      Effect.gen(function* () {
+        const creds = yield* readCredentials<OAuthClient.OAuthCredentials>(
+          profileName,
+          "cloudflare",
+        );
+        if (creds?.type === "oauth") {
+          yield* OAuthClient.revoke(creds).pipe(
+            Effect.catchTag("OAuthError", (err) =>
+              Effect.sync(() =>
+                p.log.warn(
+                  `Could not revoke OAuth token: ${err.errorDescription}`,
+                ),
+              ),
+            ),
+          );
+        }
+        yield* deleteCredentials(profileName, "cloudflare");
+        p.log.success("Cloudflare OAuth credentials removed.");
+      }),
+    ),
     Match.exhaustive,
   ) as Effect.Effect<void, never, FileSystem.FileSystem>;
 
@@ -296,6 +550,16 @@ function printCredentials(creds: CloudflareResolvedCredentials): void {
     Match.when({ type: "apiKey" }, (c) => {
       console.log(`  apiKey: ${displayRedacted(c.apiKey)}`);
       console.log(`  email:  ${c.email}`);
+    }),
+    Match.when({ type: "oauth" }, (c) => {
+      console.log(`  accessToken: ${displayRedacted(c.accessToken)}`);
+      const expiresIn = Math.max(
+        0,
+        Math.round((c.expires - Date.now()) / 1000),
+      );
+      console.log(
+        `  expires: ${expiresIn > 0 ? `in ${expiresIn}s` : "expired"}`,
+      );
     }),
     Match.exhaustive,
   );
@@ -335,8 +599,58 @@ export const viewAuth = (
         printAccountId(c.accountId);
       }),
     ),
+    matchMethod("oauth", (c) =>
+      Effect.gen(function* () {
+        console.log("Cloudflare: oauth (SSO)");
+        const resolved = yield* resolveFromStored(profileName);
+        if (!resolved) {
+          console.log(
+            "  ERROR: credentials not found. Run: alchemy-effect login",
+          );
+        } else {
+          printCredentials(resolved);
+        }
+        console.log(`  scopes: ${c.scopes.join(", ")}`);
+        printAccountId(c.accountId);
+      }),
+    ),
     Match.exhaustive,
   ) as Effect.Effect<void, never, FileSystem.FileSystem>;
+
+const oauthProvider = (
+  profileName: string,
+  creds: OAuthClient.OAuthCredentials,
+): CfCredentialsModule.OAuthProvider<FileSystem.FileSystem> => ({
+  load: Effect.succeed({
+    accessToken: creds.access,
+    refreshToken: creds.refresh,
+    expiresAt: creds.expires,
+  }),
+  refresh: (current) =>
+    OAuthClient.refresh({
+      type: "oauth",
+      access: current.accessToken,
+      refresh: current.refreshToken ?? "",
+      expires: current.expiresAt ?? 0,
+      scopes: [],
+    }).pipe(
+      Effect.tap((refreshed) =>
+        writeCredentials(profileName, "cloudflare", refreshed).pipe(
+          Effect.catch(() => Effect.void),
+        ),
+      ),
+      Effect.map((refreshed) => ({
+        accessToken: refreshed.access,
+        refreshToken: refreshed.refresh,
+        expiresAt: refreshed.expires,
+      })),
+      Effect.tapError(() =>
+        Effect.logWarning(
+          "Failed to refresh Cloudflare OAuth token. Run: alchemy-effect login",
+        ),
+      ),
+    ),
+});
 
 export const credentialsLayer = (
   profileName: string,
@@ -368,8 +682,30 @@ export const credentialsLayer = (
                   email: c.email,
                 }),
               ),
+              Match.when({ type: "oauth" }, (c) =>
+                CfCredentialsModule.fromOAuth(oauthProvider(profileName, c)),
+              ),
               Match.exhaustive,
             );
+          }),
+        ),
+      ),
+    ),
+    matchMethod("oauth", () =>
+      Layer.unwrap(
+        readCredentials<OAuthClient.OAuthCredentials>(
+          profileName,
+          "cloudflare",
+        ).pipe(
+          Effect.map((creds) => {
+            if (!creds || creds.type !== "oauth") {
+              return Layer.effectDiscard(
+                Effect.die(
+                  "Cloudflare OAuth credentials not found. Run: alchemy-effect login",
+                ),
+              ) as Layer.Layer<CfCredentialsModule.Credentials>;
+            }
+            return CfCredentialsModule.fromOAuth(oauthProvider(profileName, creds));
           }),
         ),
       ),
