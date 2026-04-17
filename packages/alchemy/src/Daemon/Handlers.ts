@@ -13,6 +13,52 @@ import { ProcessAlreadyExistsError, ProcessNotFoundError } from "./Error.ts";
 import * as Monitor from "./Monitor.ts";
 import * as platform from "./Platform.ts";
 
+export interface DaemonSpawnRequest {
+  readonly id: string;
+  readonly command: string;
+  readonly args?: ReadonlyArray<string>;
+  readonly options: Schema.Schema.Type<typeof platform.CommandOptions>;
+  readonly override?:
+    | boolean
+    | Schema.Schema.Type<typeof platform.KillOptions>;
+}
+
+export interface DaemonKillRequest {
+  readonly id: string;
+  readonly options?: Schema.Schema.Type<typeof platform.KillOptions>;
+}
+
+export interface DaemonWatchRequest {
+  readonly id: string;
+  readonly fd: Schema.Schema.Type<typeof platform.Fd>;
+}
+
+export interface DaemonProcessManager {
+  readonly heartbeat: () => Effect.Effect<void>;
+  readonly spawn: (
+    input: DaemonSpawnRequest,
+  ) => Effect.Effect<
+    void,
+    Schema.Schema.Type<typeof platform.PlatformError> | ProcessAlreadyExistsError
+  >;
+  readonly kill: (
+    input: DaemonKillRequest,
+  ) => Effect.Effect<
+    void,
+    Schema.Schema.Type<typeof platform.PlatformError> | ProcessNotFoundError
+  >;
+  readonly watch: (
+    input: DaemonWatchRequest,
+  ) => Effect.Effect<
+    Stream.Stream<Uint8Array, Schema.Schema.Type<typeof platform.PlatformError>>,
+    ProcessNotFoundError
+  >;
+  readonly exit: () => Effect.Effect<
+    void,
+    Schema.Schema.Type<typeof platform.PlatformError>
+  >;
+}
+
 export const DaemonRpcs = RpcGroup.make(
   Rpc.make("heartbeat", {
     success: Schema.Void,
@@ -85,7 +131,7 @@ export const DaemonHandlers = DaemonRpcs.toLayer(
       return killAll().pipe(Effect.ignore);
     });
 
-    return {
+    const handlers = {
       heartbeat: Effect.fnUntraced(function* () {
         yield* Effect.logInfo("Heartbeat received");
         yield* monitor.heartbeat;
@@ -140,5 +186,7 @@ export const DaemonHandlers = DaemonRpcs.toLayer(
         yield* monitor.exit;
       }),
     };
+
+    return handlers;
   }),
 );

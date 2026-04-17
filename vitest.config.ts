@@ -1,10 +1,13 @@
+import tsconfigPaths from "vite-tsconfig-paths";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  plugins: [tsconfigPaths({ projects: ["./tsconfig.test.json"] })],
   test: {
+    root: "packages/alchemy",
     pool: "threads",
     maxWorkers: 32,
     testTimeout: 120000,
@@ -13,7 +16,7 @@ export default defineConfig({
     sequence: {
       concurrent: true,
     },
-    include: ["alchemy/test/**/*.test.ts"],
+    include: ["test/**/*.test.ts"],
     exclude: [
       "**/node_modules/**",
       "**/dist/**",
@@ -38,6 +41,6 @@ export default defineConfig({
         "**/*.config.*",
       ],
     },
-    setupFiles: ["alchemy/test/vitest.setup.ts"],
+    setupFiles: ["test/vitest.setup.ts"],
   },
 });

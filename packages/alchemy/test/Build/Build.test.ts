@@ -1,4 +1,5 @@
 import * as Build from "@/Build";
+import { Daemon } from "@/Daemon/Client";
 import { destroy } from "@/Destroy";
 import { test } from "@/Test/Vitest";
 import { expect } from "@effect/vitest";
@@ -6,9 +7,21 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
+import * as Stream from "effect/Stream";
 import * as pathe from "pathe";
 
 const fixtureDir = pathe.resolve(import.meta.dirname, "fixture");
+
+const TestDaemon = Layer.succeed(
+  Daemon,
+  {
+    heartbeat: () => Effect.void,
+    spawn: () => Effect.void,
+    kill: () => Effect.void,
+    watch: () => Stream.empty,
+    exit: () => Effect.void,
+  } as any,
+);
 
 test(
   "create, skip, update, delete build",
@@ -99,5 +112,7 @@ test(
 
     const distExistsAfterDestroy = yield* fs.exists(distDir);
     expect(distExistsAfterDestroy).toBe(false);
-  }).pipe(Effect.provide(Layer.mergeAll(Build.CommandProvider()))),
+  }).pipe(
+    Effect.provide(Layer.mergeAll(Build.CommandProvider(), TestDaemon)),
+  ) as any,
 );

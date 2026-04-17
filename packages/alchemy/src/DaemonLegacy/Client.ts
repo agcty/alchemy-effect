@@ -7,13 +7,21 @@ import * as Path from "effect/Path";
 import * as Schedule from "effect/Schedule";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
-import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
+import * as RpcClient from "effect/unstable/rpc/RpcClient";
+import type { RpcClientError } from "effect/unstable/rpc/RpcClientError";
+import type * as RpcGroup from "effect/unstable/rpc/RpcGroup";
+import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
 import * as Socket from "effect/unstable/socket/Socket";
+import { DaemonRpcs } from "../Daemon/Handlers.ts";
 import { resolveSocketPath } from "./Config.ts";
 import { DaemonConnectFailed, DaemonSocketNotReady } from "./Errors.ts";
-import { DaemonRpcs } from "./RpcSchema.ts";
 
-export type DaemonClient = Effect.Success<ReturnType<typeof makeClient>>;
+type InferRpcClient<Group extends RpcGroup.RpcGroup<any>> =
+  Group extends RpcGroup.RpcGroup<infer Rpcs>
+    ? RpcClient.RpcClient<Rpcs, RpcClientError>
+    : never;
+
+export type DaemonClient = InferRpcClient<typeof DaemonRpcs>;
 
 export class Daemon extends Context.Service<Daemon, DaemonClient>()(
   "alchemy/Cli/Daemon",

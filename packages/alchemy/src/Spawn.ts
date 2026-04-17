@@ -8,16 +8,20 @@ export const spawn = Effect.fnUntraced(function* (
   options?: { cwd?: string; env?: Record<string, string> },
 ) {
   const daemon = yield* Daemon;
-  const handle = yield* daemon.spawn({
+  yield* daemon.spawn({
     id,
     command,
     args: args ?? [],
-    ...options,
+    options: {
+      cwd: options?.cwd,
+      env: options?.env,
+      stdout: "pipe",
+      stderr: "pipe",
+    },
   });
 
   daemon.watch({
-    clientId: "my",
     id,
+    fd: "stdout",
   });
-  return handle;
 });

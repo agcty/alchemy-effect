@@ -206,8 +206,8 @@ const makeIdleWatchdog = (shutdownSignal: Deferred.Deferred<void>) =>
 const makeHandlersLayer = (
   watchdog: Effect.Success<ReturnType<typeof makeIdleWatchdog>>,
   procRegistry: Effect.Success<ReturnType<typeof makeProcessRegistry>>,
-) =>
-  DaemonRpcs.toLayer({
+) => {
+  return DaemonRpcs.toLayer({
     heartbeat: () =>
       Effect.gen(function* () {
         yield* Effect.logInfo("Heartbeat received");
@@ -231,3 +231,4 @@ const makeHandlersLayer = (
       ),
     watch: (req) => procRegistry.watchProcess(req),
   });
+};
