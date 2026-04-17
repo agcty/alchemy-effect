@@ -95,6 +95,7 @@ export const StaticSite = <const Bindings extends WorkerBindingProps = {}>(
       memo: props.memo,
       outdir: props.outdir,
       env: props.env,
+      dev: props.dev,
     });
 
     const worker = yield* Worker<Bindings, WorkerAssetsConfig>("Worker", {

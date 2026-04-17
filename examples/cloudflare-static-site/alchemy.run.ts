@@ -8,7 +8,14 @@ export default Alchemy.Stack(
     providers: Cloudflare.providers(),
   },
   Effect.gen(function* () {
-    const worker = yield* Cloudflare.Vite("Website");
+    const worker = yield* Cloudflare.StaticSite("Website", {
+      command: "bun vite build",
+      dev: {
+        command: "bun vite dev",
+      },
+      outdir: "dist",
+      main: "./src/worker.ts",
+    });
 
     return {
       url: worker.url,

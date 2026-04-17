@@ -4,6 +4,7 @@ import * as Path from "effect/Path";
 import * as Redacted from "effect/Redacted";
 import * as Stream from "effect/Stream";
 import { ChildProcess } from "effect/unstable/process";
+import { Daemon } from "../Daemon/Client.ts";
 import { isResolved } from "../Diff.ts";
 import * as Provider from "../Provider.ts";
 import { Resource } from "../Resource.ts";
@@ -16,6 +17,11 @@ export interface CommandProps {
    * @example "vite build"
    */
   command: string;
+
+  dev?: {
+    command: string;
+  };
+
   /**
    * Working directory for the command.
    * Defaults to the current working directory.
@@ -104,6 +110,7 @@ export const CommandProvider = () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const pathModule = yield* Path.Path;
+      const daemon = yield* Daemon;
 
       const runBuild = (props: CommandProps) =>
         Effect.gen(function* () {
@@ -122,6 +129,62 @@ export const CommandProvider = () =>
           });
         });
 
+      const runDev = Effect.fnUntraced(function* (id: string, command: string) {
+        // const handle = yield* daemon.spawn({
+        //   id,
+        //   command: command.split(" ")[0],
+        //   args: command.split(" ").slice(1),
+        // });
+        // console.log(handle);
+        // yield* daemon
+        //   .watch({
+        //     id,
+        //     clientId: "whatever",
+        //   })
+        //   .pipe(
+        //     Stream.runForEach((line) => Effect.sync(() => console.log(line))),
+        //     Effect.forkScoped,
+        //   );
+        console.log("spawning dev command", id, command);
+        yield* daemon
+          .spawn({
+            id,
+            command: command.split(" ")[0],
+            args: command.split(" ").slice(1),
+            options: {
+              stdout: "pipe",
+              stderr: "pipe",
+            },
+          })
+          .pipe(
+            Effect.exit,
+            Effect.tap((exit) => {
+              console.dir({ command, exit }, { depth: null });
+              return Effect.void;
+            }),
+          );
+        // console.log("watching stdout");
+        // yield* daemon
+        //   .watch({
+        //     id,
+        //     fd: "stdout",
+        //   })
+        //   .pipe(
+        //     Stream.decodeText,
+        //     Stream.runForEach((line) => Effect.logInfo(line)),
+        //   );
+        // console.log("watching stderr");
+        // yield* daemon
+        //   .watch({
+        //     id,
+        //     fd: "stderr",
+        //   })
+        //   .pipe(
+        //     Stream.decodeText,
+        //     Stream.runForEach((line) => Effect.logError(line)),
+        //   );
+      });
+
       const getOutputPath = (props: CommandProps) => {
         const cwd = props.cwd ? pathModule.resolve(props.cwd) : process.cwd();
         return pathModule.resolve(cwd, props.outdir);
@@ -131,13 +194,14 @@ export const CommandProvider = () =>
         stables: ["outdir"],
         diff: Effect.fnUntraced(function* ({ news, output }) {
           if (!isResolved(news)) return undefined;
-          if (!output) {
-            return undefined;
-          }
-          const newHash = yield* hashDirectory(news);
-          if (newHash !== output.hash) {
-            return { action: "update" as const };
-          }
+          return { action: "update" as const };
+          // if (!output) {
+          //   return undefined;
+          // }
+          // const newHash = yield* hashDirectory(news);
+          // if (newHash !== output.hash) {
+          //   return { action: "update" as const };
+          // }
         }),
         read: Effect.fnUntraced(function* ({ olds, output }) {
           if (!output) {
@@ -150,7 +214,12 @@ export const CommandProvider = () =>
           }
           return output;
         }),
-        create: Effect.fnUntraced(function* ({ news, session }) {
+        create: Effect.fnUntraced(function* ({ id, news, session }) {
+          if (news.dev) {
+            console.log("running dev command", id, news.dev.command);
+            yield* runDev(id, news.dev.command);
+            console.log("dev command started");
+          }
           const hash = yield* hashDirectory(news);
           const outputPath = getOutputPath(news);
 
@@ -171,7 +240,12 @@ export const CommandProvider = () =>
             hash,
           };
         }),
-        update: Effect.fnUntraced(function* ({ news, session }) {
+        update: Effect.fnUntraced(function* ({ id, news, session }) {
+          if (news.dev) {
+            console.log("running dev command", id, news.dev.command);
+            yield* runDev(id, news.dev.command);
+            console.log("dev command started");
+          }
           const hash = yield* hashDirectory(news);
           const outputPath = getOutputPath(news);
 

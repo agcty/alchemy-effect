@@ -1,10 +1,13 @@
-import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
+import * as NodeServices from "@effect/platform-node/NodeServices";
 import * as Effect from "effect/Effect";
-import { BunSQLite, main, NodeServices } from "../src/Daemon/RpcServer.ts";
+import * as DotAlchemy from "../src/Config.ts";
+import * as DaemonServer from "../src/Daemon/Server.ts";
 
-main.pipe(
+const program = DaemonServer.startServer.pipe(
+  Effect.provide(DotAlchemy.dotAlchemy),
   Effect.provide(NodeServices.layer),
-  Effect.provide(BunSQLite),
-  Effect.catchTag("DaemonAlreadyRunning", (err) => Effect.logInfo(err.message)),
-  NodeRuntime.runMain,
+  Effect.scoped,
 );
+
+const exit = await Effect.runPromiseExit(program);
+console.dir({ thing: "process-manager", exit }, { depth: null });

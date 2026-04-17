@@ -74,6 +74,8 @@ export const main = Effect.gen(function* () {
   yield* Effect.logInfo("Daemon ready");
 
   yield* watchdog.awaitShutdown;
+
+  yield* Effect.logInfo("Daemon shutting down");
 }).pipe(Effect.scoped);
 
 // ---------------------------------------------------------------------------

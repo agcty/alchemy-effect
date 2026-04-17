@@ -15,6 +15,8 @@ import * as CliError from "effect/unstable/cli/CliError";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 
+import { ChildProcessSpawner } from "effect/unstable/process";
+import { fileURLToPath } from "node:url";
 import packageJson from "../package.json" with { type: "json" };
 import { apply } from "../src/Apply.ts";
 import { provideFreshArtifactStore } from "../src/Artifacts.ts";
@@ -189,15 +191,13 @@ const execStack = Effect.fn(function* ({
   // TODO(sam): implement local and watch
   const platform = Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer);
 
-  const rootLogger = Logger.layer([fileLogger("out")]);
-
   // override alchemy state store, CLI/reporting and dotAlchemy
   const alchemy = Layer.mergeAll(
     // TODO(sam): support overriding these
     State.LocalState,
     CLI.inkCLI(),
     // optional
-    Layer.provideMerge(rootLogger, dotAlchemy),
+    dotAlchemy,
   );
 
   yield* Effect.gen(function* () {
@@ -491,17 +491,24 @@ const devCommand = Command.make(
   },
   ({ envFile, main, stage }) =>
     Effect.gen(function* () {
-      const cmd = ChildProcess.make("bun", ["--hot", main], {
-        env: {
-          ALCHEMY_PHASE: "dev",
-        },
+      const args = [
+        "run",
+        "--hot",
+        fileURLToPath(import.meta.url),
+        "deploy",
+        "--yes",
+      ];
+      console.log("dev", main, envFile, stage, {
+        args,
       });
-
-      const proc = yield* cmd;
-
-      proc.stdout;
-      proc.stderr;
-      proc.all;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      const command = ChildProcess.make("bun", args, {
+        stdin: "inherit",
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      yield* spawner.spawn(command);
+      yield* Effect.never;
     }),
 );
 
@@ -731,6 +738,7 @@ const root = Command.make("alchemy", {}).pipe(
     bootstrapCommand,
     deployCommand,
     destroyCommand,
+    devCommand,
     planCommand,
     tailCommand,
     logsCommand,
@@ -751,6 +759,7 @@ cli.pipe(
     ConfigProvider.fromEnv(),
   ),
   Effect.provide(NodeServices.layer),
+  Effect.provide(Logger.layer([Logger.consolePretty()])),
   Effect.scoped,
   NodeRuntime.runMain,
 );
