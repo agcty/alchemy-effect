@@ -42,7 +42,7 @@ import { Resource, type ResourceBinding } from "../../Resource.ts";
 import { Self } from "../../Self.ts";
 import * as Serverless from "../../Serverless/index.ts";
 import { Stack } from "../../Stack.ts";
-import { Account } from "../Account.ts";
+import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import { D1Database } from "../D1/D1Database.ts";
 import { fromCloudflareFetcher } from "../Fetcher.ts";
 import { CloudflareLogs } from "../Logs.ts";
@@ -912,7 +912,7 @@ export const WorkerProvider = () =>
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 
-      const accountId = yield* Account;
+      const { accountId } = yield* CloudflareEnvironment;
       const virtualEntryPlugin = yield* Bundle.virtualEntryPlugin;
       const stack = yield* Stack;
 

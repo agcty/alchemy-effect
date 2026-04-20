@@ -3,17 +3,17 @@ import {
   apiTokenCredentials,
   Credentials,
   oauthCredentials,
-  type ResolvedCredentials,
 } from "@distilled.cloud/cloudflare/Credentials";
 import { ConfigError } from "@distilled.cloud/core/errors";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
-import { loadOrConfigure } from "../Profile/Profile.ts";
+import { loadOrConfigure } from "../Auth/Profile.ts";
 import {
   CloudflareAuth,
-  type CloudflareResolvedCredentials,
+  type CloudflareAuthConfig,
 } from "./Auth/AuthProvider.ts";
 
 export { Credentials, fromEnv } from "@distilled.cloud/cloudflare/Credentials";
@@ -33,11 +33,32 @@ export const fromAuthProvider = () =>
       );
       const ctx = yield* Effect.context<never>();
 
-      return Effect.gen(function* () {
-        const config = yield* loadOrConfigure(auth, profileName);
-        const creds = yield* auth.read(profileName, config);
-        return toResolvedCredentials(creds);
-      }).pipe(
+      return loadOrConfigure(auth, profileName).pipe(
+        Effect.flatMap((config) =>
+          auth.read(profileName, config as CloudflareAuthConfig),
+        ),
+        Effect.map((creds) =>
+          Match.value(creds).pipe(
+            Match.when({ type: "apiToken" }, (c) =>
+              apiTokenCredentials({
+                apiToken: Redacted.value(c.apiToken),
+              }),
+            ),
+            Match.when({ type: "apiKey" }, (c) =>
+              apiKeyCredentials({
+                apiKey: Redacted.value(c.apiKey),
+                email: Redacted.value(c.email),
+              }),
+            ),
+            Match.when({ type: "oauth" }, (c) =>
+              oauthCredentials({
+                accessToken: Redacted.value(c.accessToken),
+                expiresAt: c.expires,
+              }),
+            ),
+            Match.exhaustive,
+          ),
+        ),
         Effect.mapError(
           (e) =>
             new ConfigError({
@@ -48,24 +69,3 @@ export const fromAuthProvider = () =>
       );
     }),
   );
-
-const toResolvedCredentials = (
-  creds: CloudflareResolvedCredentials,
-): ResolvedCredentials => {
-  switch (creds.type) {
-    case "apiToken":
-      return apiTokenCredentials({
-        apiToken: Redacted.value(creds.apiToken),
-      });
-    case "apiKey":
-      return apiKeyCredentials({
-        apiKey: Redacted.value(creds.apiKey),
-        email: Redacted.value(creds.email),
-      });
-    case "oauth":
-      return oauthCredentials({
-        accessToken: Redacted.value(creds.accessToken),
-        expiresAt: creds.expires,
-      });
-  }
-};

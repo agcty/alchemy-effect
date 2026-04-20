@@ -6,32 +6,24 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
-import * as Path from "effect/Path";
 import * as Redacted from "effect/Redacted";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as ChildProcessSpawner from "effect/unstable/process/ChildProcessSpawner";
-import { AuthError, type AuthProvider } from "../../Profile/AuthProvider.ts";
+import { AuthError, AuthProvider } from "../../Auth/AuthProvider.ts";
 import {
   deleteCredentials,
   displayRedacted,
   readCredentials,
   writeCredentials,
-} from "../../Profile/Credentials.ts";
+} from "../../Auth/Credentials.ts";
 import {
   getEnv,
   getEnvRedacted,
   getEnvRequired,
   retryOnce,
-} from "../../Profile/Env.ts";
+} from "../../Auth/Env.ts";
 import * as Clank from "../../Util/Clank.ts";
 import * as OAuthClient from "./OAuthClient.ts";
-
-export type CloudflareAuthConfig =
-  | { method: "env" }
-  | { method: "stored"; credentialType: "apiToken" }
-  | { method: "stored"; credentialType: "apiKey" }
-  | { method: "oauth"; scopes: string[] };
 
 const options: Array<{
   value: CloudflareAuthConfig["method"];
@@ -54,6 +46,12 @@ const options: Array<{
     hint: "stored in ~/.alchemy/credentials",
   },
 ];
+
+export type CloudflareAuthConfig =
+  | { method: "env" }
+  | { method: "stored"; credentialType: "apiToken" }
+  | { method: "stored"; credentialType: "apiKey" }
+  | { method: "oauth"; scopes: string[] };
 
 export type CloudflareStoredCredentials =
   | { type: "apiToken"; apiToken: string; accountId: string }
@@ -81,30 +79,15 @@ export type CloudflareResolvedCredentials =
       source: { type: CloudflareAuthConfig["method"]; details?: string };
     };
 
-export const CloudflareAuth = Effect.gen(function* () {
-  const context = yield* Effect.context<
-    FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
-  >();
-
-  return {
-    kind: "AuthProvider",
-    name: "Cloudflare",
-
-    configure: (profileName) =>
-      configureCredentials(profileName).pipe(Effect.provide(context)),
-
-    logout: (profileName, config) =>
-      logout(profileName, config).pipe(Effect.provide(context)),
-
-    login: (profileName, config) =>
-      login(profileName, config).pipe(Effect.provide(context)),
-
-    prettyPrint: (profileName, config) =>
-      prettyPrint(profileName, config).pipe(Effect.provide(context)),
-
-    read: (profileName, config) =>
-      resolveCredentials(profileName, config).pipe(Effect.provide(context)),
-  } satisfies AuthProvider<CloudflareAuthConfig, CloudflareResolvedCredentials>;
+export const CloudflareAuth = AuthProvider<
+  CloudflareAuthConfig,
+  CloudflareResolvedCredentials
+>()("Cloudflare", {
+  configure: (profileName) => configureCredentials(profileName),
+  logout: (profileName, config) => logout(profileName, config),
+  login: (profileName, config) => login(profileName, config),
+  prettyPrint: (profileName, config) => prettyPrint(profileName, config),
+  read: (profileName, config) => resolveCredentials(profileName, config),
 });
 
 const resolveCredentials = (

@@ -17,6 +17,8 @@ import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import packageJson from "../package.json" with { type: "json" };
 import { apply } from "../src/Apply.ts";
 import { provideFreshArtifactStore } from "../src/Artifacts.ts";
+import { AuthProviders, type AuthProvider } from "../src/Auth/AuthProvider.ts";
+import { getProfile, setProfile } from "../src/Auth/Profile.ts";
 import * as AWSAccount from "../src/AWS/Account.ts";
 import {
   bootstrap as bootstrapAws,
@@ -27,8 +29,6 @@ import * as AWSRegion from "../src/AWS/Region.ts";
 import * as CLI from "../src/Cli/index.ts";
 import { dotAlchemy } from "../src/Config.ts";
 import * as Plan from "../src/Plan.ts";
-import type { AuthProvider } from "../src/Profile/AuthProvider.ts";
-import { getProfile, setProfile } from "../src/Profile/Profile.ts";
 import { findProviderByType, type LogLine } from "../src/Provider.ts";
 import * as Stack from "../src/Stack.ts";
 import { Stage } from "../src/Stage.ts";
@@ -557,6 +557,10 @@ const loginCommand = Command.make(
       );
     }
 
+    const authProviders: {
+      [providerName: string]: AuthProvider<any, any>;
+    } = {};
+
     const configProvider = yield* loadConfigProvider(envFile);
 
     const platform = Layer.mergeAll(PlatformServices, FetchHttpClient.layer);
@@ -611,6 +615,7 @@ const loginCommand = Command.make(
         ),
       ),
       Effect.provideService(ConfigProvider.ConfigProvider, configProvider),
+      Effect.provideService(AuthProviders, authProviders),
       Effect.scoped,
     );
   }),

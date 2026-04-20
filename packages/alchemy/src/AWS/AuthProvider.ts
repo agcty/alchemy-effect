@@ -14,19 +14,19 @@ import {
 } from "effect/unstable/process";
 import * as NodeCrypto from "node:crypto";
 import * as NodeOs from "node:os";
-import { AuthError, type AuthProvider } from "../Profile/AuthProvider.ts";
+import { AuthError, type AuthProvider } from "../Auth/AuthProvider.ts";
 import {
   deleteCredentials,
   displayRedacted,
   readCredentials,
   writeCredentials,
-} from "../Profile/Credentials.ts";
+} from "../Auth/Credentials.ts";
 import {
   getEnv,
   getEnvRedacted,
   getEnvRedactedRequired,
   retryOnce,
-} from "../Profile/Env.ts";
+} from "../Auth/Env.ts";
 import * as Clank from "../Util/Clank.ts";
 
 export class AwsAuth extends Context.Service<AwsAuthConfig, AwsAuthProvider>()(
