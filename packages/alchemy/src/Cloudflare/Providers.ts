@@ -3,6 +3,7 @@ import { Command } from "../Build/Command.ts";
 import * as Build from "../Build/index.ts";
 import * as Provider from "../Provider.ts";
 import { Random, RandomProvider } from "../Random.ts";
+import { CloudflareAuth } from "./Auth/AuthProvider.ts";
 import * as CloudflareEnvironment from "./CloudflareEnvironment.ts";
 import * as Containers from "./Container/index.ts";
 import * as Credentials from "./Credentials.ts";
@@ -62,5 +63,6 @@ export const providers = () =>
     ),
     Layer.provideMerge(Credentials.fromAuthProvider()),
     Layer.provideMerge(CloudflareEnvironment.fromProfile()),
+    Layer.provideMerge(CloudflareAuth),
     Layer.orDie,
   );

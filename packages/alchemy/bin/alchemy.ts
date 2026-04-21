@@ -17,14 +17,14 @@ import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import packageJson from "../package.json" with { type: "json" };
 import { apply } from "../src/Apply.ts";
 import { provideFreshArtifactStore } from "../src/Artifacts.ts";
-import { AuthProviders, type AuthProvider } from "../src/Auth/AuthProvider.ts";
+import { AuthProviders } from "../src/Auth/AuthProvider.ts";
 import { getProfile, setProfile } from "../src/Auth/Profile.ts";
-import * as AWSAccount from "../src/AWS/Account.ts";
 import {
   bootstrap as bootstrapAws,
   destroyBootstrap as destroyBootstrapAws,
 } from "../src/AWS/Bootstrap.ts";
 import * as AWSCredentials from "../src/AWS/Credentials.ts";
+import * as AWSEnvironment from "../src/AWS/Environment.ts";
 import * as AWSRegion from "../src/AWS/Region.ts";
 import * as CLI from "../src/Cli/index.ts";
 import { dotAlchemy } from "../src/Config.ts";
@@ -47,6 +47,35 @@ const STAGE = Config.string("stage").pipe(
   (a) => a.asEffect(),
   Effect.map(Option.getOrUndefined),
 );
+
+/**
+ * Catches user cancellations (Ctrl+C inside a prompt, surfaced as
+ * `PromptCancelled` or as an `AuthError` wrapping one) and exits the CLI
+ * cleanly with a friendly message instead of dumping a stack trace.
+ */
+const handleCancellation = <A, E, R>(self: Effect.Effect<A, E, R>) =>
+  self.pipe(
+    Effect.catchCause((cause) => {
+      // Effect 4's Cause shape varies (Fail/Die/Sequential/Parallel/...).
+      // Cheaply scan the serialized form for our cancellation marker rather
+      // than walking every variant by hand.
+      let json: string;
+      try {
+        json = JSON.stringify(cause, (_, v) =>
+          typeof v === "bigint" ? v.toString() : v,
+        );
+      } catch {
+        json = String(cause);
+      }
+      if (json.includes("PromptCancelled")) {
+        return Console.log("\nCancelled.");
+      }
+      return Effect.failCause(cause) as Effect.Effect<never, E, never>;
+    }),
+    // A bare fiber interrupt (Ctrl+C while not inside a prompt) shouldn't
+    // dump a stack trace either.
+    Effect.onInterrupt(() => Console.log("\nInterrupted.")),
+  );
 
 const stage = Flag.string("stage").pipe(
   Flag.withSchema(S.String.check(S.isPattern(/^[a-z0-9]+([-_a-z0-9]+)*$/gi))),
@@ -110,6 +139,14 @@ const main = Argument.file("main", {
   Argument.withDefault("alchemy.run.ts"),
 );
 
+const profile = Flag.string("profile").pipe(
+  Flag.withDescription(
+    "Auth profile to use (~/.alchemy/profiles.json). Defaults to 'default' or $ALCHEMY_PROFILE.",
+  ),
+  Flag.optional,
+  Flag.map(Option.getOrUndefined),
+);
+
 const deployCommand = Command.make(
   "deploy",
   {
@@ -119,6 +156,7 @@ const deployCommand = Command.make(
     envFile,
     stage,
     yes,
+    profile,
   },
   (args) => execStack(args),
 );
@@ -131,6 +169,7 @@ const destroyCommand = Command.make(
     envFile,
     stage,
     yes,
+    profile,
   },
   (args) =>
     execStack({
@@ -145,6 +184,7 @@ const planCommand = Command.make(
     main,
     envFile,
     stage,
+    profile,
   },
   (args) =>
     execStack({
@@ -158,6 +198,7 @@ const execStack = Effect.fn(function* ({
   main,
   stage,
   envFile,
+  profile,
   dryRun = false,
   force = false,
   yes = false,
@@ -166,6 +207,7 @@ const execStack = Effect.fn(function* ({
   main: string;
   stage: string;
   envFile: Option.Option<string>;
+  profile: string | undefined;
   dryRun?: boolean;
   force?: boolean;
   yes?: boolean;
@@ -186,7 +228,11 @@ const execStack = Effect.fn(function* ({
     );
   }
 
-  const configProvider = yield* loadConfigProvider(envFile);
+  const configProvider = yield* resolveConfigProvider(envFile, profile);
+
+  // Shared registry that AuthProviderLayer entries write themselves into when
+  // the stack's providers Layer is built.
+  const authProviders: AuthProviders["Service"] = {};
 
   // TODO(sam): implement local and watch
   const platform = Layer.mergeAll(PlatformServices, FetchHttpClient.layer);
@@ -239,6 +285,9 @@ const execStack = Effect.fn(function* ({
       // Effect.provide(Logger.layer([fileLogger("stacks", stack.name, stage)])),
     );
   }).pipe(
+    // AuthProviders must be in scope when the stack's providers Layer is
+    // built so each provider's AuthProviderLayer can register itself.
+    Effect.provideService(AuthProviders, authProviders),
     Effect.provide(
       Layer.provideMerge(
         alchemy,
@@ -249,6 +298,29 @@ const execStack = Effect.fn(function* ({
   ) as Effect.Effect<void, any, never>;
   // TODO(sam): figure out why we need to cast to remove the Provider<never> requirement
   // Effect.Effect<void, any, Provider<never>>;
+});
+
+/**
+ * Build the runtime ConfigProvider, optionally overriding `ALCHEMY_PROFILE`
+ * with the value of the `--profile` flag when explicitly passed.
+ */
+const resolveConfigProvider = Effect.fn(function* (
+  envFile: Option.Option<string>,
+  profile: string | undefined,
+) {
+  const base = yield* loadConfigProvider(envFile);
+  if (profile === undefined) return base;
+  // Flag wins over env: tiny provider for ALCHEMY_PROFILE only, falling
+  // through to the env-backed base for everything else.
+  const overrides: Record<string, string> = { ALCHEMY_PROFILE: profile };
+  const overrideProvider = ConfigProvider.make((path) =>
+    Effect.succeed(
+      path.length === 1 && typeof path[0] === "string" && path[0] in overrides
+        ? ConfigProvider.makeValue(overrides[path[0]]!)
+        : undefined,
+    ),
+  );
+  return ConfigProvider.orElse(base)(overrideProvider);
 });
 
 const resourceFilter = Flag.string("filter").pipe(
@@ -440,16 +512,27 @@ const bootstrapCommand = Command.make(
 
     return yield* Effect.gen(function* () {
       const ssoProfile = yield* Auth.loadProfile(profile);
+      if (!ssoProfile.sso_account_id) {
+        return yield* Effect.die(
+          `AWS SSO profile '${profile}' is missing sso_account_id`,
+        );
+      }
 
-      const credentials = yield* Auth.loadProfileCredentials(profile);
+      // Build a single AWSEnvironment, then derive Region/Credentials from
+      // it so resource providers downstream see a consistent view.
+      const environment = AWSEnvironment.of({
+        accountId: ssoProfile.sso_account_id,
+        region: region ?? ssoProfile.region ?? "us-east-1",
+        credentials: Auth.loadProfileCredentials(profile),
+        profile,
+      });
 
-      const awsLayers = Layer.mergeAll(
-        Layer.succeed(AWSAccount.Account, profile),
-        Layer.succeed(
-          AWSRegion.Region,
-          region ?? ssoProfile.region ?? "us-east-1",
+      const awsLayers = Layer.provideMerge(
+        Layer.mergeAll(
+          AWSRegion.fromEnvironment,
+          AWSCredentials.fromEnvironment,
         ),
-        Layer.succeed(AWSCredentials.Credentials, Effect.succeed(credentials)),
+        environment,
       );
 
       return yield* Effect.gen(function* () {
@@ -507,12 +590,6 @@ const devCommand = Command.make(
     }),
 );
 
-const loginProfile = Flag.string("profile").pipe(
-  Flag.withDescription("Profile name to log in (defaults to 'default')"),
-  Flag.optional,
-  Flag.map(Option.getOrElse(() => "default")),
-);
-
 const loginConfigure = Flag.boolean("configure").pipe(
   Flag.withDescription(
     "Run the provider's interactive configure step before logging in",
@@ -526,20 +603,20 @@ const loginCommand = Command.make(
     main,
     envFile,
     stage,
-    profile: loginProfile,
+    profile,
     configure: loginConfigure,
   },
   Effect.fnUntraced(function* ({
     main,
     stage,
     envFile,
-    profile,
+    profile: profileArg,
     configure,
   }: {
     main: string;
     stage: string;
     envFile: Option.Option<string>;
-    profile: string;
+    profile: string | undefined;
     configure: boolean;
   }) {
     const path = yield* Path;
@@ -557,11 +634,10 @@ const loginCommand = Command.make(
       );
     }
 
-    const authProviders: {
-      [providerName: string]: AuthProvider<any, any>;
-    } = {};
+    const profile = profileArg ?? "default";
+    const authProviders: AuthProviders["Service"] = {};
 
-    const configProvider = yield* loadConfigProvider(envFile);
+    const configProvider = yield* resolveConfigProvider(envFile, profile);
 
     const platform = Layer.mergeAll(PlatformServices, FetchHttpClient.layer);
 
@@ -573,14 +649,17 @@ const loginCommand = Command.make(
     );
 
     yield* Effect.gen(function* () {
-      const stack = yield* stackEffect;
+      // Build the stack — this triggers each provider's AuthProviderLayer,
+      // which registers itself into the shared `authProviders` registry.
+      yield* stackEffect;
 
-      const providers = Array.from(stack.services.mapUnsafe.values()).filter(
-        (s): s is AuthProvider => s?.kind === "AuthProvider",
-      );
+      const ci = yield* Config.boolean("CI").pipe(Config.withDefault(false));
+      const providers = Object.values(authProviders);
 
       if (providers.length === 0) {
-        yield* Console.log("No AuthProviders found in stack services.");
+        yield* Console.log(
+          "No AuthProviders registered. Make sure the stack's providers() layer includes AuthProviderLayer entries.",
+        );
         return;
       }
 
@@ -593,7 +672,7 @@ const loginCommand = Command.make(
 
             let cfg: { method: string };
             if (configure || stored == null) {
-              cfg = yield* provider.configure(profile);
+              cfg = yield* provider.configure(profile, { ci });
               yield* setProfile(profile, {
                 ...existing,
                 [provider.name]: cfg,
@@ -604,10 +683,14 @@ const loginCommand = Command.make(
 
             yield* provider.login(profile, cfg);
             yield* provider.prettyPrint(profile, cfg);
-          }).pipe(Effect.provide(stack.services)),
+          }),
         { discard: true },
       );
     }).pipe(
+      // AuthProviders MUST be provided before the stack module runs so the
+      // factory calls inside each provider's layer write into the same
+      // registry we read from below.
+      Effect.provideService(AuthProviders, authProviders),
       Effect.provide(
         Layer.provideMerge(
           alchemy,
@@ -615,7 +698,6 @@ const loginCommand = Command.make(
         ),
       ),
       Effect.provideService(ConfigProvider.ConfigProvider, configProvider),
-      Effect.provideService(AuthProviders, authProviders),
       Effect.scoped,
     );
   }),
@@ -869,5 +951,6 @@ cli.pipe(
   ),
   Effect.provide(PlatformServices),
   Effect.scoped,
+  handleCancellation,
   runMain,
 );

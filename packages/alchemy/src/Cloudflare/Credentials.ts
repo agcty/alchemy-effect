@@ -10,10 +10,12 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
+import { getAuthProvider } from "../Auth/AuthProvider.ts";
 import { loadOrConfigure } from "../Auth/Profile.ts";
 import {
-  CloudflareAuth,
+  CLOUDFLARE_AUTH_PROVIDER_NAME,
   type CloudflareAuthConfig,
+  type CloudflareResolvedCredentials,
 } from "./Auth/AuthProvider.ts";
 
 export { Credentials, fromEnv } from "@distilled.cloud/cloudflare/Credentials";
@@ -27,13 +29,17 @@ export const fromAuthProvider = () =>
   Layer.effect(
     Credentials,
     Effect.gen(function* () {
-      const auth = yield* CloudflareAuth;
+      const auth = yield* getAuthProvider<
+        CloudflareAuthConfig,
+        CloudflareResolvedCredentials
+      >(CLOUDFLARE_AUTH_PROVIDER_NAME);
       const profileName = yield* Config.string("ALCHEMY_PROFILE").pipe(
         Config.withDefault("default"),
       );
+      const ci = yield* Config.boolean("CI").pipe(Config.withDefault(false));
       const ctx = yield* Effect.context<never>();
 
-      return loadOrConfigure(auth, profileName).pipe(
+      return loadOrConfigure(auth, profileName, { ci }).pipe(
         Effect.flatMap((config) =>
           auth.read(profileName, config as CloudflareAuthConfig),
         ),

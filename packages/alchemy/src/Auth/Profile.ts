@@ -3,7 +3,7 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import os from "node:os";
 import path from "pathe";
-import type { AuthProvider } from "./AuthProvider.ts";
+import type { AuthProvider, ConfigureContext } from "./AuthProvider.ts";
 
 export const rootDir = path.join(os.homedir(), ".alchemy");
 export const configFilePath = path.join(rootDir, "profiles.json");
@@ -82,17 +82,19 @@ export const setProfile = (name: string, profile: AlchemyProfile) =>
 
 /**
  * Load the stored config for the given AuthProvider in `profileName`.
- * If absent, run the provider's interactive `configure` step and persist the
- * resulting config under the provider's name.
+ * If absent, run the provider's `configure` step (passing through `ctx` so
+ * providers can pick a CI-friendly default) and persist the resulting config
+ * under the provider's name.
  */
 export const loadOrConfigure = <Config extends { method: string }>(
   auth: AuthProvider<Config>,
   profileName: string,
+  ctx: ConfigureContext,
 ) =>
   Effect.flatMap(getProfile(profileName), (existing) =>
     existing?.[auth.name]
       ? Effect.succeed(existing?.[auth.name])
-      : Effect.tap(auth.configure(profileName), (config) =>
+      : Effect.tap(auth.configure(profileName, ctx), (config) =>
           setProfile(profileName, { ...existing, [auth.name]: config }),
         ),
   );

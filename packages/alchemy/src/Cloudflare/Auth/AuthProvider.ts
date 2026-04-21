@@ -9,7 +9,11 @@ import * as Match from "effect/Match";
 import * as Redacted from "effect/Redacted";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import { AuthError, AuthProvider } from "../../Auth/AuthProvider.ts";
+import {
+  AuthError,
+  AuthProviderLayer,
+  type ConfigureContext,
+} from "../../Auth/AuthProvider.ts";
 import {
   deleteCredentials,
   displayRedacted,
@@ -51,7 +55,7 @@ export type CloudflareAuthConfig =
   | { method: "env" }
   | { method: "stored"; credentialType: "apiToken" }
   | { method: "stored"; credentialType: "apiKey" }
-  | { method: "oauth"; scopes: string[] };
+  | { method: "oauth"; scopes: string[]; accountId: string };
 
 export type CloudflareStoredCredentials =
   | { type: "apiToken"; apiToken: string; accountId: string }
@@ -79,11 +83,18 @@ export type CloudflareResolvedCredentials =
       source: { type: CloudflareAuthConfig["method"]; details?: string };
     };
 
-export const CloudflareAuth = AuthProvider<
+export const CLOUDFLARE_AUTH_PROVIDER_NAME = "Cloudflare";
+
+/**
+ * Layer that registers the Cloudflare {@link AuthProvider} into the
+ * {@link AuthProviders} registry when built. Include this in the Cloudflare
+ * `providers()` layer so `alchemy login` can discover it.
+ */
+export const CloudflareAuth = AuthProviderLayer<
   CloudflareAuthConfig,
   CloudflareResolvedCredentials
->()("Cloudflare", {
-  configure: (profileName) => configureCredentials(profileName),
+>()(CLOUDFLARE_AUTH_PROVIDER_NAME, {
+  configure: (profileName, ctx) => configureCredentials(profileName, ctx),
   logout: (profileName, config) => logout(profileName, config),
   login: (profileName, config) => login(profileName, config),
   prettyPrint: (profileName, config) => prettyPrint(profileName, config),
@@ -163,7 +174,7 @@ const resolveCredentials = (
         ),
       ),
     ),
-    Match.when({ method: "oauth" }, () =>
+    Match.when({ method: "oauth" }, (cfg) =>
       readCredentials<OAuthClient.OAuthCredentials>(
         profileName,
         "cf-oauth",
@@ -173,14 +184,14 @@ const resolveCredentials = (
             ? Effect.fail(
                 new AuthError({
                   message:
-                    "Cloudflare OAuth credentials not found. Run: alchemy-effect login",
+                    "Cloudflare OAuth credentials not found. Run: alchemy login",
                 }),
               )
             : Effect.succeed({
                 type: "oauth" as const,
                 accessToken: Redacted.make(creds.access),
                 expires: creds.expires,
-                accountId: "",
+                accountId: cfg.accountId,
                 source: { type: "oauth" as const },
               }),
         ),
@@ -274,30 +285,36 @@ const login = (profileName: string, config: CloudflareAuthConfig) =>
       ),
     );
 
-const configureCredentials = (profileName: string) =>
+const configureCredentials = (profileName: string, ctx: ConfigureContext) =>
+  Effect.gen(function* () {
+    if (ctx.ci) {
+      return { method: "env" as const };
+    }
+    return yield* configureInteractive(profileName);
+  }).pipe(
+    Effect.mapError(
+      (e) =>
+        new AuthError({
+          message: "failed to configure credentials",
+          cause: e,
+        }),
+    ),
+  );
+
+const configureInteractive = (profileName: string) =>
   Clank.select({
     message: "Cloudflare authentication method",
     options,
-  })
-    .pipe(
-      Effect.flatMap((method) =>
-        Match.value(method).pipe(
-          Match.when("env", () => Effect.succeed({ method: "env" as const })),
-          Match.when("oauth", () => configureOAuth(profileName)),
-          Match.when("stored", () => loginStored(profileName)),
-          Match.exhaustive,
-        ),
+  }).pipe(
+    Effect.flatMap((method) =>
+      Match.value(method).pipe(
+        Match.when("env", () => Effect.succeed({ method: "env" as const })),
+        Match.when("oauth", () => configureOAuth(profileName)),
+        Match.when("stored", () => loginStored(profileName)),
+        Match.exhaustive,
       ),
-    )
-    .pipe(
-      Effect.mapError(
-        (e) =>
-          new AuthError({
-            message: "failed to configure credentials",
-            cause: e,
-          }),
-      ),
-    );
+    ),
+  );
 
 const configureOAuth = Effect.fnUntraced(function* (profileName: string) {
   const scopes = yield* promptOAuthScopes();

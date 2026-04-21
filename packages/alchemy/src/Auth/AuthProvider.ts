@@ -1,5 +1,6 @@
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 
 export class AuthError extends Schema.TaggedErrorClass<AuthError>()(
@@ -17,6 +18,19 @@ export class AuthProviders extends Context.Service<
   }
 >()("AuthProviders") {}
 
+/**
+ * Context passed to {@link AuthProviderImpl.configure}.
+ */
+export interface ConfigureContext {
+  /**
+   * `true` when running in a CI/CD environment (resolved from the `CI`
+   * env/config). Providers MUST NOT prompt interactively when `ci` is true;
+   * they should pick a non-interactive default (typically
+   * `{ method: "env" }`) so unattended runs work.
+   */
+  readonly ci: boolean;
+}
+
 export interface AuthProviderImpl<
   Config extends { method: string } = any,
   Credentials = any,
@@ -28,6 +42,7 @@ export interface AuthProviderImpl<
 > {
   configure(
     profileName: string,
+    ctx: ConfigureContext,
   ): Effect.Effect<Config, AuthError, ConfigureReq>;
 
   login(
@@ -123,3 +138,76 @@ export const AuthProvider =
           } as AuthProvider<Config, Credentials>),
       );
     });
+
+/**
+ * Build a Layer that registers an AuthProvider into the {@link AuthProviders}
+ * registry when its parent layer is built. Use this from a provider's
+ * top-level `providers()` Layer so that `alchemy login` can discover the
+ * provider via the registry without forcing credential resolution.
+ */
+export const AuthProviderLayer =
+  <Config extends { method: string }, Credentials>() =>
+  <
+    ImplReq = never,
+    ConfigureReq = never,
+    LoginReq = never,
+    LogoutReq = never,
+    PrettyPrintReq = never,
+    ReadReq = never,
+  >(
+    name: string,
+    impl:
+      | AuthProviderImpl<
+          Config,
+          Credentials,
+          ConfigureReq,
+          LoginReq,
+          LogoutReq,
+          PrettyPrintReq,
+          ReadReq
+        >
+      | Effect.Effect<
+          AuthProviderImpl<
+            Config,
+            Credentials,
+            ConfigureReq,
+            LoginReq,
+            LogoutReq,
+            PrettyPrintReq,
+            ReadReq
+          >,
+          never,
+          ImplReq
+        >,
+  ) =>
+    Layer.effectDiscard(
+      AuthProvider<Config, Credentials>()<
+        ImplReq,
+        ConfigureReq,
+        LoginReq,
+        LogoutReq,
+        PrettyPrintReq,
+        ReadReq
+      >(name, impl),
+    );
+
+/**
+ * Look up a registered {@link AuthProvider} by name. Fails with
+ * {@link AuthError} if the provider hasn't been registered (typically because
+ * its layer hasn't been built).
+ */
+export const getAuthProvider = <
+  Config extends { method: string } = any,
+  Credentials = any,
+>(
+  name: string,
+): Effect.Effect<AuthProvider<Config, Credentials>, AuthError, AuthProviders> =>
+  Effect.flatMap(AuthProviders.asEffect(), (registry) =>
+    registry[name] == null
+      ? Effect.fail(
+          new AuthError({
+            message: `AuthProvider '${name}' is not registered. Make sure its layer has been built.`,
+          }),
+        )
+      : Effect.succeed(registry[name] as AuthProvider<Config, Credentials>),
+  );
