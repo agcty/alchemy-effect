@@ -32,9 +32,9 @@ const TABS: { id: Tab; label: string }[] = [
 
 const CYCLE_MS = 6000;
 /** Longer dwell on the Layer tab so both impls (ddb / d1) get airtime. */
-const LAYER_CYCLE_MS = 9500;
-/** How long each Layer impl is shown before swapping to the other. */
-const LAYER_IMPL_SWAP_MS = 4000;
+const LAYER_CYCLE_MS = 13000;
+/** How long each Layer impl is "held" before the breathing cross-fade swaps. */
+const LAYER_IMPL_SWAP_MS = 3500;
 
 const IAM_CODE = `export default AWS.Lambda.Function(
   "JobApi",
@@ -115,47 +115,43 @@ const WORKFLOW_CODE = `export default class Notifier extends Cloudflare.Workflow
   }),
 ) {}`;
 
-const LAYER_DDB_CODE = `export class JobStorage extends Context.Service<JobStorage, {
-  putJob: (job: Job) => Effect.Effect<Job, PutJobError>;
-  getJob: (id: string) => Effect.Effect<Job | undefined, GetJobError>;
-}>()("JobStorage") {}
-
-export const JobStorageDynamoDB = Layer.effect(
-  JobStorage,
-  Effect.gen(function* () {
-    const table   = yield* DynamoDB.Table("JobsTable", { partitionKey: "id" });
-    const putItem = yield* DynamoDB.PutItem.bind(table);
-    const getItem = yield* DynamoDB.GetItem.bind(table);
-    return JobStorage.of({
-      putJob: (job) => putItem({ Item: { id: { S: job.id } } }),
-      getJob: (id)  => getItem({ Key:  { id: { S: id     } } }),
-    });
-  }),
-);`;
-
-const LAYER_D1_CODE = `export class JobStorage extends Context.Service<JobStorage, {
-  putJob: (job: Job) => Effect.Effect<Job, PutJobError>;
-  getJob: (id: string) => Effect.Effect<Job | undefined, GetJobError>;
-}>()("JobStorage") {}
-
-export const JobStorageD1 = Layer.effect(
-  JobStorage,
-  Effect.gen(function* () {
-    const db   = yield* Cloudflare.D1Database("JobsDB");
-    const conn = yield* Cloudflare.D1Connection.bind(db);
-    return JobStorage.of({
-      putJob: (job) => conn.exec(\`INSERT INTO jobs VALUES ('\${job.id}', '\${job.content}')\`),
-      getJob: (id)  => conn.exec(\`SELECT * FROM jobs WHERE id = '\${id}'\`),
-    });
-  }),
-);`;
-
 type LayerImpl = "ddb" | "d1";
 
-const LAYER_CODE_BY_IMPL: Record<LayerImpl, string> = {
-  ddb: LAYER_DDB_CODE,
-  d1: LAYER_D1_CODE,
-};
+/**
+ * The Layer tab renders a unified diff between JobStorageDynamoDB and
+ * JobStorageD1. Lines marked "ddb" / "d1" belong to one side or the other;
+ * "common" lines are unchanged between impls. The active impl pulses bright
+ * green ("+") while the other dims to red ("-") on a long breathing fade.
+ *
+ * The two snippets are deliberately structurally parallel so the diff lines
+ * up cleanly column-for-column.
+ */
+type LayerLine =
+  | { kind: "common"; text: string }
+  | { kind: "ddb"; text: string }
+  | { kind: "d1"; text: string };
+
+const LAYER_LINES: LayerLine[] = [
+  { kind: "common", text: "export class JobStorage extends Context.Service<JobStorage, {" },
+  { kind: "common", text: "  putJob: (job: Job) => Effect.Effect<Job, PutJobError>;" },
+  { kind: "common", text: "  getJob: (id: string) => Effect.Effect<Job | undefined, GetJobError>;" },
+  { kind: "common", text: "}>()(\"JobStorage\") {}" },
+  { kind: "common", text: "" },
+  { kind: "ddb",    text: "export const JobStorageDynamoDB = Layer.effect(JobStorage, Effect.gen(function* () {" },
+  { kind: "d1",     text: "export const JobStorageD1       = Layer.effect(JobStorage, Effect.gen(function* () {" },
+  { kind: "ddb",    text: "  const table   = yield* DynamoDB.Table(\"JobsTable\", { partitionKey: \"id\" });" },
+  { kind: "ddb",    text: "  const putItem = yield* DynamoDB.PutItem.bind(table);" },
+  { kind: "ddb",    text: "  const getItem = yield* DynamoDB.GetItem.bind(table);" },
+  { kind: "d1",     text: "  const db   = yield* Cloudflare.D1Database(\"JobsDB\");" },
+  { kind: "d1",     text: "  const conn = yield* Cloudflare.D1Connection.bind(db);" },
+  { kind: "common", text: "  return JobStorage.of({" },
+  { kind: "ddb",    text: "    putJob: (job) => putItem({ Item: { id: { S: job.id } } })," },
+  { kind: "ddb",    text: "    getJob: (id)  => getItem({ Key:  { id: { S: id     } } })," },
+  { kind: "d1",     text: "    putJob: (job) => conn.exec(`INSERT INTO jobs (id) VALUES ('${job.id}')`)," },
+  { kind: "d1",     text: "    getJob: (id)  => conn.exec(`SELECT * FROM jobs WHERE id = '${id}'`)," },
+  { kind: "common", text: "  });" },
+  { kind: "common", text: "}));" },
+];
 
 const CODE_BY_TAB: Record<Exclude<Tab, "layer">, string> = {
   iam: IAM_CODE,
@@ -235,12 +231,12 @@ export default function EffectPilledShowcase() {
     setTab(next);
   };
 
-  const codeText =
-    tab === "layer" ? LAYER_CODE_BY_IMPL[layerImpl] : CODE_BY_TAB[tab];
-  const codeHtml = highlightTS(codeText);
-  // Drives the fade animation on both code + artifact when content swaps.
-  // Includes the Layer impl so the inner ddb/d1 oscillation also fades.
-  const splitKey = tab === "layer" ? `layer-${layerImpl}` : tab;
+  const codeHtml =
+    tab === "layer" ? null : highlightTS(CODE_BY_TAB[tab]);
+  // Drives the fade-in for the whole panel on tab switch. Intentionally
+  // does NOT include layerImpl — the Layer tab uses CSS transitions to
+  // breathe between its two impls without remounting.
+  const splitKey = tab;
 
   return (
     <div ref={wrapRef} className="eff-showcase">
@@ -269,10 +265,14 @@ export default function EffectPilledShowcase() {
         <div className="eff-showcase__body">
           <div className="eff-showcase__split" key={splitKey}>
             <div className="eff-showcase__code">
-              <pre
-                className="eff-showcase__pre eff-showcase__fade"
-                dangerouslySetInnerHTML={{ __html: codeHtml }}
-              />
+              {tab === "layer" ? (
+                <LayerCodeDiff impl={layerImpl} />
+              ) : (
+                <pre
+                  className="eff-showcase__pre eff-showcase__fade"
+                  dangerouslySetInnerHTML={{ __html: codeHtml ?? "" }}
+                />
+              )}
             </div>
             <div className="eff-showcase__artifact">
               <ArtifactPanel tab={tab} layerImpl={layerImpl} />
@@ -484,6 +484,9 @@ function WorkflowPanel() {
 /* ───────────────────────── Layers ───────────────────────── */
 
 function LayerPanel({ impl }: { impl: LayerImpl }) {
+  // Render BOTH ddb and d1 feature rows. The active impl is full-opacity;
+  // the other dims via CSS transition (data-active="false"). Same breathing
+  // cadence as the code-diff panel on the left.
   return (
     <>
       <div className="eff-showcase__group">
@@ -497,39 +500,75 @@ function LayerPanel({ impl }: { impl: LayerImpl }) {
       </div>
       <div className="eff-showcase__group">
         <div className="eff-showcase__group-title">Composed from</div>
-        {impl === "ddb" ? (
-          <>
-            <FeatureRow
-              icon="logos:aws-dynamodb"
-              label="DynamoDB.Table"
-              sub='"JobsTable" · partitionKey: "id"'
-              delay={240}
-            />
-            <FeatureRow
-              icon="mdi:key"
-              label="GetItem · PutItem"
-              sub="bound capabilities · IAM auto-generated"
-              delay={340}
-            />
-          </>
-        ) : (
-          <>
-            <FeatureRow
-              icon="logos:cloudflare-icon"
-              label="Cloudflare.D1Database"
-              sub='"JobsDB" · serverless SQL'
-              delay={240}
-            />
-            <FeatureRow
-              icon="mdi:database-cog"
-              label="D1Connection"
-              sub="bound capability · prepare · exec · batch"
-              delay={340}
-            />
-          </>
-        )}
+        <FeatureRow
+          icon="logos:aws-dynamodb"
+          label="DynamoDB.Table"
+          sub='"JobsTable" · partitionKey: "id"'
+          delay={240}
+          active={impl === "ddb"}
+        />
+        <FeatureRow
+          icon="mdi:key"
+          label="GetItem · PutItem"
+          sub="bound capabilities · IAM auto-generated"
+          delay={340}
+          active={impl === "ddb"}
+        />
+        <FeatureRow
+          icon="logos:cloudflare-icon"
+          label="Cloudflare.D1Database"
+          sub='"JobsDB" · serverless SQL'
+          delay={240}
+          active={impl === "d1"}
+        />
+        <FeatureRow
+          icon="mdi:database-cog"
+          label="D1Connection"
+          sub="bound capability · prepare · exec · batch"
+          delay={340}
+          active={impl === "d1"}
+        />
       </div>
     </>
+  );
+}
+
+/**
+ * Unified diff renderer for the Layer tab. Common lines are static; ddb/d1
+ * lines are always present but their "+" / "-" markers, background tint, and
+ * opacity breathe between active and dim states via CSS transitions on the
+ * parent container's data-impl attribute.
+ */
+function LayerCodeDiff({ impl }: { impl: LayerImpl }) {
+  return (
+    <div className="eff-showcase__diff" data-impl={impl}>
+      {LAYER_LINES.map((line, i) => {
+        const html = highlightTS(line.text) || "&nbsp;";
+        if (line.kind === "common") {
+          return (
+            <div key={i} className="eff-diff__line eff-diff__line--common">
+              <span className="eff-diff__marker" aria-hidden />
+              <span
+                className="eff-diff__content"
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+            </div>
+          );
+        }
+        return (
+          <div
+            key={i}
+            className={`eff-diff__line eff-diff__line--${line.kind}`}
+          >
+            <span className="eff-diff__marker" aria-hidden />
+            <span
+              className="eff-diff__content"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -540,14 +579,21 @@ function FeatureRow({
   label,
   sub,
   delay = 0,
+  active,
 }: {
   icon: string;
   label: string;
   sub: string;
   delay?: number;
+  /** Optional. When provided, the row toggles dim/full via CSS transitions. */
+  active?: boolean;
 }) {
   return (
-    <div className="eff-showcase__feature" style={{ animationDelay: `${delay}ms` }}>
+    <div
+      className="eff-showcase__feature"
+      style={{ animationDelay: `${delay}ms` }}
+      data-active={active === undefined ? undefined : active}
+    >
       <Icon
         icon={icon}
         width={22}
