@@ -320,7 +320,7 @@ function StreamPanel() {
         />
         <FlowEdge label="invoke" delay={440} />
         <FlowNode
-          icon="mdi:function-variant"
+          icon="mdi:lambda"
           label="handler"
           sub="your function"
           delay={500}
