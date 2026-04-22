@@ -367,7 +367,9 @@ body.alc-root,
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   gap: 0;
-  min-height: 320px;
+  /* Fixed height keeps the page below stable as the auto-cycle swaps
+     between tabs whose code/artifact have different intrinsic heights. */
+  height: 420px;
 }
 .eff-showcase__code {
   display: flex;
@@ -382,8 +384,9 @@ body.alc-root,
   font-size: 12.5px;
   line-height: 1.7;
   color: var(--alc-code-var);
-  overflow-x: auto;
+  overflow: auto;
   flex: 1;
+  min-height: 0;
 }
 .eff-showcase__artifact {
   display: flex;
@@ -394,6 +397,8 @@ body.alc-root,
      read as "panels on a panel" rather than "dark on dark". */
   background: var(--alc-walnut-950);
   min-width: 0;
+  overflow: auto;
+  min-height: 0;
 }
 .eff-showcase__group {
   display: flex;
@@ -479,6 +484,98 @@ body.alc-root,
   text-overflow: ellipsis;
   min-width: 0;
   flex: 1;
+}
+
+/* Feature row — used by Durable Objects / Containers / Layers tabs.
+   Icon on the left, label + sub stacked on the right. Same lifted card
+   treatment as .eff-showcase__perm so the artifact panels feel related. */
+.eff-showcase__feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--alc-walnut-700);
+  border: 1px solid var(--alc-walnut-600);
+  border-radius: 8px;
+  min-width: 0;
+  opacity: 0;
+  animation: eff-fade-up 460ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.eff-showcase__feature-icon {
+  flex: 0 0 auto;
+}
+.eff-showcase__feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+.eff-showcase__feature-label {
+  font-family: var(--alc-font-mono);
+  font-size: 12.5px;
+  color: var(--alc-code-keyword);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.eff-showcase__feature-sub {
+  font-family: var(--alc-font-mono);
+  font-size: 11px;
+  color: var(--alc-walnut-300);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Workflow steps — numbered ordered list with rounded badges. */
+.eff-showcase__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eff-showcase__step {
+  display: grid;
+  grid-template-columns: 22px minmax(0, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--alc-walnut-700);
+  border: 1px solid var(--alc-walnut-600);
+  border-radius: 8px;
+  min-width: 0;
+  opacity: 0;
+  animation: eff-fade-up 460ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+.eff-showcase__step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--alc-accent-bright);
+  color: var(--alc-bg-code);
+  font-family: var(--alc-font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.eff-showcase__step-label {
+  font-family: var(--alc-font-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--alc-code-keyword);
+  white-space: nowrap;
+}
+.eff-showcase__step-sub {
+  font-family: var(--alc-font-mono);
+  font-size: 11px;
+  color: var(--alc-walnut-300);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
 }
 
 /* Event source flow — three nodes connected by labelled edges. */
@@ -589,10 +686,19 @@ body.alc-root,
 @media (max-width: 720px) {
   .eff-showcase__split {
     grid-template-columns: minmax(0, 1fr);
+    /* Stacked layout: let each panel size naturally instead of squashing
+       both halves into a fixed 420px combined height. */
+    height: auto;
   }
   .eff-showcase__code {
     border-right: 0;
     border-bottom: 1px solid rgba(232, 220, 192, 0.08);
+  }
+  .eff-showcase__pre {
+    overflow-x: auto;
+  }
+  .eff-showcase__artifact {
+    overflow: visible;
   }
   .eff-showcase__artifact {
     position: relative;
