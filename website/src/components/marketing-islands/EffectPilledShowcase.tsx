@@ -50,7 +50,13 @@ const IAM_CODE = `export default AWS.Lambda.Function(
 const STREAM_CODE = `export default AWS.Lambda.Function(
   "JobsConsumer",
   Effect.gen(function* () {
-    yield* DynamoDB.stream(Jobs).process(handler);
+    yield* DynamoDB.stream(Jobs).process((stream) =>
+      stream.pipe(
+        Stream.map((r) => r.dynamodb.NewImage),
+        Stream.tap((job) => Effect.log(\`new job: \${job.id.S}\`)),
+        Stream.runDrain,
+      ),
+    );
   }),
 );`;
 
