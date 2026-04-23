@@ -25,7 +25,7 @@ async function waitForWorker(url: string, token: string, maxRetries = 60) {
   // moment to become consistent after deploy.
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const res = await fetch(`${url}/projects/warmup/state/listStacks`, {
+      const res = await fetch(`${url}/state/listStacks`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -60,21 +60,17 @@ type Rpc =
 async function rpc<T = unknown>(
   baseUrl: string,
   token: string,
-  project: string,
   method: Rpc,
   body: Record<string, unknown> = {},
 ): Promise<{ status: number; body: { ok: boolean; result?: T; error?: { code: string; message: string } } }> {
-  const res = await fetch(
-    `${baseUrl}/projects/${encodeURIComponent(project)}/state/${method}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+  const res = await fetch(`${baseUrl}/state/${method}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify(body),
+  });
   const text = await res.text();
   let json: any;
   try {
@@ -116,9 +112,10 @@ const makeResource = (
     ...overrides,
   }) as ResourceState;
 
-// Use a unique project per test so tests don't interfere with each other.
-let projectCounter = 0;
-const uniqueProject = () => `test-project-${++projectCounter}-${Date.now()}`;
+// Use a unique stack name per test so tests don't interfere with each
+// other (each stack gets its own Durable Object).
+let stackCounter = 0;
+const uniqueStack = () => `test-stack-${++stackCounter}-${Date.now()}`;
 
 // ---------------------------------------------------------------- tests --
 
@@ -127,7 +124,7 @@ test(
   Effect.gen(function* () {
     const { url } = yield* stack;
     const res = yield* Effect.promise(() =>
-      fetch(`${url}/projects/any/state/listStacks`, {
+      fetch(`${url}/state/listStacks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: "{}",
@@ -145,7 +142,7 @@ test(
   Effect.gen(function* () {
     const { url } = yield* stack;
     const res = yield* Effect.promise(() =>
-      fetch(`${url}/projects/any/state/listStacks`, {
+      fetch(`${url}/state/listStacks`, {
         method: "POST",
         headers: {
           Authorization: "Bearer not-the-real-token",
@@ -177,14 +174,13 @@ test(
 );
 
 test(
-  "returns 400 for unknown RPC methods",
+  "returns 404 for unknown RPC methods (router has no matching route)",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
     const res = yield* Effect.promise(() =>
-      rpc(url, authToken, uniqueProject(), "doesNotExist" as Rpc),
+      rpc(url, authToken, "doesNotExist" as Rpc),
     );
-    expect(res.status).toBe(400);
-    expect(res.body.error?.code).toBe("bad_request");
+    expect(res.status).toBe(404);
   }),
 );
 
@@ -192,13 +188,13 @@ test(
   "set + get + delete round-trip for a single resource",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
     const resource = makeResource("my-resource");
 
     // initial get -> null
     const g0 = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s1",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "dev",
         fqn: "my-resource",
       }),
@@ -208,8 +204,8 @@ test(
 
     // set
     const s1 = yield* Effect.promise(() =>
-      rpc<ResourceState>(url, authToken, project, "set", {
-        stack: "s1",
+      rpc<ResourceState>(url, authToken, "set", {
+        stack: stackName,
         stage: "dev",
         fqn: "my-resource",
         value: resource,
@@ -221,8 +217,8 @@ test(
 
     // get -> the resource
     const g1 = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s1",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "dev",
         fqn: "my-resource",
       }),
@@ -233,8 +229,8 @@ test(
 
     // delete
     const d1 = yield* Effect.promise(() =>
-      rpc(url, authToken, project, "delete", {
-        stack: "s1",
+      rpc(url, authToken, "delete", {
+        stack: stackName,
         stage: "dev",
         fqn: "my-resource",
       }),
@@ -244,8 +240,8 @@ test(
 
     // get again -> null
     const g2 = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s1",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "dev",
         fqn: "my-resource",
       }),
@@ -259,10 +255,9 @@ test(
   "delete is idempotent for missing keys",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
     const res = yield* Effect.promise(() =>
-      rpc(url, authToken, project, "delete", {
-        stack: "s1",
+      rpc(url, authToken, "delete", {
+        stack: uniqueStack(),
         stage: "dev",
         fqn: "never-existed",
       }),
@@ -276,19 +271,19 @@ test(
   "list returns FQNs for a given (stack, stage)",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s1",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "dev",
         fqn: "a",
         value: makeResource("a"),
       }),
     );
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s1",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "dev",
         fqn: "parent/b",
         value: makeResource("b"),
@@ -296,8 +291,8 @@ test(
     );
     // different stage should not appear
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s1",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "prod",
         fqn: "c",
         value: makeResource("c"),
@@ -305,8 +300,8 @@ test(
     );
 
     const res = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "list", {
-        stack: "s1",
+      rpc<string[]>(url, authToken, "list", {
+        stack: stackName,
         stage: "dev",
       }),
     );
@@ -316,30 +311,31 @@ test(
 );
 
 test(
-  "listStages returns stages for a stack; listStacks returns stacks",
+  "listStages returns stages for a stack; listStacks returns registered stacks",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const alpha = uniqueStack();
+    const beta = uniqueStack();
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "alpha",
+      rpc(url, authToken, "set", {
+        stack: alpha,
         stage: "dev",
         fqn: "r1",
         value: makeResource("r1"),
       }),
     );
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "alpha",
+      rpc(url, authToken, "set", {
+        stack: alpha,
         stage: "prod",
         fqn: "r2",
         value: makeResource("r2"),
       }),
     );
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "beta",
+      rpc(url, authToken, "set", {
+        stack: beta,
         stage: "dev",
         fqn: "r3",
         value: makeResource("r3"),
@@ -347,26 +343,27 @@ test(
     );
 
     const stacks = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "listStacks"),
+      rpc<string[]>(url, authToken, "listStacks"),
     );
     expect(stacks.status).toBe(200);
-    expect(stacks.body.result?.sort()).toEqual(["alpha", "beta"]);
+    // Other parallel tests may also register their own stacks, so
+    // just assert our two are present.
+    expect(stacks.body.result).toContain(alpha);
+    expect(stacks.body.result).toContain(beta);
 
     const stagesAlpha = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "listStages", { stack: "alpha" }),
+      rpc<string[]>(url, authToken, "listStages", { stack: alpha }),
     );
     expect(stagesAlpha.status).toBe(200);
     expect(stagesAlpha.body.result?.sort()).toEqual(["dev", "prod"]);
 
     const stagesBeta = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "listStages", { stack: "beta" }),
+      rpc<string[]>(url, authToken, "listStages", { stack: beta }),
     );
     expect(stagesBeta.body.result?.sort()).toEqual(["dev"]);
 
     const stagesMissing = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "listStages", {
-        stack: "not-a-stack",
-      }),
+      rpc<string[]>(url, authToken, "listStages", { stack: "not-a-stack" }),
     );
     expect(stagesMissing.body.result).toEqual([]);
   }),
@@ -376,11 +373,11 @@ test(
   "set on an existing key overwrites the value",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "f",
         value: makeResource("f", { props: { v: 1 } as any }),
@@ -388,8 +385,8 @@ test(
     );
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "f",
         value: makeResource("f", { props: { v: 2 } as any }),
@@ -397,8 +394,8 @@ test(
     );
 
     const res = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "e",
         fqn: "f",
       }),
@@ -411,19 +408,19 @@ test(
   "getReplacedResources filters to status === 'replaced'",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "created",
         value: makeResource("created", { status: "created" }),
       }),
     );
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "replaced-one",
         value: makeResource("replaced-one", {
@@ -446,8 +443,8 @@ test(
       }),
     );
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "replaced-two",
         value: makeResource("replaced-two", {
@@ -471,13 +468,10 @@ test(
     );
 
     const res = yield* Effect.promise(() =>
-      rpc<ResourceState[]>(
-        url,
-        authToken,
-        project,
-        "getReplacedResources",
-        { stack: "s", stage: "e" },
-      ),
+      rpc<ResourceState[]>(url, authToken, "getReplacedResources", {
+        stack: stackName,
+        stage: "e",
+      }),
     );
     expect(res.status).toBe(200);
     const ids = (res.body.result ?? []).map((r) => r.logicalId).sort();
@@ -486,15 +480,15 @@ test(
 );
 
 test(
-  "projects are isolated from each other",
+  "stacks are isolated from each other",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const projectA = uniqueProject();
-    const projectB = uniqueProject();
+    const stackA = uniqueStack();
+    const stackB = uniqueStack();
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, projectA, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackA,
         stage: "e",
         fqn: "only-in-a",
         value: makeResource("only-in-a"),
@@ -502,23 +496,17 @@ test(
     );
 
     const listA = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, projectA, "list", {
-        stack: "s",
-        stage: "e",
-      }),
+      rpc<string[]>(url, authToken, "list", { stack: stackA, stage: "e" }),
     );
     const listB = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, projectB, "list", {
-        stack: "s",
-        stage: "e",
-      }),
+      rpc<string[]>(url, authToken, "list", { stack: stackB, stage: "e" }),
     );
     expect(listA.body.result).toEqual(["only-in-a"]);
     expect(listB.body.result).toEqual([]);
 
     const getFromB = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, projectB, "get", {
-        stack: "s",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackB,
         stage: "e",
         fqn: "only-in-a",
       }),
@@ -531,10 +519,9 @@ test(
   "missing required params on set returns 400",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
     const res = yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: uniqueStack(),
         stage: "e",
         // fqn missing
         value: makeResource("x"),
@@ -549,12 +536,12 @@ test(
   "FQNs containing slashes survive a set/get round-trip",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
     const fqn = "Parent/Child/Grandchild";
 
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn,
         value: makeResource("Grandchild", { fqn }),
@@ -562,8 +549,8 @@ test(
     );
 
     const got = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "e",
         fqn,
       }),
@@ -571,10 +558,7 @@ test(
     expect(got.body.result?.fqn).toBe(fqn);
 
     const listed = yield* Effect.promise(() =>
-      rpc<string[]>(url, authToken, project, "list", {
-        stack: "s",
-        stage: "e",
-      }),
+      rpc<string[]>(url, authToken, "list", { stack: stackName, stage: "e" }),
     );
     expect(listed.body.result).toEqual([fqn]);
   }),
@@ -584,7 +568,7 @@ test(
   "Redacted values survive a set/get round-trip via the REDACTED_MARKER envelope",
   Effect.gen(function* () {
     const { url, authToken } = yield* stack;
-    const project = uniqueProject();
+    const stackName = uniqueStack();
     const secretValue = "super-secret-value-42";
 
     // On the wire, Redacted<T> is encoded as { [REDACTED_MARKER]: value }
@@ -592,8 +576,8 @@ test(
     // same encoding before encryption, so the round-trip should bring
     // the envelope back identically.
     yield* Effect.promise(() =>
-      rpc(url, authToken, project, "set", {
-        stack: "s",
+      rpc(url, authToken, "set", {
+        stack: stackName,
         stage: "e",
         fqn: "has-secret",
         value: makeResource("has-secret", {
@@ -608,8 +592,8 @@ test(
     );
 
     const got = yield* Effect.promise(() =>
-      rpc<ResourceState | null>(url, authToken, project, "get", {
-        stack: "s",
+      rpc<ResourceState | null>(url, authToken, "get", {
+        stack: stackName,
         stage: "e",
         fqn: "has-secret",
       }),
@@ -627,4 +611,3 @@ test(
     expect(Redacted.value(revived)).toBe(secretValue);
   }),
 );
-

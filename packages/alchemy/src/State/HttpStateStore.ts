@@ -42,8 +42,8 @@ const fail = (message: string, cause?: Error) =>
 
 /**
  * Layer that implements {@link State} by POSTing to an HTTP
- * state-store server through Effect's `HttpClient`. Credentials (URL,
- * bearer token, project namespace) are resolved through the
+ * state-store server through Effect's `HttpClient`. Credentials
+ * (URL, bearer token) are resolved through the
  * {@link HttpStateStoreAuth} provider.
  *
  * Build {@link HttpStateStoreAuth} alongside this layer so the
@@ -52,10 +52,13 @@ const fail = (message: string, cause?: Error) =>
  * so consumers don't need to wire one up themselves.
  *
  * The wire contract is generic HTTP RPC at
- * `POST {url}/projects/{project}/state/{method}` with a bearer token
- * and a JSON body. Redacted values round-trip through a
- * `{ __redacted__: … }` envelope on the wire (see {@link encodeState}
- * / {@link reviveState}).
+ * `POST {url}/state/{method}` with a bearer token and a JSON body.
+ * The server shards storage by stack — each stack gets its own
+ * backing Durable Object — with a root DO tracking the known stack
+ * names so `listStacks` returns everything.
+ *
+ * Redacted values round-trip through a `{ __redacted__: … }`
+ * envelope on the wire (see {@link encodeState} / {@link reviveState}).
  */
 export const HttpStateStore = Layer.effect(
   State,
@@ -73,7 +76,6 @@ export const HttpStateStore = Layer.effect(
     );
 
     const baseUrl = creds.url.replace(/\/+$/, "");
-    const project = creds.project;
     const token = Redacted.value(creds.token);
 
     // Preconfigure the client with the service's base URL and bearer
@@ -88,7 +90,7 @@ export const HttpStateStore = Layer.effect(
     );
 
     /**
-     * POST `/projects/:project/state/:method` with `body` as JSON.
+     * POST `/state/:method` with `body` as JSON.
      *
      * The body is passed through {@link encodeState} first so nested
      * `Redacted<T>` values become `{ __redacted__: … }` envelopes
@@ -101,9 +103,9 @@ export const HttpStateStore = Layer.effect(
       body: Record<string, unknown>,
     ): Effect.Effect<T | null, StateStoreError, never> =>
       Effect.gen(function* () {
-        const request = HttpClientRequest.post(
-          `/projects/${encodeURIComponent(project)}/state/${method}`,
-        ).pipe(HttpClientRequest.bodyJsonUnsafe(encodeState(body)));
+        const request = HttpClientRequest.post(`/state/${method}`).pipe(
+          HttpClientRequest.bodyJsonUnsafe(encodeState(body)),
+        );
 
         const response = yield* client.execute(request);
         const text = yield* response.text;

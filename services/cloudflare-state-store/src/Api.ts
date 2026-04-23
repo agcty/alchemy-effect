@@ -1,13 +1,13 @@
 import * as Cloudflare from "alchemy/Cloudflare";
 import type { ResourceState } from "alchemy/State";
+import { STATE_STORE_SCRIPT_NAME } from "alchemy/State";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import { STATE_STORE_SCRIPT_NAME } from "alchemy/State";
-import StateStore from "./StateStore.ts";
+import StateStore, { ROOT_DO_NAME } from "./StateStore.ts";
 import { AuthToken } from "./Token.ts";
 
 class Unauthorized extends Data.TaggedError("Unauthorized")<{}> {}
@@ -100,11 +100,6 @@ const parseBody: Effect.Effect<
   });
 });
 
-/** Read `:project` from the matched route path. */
-const getProject = HttpRouter.params.pipe(
-  Effect.map((params) => decodeURIComponent(params.project ?? "")),
-);
-
 /**
  * Wrap a handler so its tagged errors map to structured JSON
  * responses and any defect (e.g. from `Effect.orDie`ed DO calls)
@@ -170,34 +165,34 @@ export default class Api extends Cloudflare.Worker<Api>()(
       }
     });
 
+    /** DO instance that holds the stack-name index. */
+    const rootDO = stateStore.getByName(ROOT_DO_NAME);
+
+    /** DO instance for a specific stack. */
+    const stackDO = (stack: string) => stateStore.getByName(stack);
+
     const routes = Layer.mergeAll(
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/listStacks",
+        "/state/listStacks",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
-            const result = yield* stateStore
-              .getByName(project)
-              .listStacks()
-              .pipe(Effect.orDie);
+            const result = yield* rootDO.listStacks().pipe(Effect.orDie);
             return yield* okResponse(result);
           }),
         ),
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/listStages",
+        "/state/listStages",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
-            const result = yield* stateStore
-              .getByName(project)
-              .listStages({ stack })
+            const result = yield* stackDO(stack)
+              .listStages()
               .pipe(Effect.orDie);
             return yield* okResponse(result);
           }),
@@ -205,17 +200,15 @@ export default class Api extends Cloudflare.Worker<Api>()(
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/list",
+        "/state/list",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
             const stage = yield* requireString(body, "stage");
-            const result = yield* stateStore
-              .getByName(project)
-              .list({ stack, stage })
+            const result = yield* stackDO(stack)
+              .list({ stage })
               .pipe(Effect.orDie);
             return yield* okResponse(result);
           }),
@@ -223,18 +216,16 @@ export default class Api extends Cloudflare.Worker<Api>()(
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/get",
+        "/state/get",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
             const stage = yield* requireString(body, "stage");
             const fqn = yield* requireString(body, "fqn");
-            const result = yield* stateStore
-              .getByName(project)
-              .get({ stack, stage, fqn })
+            const result = yield* stackDO(stack)
+              .get({ stage, fqn })
               .pipe(Effect.orDie);
             return yield* okResponse(result);
           }),
@@ -242,40 +233,40 @@ export default class Api extends Cloudflare.Worker<Api>()(
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/set",
+        "/state/set",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
             const stage = yield* requireString(body, "stage");
             const fqn = yield* requireString(body, "fqn");
             const value = yield* requireObject(body, "value");
-            const result = yield* stateStore
-              .getByName(project)
-              .set({ stack, stage, fqn, value })
+            // Write the resource first — if root registration fails
+            // afterward, the next `set` on the same stack retries it
+            // (registerStack is idempotent).
+            const result = yield* stackDO(stack)
+              .set({ stage, fqn, value })
               .pipe(Effect.orDie);
+            yield* rootDO.registerStack({ stack }).pipe(Effect.orDie);
             return yield* okResponse(result);
           }),
         ),
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/delete",
+        "/state/delete",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
             const stage = yield* requireString(body, "stage");
             const fqn = yield* requireString(body, "fqn");
             // The DO method is `remove`, not `delete` — `delete` is
             // reserved by Cloudflare's RPC stub proxy.
-            yield* stateStore
-              .getByName(project)
-              .remove({ stack, stage, fqn })
+            yield* stackDO(stack)
+              .remove({ stage, fqn })
               .pipe(Effect.orDie);
             return yield* okResponse(null);
           }),
@@ -283,17 +274,15 @@ export default class Api extends Cloudflare.Worker<Api>()(
       ),
       HttpRouter.add(
         "POST",
-        "/projects/:project/state/getReplacedResources",
+        "/state/getReplacedResources",
         wrap(
           Effect.gen(function* () {
             yield* authenticate;
-            const project = yield* getProject;
             const body = yield* parseBody;
             const stack = yield* requireString(body, "stack");
             const stage = yield* requireString(body, "stage");
-            const result = yield* stateStore
-              .getByName(project)
-              .getReplacedResources({ stack, stage })
+            const result = yield* stackDO(stack)
+              .getReplacedResources({ stage })
               .pipe(Effect.orDie);
             return yield* okResponse(result);
           }),

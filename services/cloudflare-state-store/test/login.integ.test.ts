@@ -39,14 +39,7 @@ class WorkerNotReachable extends Data.TaggedError("WorkerNotReachable")<{
   readonly reason: string;
 }> {}
 
-// ---- project + downstream stack metadata -------------------------
-
-/**
- * Project namespace used for every HTTP state-store call in this
- * file. Unique-per-run so repeated test invocations on the same
- * deployed state store don't share resources.
- */
-const PROJECT = `login-integ-${Date.now()}`;
+// ---- downstream stack metadata -----------------------------------
 
 /**
  * `TestStack` uses stack name `AlchemyStateStoreLoginTest` and the
@@ -104,14 +97,13 @@ interface RpcEnvelope<T> {
 const rpc = <T>(
   baseUrl: string,
   token: string,
-  project: string,
   method: string,
   body: Record<string, unknown>,
 ) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
     const request = HttpClientRequest.post(
-      `${baseUrl}/projects/${encodeURIComponent(project)}/state/${method}`,
+      `${baseUrl}/state/${method}`,
     ).pipe(
       HttpClientRequest.bearerToken(token),
       HttpClientRequest.bodyJsonUnsafe(body),
@@ -167,18 +159,23 @@ const rpc = <T>(
     return (parsed.result ?? null) as T | null;
   });
 
-/** Small `list` wrapper that always returns an array. */
+/** `list` for `(stack, stage)` — always returns an array. */
 const listFqns = (
   baseUrl: string,
   token: string,
-  project: string,
   stateStack: string,
   stage: string,
 ) =>
-  rpc<string[]>(baseUrl, token, project, "list", {
+  rpc<string[]>(baseUrl, token, "list", {
     stack: stateStack,
     stage,
   }).pipe(Effect.map((r) => r ?? []));
+
+/** `listStacks` — always returns an array. */
+const listStacks = (baseUrl: string, token: string) =>
+  rpc<string[]>(baseUrl, token, "listStacks", {}).pipe(
+    Effect.map((r) => r ?? []),
+  );
 
 /**
  * Retry options for newly-deployed workers: up to 60 attempts with
@@ -196,7 +193,7 @@ const warmupRetry = {
  * and return an HTML error page.
  */
 const waitForWorker = (url: string, token: string) =>
-  listFqns(url, token, "warmup", "warmup", "warmup").pipe(
+  listStacks(url, token).pipe(
     Effect.retry(warmupRetry),
     Effect.mapError(
       () =>
@@ -271,22 +268,17 @@ test(
     // 1. Log in. Uses `loginWithCloudflare` (edge-preview probe →
     //    token, subdomain lookup → URL) and writes
     //    `~/.alchemy/credentials/default/http-state-store.json`.
-    //    Project is passed explicitly because tests don't have a TTY
-    //    for the interactive prompt.
     //
     //    `cloudflareForLogin` provides the minimum set of services
     //    `loginWithCloudflare` needs beyond what the test harness
     //    already supplies.
-    yield* loginWithCloudflare({ project: PROJECT }).pipe(
-      Effect.provide(cloudflareForLogin),
-    );
+    yield* loginWithCloudflare().pipe(Effect.provide(cloudflareForLogin));
 
-    // 2. State store should be empty for this unique project before
+    // 2. State store should be empty for the downstream stack before
     //    we deploy anything.
     const before = yield* listFqns(
       stateStoreUrl,
       authToken,
-      PROJECT,
       DOWNSTREAM_STACK_NAME,
       DOWNSTREAM_STAGE,
     );
@@ -303,15 +295,18 @@ test(
     expect(workerUrl).toBeString();
 
     // 4. State store should now have at least one resource recorded
-    //    for the downstream stack/stage under our project.
+    //    for the downstream stack/stage, and the stack should be
+    //    listed in the root index.
     const afterDeploy = yield* listFqns(
       stateStoreUrl,
       authToken,
-      PROJECT,
       DOWNSTREAM_STACK_NAME,
       DOWNSTREAM_STAGE,
     );
     expect(afterDeploy.length).toBeGreaterThan(0);
+
+    const stacksList = yield* listStacks(stateStoreUrl, authToken);
+    expect(stacksList).toContain(DOWNSTREAM_STACK_NAME);
 
     // 5. Hit the worker itself — it should respond 200 with the
     //    canary string defined in `TestStack`. `waitForBody` polls
@@ -327,12 +322,13 @@ test(
     //    reads/writes the HTTP state store.
     yield* destroy(TestStack).pipe(Effect.provide(remoteState));
 
-    // 7. State store should be empty again for this project after
-    //    teardown.
+    // 7. State store should be empty again for this stack after
+    //    teardown. The stack name may still appear in `listStacks` —
+    //    the root index is write-only today to match LocalState's
+    //    "directories aren't auto-removed" semantics.
     const afterDestroy = yield* listFqns(
       stateStoreUrl,
       authToken,
-      PROJECT,
       DOWNSTREAM_STACK_NAME,
       DOWNSTREAM_STAGE,
     );

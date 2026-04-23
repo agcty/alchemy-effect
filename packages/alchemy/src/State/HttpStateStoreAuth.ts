@@ -74,12 +74,12 @@ const SECRET_PROBE_SOURCE = `export default {
  * the credentials file — the credentials themselves always live at
  * `~/.alchemy/credentials/<profile>/http-state-store.json`.
  *
- * - `stored` — fully manual, user pastes URL / token / project.
+ * - `stored` — fully manual, user pastes URL and token.
  * - `cloudflare` — URL is derived from {@link STATE_STORE_SCRIPT_NAME}
  *   and the account's workers.dev subdomain; the token is fetched
  *   out-of-band via an edge-preview worker bound to
  *   {@link STATE_STORE_AUTH_TOKEN_SECRET_NAME} in the account's
- *   Secrets Store; the user is only asked for the project name.
+ *   Secrets Store.
  */
 export type HttpStateStoreAuthConfig =
   | { method: "stored" }
@@ -94,8 +94,6 @@ export interface HttpStateStoreStoredCredentials {
   url: string;
   /** Bearer token used to authenticate every request. */
   token: string;
-  /** Project namespace to use for this profile. */
-  project: string;
 }
 
 /**
@@ -105,7 +103,6 @@ export interface HttpStateStoreStoredCredentials {
 export interface HttpStateStoreResolvedCredentials {
   url: string;
   token: Redacted.Redacted<string>;
-  project: string;
   source: {
     type: HttpStateStoreAuthConfig["method"];
     details?: string;
@@ -153,7 +150,6 @@ const resolveCredentials = (profileName: string) =>
         : Effect.succeed({
             url: creds.url,
             token: Redacted.make(creds.token),
-            project: creds.project,
             source: { type: "stored" as const },
           } satisfies HttpStateStoreResolvedCredentials),
     ),
@@ -242,7 +238,7 @@ const configureInteractive = (profileName: string) =>
       {
         value: "stored" as const,
         label: "Stored",
-        hint: "paste URL, token, and project manually",
+        hint: "paste URL and token manually",
       },
     ],
   }).pipe(
@@ -278,18 +274,12 @@ const loginStored = Effect.fnUntraced(function* (profileName: string) {
     validate: (v) => (v.length === 0 ? "Required" : undefined),
   }).pipe(retryOnce);
 
-  const project = yield* Clank.text({
-    message: "Project name (namespace under which state is stored)",
-    validate: (v) => (v.length === 0 ? "Required" : undefined),
-  }).pipe(retryOnce);
-
   yield* writeCredentials<HttpStateStoreStoredCredentials>(
     profileName,
     CREDENTIALS_FILE,
     {
       url: url.replace(/\/+$/, ""),
       token,
-      project,
     },
   );
   yield* Clank.success("HTTP state store: credentials saved.");
@@ -298,15 +288,6 @@ const loginStored = Effect.fnUntraced(function* (profileName: string) {
 });
 
 // -- cloudflare login ---------------------------------------------
-
-export interface LoginWithCloudflareOptions {
-  /**
-   * Project namespace written to the stored credentials. When
-   * omitted the user is prompted interactively — pass an explicit
-   * value from non-TTY contexts (tests, scripts).
-   */
-  readonly project?: string;
-}
 
 /**
  * Upload a tiny edge-preview worker that binds the given Secrets
@@ -358,17 +339,14 @@ const readSecretViaEdge = (storeId: string, secretName: string) =>
  * 3. Derive the state-store worker URL from
  *    {@link STATE_STORE_SCRIPT_NAME} and the account's workers.dev
  *    subdomain.
- * 4. Resolve the project namespace (explicit arg or interactive
- *    prompt).
- * 5. Persist `{ url, token, project }` under the `http-state-store`
- *    credentials file and record `{ method: "cloudflare" }` in the
- *    profile so subsequent `loadOrConfigure` calls find it.
+ * 4. Persist `{ url, token }` under the `http-state-store`
+ *    credentials file.
  *
  * Requirements are covered by the Cloudflare provider stack —
  * `CloudflareEnvironment`, `Credentials`, `HttpClient`, and
  * `FileSystem`.
  */
-export const loginWithCloudflare = (options: LoginWithCloudflareOptions = {}) =>
+export const loginWithCloudflare = () =>
   Effect.gen(function* () {
     const profileName = yield* ALCHEMY_PROFILE;
     const { accountId } = yield* CloudflareEnvironment;
@@ -397,30 +375,12 @@ export const loginWithCloudflare = (options: LoginWithCloudflareOptions = {}) =>
     const { subdomain } = yield* getSubdomain({ accountId });
     const url = `https://${STATE_STORE_SCRIPT_NAME}.${subdomain}.workers.dev`;
 
-    // 4. Resolve project namespace — explicit input wins.
-    const project =
-      options.project !== undefined
-        ? options.project
-        : yield* Clank.text({
-            message: "Project name (namespace under which state is stored)",
-            validate: (v) => (v.length === 0 ? "Required" : undefined),
-          }).pipe(
-            Effect.mapError(
-              (e) =>
-                new AuthError({
-                  message: "Project prompt cancelled",
-                  cause: e,
-                }),
-            ),
-          );
-
-    // 5. Persist credentials. The profile entry is managed by
-    //    `loadOrConfigure` when this is invoked through `configure`;
-    //    for the programmatic export we still need it.
+    // 4. Persist credentials. The profile entry is managed by
+    //    `loadOrConfigure` when this is invoked through `configure`.
     yield* writeCredentials<HttpStateStoreStoredCredentials>(
       profileName,
       CREDENTIALS_FILE,
-      { url, token: token.trim(), project },
+      { url, token: token.trim() },
     ).pipe(
       Effect.mapError(
         (e) =>
@@ -432,7 +392,6 @@ export const loginWithCloudflare = (options: LoginWithCloudflareOptions = {}) =>
       `HTTP state store credentials saved for '${profileName}'.`,
     );
     yield* Clank.info(`  url:     ${url}`);
-    yield* Clank.info(`  project: ${project}`);
 
     return { method: "cloudflare" as const };
   }).pipe(
@@ -452,10 +411,9 @@ const prettyPrint = (profileName: string, _config: HttpStateStoreAuthConfig) =>
   resolveCredentials(profileName).pipe(
     Effect.tap((creds) =>
       Effect.all([
-        Console.log(`  url:     ${creds.url}`),
-        Console.log(`  token:   ${displayRedacted(creds.token)}`),
-        Console.log(`  project: ${creds.project}`),
-        Console.log(`  source:  ${creds.source.type}`),
+        Console.log(`  url:    ${creds.url}`),
+        Console.log(`  token:  ${displayRedacted(creds.token)}`),
+        Console.log(`  source: ${creds.source.type}`),
       ]),
     ),
     Effect.catch((e) =>

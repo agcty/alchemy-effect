@@ -8,40 +8,44 @@ import * as Effect from "effect/Effect";
 import { EncryptionKey } from "./Token.ts";
 
 /**
- * NUL byte separator for composite keys. Stack and stage names are
- * simple identifiers, and FQNs use `/` as their internal separator
- * (see alchemy/src/FQN.ts), so NUL is safe as a delimiter.
+ * Well-known DO name whose sole job is to track the set of stacks
+ * that have ever had resources written. `listStacks` queries it;
+ * every `set` asks it to register the stack (idempotent).
  */
+export const ROOT_DO_NAME = "__root__" as const;
+
+/** NUL byte separator for composite keys. */
 const SEP = "\x00";
+
+/** Key prefix for resource entries in a stack DO. */
 const RESOURCE_PREFIX = `r${SEP}`;
-const NONCE_BYTES = 16; // AES-CTR counter block length
 
-const resourceKey = (stack: string, stage: string, fqn: string) =>
-  `${RESOURCE_PREFIX}${stack}${SEP}${stage}${SEP}${fqn}`;
+/** Key prefix for stack-index entries in the root DO. */
+const STACK_INDEX_PREFIX = "s:";
 
-const stagePrefix = (stack: string) => `${RESOURCE_PREFIX}${stack}${SEP}`;
+/** AES-CTR counter block length. */
+const NONCE_BYTES = 16;
 
-const stageFullPrefix = (stack: string, stage: string) =>
-  `${RESOURCE_PREFIX}${stack}${SEP}${stage}${SEP}`;
+/** Build the resource key inside a *stack DO*. */
+const resourceKey = (stage: string, fqn: string) =>
+  `${RESOURCE_PREFIX}${stage}${SEP}${fqn}`;
+
+/** Prefix matching every resource key inside a specific stage. */
+const stagePrefix = (stage: string) =>
+  `${RESOURCE_PREFIX}${stage}${SEP}`;
 
 /**
- * Parse a resource key back into its (stack, stage, fqn) tuple. Returns
+ * Parse a resource key back into its (stage, fqn) tuple. Returns
  * undefined for keys that do not match the expected shape.
  */
 const parseResourceKey = (
   key: string,
-): { stack: string; stage: string; fqn: string } | undefined => {
+): { stage: string; fqn: string } | undefined => {
   if (!key.startsWith(RESOURCE_PREFIX)) return undefined;
   const rest = key.slice(RESOURCE_PREFIX.length);
-  const firstSep = rest.indexOf(SEP);
-  if (firstSep < 0) return undefined;
-  const stack = rest.slice(0, firstSep);
-  const afterStack = rest.slice(firstSep + 1);
-  const secondSep = afterStack.indexOf(SEP);
-  if (secondSep < 0) return undefined;
-  const stage = afterStack.slice(0, secondSep);
-  const fqn = afterStack.slice(secondSep + 1);
-  return { stack, stage, fqn };
+  const sep = rest.indexOf(SEP);
+  if (sep < 0) return undefined;
+  return { stage: rest.slice(0, sep), fqn: rest.slice(sep + 1) };
 };
 
 /**
@@ -74,18 +78,25 @@ const hexToBytes = (hex: string): Uint8Array<ArrayBuffer> => {
 };
 
 /**
- * A Durable Object that persists alchemy state for a single project.
+ * A Durable Object whose storage layout depends on which name the
+ * worker addresses:
  *
- * All stacks and stages for the project live inside this one DO. Keys
- * are laid out as `r<NUL><stack><NUL><stage><NUL><fqn>` so that a
- * prefix scan can enumerate any subtree (stacks, stages, or fqns).
+ * - `getByName("__root__")` — root index. Stores `s:<stackName>`
+ *   marker keys so `listStacks` has a quick lookup. No resource
+ *   state ever lives here.
+ * - `getByName("<stackName>")` — per-stack storage. Keys shaped as
+ *   `r<NUL><stage><NUL><fqn>` hold the encrypted `ResourceState`.
  *
- * Values are encrypted with **AES-CTR** using a single 256-bit key
- * pulled from the Cloudflare Secrets Store. There is one shared key
- * across all readers and writers, so AES-CTR's confidentiality
- * guarantee is sufficient — an authenticated cipher (GCM) would only
- * add overhead without a meaningful threat model. A fresh 16-byte
- * nonce is prepended to each ciphertext so updates never reuse a
+ * Both instances share the same method surface; the worker is
+ * responsible for calling the right methods on the right instance
+ * (see `src/Api.ts`).
+ *
+ * Values are encrypted with AES-CTR using a 256-bit key pulled from
+ * the Cloudflare Secrets Store. There is one shared key across all
+ * readers and writers, so AES-CTR's confidentiality guarantee is
+ * sufficient — an authenticated cipher (GCM) would only add overhead
+ * without a meaningful threat model. A fresh 16-byte nonce is
+ * prepended to each ciphertext so updates never reuse a
  * (key, counter) pair.
  *
  * `Redacted<T>` values round-trip via {@link encodeState} so secrets
@@ -166,29 +177,37 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
         }).pipe(Effect.orDie);
 
       return {
+        // -- Root DO methods -----------------------------------------
+
         /**
-         * List every stack that has at least one resource stored.
+         * (Root DO only) List every stack name ever registered.
          */
         listStacks: () =>
           Effect.gen(function* () {
-            const entries = yield* storage.list<string>({
-              prefix: RESOURCE_PREFIX,
+            const entries = yield* storage.list<number>({
+              prefix: STACK_INDEX_PREFIX,
             });
-            const stacks = new Set<string>();
+            const stacks: string[] = [];
             for (const key of entries.keys()) {
-              const parsed = parseResourceKey(key);
-              if (parsed) stacks.add(parsed.stack);
+              stacks.push(key.slice(STACK_INDEX_PREFIX.length));
             }
-            return [...stacks];
+            return stacks;
           }),
 
         /**
-         * List every stage within a stack that has at least one resource.
+         * (Root DO only) Register a stack name. Idempotent — safe to
+         * call on every `set` to the corresponding stack DO.
          */
-        listStages: ({ stack }: { stack: string }) =>
+        registerStack: ({ stack }: { stack: string }) =>
+          storage.put(`${STACK_INDEX_PREFIX}${stack}`, 1),
+
+        // -- Stack DO methods ----------------------------------------
+
+        /** (Stack DO only) List stages with at least one resource. */
+        listStages: () =>
           Effect.gen(function* () {
             const entries = yield* storage.list<string>({
-              prefix: stagePrefix(stack),
+              prefix: RESOURCE_PREFIX,
             });
             const stages = new Set<string>();
             for (const key of entries.keys()) {
@@ -198,13 +217,11 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
             return [...stages];
           }),
 
-        /**
-         * List every resource FQN within a specific (stack, stage).
-         */
-        list: ({ stack, stage }: { stack: string; stage: string }) =>
+        /** (Stack DO only) List every resource FQN in a stage. */
+        list: ({ stage }: { stage: string }) =>
           Effect.gen(function* () {
             const entries = yield* storage.list<string>({
-              prefix: stageFullPrefix(stack, stage),
+              prefix: stagePrefix(stage),
             });
             const fqns: string[] = [];
             for (const key of entries.keys()) {
@@ -215,83 +232,57 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
           }),
 
         /**
-         * Get a resource by (stack, stage, fqn). Returns null if missing.
+         * (Stack DO only) Get a resource by (stage, fqn). Returns
+         * null if missing.
          */
-        get: ({
-          stack,
-          stage,
-          fqn,
-        }: {
-          stack: string;
-          stage: string;
-          fqn: string;
-        }) =>
+        get: ({ stage, fqn }: { stage: string; fqn: string }) =>
           Effect.gen(function* () {
-            const entry = yield* storage.get<string>(
-              resourceKey(stack, stage, fqn),
-            );
+            const entry = yield* storage.get<string>(resourceKey(stage, fqn));
             if (!entry) return null;
             return yield* decryptEntry(entry);
           }),
 
         /**
-         * Persist a resource. Returns the stored value unchanged.
+         * (Stack DO only) Persist a resource. Returns the stored
+         * value unchanged.
          */
         set: ({
-          stack,
           stage,
           fqn,
           value,
         }: {
-          stack: string;
           stage: string;
           fqn: string;
           value: ResourceState;
         }) =>
           Effect.gen(function* () {
             const encrypted = yield* encryptValue(value);
-            yield* storage.put<string>(
-              resourceKey(stack, stage, fqn),
-              encrypted,
-            );
+            yield* storage.put<string>(resourceKey(stage, fqn), encrypted);
             return value;
           }),
 
         /**
-         * Delete a resource. Idempotent: missing keys are not an error.
+         * (Stack DO only) Delete a resource. Idempotent.
          *
          * Exposed as `remove` (not `delete`) because Cloudflare's
          * Durable Object RPC stub reserves `delete` and refuses to
          * proxy the call, surfacing as "RPC receiver does not
          * implement the method 'delete'".
          */
-        remove: ({
-          stack,
-          stage,
-          fqn,
-        }: {
-          stack: string;
-          stage: string;
-          fqn: string;
-        }) =>
+        remove: ({ stage, fqn }: { stage: string; fqn: string }) =>
           Effect.gen(function* () {
-            yield* storage.delete(resourceKey(stack, stage, fqn));
+            yield* storage.delete(resourceKey(stage, fqn));
           }),
 
         /**
-         * Return every resource in a stage whose `status === "replaced"`.
-         * Each entry is decrypted so the `status` field can be inspected.
+         * (Stack DO only) Return every resource in a stage whose
+         * `status === "replaced"`. Each entry is decrypted so the
+         * `status` field can be inspected.
          */
-        getReplacedResources: ({
-          stack,
-          stage,
-        }: {
-          stack: string;
-          stage: string;
-        }) =>
+        getReplacedResources: ({ stage }: { stage: string }) =>
           Effect.gen(function* () {
             const entries = yield* storage.list<string>({
-              prefix: stageFullPrefix(stack, stage),
+              prefix: stagePrefix(stage),
             });
             const replaced: ReplacedResourceState[] = [];
             for (const entry of entries.values()) {
