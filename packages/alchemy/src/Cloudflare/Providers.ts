@@ -43,7 +43,7 @@ export const providers = () =>
       R2.R2BucketBindingPolicy,
       SecretsStore.SecretBindingPolicy,
       SecretsStore.SecretsStore,
-      SecretsStore.StoreSecret,
+      SecretsStore.Secret,
       Random,
       Workers.BindWorkerPolicy,
       Workers.FetchPolicy,

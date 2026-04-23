@@ -36,7 +36,7 @@ export type StoreSecretProps = {
   comment?: string;
 };
 
-export type StoreSecret = Resource<
+export type Secret = Resource<
   "Cloudflare.SecretsStore.Secret",
   StoreSecretProps,
   {
@@ -79,9 +79,7 @@ export type StoreSecret = Resource<
  * const value = yield* apiKey.get();
  * ```
  */
-export const StoreSecret = Resource<StoreSecret>(
-  "Cloudflare.SecretsStore.Secret",
-)({
+export const Secret = Resource<Secret>("Cloudflare.SecretsStore.Secret")({
   bind: SecretBinding.bind,
 });
 
@@ -93,7 +91,7 @@ const resolveName = (id: string, name: string | undefined): string =>
 
 export const StoreSecretProvider = () =>
   Provider.effect(
-    StoreSecret,
+    Secret,
     Effect.gen(function* () {
       const createStoreSecret = yield* secretsStore.createStoreSecret;
       const patchStoreSecret = yield* secretsStore.patchStoreSecret;
@@ -196,7 +194,9 @@ export const StoreSecretProvider = () =>
                 scopes: output.scopes,
                 comment: secret.comment ?? undefined,
               })),
-              Effect.catchTag("SecretNotFound", () => Effect.succeed(undefined)),
+              Effect.catchTag("SecretNotFound", () =>
+                Effect.succeed(undefined),
+              ),
               Effect.catchTag("StoreNotFound", () => Effect.succeed(undefined)),
             );
           }

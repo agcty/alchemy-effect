@@ -5,7 +5,7 @@ import * as Layer from "effect/Layer";
 import * as Binding from "../../Binding.ts";
 import type { ResourceLike } from "../../Resource.ts";
 import { isWorker, WorkerEnvironment } from "../Workers/Worker.ts";
-import type { StoreSecret } from "./Secret.ts";
+import type { Secret } from "./Secret.ts";
 
 export class SecretError extends Data.TaggedError("SecretError")<{
   message: string;
@@ -18,8 +18,11 @@ export class SecretError extends Data.TaggedError("SecretError")<{
  * for the same thing as a callable, or `.raw` for the underlying
  * `SecretsStoreSecret` binding.
  */
-export interface SecretClient
-  extends Effect.Effect<string, SecretError, WorkerEnvironment> {
+export interface SecretClient extends Effect.Effect<
+  string,
+  SecretError,
+  WorkerEnvironment
+> {
   /**
    * Effect that resolves to the raw Cloudflare `SecretsStoreSecret` binding.
    */
@@ -32,7 +35,7 @@ export interface SecretClient
 
 export class SecretBinding extends Binding.Service<
   SecretBinding,
-  (secret: StoreSecret) => Effect.Effect<SecretClient>
+  (secret: Secret) => Effect.Effect<SecretClient>
 >()("Cloudflare.SecretsStore.Secret") {}
 
 export const SecretBindingLive = Layer.effect(
@@ -40,7 +43,7 @@ export const SecretBindingLive = Layer.effect(
   Effect.gen(function* () {
     const bind = yield* SecretBindingPolicy;
 
-    return Effect.fn(function* (secret: StoreSecret) {
+    return Effect.fn(function* (secret: Secret) {
       yield* bind(secret);
       const env = WorkerEnvironment.asEffect();
       const raw = env.pipe(
@@ -66,21 +69,24 @@ export const SecretBindingLive = Layer.effect(
       const getEffect: Effect.Effect<string, SecretError, WorkerEnvironment> =
         raw.pipe(Effect.flatMap((raw) => tryPromise(() => raw.get())));
 
-      return Object.assign(Effect.suspend(() => getEffect), {
-        raw,
-        get: () => getEffect,
-      }) as SecretClient;
+      return Object.assign(
+        Effect.suspend(() => getEffect),
+        {
+          raw,
+          get: () => getEffect,
+        },
+      ) as SecretClient;
     });
   }),
 );
 
 export class SecretBindingPolicy extends Binding.Policy<
   SecretBindingPolicy,
-  (secret: StoreSecret) => Effect.Effect<void>
+  (secret: Secret) => Effect.Effect<void>
 >()("Cloudflare.SecretsStore.Secret") {}
 
 export const SecretBindingPolicyLive = SecretBindingPolicy.layer.succeed(
-  Effect.fn(function* (host: ResourceLike, secret: StoreSecret) {
+  Effect.fn(function* (host: ResourceLike, secret: Secret) {
     if (isWorker(host)) {
       yield* host.bind`${secret}`({
         bindings: [
