@@ -21,8 +21,10 @@ export class State extends Context.Service<State, StateService>()(
  * for provider operations.
  */
 export interface StateService {
-  listStacks(): Effect.Effect<string[], StateStoreError, never>;
-  listStages(stack: string): Effect.Effect<string[], StateStoreError, never>;
+  listStacks(): Effect.Effect<readonly string[], StateStoreError, never>;
+  listStages(
+    stack: string,
+  ): Effect.Effect<readonly string[], StateStoreError, never>;
   /**
    * Get a resource by its FQN (namespace-qualified key).
    */
@@ -68,5 +70,5 @@ export interface StateService {
   list(request: {
     stack: string;
     stage: string;
-  }): Effect.Effect<string[], StateStoreError, never>;
+  }): Effect.Effect<readonly string[], StateStoreError, never>;
 }

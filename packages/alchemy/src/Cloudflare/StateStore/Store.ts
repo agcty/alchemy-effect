@@ -4,34 +4,8 @@ import { encodeState } from "alchemy/State";
 import * as Effect from "effect/Effect";
 import { EncryptionKey } from "./Token.ts";
 
-/**
- * A Durable Object whose storage layout depends on which name the
- * worker addresses:
- *
- * - `getByName("__root__")` — root index. Stores `s:<stackName>`
- *   marker keys so `listStacks` has a quick lookup. No resource
- *   state ever lives here.
- * - `getByName("<stackName>")` — per-stack storage. Keys shaped as
- *   `r<NUL><stage><NUL><fqn>` hold the encrypted `ResourceState`.
- *
- * Both instances share the same method surface; the worker is
- * responsible for calling the right methods on the right instance
- * (see `src/Api.ts`).
- *
- * Values are encrypted with AES-CTR using a 256-bit key pulled from
- * the Cloudflare Secrets Store. There is one shared key across all
- * readers and writers, so AES-CTR's confidentiality guarantee is
- * sufficient — an authenticated cipher (GCM) would only add overhead
- * without a meaningful threat model. A fresh 16-byte nonce is
- * prepended to each ciphertext so updates never reuse a
- * (key, counter) pair.
- *
- * `Redacted<T>` values round-trip via {@link encodeState} so secrets
- * stored in state come back as `{ __redacted__: … }` envelopes the
- * client can revive with `alchemy/State`'s `reviveState` helper.
- */
-export default class StateStore extends Cloudflare.DurableObjectNamespace<StateStore>()(
-  "StateStore",
+export default class Store extends Cloudflare.DurableObjectNamespace<Store>()(
+  "Store",
   Effect.gen(function* () {
     // Outer (class-level) phase — resolve the binding factory once.
     // The actual secret read happens inside each DO instance below,
@@ -80,13 +54,6 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
           catch: (e) => e as Error,
         }).pipe(Effect.orDie);
 
-      // Decrypt and JSON-parse without a reviver: the DO emits the
-      // on-wire envelope (`{ __redacted__: ... }` etc.) unchanged so
-      // the HTTP client can revive it locally into real `Redacted<T>`
-      // values. Reviving here would turn the envelope into a `Redacted`
-      // instance that `JSON.stringify` — used by the worker to build
-      // the HTTP response — flattens to the `"<redacted>"` placeholder,
-      // leaking precisely the value the wrapper is meant to protect.
       const decryptEntry = (entry: string) =>
         Effect.tryPromise({
           try: async (): Promise<ResourceState> => {
@@ -145,7 +112,7 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
           }),
 
         /** (Stack DO only) List every resource FQN in a stage. */
-        list: ({ stage }: { stage: string }) =>
+        listResources: ({ stage }: { stage: string }) =>
           Effect.gen(function* () {
             const entries = yield* storage.list<string>({
               prefix: stagePrefix(stage),
@@ -206,21 +173,24 @@ export default class StateStore extends Cloudflare.DurableObjectNamespace<StateS
          * `status === "replaced"`. Each entry is decrypted so the
          * `status` field can be inspected.
          */
-        getReplacedResources: ({ stage }: { stage: string }) =>
-          Effect.gen(function* () {
-            const entries = yield* storage.list<string>({
-              prefix: stagePrefix(stage),
-            });
-            const replaced: ReplacedResourceState[] = [];
-            for (const entry of entries.values()) {
-              if (!entry) continue;
-              const decoded = yield* decryptEntry(entry);
-              if (decoded?.status === "replaced") {
-                replaced.push(decoded as ReplacedResourceState);
-              }
+        getReplacedResources: Effect.fnUntraced(function* ({
+          stage,
+        }: {
+          stage: string;
+        }) {
+          const entries = yield* storage.list<string>({
+            prefix: stagePrefix(stage),
+          });
+          const replaced: ReplacedResourceState[] = [];
+          for (const entry of entries.values()) {
+            if (!entry) continue;
+            const decoded = yield* decryptEntry(entry);
+            if (decoded?.status === "replaced") {
+              replaced.push(decoded as ReplacedResourceState);
             }
-            return replaced;
-          }),
+          }
+          return replaced;
+        }),
       };
     });
   }),

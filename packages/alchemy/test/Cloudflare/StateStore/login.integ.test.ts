@@ -1,4 +1,5 @@
 import StateStoreStack from "@/Cloudflare/StateStore/Stack.ts";
+import { StateApi } from "@/State/HttpStateApi.ts";
 import * as CfCredentials from "@distilled.cloud/cloudflare/Credentials";
 import { CloudflareEnvironment } from "alchemy/Cloudflare";
 import {
@@ -20,8 +21,10 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";
 import * as Schedule from "effect/Schedule";
+import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import * as HttpApiClient from "effect/unstable/httpapi/HttpApiClient";
 import TestStack from "./TestStack/Stack.ts";
 
 // ---- errors ------------------------------------------------------
@@ -83,79 +86,29 @@ const cloudflareForLogin = Layer.mergeAll(
 
 // ---- Effect-native HTTP helpers ----------------------------------
 
-interface RpcEnvelope<T> {
-  readonly ok: boolean;
-  readonly result?: T | null;
-  readonly error?: { code: string; message: string };
-}
-
 /**
- * POST an RPC method against the state-store worker and return the
- * decoded payload. Failures surface as typed `StateStoreRpcError`
- * so callers can `Effect.retry` / `catchTag` cleanly.
+ * Build a typed `StateApi` client targetting the deployed worker.
+ * Failures surface as typed `StateStoreRpcError` so callers can
+ * `Effect.retry` / `catchTag` cleanly.
  */
-const rpc = <T>(
-  baseUrl: string,
-  token: string,
-  method: string,
-  body: Record<string, unknown>,
-) =>
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
-    const request = HttpClientRequest.post(`${baseUrl}/state/${method}`).pipe(
+const stateClient = (baseUrl: string, token: string) =>
+  HttpApiClient.make(StateApi, {
+    baseUrl,
+    transformClient: HttpClient.mapRequest(
       HttpClientRequest.bearerToken(token),
-      HttpClientRequest.bodyJsonUnsafe(body),
-    );
-    const response = yield* client.execute(request).pipe(
-      Effect.catchTag("HttpClientError", (e) =>
-        Effect.fail(
-          new StateStoreRpcError({
-            method,
-            status: 0,
-            message: e.message,
-            body: "",
-          }),
-        ),
-      ),
-    );
-    const text = yield* response.text.pipe(
-      Effect.catchTag("HttpClientError", (e) =>
-        Effect.fail(
-          new StateStoreRpcError({
-            method,
-            status: response.status,
-            message: `failed to read response body: ${e.message}`,
-            body: "",
-          }),
-        ),
-      ),
-    );
-    let parsed: RpcEnvelope<T>;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      return yield* Effect.fail(
-        new StateStoreRpcError({
-          method,
-          status: response.status,
-          message: "non-JSON response",
-          body: text.slice(0, 300),
-        }),
-      );
-    }
-    if (!parsed.ok) {
-      return yield* Effect.fail(
-        new StateStoreRpcError({
-          method,
-          status: response.status,
-          code: parsed.error?.code,
-          message: parsed.error?.message ?? "unknown error",
-          body: text.slice(0, 300),
-        }),
-      );
-    }
-    return (parsed.result ?? null) as T | null;
-  });
+    ),
+  }).pipe(Effect.provide(FetchHttpClient.layer));
+
+const wrapErr = (method: string) =>
+  Effect.mapError(
+    (e: unknown) =>
+      new StateStoreRpcError({
+        method,
+        status: 0,
+        message: e instanceof Error ? e.message : String(e),
+        body: "",
+      }),
+  );
 
 /** `list` for `(stack, stage)` — always returns an array. */
 const listFqns = (
@@ -164,15 +117,22 @@ const listFqns = (
   stateStack: string,
   stage: string,
 ) =>
-  rpc<string[]>(baseUrl, token, "list", {
-    stack: stateStack,
-    stage,
-  }).pipe(Effect.map((r) => r ?? []));
+  stateClient(baseUrl, token).pipe(
+    Effect.flatMap((client) =>
+      client.state.listResources({
+        payload: { stack: stateStack, stage },
+      }),
+    ),
+    Effect.map((fqns) => [...fqns]),
+    wrapErr("list"),
+  );
 
 /** `listStacks` — always returns an array. */
 const listStacks = (baseUrl: string, token: string) =>
-  rpc<string[]>(baseUrl, token, "listStacks", {}).pipe(
-    Effect.map((r) => r ?? []),
+  stateClient(baseUrl, token).pipe(
+    Effect.flatMap((client) => client.state.listStacks()),
+    Effect.map((stacks) => [...stacks]),
+    wrapErr("listStacks"),
   );
 
 /**

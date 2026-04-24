@@ -5,60 +5,37 @@ import * as Redacted from "effect/Redacted";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import * as HttpApiClient from "effect/unstable/httpapi/HttpApiClient";
 import {
   ALCHEMY_PROFILE,
   getAuthProvider,
   loadOrConfigure,
 } from "../Auth/index.ts";
-import type { ReplacedResourceState, ResourceState } from "./ResourceState.ts";
-import { encodeState, reviveState } from "./StateEncoding.ts";
-import { State, StateStoreError, type StateService } from "./State.ts";
+import { StateApi } from "./HttpStateApi.ts";
 import {
   HTTP_STATE_STORE_AUTH_PROVIDER_NAME,
   type HttpStateStoreAuthConfig,
   type HttpStateStoreResolvedCredentials,
 } from "./HttpStateStoreAuth.ts";
+import type { ReplacedResourceState, ResourceState } from "./ResourceState.ts";
+import { State, StateStoreError, type StateService } from "./State.ts";
+import { encodeState, reviveStateRecursive } from "./StateEncoding.ts";
 
 /**
- * RPC methods the HTTP state-store server accepts. The wire protocol
- * is generic — any server that implements this contract works.
- */
-type RpcMethod =
-  | "listStacks"
-  | "listStages"
-  | "list"
-  | "get"
-  | "set"
-  | "delete"
-  | "getReplacedResources";
-
-/** Envelope returned by the server for every RPC call. */
-type RpcResult<T> =
-  | { ok: true; result: T | null }
-  | { ok: false; error: { code: string; message: string } };
-
-const fail = (message: string, cause?: Error) =>
-  Effect.fail(new StateStoreError({ message, cause }));
-
-/**
- * Layer that implements {@link State} by POSTing to an HTTP
- * state-store server through Effect's `HttpClient`. Credentials
- * (URL, bearer token) are resolved through the
- * {@link HttpStateStoreAuth} provider.
+ * Layer that implements {@link State} by issuing requests against an
+ * HTTP state-store server through Effect's `HttpApiClient` derived
+ * from {@link StateApi}. Credentials (URL, bearer token) are resolved
+ * through the {@link HttpStateStoreAuth} provider.
  *
  * Build {@link HttpStateStoreAuth} alongside this layer so the
  * provider is registered before the state-store resolves its config.
  * A `FetchHttpClient.layer` is provided for the underlying transport
  * so consumers don't need to wire one up themselves.
  *
- * The wire contract is generic HTTP RPC at
- * `POST {url}/state/{method}` with a bearer token and a JSON body.
- * The server shards storage by stack — each stack gets its own
- * backing Durable Object — with a root DO tracking the known stack
- * names so `listStacks` returns everything.
- *
- * Redacted values round-trip through a `{ __redacted__: … }`
- * envelope on the wire (see {@link encodeState} / {@link reviveState}).
+ * `Redacted<T>` values inside arbitrary `props`/`attr` records
+ * round-trip via a `{ __redacted__: ... }` envelope handled here at
+ * the client boundary. The state-store wire itself treats
+ * `ResourceState` as opaque JSON.
  */
 export const HttpStateStore = Layer.effect(
   State,
@@ -78,90 +55,39 @@ export const HttpStateStore = Layer.effect(
     const baseUrl = creds.url.replace(/\/+$/, "");
     const token = Redacted.value(creds.token);
 
-    // Preconfigure the client with the service's base URL and bearer
-    // token. Individual calls only supply the path and body.
-    const client = (yield* HttpClient.HttpClient).pipe(
-      HttpClient.mapRequest((req) =>
-        req.pipe(
-          HttpClientRequest.prependUrl(baseUrl),
-          HttpClientRequest.bearerToken(token),
-        ),
+    const apiClient = yield* HttpApiClient.make(StateApi, {
+      baseUrl,
+      transformClient: HttpClient.mapRequest(
+        HttpClientRequest.bearerToken(token),
       ),
-    );
-
-    /**
-     * POST `/state/:method` with `body` as JSON.
-     *
-     * The body is passed through {@link encodeState} first so nested
-     * `Redacted<T>` values become `{ __redacted__: … }` envelopes
-     * rather than collapsing to the `"<redacted>"` placeholder. The
-     * response is parsed with {@link reviveState} so envelopes come
-     * back as real `Redacted<T>` values.
-     */
-    const rpc = <T>(
-      method: RpcMethod,
-      body: Record<string, unknown>,
-    ): Effect.Effect<T | null, StateStoreError, never> =>
-      Effect.gen(function* () {
-        const request = HttpClientRequest.post(`/state/${method}`).pipe(
-          HttpClientRequest.bodyJsonUnsafe(encodeState(body)),
-        );
-
-        const response = yield* client.execute(request);
-        const text = yield* response.text;
-
-        let parsed: RpcResult<T>;
-        try {
-          parsed = JSON.parse(text, reviveState) as RpcResult<T>;
-        } catch {
-          return yield* fail(
-            `non-JSON response from ${method} (status ${response.status}): ${text.slice(0, 500)}`,
-          );
-        }
-        if (!parsed.ok) {
-          const err = parsed.error ?? {
-            code: "unknown",
-            message: `status ${response.status}`,
-          };
-          return yield* fail(
-            `${method} failed: [${err.code}] ${err.message} (status ${response.status})`,
-          );
-        }
-        return (parsed.result ?? null) as T | null;
-      }).pipe(
-        Effect.catchTag("HttpClientError", (e) =>
-          fail(`HTTP error calling ${method}: ${e.message}`, e),
-        ),
-      );
+    });
+    const state = apiClient.state;
 
     const service: StateService = {
       listStacks: () =>
-        rpc<string[]>("listStacks", {}).pipe(
-          Effect.flatMap((r) =>
-            r == null ? fail("listStacks returned null") : Effect.succeed(r),
-          ),
+        state.listStacks().pipe(
+          Effect.map((stacks) => [...stacks]),
+          mapStateStoreError,
         ),
       listStages: (stack) =>
-        rpc<string[]>("listStages", { stack }).pipe(
-          Effect.flatMap((r) =>
-            r == null ? fail("listStages returned null") : Effect.succeed(r),
-          ),
-        ),
+        state.listStages({ payload: { stack } }).pipe(mapStateStoreError),
       list: (request) =>
-        rpc<string[]>("list", request).pipe(
-          Effect.flatMap((r) =>
-            r == null ? fail("list returned null") : Effect.succeed(r),
-          ),
-        ),
+        state.listResources({ payload: request }).pipe(mapStateStoreError),
       get: (request) =>
-        rpc<ResourceState | null>("get", request).pipe(
-          // Server returns `null` for missing keys; `StateService`
-          // expects `undefined`. Normalise.
-          Effect.map((r) => r ?? undefined),
+        state.getState({ payload: request }).pipe(
+          Effect.map((s) =>
+            s == null ? undefined : (reviveStateRecursive(s) as ResourceState),
+          ),
+          mapStateStoreError,
         ),
       getReplacedResources: (request) =>
-        rpc<ReplacedResourceState[]>("getReplacedResources", request).pipe(
-          Effect.map((r) => r ?? []),
+        state.getReplacedResources({ payload: request }).pipe(
+          Effect.map((resources) =>
+            resources.map(
+              (s) => reviveStateRecursive(s) as ReplacedResourceState,
+            ),
+          ),
+          mapStateStoreError,
         ),
       set: <V extends ResourceState>(request: {
         stack: string;
@@ -169,15 +95,38 @@ export const HttpStateStore = Layer.effect(
         fqn: string;
         value: V;
       }) =>
-        rpc<ResourceState>("set", request).pipe(
-          // The server echoes the stored value, but the client
-          // already has the canonical object (including any
-          // `Redacted<T>` instances); returning it avoids a lossy
-          // round-trip.
-          Effect.map(() => request.value),
-        ),
-      delete: (request) => rpc<null>("delete", request).pipe(Effect.asVoid),
+        state
+          .setState({
+            payload: {
+              stack: request.stack,
+              stage: request.stage,
+              fqn: request.fqn,
+              value: encodeState(request.value),
+            },
+          })
+          .pipe(
+            // Server echoes the stored value, but the client already
+            // has the canonical object (including any Redacted<T>
+            // instances); returning the input avoids a lossy round-trip.
+            Effect.map(() => request.value),
+            mapStateStoreError,
+          ),
+      delete: (request) =>
+        state
+          .deleteState({ payload: request })
+          .pipe(Effect.asVoid, mapStateStoreError),
     };
     return service;
   }),
 ).pipe(Layer.provide(FetchHttpClient.layer));
+
+/** Collapse any client failure into a {@link StateStoreError}. */
+const mapStateStoreError = <A, E, R>(eff: Effect.Effect<A, E, R>) =>
+  Effect.catch(eff, (e: E) =>
+    Effect.fail(
+      new StateStoreError({
+        message: e instanceof Error ? e.message : String(e),
+        cause: e instanceof Error ? e : undefined,
+      }),
+    ),
+  ) as Effect.Effect<A, StateStoreError, R>;

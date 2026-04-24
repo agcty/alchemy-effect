@@ -1,20 +1,21 @@
 import * as Cloudflare from "alchemy/Cloudflare";
-import type { ResourceState } from "alchemy/State";
+import {
+  BearerTokenValidator,
+  StateApi,
+  StateAuthLive,
+} from "alchemy/State/HttpStateApi";
 import { STATE_STORE_SCRIPT_NAME } from "alchemy/State/HttpStateStoreConstants";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import * as Path from "effect/Path";
+import * as Etag from "effect/unstable/http/Etag";
+import * as HttpPlatform from "effect/unstable/http/HttpPlatform";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
-import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import * as HttpApiBuilder from "effect/unstable/httpapi/HttpApiBuilder";
+import * as HttpApiError from "effect/unstable/httpapi/HttpApiError";
 import crypto from "node:crypto";
-import StateStore from "./StateStore.ts";
+import Store from "./Store.ts";
 import { AuthToken } from "./Token.ts";
-
-class Unauthorized extends Data.TaggedError("Unauthorized")<{}> {}
-class BadRequest extends Data.TaggedError("BadRequest")<{
-  readonly message: string;
-}> {}
 
 export default class Api extends Cloudflare.Worker<Api>()(
   "Api",
@@ -29,173 +30,95 @@ export default class Api extends Cloudflare.Worker<Api>()(
   },
   Effect.gen(function* () {
     const secret = yield* Cloudflare.Secret.bind(AuthToken);
-    const stateStore = yield* StateStore;
+    const stateStore = yield* Store;
 
-    let cachedToken: string | undefined;
+    const bearerTokenValidator = Layer.effect(
+      BearerTokenValidator,
+      Effect.gen(function* () {
+        const expected = yield* secret.get().pipe(Effect.orDie);
 
-    const authenticate = Effect.gen(function* () {
-      const request = yield* HttpServerRequest;
-      const authHeader = request.headers.authorization ?? "";
-      const prefix = "Bearer ";
-      if (!authHeader.startsWith(prefix)) {
-        return yield* Effect.fail(new Unauthorized());
-      }
-      const presented = authHeader.slice(prefix.length).trim();
-      if (cachedToken === undefined) {
-        cachedToken = yield* secret
-          .get()
-          .pipe(
-            Effect.catchTag("SecretError", () =>
-              Effect.fail(new Unauthorized()),
+        return BearerTokenValidator.of({
+          validate: (token) =>
+            !!expected && timingSafeEqual(token, expected)
+              ? Effect.void
+              : Effect.fail(new HttpApiError.Unauthorized()),
+        });
+      }),
+    );
+
+    const stateApi = HttpApiBuilder.group(StateApi, "state", (handlers) =>
+      handlers
+        .handle("listStacks", () =>
+          stateStore.getByName(Store.ROOT_DO_NAME).listStacks(),
+        )
+        .handle("listStages", ({ payload }) =>
+          stateStore.getByName(payload.stack).listStages(),
+        )
+        .handle("listResources", ({ payload }) =>
+          stateStore
+            .getByName(payload.stack)
+            .listResources({ stage: payload.stage }),
+        )
+        .handle("getState", ({ payload }) =>
+          stateStore
+            .getByName(payload.stack)
+            .get({ stage: payload.stage, fqn: payload.fqn }),
+        )
+        .handle("setState", ({ payload }) =>
+          stateStore
+            .getByName(payload.stack)
+            .set({
+              stage: payload.stage,
+              fqn: payload.fqn,
+              value: payload.value as any,
+            })
+            .pipe(
+              Effect.tap(() =>
+                stateStore
+                  .getByName(Store.ROOT_DO_NAME)
+                  .registerStack({ stack: payload.stack }),
+              ),
             ),
-          );
-      }
-      if (!cachedToken || !timingSafeEqual(presented, cachedToken)) {
-        return yield* Effect.fail(new Unauthorized());
-      }
-    });
-
-    // `stateStore.getByName(...)` must be called lazily from inside a
-    // request handler — at plan/pre-create time the DO binding isn't
-    // bound yet (`WorkerEnvironment` is undefined) and the call throws.
-
-    /** DO instance that holds the stack-name index. */
-    const rootDO = () => stateStore.getByName(StateStore.ROOT_DO_NAME);
-
-    /** DO instance for a specific stack. */
-    const stackDO = (stack: string) => stateStore.getByName(stack);
-
-    const routes = Layer.mergeAll(
-      HttpRouter.add(
-        "POST",
-        "/state/listStacks",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const result = yield* rootDO().listStacks().pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
+        )
+        .handle("deleteState", ({ payload }) =>
+          // The DO method is `remove`, not `delete` — `delete` is
+          // reserved by Cloudflare's RPC stub proxy.
+          stateStore
+            .getByName(payload.stack)
+            .remove({ stage: payload.stage, fqn: payload.fqn }),
+        )
+        .handle("getReplacedResources", ({ payload }) =>
+          stateStore
+            .getByName(payload.stack)
+            .getReplacedResources({ stage: payload.stage }),
         ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/listStages",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const result = yield* stackDO(stack)
-              .listStages()
-              .pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
-        ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/list",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const stage = yield* requireString(body, "stage");
-            const result = yield* stackDO(stack)
-              .list({ stage })
-              .pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
-        ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/get",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const stage = yield* requireString(body, "stage");
-            const fqn = yield* requireString(body, "fqn");
-            const result = yield* stackDO(stack)
-              .get({ stage, fqn })
-              .pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
-        ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/set",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const stage = yield* requireString(body, "stage");
-            const fqn = yield* requireString(body, "fqn");
-            const value = yield* requireObject(body, "value");
-            // Write the resource first — if root registration fails
-            // afterward, the next `set` on the same stack retries it
-            // (registerStack is idempotent).
-            const result = yield* stackDO(stack)
-              .set({ stage, fqn, value })
-              .pipe(Effect.orDie);
-            yield* rootDO().registerStack({ stack }).pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
-        ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/delete",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const stage = yield* requireString(body, "stage");
-            const fqn = yield* requireString(body, "fqn");
-            // The DO method is `remove`, not `delete` — `delete` is
-            // reserved by Cloudflare's RPC stub proxy.
-            yield* stackDO(stack).remove({ stage, fqn }).pipe(Effect.orDie);
-            return yield* okResponse(null);
-          }),
-        ),
-      ),
-      HttpRouter.add(
-        "POST",
-        "/state/getReplacedResources",
-        wrap(
-          Effect.gen(function* () {
-            yield* authenticate;
-            const body = yield* parseBody;
-            const stack = yield* requireString(body, "stack");
-            const stage = yield* requireString(body, "stage");
-            const result = yield* stackDO(stack)
-              .getReplacedResources({ stage })
-              .pipe(Effect.orDie);
-            return yield* okResponse(result);
-          }),
-        ),
-      ),
-    ).pipe(Layer.provideMerge(HttpRouter.layer));
-
-    const fetch = yield* HttpRouter.toHttpEffect(routes);
+    );
 
     return {
-      // Any error from unmatched routes (`HttpServerError`) or a
-      // leaked defect collapses to a JSON 500 instead of Cloudflare's
-      // default plain-text 500 page.
-      fetch: fetch.pipe(
-        Effect.catchCause((cause) =>
-          errorResponse("internal", String(cause), 500),
-        ),
+      fetch: yield* HttpApiBuilder.layer(StateApi).pipe(
+        Layer.provide(stateApi),
+        Layer.provide(StateAuthLive),
+        Layer.provide(bearerTokenValidator),
+        // The state-store worker never serves files, so HttpPlatform's
+        // file-response surface is stubbed.
+        Layer.provide([Etag.layer, HttpPlatformStub, Path.layer]),
+        HttpRouter.toHttpEffect,
       ),
     };
   }).pipe(Effect.provide(Layer.mergeAll(Cloudflare.SecretBindingLive))),
 ) {}
+
+/**
+ * Stub `HttpPlatform` for the worker. The state-store API never
+ * issues file responses, so both surface methods die if invoked. Lets
+ * us avoid pulling in a `FileSystem` dependency that workers don't
+ * have.
+ */
+const HttpPlatformStub = Layer.succeed(HttpPlatform.HttpPlatform, {
+  fileResponse: () => Effect.die("HttpPlatform.fileResponse not supported"),
+  fileWebResponse: () =>
+    Effect.die("HttpPlatform.fileWebResponse not supported"),
+});
 
 /**
  * Timing-safe string comparison using the Workers runtime's built-in
@@ -211,100 +134,3 @@ const timingSafeEqual = (a: string, b: string): boolean => {
   // @ts-expect-error - TODO(sam)
   return crypto.subtle.timingSafeEqual(aBytes, bBytes);
 };
-
-const errorResponse = (
-  code: string,
-  message: string,
-  status: number,
-): Effect.Effect<HttpServerResponse.HttpServerResponse, never, never> =>
-  HttpServerResponse.json(
-    { ok: false, error: { code, message } },
-    { status },
-  ).pipe(Effect.orDie);
-
-const okResponse = (
-  result: unknown,
-): Effect.Effect<HttpServerResponse.HttpServerResponse, never, never> =>
-  HttpServerResponse.json({ ok: true, result: result ?? null }).pipe(
-    Effect.orDie,
-  );
-
-const requireString = (
-  body: Record<string, unknown>,
-  field: string,
-): Effect.Effect<string, BadRequest> => {
-  const value = body[field];
-  return typeof value === "string" && value.length > 0
-    ? Effect.succeed(value)
-    : Effect.fail(
-        new BadRequest({
-          message: `field '${field}' is required and must be a non-empty string`,
-        }),
-      );
-};
-
-const requireObject = (
-  body: Record<string, unknown>,
-  field: string,
-): Effect.Effect<ResourceState, BadRequest> => {
-  const value = body[field];
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? Effect.succeed(value as ResourceState)
-    : Effect.fail(
-        new BadRequest({
-          message: `field '${field}' is required and must be an object`,
-        }),
-      );
-};
-
-/**
- * Parse the JSON body of the current request, normalising errors to
- * `BadRequest`. Reads `HttpServerRequest` from the Effect context.
- */
-const parseBody: Effect.Effect<
-  Record<string, unknown>,
-  BadRequest,
-  HttpServerRequest
-> = Effect.gen(function* () {
-  const request = yield* HttpServerRequest;
-  const text = yield* request.text.pipe(Effect.orDie);
-  return yield* Effect.try({
-    try: () => {
-      const body = text ? JSON.parse(text) : {};
-      if (body === null || typeof body !== "object" || Array.isArray(body)) {
-        throw new Error("expected JSON object body");
-      }
-      return body as Record<string, unknown>;
-    },
-    catch: (e) =>
-      new BadRequest({
-        message: e instanceof Error ? e.message : "invalid JSON body",
-      }),
-  });
-});
-
-/**
- * Wrap a handler so its tagged errors map to structured JSON
- * responses and any defect (e.g. from `Effect.orDie`ed DO calls)
- * returns a JSON 500 instead of Cloudflare's default plain-text error
- * page.
- *
- * Handlers declare their failure modes as `Unauthorized | BadRequest`
- * so `catchTag` can pattern-match concretely.
- */
-const wrap = <R>(
-  handler: Effect.Effect<
-    HttpServerResponse.HttpServerResponse,
-    Unauthorized | BadRequest,
-    R
-  >,
-): Effect.Effect<HttpServerResponse.HttpServerResponse, never, R> =>
-  handler.pipe(
-    Effect.catchTag("Unauthorized", () =>
-      errorResponse("unauthorized", "invalid bearer token", 401),
-    ),
-    Effect.catchTag("BadRequest", (e) =>
-      errorResponse("bad_request", e.message, 400),
-    ),
-    Effect.catchCause((cause) => errorResponse("internal", String(cause), 500)),
-  );

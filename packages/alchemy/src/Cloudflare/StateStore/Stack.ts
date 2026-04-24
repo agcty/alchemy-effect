@@ -7,6 +7,8 @@ import * as Redacted from "effect/Redacted";
 import Api from "./Api.ts";
 import { TokenValue } from "./Token.ts";
 
+export const state = () => {};
+
 export default Alchemy.Stack(
   "CloudflareStateStore",
   {
