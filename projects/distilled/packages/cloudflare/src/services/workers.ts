@@ -1011,6 +1011,7 @@ export interface GetBetaWorkerVersionResponse {
           }
         | { name: string; part: string; type: "wasm_module" }
         | { name: string; type: "worker_loader" }
+        | { name: string; type: "artifacts"; namespace: string }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -1420,6 +1421,11 @@ export const GetBetaWorkerVersionResponse =
               name: Schema.String,
               type: Schema.Literal("worker_loader"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("artifacts"),
+              namespace: Schema.String,
+            }),
           ]),
         ),
         Schema.Null,
@@ -1740,6 +1746,7 @@ export interface ListBetaWorkerVersionsResponse {
             }
           | { name: string; part: string; type: "wasm_module" }
           | { name: string; type: "worker_loader" }
+          | { name: string; type: "artifacts"; namespace: string }
         )[]
       | null;
     compatibilityDate?: string | null;
@@ -2158,6 +2165,11 @@ export const ListBetaWorkerVersionsResponse =
                   name: Schema.String,
                   type: Schema.Literal("worker_loader"),
                 }),
+                Schema.Struct({
+                  name: Schema.String,
+                  type: Schema.Literal("artifacts"),
+                  namespace: Schema.String,
+                }),
               ]),
             ),
             Schema.Null,
@@ -2476,6 +2488,7 @@ export interface CreateBetaWorkerVersionRequest {
       }
     | { name: string; part: string; type: "wasm_module" }
     | { name: string; type: "worker_loader" }
+    | { name: string; type: "artifacts"; namespace: string }
   )[];
   /** Body param: Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
   compatibilityDate?: string;
@@ -2831,6 +2844,11 @@ export const CreateBetaWorkerVersionRequest =
             name: Schema.String,
             type: Schema.Literal("worker_loader"),
           }),
+          Schema.Struct({
+            name: Schema.String,
+            type: Schema.Literal("artifacts"),
+            namespace: Schema.String,
+          }),
         ]),
       ),
     ),
@@ -3103,6 +3121,7 @@ export interface CreateBetaWorkerVersionResponse {
           }
         | { name: string; part: string; type: "wasm_module" }
         | { name: string; type: "worker_loader" }
+        | { name: string; type: "artifacts"; namespace: string }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -3511,6 +3530,11 @@ export const CreateBetaWorkerVersionResponse =
             Schema.Struct({
               name: Schema.String,
               type: Schema.Literal("worker_loader"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("artifacts"),
+              namespace: Schema.String,
             }),
           ]),
         ),
@@ -6554,6 +6578,7 @@ export interface PutScriptRequest {
         }
       | { name: string; part: string; type: "wasm_module" }
       | { name: string; type: "worker_loader" }
+      | { name: string; type: "artifacts"; namespace: string }
     )[];
     bodyPart?: string;
     compatibilityDate?: string;
@@ -6920,6 +6945,11 @@ export const PutScriptRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           Schema.Struct({
             name: Schema.String,
             type: Schema.Literal("worker_loader"),
+          }),
+          Schema.Struct({
+            name: Schema.String,
+            type: Schema.Literal("artifacts"),
+            namespace: Schema.String,
           }),
         ]),
       ),
@@ -9567,6 +9597,7 @@ export interface GetScriptScriptAndVersionSettingResponse {
           }
         | { name: string; part: string; type: "wasm_module" }
         | { name: string; type: "worker_loader" }
+        | { name: string; type: "artifacts"; namespace: string }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -9892,6 +9923,11 @@ export const GetScriptScriptAndVersionSettingResponse =
               name: Schema.String,
               type: Schema.Literal("worker_loader"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("artifacts"),
+              namespace: Schema.String,
+            }),
           ]),
         ),
         Schema.Null,
@@ -10105,6 +10141,7 @@ export interface PatchScriptScriptAndVersionSettingRequest {
         }
       | { name: string; part: string; type: "wasm_module" }
       | { name: string; type: "worker_loader" }
+      | { name: string; type: "artifacts"; namespace: string }
     )[];
     compatibilityDate?: string;
     compatibilityFlags?: string[];
@@ -10434,6 +10471,11 @@ export const PatchScriptScriptAndVersionSettingRequest =
                 name: Schema.String,
                 type: Schema.Literal("worker_loader"),
               }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("artifacts"),
+                namespace: Schema.String,
+              }),
             ]),
           ),
         ),
@@ -10735,6 +10777,7 @@ export interface PatchScriptScriptAndVersionSettingResponse {
           }
         | { name: string; part: string; type: "wasm_module" }
         | { name: string; type: "worker_loader" }
+        | { name: string; type: "artifacts"; namespace: string }
       )[]
     | null;
   /** Date indicating targeted support in the Workers runtime. Backwards incompatible fixes to the runtime following this date will not affect this Worker. */
@@ -11059,6 +11102,11 @@ export const PatchScriptScriptAndVersionSettingResponse =
             Schema.Struct({
               name: Schema.String,
               type: Schema.Literal("worker_loader"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("artifacts"),
+              namespace: Schema.String,
             }),
           ]),
         ),
@@ -12351,6 +12399,7 @@ export interface GetScriptVersionResponse {
             }
           | { name: string; part: string; type: "wasm_module" }
           | { name: string; type: "worker_loader" }
+          | { name: string; type: "artifacts"; namespace: string }
         )[]
       | null;
     script?: {
@@ -12687,6 +12736,11 @@ export const GetScriptVersionResponse =
               Schema.Struct({
                 name: Schema.String,
                 type: Schema.Literal("worker_loader"),
+              }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("artifacts"),
+                namespace: Schema.String,
               }),
             ]),
           ),
@@ -13098,6 +13152,7 @@ export interface CreateScriptVersionRequest {
         }
       | { name: string; part: string; type: "wasm_module" }
       | { name: string; type: "worker_loader" }
+      | { name: string; type: "artifacts"; namespace: string }
     )[];
     compatibilityDate?: string;
     compatibilityFlags?: string[];
@@ -13390,6 +13445,11 @@ export const CreateScriptVersionRequest =
               name: Schema.String,
               type: Schema.Literal("worker_loader"),
             }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("artifacts"),
+              namespace: Schema.String,
+            }),
           ]),
         ),
       ),
@@ -13519,6 +13579,7 @@ export interface CreateScriptVersionResponse {
             }
           | { name: string; part: string; type: "wasm_module" }
           | { name: string; type: "worker_loader" }
+          | { name: string; type: "artifacts"; namespace: string }
         )[]
       | null;
     script?: {
@@ -13857,6 +13918,11 @@ export const CreateScriptVersionResponse =
               Schema.Struct({
                 name: Schema.String,
                 type: Schema.Literal("worker_loader"),
+              }),
+              Schema.Struct({
+                name: Schema.String,
+                type: Schema.Literal("artifacts"),
+                namespace: Schema.String,
               }),
             ]),
           ),

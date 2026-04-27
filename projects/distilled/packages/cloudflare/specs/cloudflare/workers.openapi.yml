@@ -1290,6 +1290,20 @@ paths:
                           required:
                             - name
                             - type
+                        - type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                                - artifacts
+                            namespace:
+                              type: string
+                          required:
+                            - name
+                            - type
+                            - namespace
                     description: "List of bindings attached to a Worker. You can find more about
                       bindings on our docs:
                       https://developers.cloudflare.com/workers/configuration/m\
@@ -2989,6 +3003,20 @@ paths:
                         required:
                           - name
                           - type
+                      - type: object
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                            enum:
+                              - artifacts
+                          namespace:
+                            type: string
+                        required:
+                          - name
+                          - type
+                          - namespace
                   description: "Body param: List of bindings attached to a Worker. You can find
                     more about bindings on our docs:
                     https://developers.cloudflare.com/workers/configuration/mul\
@@ -3813,6 +3841,20 @@ paths:
                           required:
                             - name
                             - type
+                        - type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                                - artifacts
+                            namespace:
+                              type: string
+                          required:
+                            - name
+                            - type
+                            - namespace
                     description: "List of bindings attached to a Worker. You can find more about
                       bindings on our docs:
                       https://developers.cloudflare.com/workers/configuration/m\
@@ -6637,6 +6679,20 @@ paths:
                             required:
                               - name
                               - type
+                          - type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                  - artifacts
+                              namespace:
+                                type: string
+                            required:
+                              - name
+                              - type
+                              - namespace
                       description: "List of bindings attached to a Worker. You can find more about
                         bindings on our docs:
                         https://developers.cloudflare.com/workers/configuration\
@@ -9913,6 +9969,20 @@ paths:
                           required:
                             - name
                             - type
+                        - type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                                - artifacts
+                            namespace:
+                              type: string
+                          required:
+                            - name
+                            - type
+                            - namespace
                     description: "List of bindings attached to a Worker. You can find more about
                       bindings on our docs:
                       https://developers.cloudflare.com/workers/configuration/m\
@@ -10636,6 +10706,20 @@ paths:
                             required:
                               - name
                               - type
+                          - type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                  - artifacts
+                              namespace:
+                                type: string
+                            required:
+                              - name
+                              - type
+                              - namespace
                       description: "List of bindings attached to a Worker. You can find more about
                         bindings on our docs:
                         https://developers.cloudflare.com/workers/configuration\
@@ -11464,6 +11548,20 @@ paths:
                           required:
                             - name
                             - type
+                        - type: object
+                          properties:
+                            name:
+                              type: string
+                            type:
+                              type: string
+                              enum:
+                                - artifacts
+                            namespace:
+                              type: string
+                          required:
+                            - name
+                            - type
+                            - namespace
                     description: "List of bindings attached to a Worker. You can find more about
                       bindings on our docs:
                       https://developers.cloudflare.com/workers/configuration/m\
@@ -13130,6 +13228,20 @@ paths:
                               required:
                                 - name
                                 - type
+                            - type: object
+                              properties:
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                  enum:
+                                    - artifacts
+                                namespace:
+                                  type: string
+                              required:
+                                - name
+                                - type
+                                - namespace
                         description: "List of bindings attached to a Worker. You can find more about
                           bindings on our docs:
                           https://developers.cloudflare.com/workers/configurati\
@@ -13946,6 +14058,20 @@ paths:
                             required:
                               - name
                               - type
+                          - type: object
+                            properties:
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                  - artifacts
+                              namespace:
+                                type: string
+                            required:
+                              - name
+                              - type
+                              - namespace
                       description: "List of bindings attached to a Worker. You can find more about
                         bindings on our docs:
                         https://developers.cloudflare.com/workers/configuration\
@@ -14573,6 +14699,20 @@ paths:
                               required:
                                 - name
                                 - type
+                            - type: object
+                              properties:
+                                name:
+                                  type: string
+                                type:
+                                  type: string
+                                  enum:
+                                    - artifacts
+                                namespace:
+                                  type: string
+                              required:
+                                - name
+                                - type
+                                - namespace
                         description: "List of bindings attached to a Worker. You can find more about
                           bindings on our docs:
                           https://developers.cloudflare.com/workers/configurati\
