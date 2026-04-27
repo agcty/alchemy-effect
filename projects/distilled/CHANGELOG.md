@@ -1,5 +1,30 @@
 # Changelog
 
+## [v0.12.5](https://github.com/alchemy-run/distilled/releases/tag/v0.12.5) (2026-04-27)
+
+### Features
+
+- **cloudflare**: ArtifactsStore Worker binding - by Sam Goodwin [(a68704f)](https://github.com/alchemy-run/distilled/commit/a68704f0e9ea0f990731a766ee1cea8df7ee69b0)
+- **axiom**: create axiom sdk - by Michael K in [#196](https://github.com/alchemy-run/distilled/pull/196) [(56fa84e)](https://github.com/alchemy-run/distilled/commit/56fa84ed2f991b5f88f7e9aaac5c560647c413f6)
+- **scripts**: add --note flag for free-form pipeline nudges - by Michael (Pear) [(22c0777)](https://github.com/alchemy-run/distilled/commit/22c07773026f3d3a3972da2b17983d307451012b)
+- **cloudflare**: add R2 object operations (get, put, delete) - by Michael K in [#190](https://github.com/alchemy-run/distilled/pull/190) [(214506f)](https://github.com/alchemy-run/distilled/commit/214506f809dc9d0c96db99591e7eb0ecc62b709c)
+- update specs - by Michael K in [#187](https://github.com/alchemy-run/distilled/pull/187) [(188dad8)](https://github.com/alchemy-run/distilled/commit/188dad84229ab56545767a82b2401cbf178fd329)
+
+### Bug Fixes
+
+- **cloudflare**: Pipeline, Sinks and User API Token errors - by Sam Goodwin [(f8b824a)](https://github.com/alchemy-run/distilled/commit/f8b824a13180f02e1aaae571b5d887cbe2bf95ca)
+- **cloudflare**: DatabaseAlreadyExists, SubdomainAlreadyExists, InstanceAlreadyExists - by Sam Goodwin [(9d7d757)](https://github.com/alchemy-run/distilled/commit/9d7d757fee5f0714937c831e374a143cb1dc9e3c)
+- **cloudflare**: EventNotificationConfigNotFound for BucketEventNotifications - by Sam Goodwin [(337d3cc)](https://github.com/alchemy-run/distilled/commit/337d3cce5a630a9301953f744d3485be24261535)
+- **cloudflare**: ConsumerNotFound, ConsumerAlreadyExists, WorkerNotFound, QueueNotFound for Queues - by Sam Goodwin [(527a66e)](https://github.com/alchemy-run/distilled/commit/527a66e7532f35bc1041edab29ca296256eeabd1)
+- **cloudflare**: TokenNotFound and PermissionGroupNotFound - by Sam Goodwin [(addfb33)](https://github.com/alchemy-run/distilled/commit/addfb33931e784dcacb8116916ab8f2d6aef039a)
+- **cloudflare**: more error tags - by Michael (Pear) [(a66a5a0)](https://github.com/alchemy-run/distilled/commit/a66a5a0ecba38e0e2eb5c361e9d233ffcb8a8d69)
+- **scripts**: detect nested + services-layout generated operations - by Michael (Pear) [(aae6808)](https://github.com/alchemy-run/distilled/commit/aae68081ee0982d846218d680d59822e9d0dedf6)
+- **scripts**: spawn child scripts via process.execPath on Windows - by Michael (Pear) [(7125d02)](https://github.com/alchemy-run/distilled/commit/7125d02752463c9eb2d7b2ffe927c8fbca374e46)
+- **aws**: patch VpcEndpoint.State to be lowercase - by Michael (Pear) [(8b7280f)](https://github.com/alchemy-run/distilled/commit/8b7280fa892fd874c1846b67511451957449db95)
+- **cloudflare**: queue push message fails with InvalidMessageBody - by @john-royal in [#195](https://github.com/alchemy-run/distilled/pull/195) [(4277001)](https://github.com/alchemy-run/distilled/commit/4277001a3ffb083b352a9ad8d3d93e336478ed9b)
+- **cloudflare**: add missing InvalidCredential error code for r2 data catalog - by @john-royal in [#194](https://github.com/alchemy-run/distilled/pull/194) [(a80a026)](https://github.com/alchemy-run/distilled/commit/a80a026a09924bc348ebff6c4bbb8808b9119f3c)
+- **cloudflare**: add DuplicateMigrationTarget error for PutScript - by Michael K in [#189](https://github.com/alchemy-run/distilled/pull/189) [(dc9246c)](https://github.com/alchemy-run/distilled/commit/dc9246ccc4161c18f377b18cd3b9a7a2b95b41c8)
+
 ## [v0.12.4](https://github.com/alchemy-run/distilled/releases/tag/v0.12.4) (2026-04-26)
 
 ### Bug Fixes
