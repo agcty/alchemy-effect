@@ -1,5 +1,9 @@
 # Changelog
 
+## [v0.12.7](https://github.com/alchemy-run/distilled/releases/tag/v0.12.7) (2026-04-28)
+
+*No significant changes*
+
 ## [v0.12.6](https://github.com/alchemy-run/distilled/releases/tag/v0.12.6) (2026-04-28)
 
 ### Bug Fixes
