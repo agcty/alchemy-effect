@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.12.6](https://github.com/alchemy-run/distilled/releases/tag/v0.12.6) (2026-04-28)
+
+### Bug Fixes
+
+- **cloudflare**: throw Unauthorized and Forbidden errors instead of UnknownCloudflareError - by Sam Goodwin [(5850202)](https://github.com/alchemy-run/distilled/commit/5850202680bcdbb078bae466f4a2d72e444bc7c7)
+
 ## [v0.12.5](https://github.com/alchemy-run/distilled/releases/tag/v0.12.5) (2026-04-27)
 
 ### Features
