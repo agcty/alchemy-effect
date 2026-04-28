@@ -39,10 +39,15 @@
       "bun": "./src/errors.ts",
       "default": "./lib/errors.js"
     },
-    "./Operations": {
-      "types": "./lib/operations/index.d.ts",
-      "bun": "./src/operations/index.ts",
-      "default": "./lib/operations/index.js"
+    "./edge-ingest": {
+      "types": "./lib/edge-ingest.d.ts",
+      "bun": "./src/edge-ingest.ts",
+      "default": "./lib/edge-ingest.js"
+    },
+    "./edge-query": {
+      "types": "./lib/edge-query.d.ts",
+      "bun": "./src/edge-query.ts",
+      "default": "./lib/edge-query.js"
     },
     "./Retry": {
       "types": "./lib/retry.d.ts",

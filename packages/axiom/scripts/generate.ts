@@ -35,6 +35,14 @@ interface Version {
   specFile: string;
   /** Path prefix to apply (the real server URL segment, e.g. "/v2") */
   pathPrefix: string;
+  /**
+   * Subpath alias to expose in src/ as a barrel re-export. If set, the
+   * generator writes src/{alias}.ts re-exporting the version's index. The
+   * package.json exports the alias as `./{alias}` (e.g. "edge-ingest" →
+   * `@distilled.cloud/axiom/edge-ingest`). The default v2 version has no
+   * alias because it is re-exported from the package root.
+   */
+  alias?: string;
 }
 
 const VERSIONS: Version[] = [
@@ -43,11 +51,13 @@ const VERSIONS: Version[] = [
     name: "v1-edge-ingest",
     specFile: "v1-edge-ingest.json",
     pathPrefix: "/v1",
+    alias: "edge-ingest",
   },
   {
     name: "v1-edge-query",
     specFile: "v1-edge-query.json",
     pathPrefix: "/v1",
+    alias: "edge-query",
   },
 ];
 
@@ -134,10 +144,26 @@ for (const version of VERSIONS) {
   postProcessDir(outputDir);
 }
 
-// Root barrel: re-export each version's operations.
-const rootBarrel =
-  VERSIONS.map((v) => `export * from "./${v.name}/index.ts";`).join("\n") +
-  "\n";
-fs.writeFileSync(path.join(operationsDir, "index.ts"), rootBarrel);
+// Default barrel under operations/: only the primary (v2) version. Other
+// versions are exposed via their own subpath aliases (see below).
+const defaultVersion = VERSIONS.find((v) => !v.alias);
+if (!defaultVersion) {
+  throw new Error("Expected exactly one default (alias-less) version");
+}
+fs.writeFileSync(
+  path.join(operationsDir, "index.ts"),
+  `export * from "./${defaultVersion.name}/index.ts";\n`,
+);
+
+// Per-alias barrel files under src/ (e.g. src/edge-ingest.ts) so users can
+// import via `@distilled.cloud/axiom/edge-ingest`.
+const srcDir = path.join(rootDir, "src");
+for (const v of VERSIONS) {
+  if (!v.alias) continue;
+  fs.writeFileSync(
+    path.join(srcDir, `${v.alias}.ts`),
+    `export * from "./operations/${v.name}/index.ts";\n`,
+  );
+}
 
 console.log(`\nGenerated operations for ${VERSIONS.length} version(s).`);
