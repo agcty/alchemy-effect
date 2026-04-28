@@ -85,7 +85,7 @@ const matchError = (
  *
  * Uses bearer token authentication against the cluster API server.
  */
-const _API = makeAPI({
+const _API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
   getAuthHeaders: (creds: any) => ({

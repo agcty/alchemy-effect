@@ -370,10 +370,10 @@ export const transformCloudflareRequestParts = ({
   };
 };
 
-const _API = makeAPI({
+const _API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
-  getAuthHeaders: formatHeaders,
+  getAuthHeaders: formatHeaders as any,
   matchError,
   ParseError: CloudflareDecodeError as any,
   transformRequestParts: ({ pathTemplate, parts }) =>

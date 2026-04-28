@@ -72,7 +72,7 @@ const matchError = (
  * Authenticates using a Personal API key sent as a Bearer token in the
  * `Authorization` header.
  */
-export const API = makeAPI({
+export const API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
   getAuthHeaders: (creds: any): Record<string, string> => ({

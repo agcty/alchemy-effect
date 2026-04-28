@@ -370,7 +370,7 @@ export const makeAPI = <Creds>(config: ClientConfig<Creds>) => {
       Schema.Schema.Type<I>,
       Schema.Schema.Type<O>,
       InstanceType<E[number]>,
-      any
+      Creds
     > => {
       const opConfig = configFn();
       // Support both input/output and inputSchema/outputSchema aliases
@@ -609,7 +609,7 @@ export const makeAPI = <Creds>(config: ClientConfig<Creds>) => {
       Schema.Schema.Type<I>,
       Schema.Schema.Type<O>,
       InstanceType<E[number]>,
-      any
+      Creds
     > => {
       const opConfig = configFn();
       const pagination = opConfig.pagination!;

@@ -53,7 +53,7 @@ const matchError = (
 /**
  * Turso API client.
  */
-export const API = makeAPI({
+export const API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
   getAuthHeaders: (creds: any) => ({

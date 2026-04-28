@@ -1227,7 +1227,7 @@ const matchError = (
 /**
  * ${capitalName} API client.
  */
-export const API = makeAPI({
+export const API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
   // TODO: implement auth headers for the real API. Read the vendor spec/docs

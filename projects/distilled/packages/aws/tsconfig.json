@@ -8,5 +8,10 @@
     "outDir": "./lib",
     "rootDir": "./src",
     "resolveJsonModule": true
-  }
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
 }

@@ -146,7 +146,7 @@ let _currentSubscriptionId: string | undefined;
  * Automatically injects `subscriptionId` into ARM path templates from
  * credentials when not provided in the operation input.
  */
-export const API = makeAPI({
+export const API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => creds.apiBaseUrl,
   getAuthHeaders: (creds: any) => {

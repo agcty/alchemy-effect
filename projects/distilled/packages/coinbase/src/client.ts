@@ -276,7 +276,7 @@ const matchError = (
  *
  * Uses JWT bearer token authentication signed with your CDP API Key Secret.
  */
-export const API = makeAPI({
+export const API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (creds: any) => (creds as Config).apiBaseUrl,
   getAuthHeaders: (creds: any) => {

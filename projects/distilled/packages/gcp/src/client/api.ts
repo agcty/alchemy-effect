@@ -43,7 +43,7 @@ const matchError = (
  * Note: GCP uses per-service base URLs from the Discovery Documents,
  * so the base URL is set per-service via the Service trait, not globally.
  */
-const _API = makeAPI({
+const _API = makeAPI<Credentials>({
   credentials: Credentials as any,
   getBaseUrl: (_creds: any) => "", // Set per-service via Http trait
   getAuthHeaders: (creds: any) => ({
