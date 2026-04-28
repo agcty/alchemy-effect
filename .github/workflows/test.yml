@@ -24,6 +24,7 @@ jobs:
       prisma-postgres: ${{ steps.changes.outputs.prisma-postgres }}
       stripe: ${{ steps.changes.outputs.stripe }}
       supabase: ${{ steps.changes.outputs.supabase }}
+      posthog: ${{ steps.changes.outputs.posthog }}
       axiom: ${{ steps.changes.outputs.axiom }}
       azure: ${{ steps.changes.outputs.azure }}
       kubernetes: ${{ steps.changes.outputs.kubernetes }}
@@ -40,7 +41,6 @@ jobs:
             root: &root
               - 'package.json'
               - 'bun.lock'
-              - '.github/workflows/test.yml'
             core:
               - *root
               - 'packages/core/**'
@@ -75,6 +75,10 @@ jobs:
             supabase:
               - *root
               - 'packages/supabase/**'
+              - 'packages/core/**'
+            posthog:
+              - *root
+              - 'packages/posthog/**'
               - 'packages/core/**'
             axiom:
               - *root
@@ -386,4 +390,19 @@ jobs:
         working-directory: packages/axiom
         env:
           AXIOM_ORG_ID: ${{ secrets.AXIOM_ORG_ID }}
-          AXIOM_TOKEN: ${{ secrets.AXIOM_TOKEN }} 
+          AXIOM_TOKEN: ${{ secrets.AXIOM_TOKEN }}
+
+  ci-posthog:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.posthog == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install
+      - run: bun run build
+        working-directory: packages/core
+      - run: bun run check
+        working-directory: packages/posthog
