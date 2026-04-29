@@ -1,7 +1,8 @@
 import * as Schema from "effect/Schema";
-import { API } from "../client";
-import * as T from "../traits";
-import { SensitiveString } from "../sensitive";
+import { API } from "../client.ts";
+import * as T from "../traits.ts";
+import { NotFound } from "../errors.ts";
+import { SensitiveString } from "../sensitive.ts";
 
 // Input Schema
 export const PostV1ConnectionsByIdRotateInput =
@@ -77,5 +78,6 @@ export const postV1ConnectionsByIdRotate = /*@__PURE__*/ /*#__PURE__*/ API.make(
   () => ({
     inputSchema: PostV1ConnectionsByIdRotateInput,
     outputSchema: PostV1ConnectionsByIdRotateOutput,
+    errors: [NotFound] as const,
   }),
 );

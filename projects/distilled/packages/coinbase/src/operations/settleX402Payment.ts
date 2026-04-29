@@ -1,11 +1,11 @@
 import * as Schema from "effect/Schema";
-import { API } from "../client";
-import * as T from "../traits";
+import { API } from "../client.ts";
+import * as T from "../traits.ts";
 
 // Input Schema
 export const SettleX402PaymentInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   {
-    x402Version: Schema.Literals(["1", "2"]),
+    x402Version: Schema.Literals([1, 2]),
     paymentPayload: Schema.Unknown,
     paymentRequirements: Schema.Unknown,
   },
