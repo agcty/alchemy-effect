@@ -162,7 +162,7 @@ const BaseLayers = Layer.mergeAll(FetchHttpClient.layer, ApiTokenLayer);
 // =============================================================================
 
 const deploy = Effect.gen(function* () {
-  const accountId = requireEnv("ACCOUNT_ID");
+  const accountId = requireEnv("CLOUDFLARE_ACCOUNT_ID");
   const zoneId = requireEnv("ZONE_ID");
 
   if (!fs.existsSync(DIST_DIR)) {
