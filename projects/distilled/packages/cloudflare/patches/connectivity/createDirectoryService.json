@@ -1,0 +1,10 @@
+{
+  "errors": {
+    "VpcServiceNameAlreadyExists": [
+      { "code": 5101, "message": { "includes": "already exists" } }
+    ],
+    "VpcTunnelNotFound": [
+      { "code": 5101, "message": { "includes": "Tunnel ID Not Found" } }
+    ]
+  }
+}

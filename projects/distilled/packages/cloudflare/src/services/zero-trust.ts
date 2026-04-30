@@ -14,6 +14,34 @@ import { type DefaultErrors } from "../errors.ts";
 import { SensitiveString } from "../sensitive.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class DuplicateTunnelName extends Schema.TaggedErrorClass<DuplicateTunnelName>()(
+  "DuplicateTunnelName",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DuplicateTunnelName, [{ code: 1013 }]);
+
+export class TunnelConfigurationNotFound extends Schema.TaggedErrorClass<TunnelConfigurationNotFound>()(
+  "TunnelConfigurationNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(TunnelConfigurationNotFound, [{ code: 1055 }]);
+
+export class TunnelNotFound extends Schema.TaggedErrorClass<TunnelNotFound>()(
+  "TunnelNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(TunnelNotFound, [{ code: 1002 }]);
+
+export class TunnelTokenNotFound extends Schema.TaggedErrorClass<TunnelTokenNotFound>()(
+  "TunnelTokenNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(TunnelTokenNotFound, [{ code: 1054 }]);
+
+// =============================================================================
 // AccessAiControlMcpPortal
 // =============================================================================
 
@@ -98858,7 +98886,7 @@ export const GetTunnelCloudflaredResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetTunnelCloudflaredResponse>;
 
-export type GetTunnelCloudflaredError = DefaultErrors;
+export type GetTunnelCloudflaredError = DefaultErrors | TunnelNotFound;
 
 export const getTunnelCloudflared: API.OperationMethod<
   GetTunnelCloudflaredRequest,
@@ -98868,7 +98896,7 @@ export const getTunnelCloudflared: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetTunnelCloudflaredRequest,
   output: GetTunnelCloudflaredResponse,
-  errors: [],
+  errors: [TunnelNotFound],
 }));
 
 export interface ListTunnelCloudflaredsRequest {
@@ -99274,7 +99302,7 @@ export const CreateTunnelCloudflaredResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateTunnelCloudflaredResponse>;
 
-export type CreateTunnelCloudflaredError = DefaultErrors;
+export type CreateTunnelCloudflaredError = DefaultErrors | DuplicateTunnelName;
 
 export const createTunnelCloudflared: API.OperationMethod<
   CreateTunnelCloudflaredRequest,
@@ -99284,7 +99312,7 @@ export const createTunnelCloudflared: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateTunnelCloudflaredRequest,
   output: CreateTunnelCloudflaredResponse,
-  errors: [],
+  errors: [DuplicateTunnelName],
 }));
 
 export interface PatchTunnelCloudflaredRequest {
@@ -99457,7 +99485,10 @@ export const PatchTunnelCloudflaredResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PatchTunnelCloudflaredResponse>;
 
-export type PatchTunnelCloudflaredError = DefaultErrors;
+export type PatchTunnelCloudflaredError =
+  | DefaultErrors
+  | TunnelNotFound
+  | DuplicateTunnelName;
 
 export const patchTunnelCloudflared: API.OperationMethod<
   PatchTunnelCloudflaredRequest,
@@ -99467,7 +99498,7 @@ export const patchTunnelCloudflared: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchTunnelCloudflaredRequest,
   output: PatchTunnelCloudflaredResponse,
-  errors: [],
+  errors: [TunnelNotFound, DuplicateTunnelName],
 }));
 
 export interface DeleteTunnelCloudflaredRequest {
@@ -99898,7 +99929,9 @@ export const GetTunnelCloudflaredConfigurationResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetTunnelCloudflaredConfigurationResponse>;
 
-export type GetTunnelCloudflaredConfigurationError = DefaultErrors;
+export type GetTunnelCloudflaredConfigurationError =
+  | DefaultErrors
+  | TunnelConfigurationNotFound;
 
 export const getTunnelCloudflaredConfiguration: API.OperationMethod<
   GetTunnelCloudflaredConfigurationRequest,
@@ -99908,7 +99941,7 @@ export const getTunnelCloudflaredConfiguration: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetTunnelCloudflaredConfigurationRequest,
   output: GetTunnelCloudflaredConfigurationResponse,
-  errors: [],
+  errors: [TunnelConfigurationNotFound],
 }));
 
 export interface PutTunnelCloudflaredConfigurationRequest {
@@ -100264,7 +100297,9 @@ export const PutTunnelCloudflaredConfigurationResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PutTunnelCloudflaredConfigurationResponse>;
 
-export type PutTunnelCloudflaredConfigurationError = DefaultErrors;
+export type PutTunnelCloudflaredConfigurationError =
+  | DefaultErrors
+  | TunnelNotFound;
 
 export const putTunnelCloudflaredConfiguration: API.OperationMethod<
   PutTunnelCloudflaredConfigurationRequest,
@@ -100274,7 +100309,7 @@ export const putTunnelCloudflaredConfiguration: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutTunnelCloudflaredConfigurationRequest,
   output: PutTunnelCloudflaredConfigurationResponse,
-  errors: [],
+  errors: [TunnelNotFound],
 }));
 
 // =============================================================================
@@ -100650,7 +100685,9 @@ export const GetTunnelCloudflaredTokenResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetTunnelCloudflaredTokenResponse>;
 
-export type GetTunnelCloudflaredTokenError = DefaultErrors;
+export type GetTunnelCloudflaredTokenError =
+  | DefaultErrors
+  | TunnelTokenNotFound;
 
 export const getTunnelCloudflaredToken: API.OperationMethod<
   GetTunnelCloudflaredTokenRequest,
@@ -100660,7 +100697,7 @@ export const getTunnelCloudflaredToken: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetTunnelCloudflaredTokenRequest,
   output: GetTunnelCloudflaredTokenResponse,
-  errors: [],
+  errors: [TunnelTokenNotFound],
 }));
 
 // =============================================================================

@@ -124,6 +124,9 @@ paths:
                   - name
                   - type
       x-distilled-response-path: result
+      x-distilled-errors:
+        VpcServiceNotFound:
+          - code: 5104
     put:
       operationId: updateDirectoryService
       description: "Update connectivity service  @example ```ts const service = await
@@ -341,6 +344,17 @@ paths:
                   - name
                   - type
       x-distilled-response-path: result
+      x-distilled-errors:
+        VpcServiceNotFound:
+          - code: 5104
+        VpcServiceNameAlreadyExists:
+          - code: 5101
+            message:
+              includes: already exists
+        VpcTunnelNotFound:
+          - code: 5101
+            message:
+              includes: Tunnel ID Not Found
     delete:
       operationId: deleteDirectoryService
       description: "Delete connectivity service  @example ```ts await
@@ -361,6 +375,9 @@ paths:
       responses:
         "200":
           description: Success
+      x-distilled-errors:
+        VpcServiceNotFound:
+          - code: 5104
   /accounts/{account_id}/connectivity/directory/services:
     get:
       operationId: listDirectoryServices
@@ -695,3 +712,12 @@ paths:
                   - name
                   - type
       x-distilled-response-path: result
+      x-distilled-errors:
+        VpcServiceNameAlreadyExists:
+          - code: 5101
+            message:
+              includes: already exists
+        VpcTunnelNotFound:
+          - code: 5101
+            message:
+              includes: Tunnel ID Not Found

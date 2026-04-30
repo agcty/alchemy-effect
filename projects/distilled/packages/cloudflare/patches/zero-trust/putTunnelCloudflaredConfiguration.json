@@ -1,0 +1,5 @@
+{
+  "errors": {
+    "TunnelNotFound": [{ "code": 1002 }]
+  }
+}

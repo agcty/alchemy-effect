@@ -13,6 +13,32 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class VpcServiceNameAlreadyExists extends Schema.TaggedErrorClass<VpcServiceNameAlreadyExists>()(
+  "VpcServiceNameAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(VpcServiceNameAlreadyExists, [
+  { code: 5101, message: { includes: "already exists" } },
+]);
+
+export class VpcServiceNotFound extends Schema.TaggedErrorClass<VpcServiceNotFound>()(
+  "VpcServiceNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(VpcServiceNotFound, [{ code: 5104 }]);
+
+export class VpcTunnelNotFound extends Schema.TaggedErrorClass<VpcTunnelNotFound>()(
+  "VpcTunnelNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(VpcTunnelNotFound, [
+  { code: 5101, message: { includes: "Tunnel ID Not Found" } },
+]);
+
+// =============================================================================
 // DirectoryService
 // =============================================================================
 
@@ -116,7 +142,7 @@ export const GetDirectoryServiceResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetDirectoryServiceResponse>;
 
-export type GetDirectoryServiceError = DefaultErrors;
+export type GetDirectoryServiceError = DefaultErrors | VpcServiceNotFound;
 
 export const getDirectoryService: API.OperationMethod<
   GetDirectoryServiceRequest,
@@ -126,7 +152,7 @@ export const getDirectoryService: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetDirectoryServiceRequest,
   output: GetDirectoryServiceResponse,
-  errors: [],
+  errors: [VpcServiceNotFound],
 }));
 
 export interface ListDirectoryServicesRequest {
@@ -443,7 +469,10 @@ export const CreateDirectoryServiceResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateDirectoryServiceResponse>;
 
-export type CreateDirectoryServiceError = DefaultErrors;
+export type CreateDirectoryServiceError =
+  | DefaultErrors
+  | VpcServiceNameAlreadyExists
+  | VpcTunnelNotFound;
 
 export const createDirectoryService: API.OperationMethod<
   CreateDirectoryServiceRequest,
@@ -453,7 +482,7 @@ export const createDirectoryService: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateDirectoryServiceRequest,
   output: CreateDirectoryServiceResponse,
-  errors: [],
+  errors: [VpcServiceNameAlreadyExists, VpcTunnelNotFound],
 }));
 
 export interface UpdateDirectoryServiceRequest {
@@ -625,7 +654,11 @@ export const UpdateDirectoryServiceResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<UpdateDirectoryServiceResponse>;
 
-export type UpdateDirectoryServiceError = DefaultErrors;
+export type UpdateDirectoryServiceError =
+  | DefaultErrors
+  | VpcServiceNotFound
+  | VpcServiceNameAlreadyExists
+  | VpcTunnelNotFound;
 
 export const updateDirectoryService: API.OperationMethod<
   UpdateDirectoryServiceRequest,
@@ -635,7 +668,7 @@ export const updateDirectoryService: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateDirectoryServiceRequest,
   output: UpdateDirectoryServiceResponse,
-  errors: [],
+  errors: [VpcServiceNotFound, VpcServiceNameAlreadyExists, VpcTunnelNotFound],
 }));
 
 export interface DeleteDirectoryServiceRequest {
@@ -659,7 +692,7 @@ export type DeleteDirectoryServiceResponse = unknown;
 export const DeleteDirectoryServiceResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<DeleteDirectoryServiceResponse>;
 
-export type DeleteDirectoryServiceError = DefaultErrors;
+export type DeleteDirectoryServiceError = DefaultErrors | VpcServiceNotFound;
 
 export const deleteDirectoryService: API.OperationMethod<
   DeleteDirectoryServiceRequest,
@@ -669,5 +702,5 @@ export const deleteDirectoryService: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteDirectoryServiceRequest,
   output: DeleteDirectoryServiceResponse,
-  errors: [],
+  errors: [VpcServiceNotFound],
 }));
