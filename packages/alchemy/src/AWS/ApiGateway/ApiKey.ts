@@ -118,6 +118,8 @@ export const ApiKeyProvider = () =>
           if (!isResolved(newsIn)) return;
           const news = newsIn as ApiKeyProps;
           if (
+            // API Gateway never returns the key value after create, so rotating
+            // a user-supplied value is modeled as replacement instead of patch.
             resolvedValue(news.value) !== resolvedValue(olds.value) ||
             news.customerId !== olds.customerId
           ) {
