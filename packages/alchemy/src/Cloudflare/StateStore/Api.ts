@@ -12,6 +12,7 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpApiBuilder from "effect/unstable/httpapi/HttpApiBuilder";
 import * as HttpApiError from "effect/unstable/httpapi/HttpApiError";
 import crypto from "node:crypto";
+import { fileURLToPath } from "node:url";
 import * as Secret from "../SecretsStore/Secret.ts";
 import { SecretBindingLive } from "../SecretsStore/SecretBinding.ts";
 import { Worker } from "../Workers/Worker.ts";
@@ -23,21 +24,23 @@ export const STATE_STORE_SCRIPT_NAME = "alchemy-state-store" as const;
 /**
  * Path on disk to *this* file, used as the worker's bundling entry.
  *
- * When running from source (e.g. dev / monorepo), `import.meta.url` points
- * at `Api.ts` and we can use it directly. When the alchemy CLI is run from
- * its published `bin/alchemy.js` bundle, this module is inlined into the
- * CLI bundle and `import.meta.url` resolves to `bin/alchemy.js` — which
- * has no `default` export and breaks the worker bundler with
+ * Resolved via the package name (`alchemy/Cloudflare/StateStore/Api.ts`)
+ * rather than `import.meta.filename`, so it keeps pointing at the original
+ * source file even after this module is inlined into the CLI's
+ * `bin/alchemy.js` bundle. `import.meta.filename` in the bundled case
+ * would resolve to `bin/alchemy.js` — which has no `default` export and
+ * breaks the worker bundler with
  * `[MISSING_EXPORT] "default" is not exported by "bin/alchemy.js"`.
- *
- * In the bundled case, fall back to the published source file shipped
- * alongside the CLI under `../src/Cloudflare/StateStore/Api.ts`.
  */
+const apiTsPath = fileURLToPath(
+  import.meta.resolve("alchemy/Cloudflare/StateStore/Api.ts"),
+);
+
 export default Worker(
   "Api",
   {
     name: STATE_STORE_SCRIPT_NAME,
-    main: import.meta.filename,
+    main: apiTsPath,
     url: true,
     compatibility: {
       flags: ["nodejs_compat"],

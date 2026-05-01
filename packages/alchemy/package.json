@@ -246,7 +246,9 @@
     },
     "./bin/alchemy.js": "./bin/alchemy.js",
     "./bin/exec.ts": "./bin/exec.ts",
-    "./bin/exec.js": "./bin/exec.js"
+    "./bin/exec.js": "./bin/exec.js",
+    "./Cloudflare/Local/SidecarServer.ts": "./src/Cloudflare/Local/SidecarServer.ts",
+    "./Cloudflare/StateStore/Api.ts": "./src/Cloudflare/StateStore/Api.ts"
   },
   "publishConfig": {
     "access": "public"

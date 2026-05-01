@@ -38,7 +38,12 @@ export class Sidecar extends RpcClient.RpcClientService<
   }
 >()("Sidecar") {}
 
+// Resolve via the package name rather than `./SidecarServer.ts` so the path
+// stays correct after this module is inlined into `bin/alchemy.js` by tsdown.
+// A relative `import.meta.resolve` would resolve against the bundle's
+// location (`bin/`) instead of the original Sidecar.ts source location.
+// See PR #128 for the same pattern applied to bin/exec.ts.
 export const SidecarLive = RpcClient.layer(Sidecar, {
-  main: import.meta.resolve("./SidecarServer.ts", import.meta.url),
+  main: import.meta.resolve("alchemy/Cloudflare/Local/SidecarServer.ts"),
   schema: SidecarSchema,
 });
