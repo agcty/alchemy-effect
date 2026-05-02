@@ -1,4 +1,15 @@
+import { Retry } from "@distilled.cloud/aws/Retry";
+import {
+  isRetryable,
+  isThrottlingError,
+  isTransientError,
+} from "@distilled.cloud/aws/Category";
+import * as Duration from "effect/Duration";
+import * as Effect from "effect/Effect";
+import { pipe } from "effect/Function";
 import * as Layer from "effect/Layer";
+import * as Ref from "effect/Ref";
+import * as Schedule from "effect/Schedule";
 import { Command, CommandProvider } from "../Build/Command.ts";
 import * as Provider from "../Provider.ts";
 import { Random, RandomProvider } from "../Random.ts";
@@ -533,5 +544,60 @@ export const providers = () =>
     Layer.provideMerge(Endpoint.fromEnvironment),
     Layer.provideMerge(DefaultEnvironment),
     Layer.provideMerge(AwsAuth),
+    // Provide a more aggressive AWS Retry policy than the SDK default. The
+    // distilled-aws default is 5 attempts with 100ms exponential base
+    // (~3s total), which is not enough headroom when many tests / deploys
+    // run concurrently and a single account hits IAM/STS throttling
+    // bursts. Use 10 attempts capped at 5s with the same throttling /
+    // transient / retryable predicate so we ride out short outages
+    // without masking real failures.
+    Layer.provideMerge(Layer.succeed(Retry, awsRetryPolicy)),
     Layer.orDie,
   );
+
+const awsJittered = Schedule.addDelay(() =>
+  Effect.succeed(Duration.millis(Math.random() * 50)),
+);
+
+const awsCapped = (max: Duration.Duration) =>
+  Schedule.modifyDelay((d: Duration.Duration) =>
+    Effect.succeed(Duration.isGreaterThan(d, max) ? max : d),
+  );
+
+const isTransportError = (error: unknown): boolean => {
+  if (!error || typeof error !== "object") return false;
+  const tag = (error as { _tag?: unknown })._tag;
+  if (tag !== "HttpClientError") return false;
+  const reason = (error as { reason?: { _tag?: unknown } }).reason;
+  // Effect's FetchHttpClient surfaces socket errors (ECONNRESET,
+  // ETIMEDOUT, EPIPE, etc.) as `HttpClientError` with reason
+  // `TransportError`. None of the distilled-* category predicates know
+  // about this Effect-level error shape, so categorize it ourselves.
+  return reason?._tag === "TransportError";
+};
+
+const awsRetryPolicy = (lastError: Ref.Ref<unknown>) => ({
+  while: (error: unknown) =>
+    isTransientError(error) ||
+    isThrottlingError(error) ||
+    isRetryable(error) ||
+    isTransportError(error),
+  schedule: pipe(
+    Schedule.exponential(Duration.millis(200), 2),
+    Schedule.modifyDelay(
+      Effect.fnUntraced(function* (duration) {
+        const error = yield* Ref.get(lastError);
+        if (isThrottlingError(error)) {
+          // honor throttling backoff floor (>= 500ms)
+          if (Duration.toMillis(duration) < 500) {
+            return Duration.toMillis(Duration.millis(500));
+          }
+        }
+        return Duration.toMillis(duration);
+      }),
+    ),
+    awsCapped(Duration.seconds(5)),
+    awsJittered,
+    Schedule.both(Schedule.recurs(10)),
+  ),
+});

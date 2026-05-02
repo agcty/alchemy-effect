@@ -6,6 +6,7 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
+import { withRetry } from "../Retry.ts";
 import { KVNamespaceBinding } from "./KVNamespaceBinding.ts";
 
 export type KVNamespaceProps = {
@@ -116,7 +117,7 @@ export const KVNamespaceProvider = () =>
             supportsUrlEncoding: namespace.supportsUrlEncoding ?? undefined,
             accountId,
           };
-        }),
+        }, withRetry),
         update: Effect.fn(function* ({ id, news = {}, output }) {
           const title = yield* createTitle(id, news.title);
           const namespace = yield* updateNamespace({
@@ -130,13 +131,13 @@ export const KVNamespaceProvider = () =>
             supportsUrlEncoding: namespace.supportsUrlEncoding ?? undefined,
             accountId,
           };
-        }),
+        }, withRetry),
         delete: Effect.fn(function* ({ output }) {
           yield* deleteNamespace({
             accountId: output.accountId,
             namespaceId: output.namespaceId,
           }).pipe(Effect.catchTag("NamespaceNotFound", () => Effect.void));
-        }),
+        }, withRetry),
         read: Effect.fn(function* ({ id, olds, output }) {
           if (output?.namespaceId) {
             return yield* getNamespaceFn({
@@ -166,7 +167,7 @@ export const KVNamespaceProvider = () =>
             };
           }
           return undefined;
-        }),
+        }, withRetry),
       };
     }),
   );

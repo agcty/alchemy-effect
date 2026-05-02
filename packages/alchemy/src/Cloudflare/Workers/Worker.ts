@@ -58,6 +58,7 @@ import { SidecarLive } from "../Local/Sidecar.ts";
 import { CloudflareLogs } from "../Logs.ts";
 import type { Providers } from "../Providers.ts";
 import type { Queue as CloudflareQueue } from "../Queue/Queue.ts";
+import { withRetry } from "../Retry.ts";
 import type { R2Bucket } from "../R2/R2Bucket.ts";
 import {
   isAssets,
@@ -2135,7 +2136,7 @@ ${[
             accountId,
             domains: [],
           } satisfies Worker["Attributes"];
-        }),
+        }, withRetry),
         read: Effect.fnUntraced(
           function* ({ id, output, olds }) {
             const workerName =
@@ -2187,6 +2188,7 @@ ${[
               ),
             } satisfies Worker["Attributes"];
           },
+          withRetry,
           (effect) =>
             effect.pipe(
               Effect.catchTag("WorkerNotFound", () =>
@@ -2249,7 +2251,7 @@ ${[
             session,
             existingSettings,
           );
-        }),
+        }, withRetry),
         update: Effect.fnUntraced(function* ({
           id,
           olds,
@@ -2281,27 +2283,30 @@ ${[
             )}`,
           );
           return yield* putWorker(id, news, bindings, olds, output, session);
-        }),
-        delete: Effect.fnUntraced(function* ({ output }) {
-          yield* Effect.logInfo(
-            `Cloudflare Worker delete: deleting ${output.workerName}`,
-          );
-          if (output.domains?.length) {
-            yield* Effect.all(
-              output.domains.map((d) =>
-                deleteDomain({
-                  accountId: output.accountId,
-                  domainId: d.id,
-                }).pipe(Effect.catchTag("DomainNotFound", () => Effect.void)),
-              ),
-              { concurrency: "unbounded" },
+        }, withRetry),
+        delete: Effect.fnUntraced(
+          function* ({ output }) {
+            yield* Effect.logInfo(
+              `Cloudflare Worker delete: deleting ${output.workerName}`,
             );
-          }
-          yield* deleteScript({
-            accountId: output.accountId,
-            scriptName: output.workerName,
-          }).pipe(Effect.catchTag("WorkerNotFound", () => Effect.void));
-        }),
+            if (output.domains?.length) {
+              yield* Effect.all(
+                output.domains.map((d) =>
+                  deleteDomain({
+                    accountId: output.accountId,
+                    domainId: d.id,
+                  }).pipe(Effect.catchTag("DomainNotFound", () => Effect.void)),
+                ),
+                { concurrency: "unbounded" },
+              );
+            }
+            yield* deleteScript({
+              accountId: output.accountId,
+              scriptName: output.workerName,
+            }).pipe(Effect.catchTag("WorkerNotFound", () => Effect.void));
+          },
+          withRetry,
+        ),
         tail: ({ output }) => {
           const runTailSession = Effect.gen(function* () {
             const { id: tailId, url } = yield* createScriptTail({

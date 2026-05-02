@@ -7,6 +7,7 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
+import { withRetry } from "../Retry.ts";
 import { cloneD1Database } from "./D1Clone.ts";
 import { importD1Database } from "./D1Import.ts";
 import { applyMigrations } from "./D1Migrations.ts";
@@ -358,7 +359,7 @@ export const DatabaseProvider = () =>
             };
           }
           return undefined;
-        }),
+        }, withRetry),
         create: Effect.fn(function* ({ id, news = {} }) {
           const name = yield* createDatabaseName(id, news.name);
           const jurisdiction = news.jurisdiction ?? "default";
@@ -436,7 +437,7 @@ export const DatabaseProvider = () =>
             migrationsHashes,
             importHashes,
           };
-        }),
+        }, withRetry),
         update: Effect.fn(function* ({ news = {}, output }) {
           const replicationMode = news.readReplication?.mode ?? "disabled";
           const updated = yield* patchDb({
@@ -478,13 +479,13 @@ export const DatabaseProvider = () =>
             migrationsHashes,
             importHashes,
           };
-        }),
+        }, withRetry),
         delete: Effect.fn(function* ({ output }) {
           yield* deleteDb({
             accountId: output.accountId,
             databaseId: output.databaseId,
           }).pipe(Effect.catchTag("DatabaseNotFound", () => Effect.void));
-        }),
+        }, withRetry),
       };
     }),
   );

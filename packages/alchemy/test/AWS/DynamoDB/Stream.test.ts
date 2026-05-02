@@ -77,7 +77,7 @@ describe.sequential("AWS.DynamoDB.Stream", () => {
         yield* Effect.logInfo("DynamoDB Stream test: destroying fixture");
         yield* stack.destroy();
       }),
-    { timeout: 240_000 },
+    { timeout: 360_000 },
   );
 });
 
@@ -151,10 +151,15 @@ const waitForQueueMessage = Effect.fn(function* (queueUrl: string) {
     `DynamoDB Stream test: waiting for stream output message on ${queueUrl}`,
   );
 
+  // Even after the EventSourceMapping reports `Enabled`, AWS needs a cold-
+  // start window (typically 30–90s for the first record) before the Lambda
+  // is reliably invoked from a freshly-provisioned DynamoDB Stream shard.
+  // Use SQS long-polling (WaitTimeSeconds=20) and budget ~3 minutes so this
+  // is robust on first-deploy runs without slowing down the happy path.
   return yield* SQS.receiveMessage({
     QueueUrl: queueUrl,
     MaxNumberOfMessages: 1,
-    WaitTimeSeconds: 2,
+    WaitTimeSeconds: 20,
   }).pipe(
     Effect.flatMap((result) => {
       const message = result.Messages?.[0];
@@ -169,8 +174,8 @@ const waitForQueueMessage = Effect.fn(function* (queueUrl: string) {
     }),
     Effect.retry({
       while: (error) => error._tag === "StreamMessageNotReady",
-      schedule: Schedule.fixed("2 seconds").pipe(
-        Schedule.both(Schedule.recurs(20)),
+      schedule: Schedule.fixed("5 seconds").pipe(
+        Schedule.both(Schedule.recurs(36)), // 36 * (5s sleep + up to 20s poll) ~= 3min budget
       ),
     }),
   );

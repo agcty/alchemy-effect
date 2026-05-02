@@ -7,6 +7,7 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type * as Cloudflare from "../Providers.ts";
+import { withRetry } from "../Retry.ts";
 import { R2BucketBinding } from "./R2BucketBinding.ts";
 
 export type R2BucketName = string;
@@ -155,6 +156,7 @@ export const R2BucketProvider = () =>
         }),
         create: Effect.fn(function* ({ id, news = {} }) {
           const name = yield* createBucketName(id, news.name);
+          const desiredStorageClass = news.storageClass ?? "Standard";
           const bucket = yield* createBucket({
             accountId,
             name,
@@ -163,12 +165,30 @@ export const R2BucketProvider = () =>
             locationHint: news.locationHint,
           }).pipe(
             Effect.catchTag("BucketAlreadyExists", () =>
+              // Adopt an existing bucket. Reconcile its mutable state with
+              // the desired props so a leftover bucket from a previously
+              // crashed test (or an out-of-band creation) is brought into
+              // the requested shape rather than silently kept as-is. Today
+              // `storageClass` is the only mutable prop; extend here when
+              // R2 adds more.
               getBucket({
                 accountId,
                 bucketName: name,
                 jurisdiction: news.jurisdiction,
-              }),
+              }).pipe(
+                Effect.flatMap((existing) =>
+                  (existing.storageClass ?? "Standard") === desiredStorageClass
+                    ? Effect.succeed(existing)
+                    : patchBucket({
+                        accountId,
+                        bucketName: name,
+                        storageClass: desiredStorageClass,
+                        jurisdiction: news.jurisdiction,
+                      }),
+                ),
+              ),
             ),
+            withRetry,
           );
           return {
             bucketName: bucket.name!,
@@ -184,7 +204,7 @@ export const R2BucketProvider = () =>
             bucketName: output.bucketName,
             storageClass: news.storageClass ?? output.storageClass,
             jurisdiction: output.jurisdiction,
-          });
+          }).pipe(withRetry);
           return {
             bucketName: bucket.name!,
             storageClass: bucket.storageClass ?? "Standard",
@@ -198,7 +218,10 @@ export const R2BucketProvider = () =>
             accountId: output.accountId,
             bucketName: output.bucketName,
             jurisdiction: output.jurisdiction,
-          }).pipe(Effect.catchTag("NoSuchBucket", () => Effect.void));
+          }).pipe(
+            Effect.catchTag("NoSuchBucket", () => Effect.void),
+            withRetry,
+          );
         }),
         read: Effect.fn(function* ({ id, output, olds }) {
           const name =
@@ -217,6 +240,7 @@ export const R2BucketProvider = () =>
               accountId: acct,
             })),
             Effect.catchTag("NoSuchBucket", () => Effect.succeed(undefined)),
+            withRetry,
           );
         }),
       };

@@ -277,27 +277,50 @@ export const SubnetProvider = () =>
           yield* session.note(`Subnet created: ${subnetId}`);
 
           // 4. Modify subnet attributes if specified
+          // EC2 ModifySubnetAttribute can briefly return
+          // `InvalidSubnetID.NotFound` against a freshly-created subnet
+          // due to control-plane propagation lag. Retry the same NotFound
+          // we already retry for the parent VPC, with a bounded budget.
+          const modifySubnetEventualConsistency = <E, R>(
+            eff: Effect.Effect<unknown, E, R>,
+          ) =>
+            eff.pipe(
+              Effect.retry({
+                while: (e) =>
+                  (e as { _tag?: string })?._tag === "InvalidSubnetID.NotFound",
+                schedule: Schedule.exponential(100).pipe(
+                  Schedule.both(Schedule.recurs(10)),
+                ),
+              }),
+            );
+
           if (news.mapPublicIpOnLaunch !== undefined) {
-            yield* ec2.modifySubnetAttribute({
-              SubnetId: subnetId,
-              MapPublicIpOnLaunch: { Value: news.mapPublicIpOnLaunch },
-            });
+            yield* modifySubnetEventualConsistency(
+              ec2.modifySubnetAttribute({
+                SubnetId: subnetId,
+                MapPublicIpOnLaunch: { Value: news.mapPublicIpOnLaunch },
+              }),
+            );
           }
 
           if (news.assignIpv6AddressOnCreation !== undefined) {
-            yield* ec2.modifySubnetAttribute({
-              SubnetId: subnetId,
-              AssignIpv6AddressOnCreation: {
-                Value: news.assignIpv6AddressOnCreation,
-              },
-            });
+            yield* modifySubnetEventualConsistency(
+              ec2.modifySubnetAttribute({
+                SubnetId: subnetId,
+                AssignIpv6AddressOnCreation: {
+                  Value: news.assignIpv6AddressOnCreation,
+                },
+              }),
+            );
           }
 
           if (news.enableDns64 !== undefined) {
-            yield* ec2.modifySubnetAttribute({
-              SubnetId: subnetId,
-              EnableDns64: { Value: news.enableDns64 },
-            });
+            yield* modifySubnetEventualConsistency(
+              ec2.modifySubnetAttribute({
+                SubnetId: subnetId,
+                EnableDns64: { Value: news.enableDns64 },
+              }),
+            );
           }
 
           if (
@@ -305,18 +328,20 @@ export const SubnetProvider = () =>
             news.enableResourceNameDnsAAAARecordOnLaunch !== undefined ||
             news.hostnameType !== undefined
           ) {
-            yield* ec2.modifySubnetAttribute({
-              SubnetId: subnetId,
-              PrivateDnsHostnameTypeOnLaunch: news.hostnameType,
-              EnableResourceNameDnsARecordOnLaunch:
-                news.enableResourceNameDnsARecordOnLaunch !== undefined
-                  ? { Value: news.enableResourceNameDnsARecordOnLaunch }
-                  : undefined,
-              EnableResourceNameDnsAAAARecordOnLaunch:
-                news.enableResourceNameDnsAAAARecordOnLaunch !== undefined
-                  ? { Value: news.enableResourceNameDnsAAAARecordOnLaunch }
-                  : undefined,
-            });
+            yield* modifySubnetEventualConsistency(
+              ec2.modifySubnetAttribute({
+                SubnetId: subnetId,
+                PrivateDnsHostnameTypeOnLaunch: news.hostnameType,
+                EnableResourceNameDnsARecordOnLaunch:
+                  news.enableResourceNameDnsARecordOnLaunch !== undefined
+                    ? { Value: news.enableResourceNameDnsARecordOnLaunch }
+                    : undefined,
+                EnableResourceNameDnsAAAARecordOnLaunch:
+                  news.enableResourceNameDnsAAAARecordOnLaunch !== undefined
+                    ? { Value: news.enableResourceNameDnsAAAARecordOnLaunch }
+                    : undefined,
+              }),
+            );
           }
 
           // 5. Wait for subnet to be available
