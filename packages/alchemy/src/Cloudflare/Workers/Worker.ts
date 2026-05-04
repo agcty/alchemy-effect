@@ -1679,11 +1679,15 @@ ${[
           bundle,
           hash: preparedHash,
         } = yield* prepareAssetsAndBundle(id, news, { skipAssetsRead });
-        // When we skip the disk read, retain the precomputed hash in
-        // the output state so the next diff continues to short-circuit.
+        // When the caller supplied a precomputed hash (e.g. via
+        // `Build.Command`), store *that* hash in output state so the
+        // next diff can short-circuit by comparing it directly. The
+        // hash that `readAssets` produces is the manifest-derived
+        // hash, which is shaped differently from any upstream
+        // build-input hash and will never match it on the next pass.
         const hash = {
           ...preparedHash,
-          assets: skipAssetsRead ? precomputedAssetsHash : preparedHash.assets,
+          assets: precomputedAssetsHash ?? preparedHash.assets,
         } satisfies Worker["Attributes"]["hash"];
         const metadataBindings = bindings.flatMap((b) => b.data.bindings ?? []);
         const expectedDurableObjectClassNames =
