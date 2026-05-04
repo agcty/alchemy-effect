@@ -6,8 +6,7 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-const runLive =
-  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+const runLive = process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
 
 test.provider.skipIf(!runLive)("create and delete usage plan", (stack) =>
   Effect.gen(function* () {
@@ -28,27 +27,27 @@ test.provider.skipIf(!runLive)("create and delete usage plan", (stack) =>
 test.provider.skipIf(!runLive)(
   "usage plan throttle updates in place",
   (stack) =>
-  Effect.gen(function* () {
-    const plan = yield* stack.deploy(
-      Effect.gen(function* () {
-        return yield* AWS.ApiGateway.UsagePlan("AgUsagePlanThrottle", {
-          throttle: { burstLimit: 10, rateLimit: 100 },
-        });
-      }),
-    );
+    Effect.gen(function* () {
+      const plan = yield* stack.deploy(
+        Effect.gen(function* () {
+          return yield* AWS.ApiGateway.UsagePlan("AgUsagePlanThrottle", {
+            throttle: { burstLimit: 10, rateLimit: 100 },
+          });
+        }),
+      );
 
-    yield* stack.deploy(
-      Effect.gen(function* () {
-        return yield* AWS.ApiGateway.UsagePlan("AgUsagePlanThrottle", {
-          throttle: { burstLimit: 20, rateLimit: 200 },
-        });
-      }),
-    );
+      yield* stack.deploy(
+        Effect.gen(function* () {
+          return yield* AWS.ApiGateway.UsagePlan("AgUsagePlanThrottle", {
+            throttle: { burstLimit: 20, rateLimit: 200 },
+          });
+        }),
+      );
 
-    const remote = yield* ag.getUsagePlan({ usagePlanId: plan.id });
-    expect(remote.throttle?.burstLimit).toEqual(20);
-    expect(remote.throttle?.rateLimit).toEqual(200);
+      const remote = yield* ag.getUsagePlan({ usagePlanId: plan.id });
+      expect(remote.throttle?.burstLimit).toEqual(20);
+      expect(remote.throttle?.rateLimit).toEqual(200);
 
-    yield* stack.destroy();
-  }),
+      yield* stack.destroy();
+    }),
 );

@@ -1,4 +1,7 @@
-import { makeDefault as defaultRetryPolicy, Retry } from "@distilled.cloud/aws/Retry";
+import {
+  makeDefault as defaultRetryPolicy,
+  Retry,
+} from "@distilled.cloud/aws/Retry";
 import * as Layer from "effect/Layer";
 import { Command, CommandProvider } from "../Build/Command.ts";
 import * as Provider from "../Provider.ts";

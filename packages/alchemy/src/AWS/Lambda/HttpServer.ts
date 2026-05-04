@@ -132,9 +132,14 @@ const apiGatewayProxyEventToWebRequest = (
   }
 
   const protocol =
-    headers.get("x-forwarded-proto") ?? headers.get("X-Forwarded-Proto") ?? "https";
+    headers.get("x-forwarded-proto") ??
+    headers.get("X-Forwarded-Proto") ??
+    "https";
   const host =
-    headers.get("host") ?? headers.get("Host") ?? event.requestContext.domainName ?? "lambda";
+    headers.get("host") ??
+    headers.get("Host") ??
+    event.requestContext.domainName ??
+    "lambda";
   const stage = event.requestContext.stage;
   // API Gateway prefixes paths with the stage when invoked via the default
   // execute-api endpoint; `event.path` already contains that. Use it as-is.
@@ -142,10 +147,14 @@ const apiGatewayProxyEventToWebRequest = (
 
   const queryParts: string[] = [];
   if (event.multiValueQueryStringParameters) {
-    for (const [k, vs] of Object.entries(event.multiValueQueryStringParameters)) {
+    for (const [k, vs] of Object.entries(
+      event.multiValueQueryStringParameters,
+    )) {
       if (!vs) continue;
       for (const v of vs) {
-        queryParts.push(`${encodeURIComponent(k)}=${encodeURIComponent(v ?? "")}`);
+        queryParts.push(
+          `${encodeURIComponent(k)}=${encodeURIComponent(v ?? "")}`,
+        );
       }
     }
   } else if (event.queryStringParameters) {

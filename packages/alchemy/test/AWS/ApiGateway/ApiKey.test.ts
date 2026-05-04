@@ -6,8 +6,7 @@ import * as Redacted from "effect/Redacted";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-const runLive =
-  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+const runLive = process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
 
 test.provider.skipIf(!runLive)("create and delete API key", (stack) =>
   Effect.gen(function* () {
@@ -29,18 +28,20 @@ test.provider.skipIf(!runLive)("create and delete API key", (stack) =>
 test.provider.skipIf(!runLive)(
   "custom API key value is not returned in outputs",
   (stack) =>
-  Effect.gen(function* () {
-    const key = yield* stack.deploy(
-      Effect.gen(function* () {
-        return yield* AWS.ApiGateway.ApiKey("AgApiKeySecret", {
-          value: Redacted.make("alchemy-test-secret-value-abc123"),
-        });
-      }),
-    );
+    Effect.gen(function* () {
+      const key = yield* stack.deploy(
+        Effect.gen(function* () {
+          return yield* AWS.ApiGateway.ApiKey("AgApiKeySecret", {
+            value: Redacted.make("alchemy-test-secret-value-abc123"),
+          });
+        }),
+      );
 
-    expect(key.id).toBeDefined();
-    expect(Object.keys(key as Record<string, unknown>)).not.toContain("value");
+      expect(key.id).toBeDefined();
+      expect(Object.keys(key as Record<string, unknown>)).not.toContain(
+        "value",
+      );
 
-    yield* stack.destroy();
-  }),
+      yield* stack.destroy();
+    }),
 );

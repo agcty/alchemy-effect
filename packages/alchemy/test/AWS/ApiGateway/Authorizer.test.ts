@@ -6,8 +6,7 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-const runLive =
-  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+const runLive = process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
 const authorizerUri = process.env.ALCHEMY_TEST_AUTHORIZER_URI;
 
 /**

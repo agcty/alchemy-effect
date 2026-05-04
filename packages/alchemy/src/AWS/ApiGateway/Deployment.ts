@@ -294,7 +294,13 @@ export const DeploymentProvider = () =>
                 restApiId: output.restApiId,
                 deploymentId: output.deploymentId,
                 patchOperations: description
-                  ? [{ op: "replace", path: "/description", value: description }]
+                  ? [
+                      {
+                        op: "replace",
+                        path: "/description",
+                        value: description,
+                      },
+                    ]
                   : [{ op: "remove", path: "/description" }],
               }),
             );
