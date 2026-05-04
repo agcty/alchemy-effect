@@ -238,8 +238,16 @@ export const StreamConsumerProvider = () =>
     read: Effect.fn(function* ({ id, olds, output }) {
       const consumerName =
         output?.consumerName ?? (yield* createConsumerName(id, olds ?? {}));
+      const streamArn = output?.streamArn ?? olds?.streamArn;
+      // describeStreamConsumer rejects with InvalidArgumentException unless
+      // either consumerARN, or both streamARN + consumerName, are provided.
+      // If the engine probed for adoption before our upstream Stream was
+      // created we'll have neither — treat that as "doesn't exist".
+      if (typeof streamArn !== "string" && !output?.consumerArn) {
+        return undefined;
+      }
       const state = yield* readConsumer({
-        streamArn: olds.streamArn as string | undefined,
+        streamArn: typeof streamArn === "string" ? streamArn : undefined,
         consumerName,
         consumerArn: output?.consumerArn,
       });

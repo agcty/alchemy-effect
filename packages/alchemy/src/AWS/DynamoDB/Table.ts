@@ -788,6 +788,70 @@ export const TableProvider = () =>
         JSON.stringify(normalizeProjection(left.Projection)) ===
           JSON.stringify(normalizeProjection(right.Projection));
 
+      // The describe response includes server-side bookkeeping fields
+      // (`NumberOfDecreasesToday`, `LastIncreaseDateTime`, etc.) that the
+      // request shape doesn't. For PAY_PER_REQUEST tables it also reports
+      // a zero-throughput object. Normalize both sides to the user-settable
+      // fields so we don't fire a phantom UpdateGlobalSecondaryIndex with
+      // `ProvisionedThroughput: undefined` (which AWS rejects with
+      // ValidationException).
+      const normalizeProvisioned = (
+        pt:
+          | { ReadCapacityUnits?: number; WriteCapacityUnits?: number }
+          | undefined,
+      ) => {
+        if (
+          !pt ||
+          ((pt.ReadCapacityUnits ?? 0) === 0 &&
+            (pt.WriteCapacityUnits ?? 0) === 0)
+        ) {
+          return undefined;
+        }
+        return {
+          ReadCapacityUnits: pt.ReadCapacityUnits,
+          WriteCapacityUnits: pt.WriteCapacityUnits,
+        };
+      };
+
+      const normalizeOnDemand = (
+        od:
+          | {
+              MaxReadRequestUnits?: number;
+              MaxWriteRequestUnits?: number;
+            }
+          | undefined,
+      ) => {
+        if (
+          !od ||
+          ((od.MaxReadRequestUnits ?? -1) < 0 &&
+            (od.MaxWriteRequestUnits ?? -1) < 0)
+        ) {
+          return undefined;
+        }
+        return {
+          MaxReadRequestUnits: od.MaxReadRequestUnits,
+          MaxWriteRequestUnits: od.MaxWriteRequestUnits,
+        };
+      };
+
+      const normalizeWarm = (
+        wt:
+          | { ReadUnitsPerSecond?: number; WriteUnitsPerSecond?: number }
+          | undefined,
+      ) => {
+        if (
+          !wt ||
+          ((wt.ReadUnitsPerSecond ?? 0) === 0 &&
+            (wt.WriteUnitsPerSecond ?? 0) === 0)
+        ) {
+          return undefined;
+        }
+        return {
+          ReadUnitsPerSecond: wt.ReadUnitsPerSecond,
+          WriteUnitsPerSecond: wt.WriteUnitsPerSecond,
+        };
+      };
+
       const diffGlobalSecondaryIndexes = (
         olds: readonly DynamoDB.GlobalSecondaryIndex[] | undefined,
         news: readonly DynamoDB.GlobalSecondaryIndex[] | undefined,
@@ -813,14 +877,28 @@ export const TableProvider = () =>
             continue;
           }
 
-          if (
-            JSON.stringify(oldIndex.ProvisionedThroughput) !==
-              JSON.stringify(newIndex.ProvisionedThroughput) ||
-            JSON.stringify(oldIndex.OnDemandThroughput) !==
-              JSON.stringify(newIndex.OnDemandThroughput) ||
-            JSON.stringify(oldIndex.WarmThroughput) !==
-              JSON.stringify(newIndex.WarmThroughput)
-          ) {
+          // Only emit an Update when the user has explicitly set a
+          // throughput value AND it differs from observed. Cloud-side
+          // defaults (AWS auto-assigns ProvisionedThroughput/WarmThroughput
+          // values for PAY_PER_REQUEST tables) should not trigger phantom
+          // updates against an undefined desired value.
+          const provDiff =
+            newIndex.ProvisionedThroughput !== undefined &&
+            JSON.stringify(
+              normalizeProvisioned(oldIndex.ProvisionedThroughput),
+            ) !==
+              JSON.stringify(
+                normalizeProvisioned(newIndex.ProvisionedThroughput),
+              );
+          const odDiff =
+            newIndex.OnDemandThroughput !== undefined &&
+            JSON.stringify(normalizeOnDemand(oldIndex.OnDemandThroughput)) !==
+              JSON.stringify(normalizeOnDemand(newIndex.OnDemandThroughput));
+          const wtDiff =
+            newIndex.WarmThroughput !== undefined &&
+            JSON.stringify(normalizeWarm(oldIndex.WarmThroughput)) !==
+              JSON.stringify(normalizeWarm(newIndex.WarmThroughput));
+          if (provDiff || odDiff || wtDiff) {
             updates.push({
               Update: {
                 IndexName: indexName,

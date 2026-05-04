@@ -158,11 +158,17 @@ export const bindingTargetProvider = () =>
             replaceString: news.replaceString,
           };
         }),
-        reconcile: Effect.fn(function* ({ id, news = {}, output, bindings }) {
+        reconcile: Effect.fn(function* ({ id, news = {}, olds, bindings }) {
+          // The hook routing tracks the engine's create-vs-update intent.
+          // `olds === undefined` covers greenfield AND replacement-create
+          // (engine resets olds when minting a new instance), which is
+          // exactly when the test wants `failOn("X", "create")` to fire.
+          // `output === undefined` would miss replacements with `precreate`
+          // because precreate populates `output` before reconcile runs.
           const hooks = Option.getOrUndefined(
             yield* Effect.serviceOption(TestResourceHooks),
           );
-          if (output === undefined) {
+          if (olds === undefined) {
             if (hooks?.create) {
               yield* hooks.create(id, news as TestResourceProps);
             }
@@ -383,11 +389,14 @@ export const testResourceProvider = () =>
               }
             : undefined;
         }),
-        reconcile: Effect.fn(function* ({ id, news = {}, output }) {
+        reconcile: Effect.fn(function* ({ id, news = {}, olds }) {
           const hooks = Option.getOrUndefined(
             yield* Effect.serviceOption(TestResourceHooks),
           );
-          if (output === undefined) {
+          // Branch on `olds` (engine's create-vs-update intent), not
+          // `output` — replacements arrive with a precreate stub in
+          // `output` but `olds === undefined`.
+          if (olds === undefined) {
             if (hooks?.create) {
               yield* hooks.create(id, news);
             }
@@ -482,19 +491,24 @@ export const staticStablesResourceProvider = () =>
       // but diff() returns undefined because provider doesn't explicitly handle tags
       return undefined;
     }),
-    reconcile: Effect.fn(function* ({ id, news = {}, output }) {
+    reconcile: Effect.fn(function* ({ id, news = {}, olds, output }) {
       const hooks = Option.getOrUndefined(
         yield* Effect.serviceOption(StaticStablesResourceHooks),
       );
-      if (output === undefined) {
+      // Branch on `olds` (engine create vs update intent). Replacements
+      // pass `output` from the previous generation if any, but engine
+      // resets `olds` to `undefined` for the new instance.
+      if (olds === undefined) {
         if (hooks?.create) {
           yield* hooks.create(id, news);
         }
         return {
           string: news.string ?? id,
           tags: news.tags ?? {},
-          stableId: `stable-${id}`,
-          stableArn: `arn:test:resource:us-east-1:123456789:${id}`,
+          stableId: output?.stableId ?? `stable-${id}`,
+          stableArn:
+            output?.stableArn ??
+            (`arn:test:resource:us-east-1:123456789:${id}` as const),
           replaceString: news.replaceString,
         };
       }
@@ -575,11 +589,13 @@ export const phasedTargetProvider = () =>
             replaceKey: news.replaceKey,
           };
         }),
-        reconcile: Effect.fn(function* ({ id, news, output, bindings }) {
+        reconcile: Effect.fn(function* ({ id, news, olds, bindings }) {
           const hooks = Option.getOrUndefined(
             yield* Effect.serviceOption(TestResourceHooks),
           );
-          if (output === undefined) {
+          // Branch on `olds` not `output`: replacement-create has
+          // precreate-populated `output` but engine-cleared `olds`.
+          if (olds === undefined) {
             if (hooks?.create) {
               yield* hooks.create(id, {
                 string: news.desired,

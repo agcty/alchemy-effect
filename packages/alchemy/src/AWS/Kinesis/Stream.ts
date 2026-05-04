@@ -377,7 +377,9 @@ const readStream = Effect.fn(function* ({
   return toAttrs({
     summary,
     tags: toTagRecord(tagsResponse.Tags),
-    resourcePolicy: policyResponse?.Policy,
+    // Treat an empty policy string as "no policy attached" so the
+    // sync step doesn't try to delete a phantom policy.
+    resourcePolicy: policyResponse?.Policy ? policyResponse.Policy : undefined,
   });
 });
 
@@ -679,7 +681,10 @@ export const StreamProvider = () =>
             });
           }
 
-          // Sync resource policy — observed ↔ desired.
+          // Sync resource policy — observed ↔ desired. Tolerate the
+          // race where the cloud's policy was already removed (delete
+          // fails with `ResourceNotFoundException`) or where another
+          // reconcile already wrote the same policy.
           if (state.resourcePolicy !== news.resourcePolicy) {
             if (news.resourcePolicy) {
               yield* kinesis.putResourcePolicy({
@@ -687,9 +692,16 @@ export const StreamProvider = () =>
                 Policy: news.resourcePolicy,
               });
             } else if (state.resourcePolicy) {
-              yield* kinesis.deleteResourcePolicy({
-                ResourceARN: streamArn,
-              });
+              yield* kinesis
+                .deleteResourcePolicy({
+                  ResourceARN: streamArn,
+                })
+                .pipe(
+                  Effect.catchTag(
+                    "ResourceNotFoundException",
+                    () => Effect.void,
+                  ),
+                );
             }
           }
 

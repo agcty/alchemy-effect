@@ -6,12 +6,7 @@ import { createPhysicalName } from "../../PhysicalName.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
-import {
-  createInternalTags,
-  createTagsList,
-  diffTags,
-  hasAlchemyTags,
-} from "../../Tags.ts";
+import { createInternalTags, diffTags, hasAlchemyTags } from "../../Tags.ts";
 import type { AccountID } from "../Environment.ts";
 import type { RegionID } from "../Region.ts";
 
@@ -172,21 +167,23 @@ export const TopicProvider = () =>
         return { action: "replace" } as const;
       }
     }),
-    reconcile: Effect.fn(function* ({ id, news = {}, output, session }) {
+    reconcile: Effect.fn(function* ({ id, news = {}, olds, output, session }) {
       const topicName = yield* toTopicName(id, news);
       const internalTags = yield* createInternalTags(id);
       const desiredTags = { ...internalTags, ...news.tags };
       const desiredAttributes = toAttributes(news);
+      const isFifo = news.fifo ?? false;
 
-      // Observe — never trust a stale `output.topicArn` blindly. SNS
-      // `createTopic` is idempotent for an identical name+fifo combo and
-      // returns the existing ARN, so we use it as our ensure step rather
-      // than racing with separate listTopics + createTopic calls.
+      // Observe + ensure — `createTopic` is idempotent for an identical
+      // (name, FifoTopic) pair, so we use it both to ensure-on-greenfield
+      // and to fetch the ARN for adoption. We deliberately pass ONLY the
+      // FifoTopic attribute (which is stable at create time): AWS rejects
+      // createTopic for an existing topic if any other attribute, tag,
+      // or DataProtectionPolicy differs from what's already attached.
+      // Mutable attributes are reconciled below against observed state.
       const createResponse = yield* sns.createTopic({
         Name: topicName,
-        Attributes: desiredAttributes,
-        Tags: createTagsList(desiredTags),
-        DataProtectionPolicy: news.dataProtectionPolicy,
+        Attributes: isFifo ? { FifoTopic: "true" } : undefined,
       });
       const topicArn = createResponse.TopicArn;
       if (!topicArn) {
@@ -194,9 +191,7 @@ export const TopicProvider = () =>
       }
 
       // Sync attributes — fetch observed cloud attributes and apply only
-      // the delta. Tags + DataProtectionPolicy on `createTopic` only apply
-      // on a true first create; for adoption or attribute drift we converge
-      // here.
+      // the delta.
       const observedState = yield* sns
         .getTopicAttributes({ TopicArn: topicArn })
         .pipe(
@@ -214,15 +209,14 @@ export const TopicProvider = () =>
         }
       }
 
-      // Reset previously-managed attributes the user no longer specifies.
-      // Restrict to keys we set in a prior reconcile (`output.attributes`)
-      // so we don't clear SNS system attributes that we never touched.
-      for (const name of Object.keys(output?.attributes ?? {})) {
-        if (
-          !(name in desiredAttributes) &&
-          name !== "FifoTopic" &&
-          name in observedAttributes
-        ) {
+      // Reset previously-user-specified attributes that the user no
+      // longer specifies. Use `olds.attributes` (the prior props) — NOT
+      // `output.attributes`, which on adoption holds every attribute SNS
+      // returns and would erroneously try to reset SNS-managed values
+      // like the auto-generated Policy.
+      const previouslyManaged = olds?.attributes ?? {};
+      for (const name of Object.keys(previouslyManaged)) {
+        if (!(name in desiredAttributes) && name !== "FifoTopic") {
           yield* sns.setTopicAttributes({
             TopicArn: topicArn,
             AttributeName: name,
@@ -257,14 +251,24 @@ export const TopicProvider = () =>
         });
       }
 
-      // Sync data protection policy — observed ↔ desired.
-      const observedPolicy = yield* sns
-        .getDataProtectionPolicy({ ResourceArn: topicArn })
-        .pipe(
-          Effect.map((r) => r.DataProtectionPolicy),
-          Effect.catchTag("NotFoundException", () => Effect.succeed(undefined)),
-        );
+      // Sync data protection policy — observed ↔ desired. SNS rejects
+      // getDataProtectionPolicy on FIFO topics, so we skip it there.
+      let observedPolicy: string | undefined;
+      if (!isFifo) {
+        observedPolicy = yield* sns
+          .getDataProtectionPolicy({ ResourceArn: topicArn })
+          .pipe(
+            Effect.map((r) => r.DataProtectionPolicy),
+            Effect.catchTag("NotFoundException", () =>
+              Effect.succeed(undefined),
+            ),
+            Effect.catchTag("InvalidParameterException", () =>
+              Effect.succeed(undefined),
+            ),
+          );
+      }
       if (
+        !isFifo &&
         news.dataProtectionPolicy !== undefined &&
         news.dataProtectionPolicy !== observedPolicy
       ) {
@@ -279,7 +283,7 @@ export const TopicProvider = () =>
       return {
         topicArn: topicArn as TopicArn,
         topicName,
-        fifo: news.fifo ?? false,
+        fifo: isFifo,
         attributes: desiredAttributes,
         dataProtectionPolicy: news.dataProtectionPolicy ?? observedPolicy,
         tags: desiredTags,
