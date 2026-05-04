@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.16.3](https://github.com/alchemy-run/distilled/releases/tag/v0.16.3) (2026-05-04)
+
+### Features
+
+- **core**: parse Retry-After / Ratelimit headers and honor them in retry policy - by sam in [#228](https://github.com/alchemy-run/distilled/pull/228) [(895697f)](https://github.com/alchemy-run/distilled/commit/895697f9c51e7247d2fa9afa28d741ea7e7f3375)
+
+### Bug Fixes
+
+- **cloudflare**: paginated list ops loop forever on page 1 - by sam in [#231](https://github.com/alchemy-run/distilled/pull/231) [(feedb11)](https://github.com/alchemy-run/distilled/commit/feedb112ed20243d0a9b7cb3f71ffb86ba439288)
+
 ## [v0.16.2](https://github.com/alchemy-run/distilled/releases/tag/v0.16.2) (2026-05-04)
 
 ### Bug Fixes
