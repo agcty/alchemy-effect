@@ -6,7 +6,12 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete API Gateway resource", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)(
+  "create and delete API Gateway resource",
+  (stack) =>
   Effect.gen(function* () {
     const { api, res } = yield* stack.deploy(
       Effect.gen(function* () {

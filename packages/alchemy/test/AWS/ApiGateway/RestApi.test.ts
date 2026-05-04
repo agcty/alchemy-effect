@@ -6,7 +6,10 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete REST API", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete REST API", (stack) =>
   Effect.gen(function* () {
     const api = yield* stack.deploy(
       Effect.gen(function* () {
@@ -26,7 +29,9 @@ test.provider("create and delete REST API", (stack) =>
   }),
 );
 
-test.provider("binary media types update applies via patch", (stack) =>
+test.provider.skipIf(!runLive)(
+  "binary media types update applies via patch",
+  (stack) =>
   Effect.gen(function* () {
     const api = yield* stack.deploy(
       Effect.gen(function* () {
@@ -57,7 +62,9 @@ test.provider("binary media types update applies via patch", (stack) =>
   }),
 );
 
-test.provider("binary media types removal applies via patch", (stack) =>
+test.provider.skipIf(!runLive)(
+  "binary media types removal applies via patch",
+  (stack) =>
   Effect.gen(function* () {
     const api = yield* stack.deploy(
       Effect.gen(function* () {

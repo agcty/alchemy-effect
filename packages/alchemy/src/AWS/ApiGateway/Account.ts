@@ -5,6 +5,7 @@ import type { Input } from "../../Input.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
+import { retryOnApiStatusUpdating } from "./common.ts";
 
 export interface AccountProps {
   /**
@@ -94,7 +95,9 @@ export const AccountProvider = () =>
             }
           }
           if (patches.length > 0) {
-            yield* ag.updateAccount({ patchOperations: patches });
+            yield* retryOnApiStatusUpdating(
+              ag.updateAccount({ patchOperations: patches }),
+            );
           }
           yield* session.note("Updated API Gateway account settings");
           const a = yield* ag.getAccount({});
@@ -111,17 +114,19 @@ export const AccountProvider = () =>
           let manages = output.managesCloudwatchRoleArn;
           if (news.cloudwatchRoleArn !== undefined) {
             manages = true;
-            yield* ag.updateAccount({
-              patchOperations: news.cloudwatchRoleArn
-                ? [
-                    {
-                      op: "replace",
-                      path: "/cloudwatchRoleArn",
-                      value: news.cloudwatchRoleArn,
-                    },
-                  ]
-                : [{ op: "remove", path: "/cloudwatchRoleArn" }],
-            });
+            yield* retryOnApiStatusUpdating(
+              ag.updateAccount({
+                patchOperations: news.cloudwatchRoleArn
+                  ? [
+                      {
+                        op: "replace",
+                        path: "/cloudwatchRoleArn",
+                        value: news.cloudwatchRoleArn,
+                      },
+                    ]
+                  : [{ op: "remove", path: "/cloudwatchRoleArn" }],
+              }),
+            );
           } else {
             manages = false;
           }
@@ -134,11 +139,17 @@ export const AccountProvider = () =>
         }),
         delete: Effect.fn(function* ({ output, session }) {
           if (output.managesCloudwatchRoleArn) {
-            yield* ag
-              .updateAccount({
-                patchOperations: [{ op: "remove", path: "/cloudwatchRoleArn" }],
-              })
-              .pipe(Effect.catchTag("BadRequestException", () => Effect.void));
+            yield* retryOnApiStatusUpdating(
+              ag
+                .updateAccount({
+                  patchOperations: [
+                    { op: "remove", path: "/cloudwatchRoleArn" },
+                  ],
+                })
+                .pipe(
+                  Effect.catchTag("BadRequestException", () => Effect.void),
+                ),
+            );
             yield* session.note("Cleared API Gateway account CloudWatch role");
           }
         }),

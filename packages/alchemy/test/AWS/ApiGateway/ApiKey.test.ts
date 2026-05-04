@@ -6,7 +6,10 @@ import * as Redacted from "effect/Redacted";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete API key", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete API key", (stack) =>
   Effect.gen(function* () {
     const key = yield* stack.deploy(
       Effect.gen(function* () {
@@ -23,7 +26,9 @@ test.provider("create and delete API key", (stack) =>
   }),
 );
 
-test.provider("custom API key value is not returned in outputs", (stack) =>
+test.provider.skipIf(!runLive)(
+  "custom API key value is not returned in outputs",
+  (stack) =>
   Effect.gen(function* () {
     const key = yield* stack.deploy(
       Effect.gen(function* () {

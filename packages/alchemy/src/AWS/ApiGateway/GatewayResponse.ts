@@ -5,6 +5,7 @@ import type { Input } from "../../Input.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
+import { retryOnApiStatusUpdating } from "./common.ts";
 
 export interface GatewayResponseProps {
   restApiId: Input<string>;
@@ -85,13 +86,15 @@ export const GatewayResponseProvider = () =>
             return yield* Effect.die("GatewayResponse props were not resolved");
           }
           const news = newsIn as Input.ResolveProps<GatewayResponseProps>;
-          yield* ag.putGatewayResponse({
-            restApiId: news.restApiId as string,
-            responseType: news.responseType,
-            statusCode: news.statusCode,
-            responseParameters: news.responseParameters,
-            responseTemplates: news.responseTemplates,
-          });
+          yield* retryOnApiStatusUpdating(
+            ag.putGatewayResponse({
+              restApiId: news.restApiId as string,
+              responseType: news.responseType,
+              statusCode: news.statusCode,
+              responseParameters: news.responseParameters,
+              responseTemplates: news.responseTemplates,
+            }),
+          );
           yield* session.note(
             `Put gateway response ${news.responseType} on ${news.restApiId}`,
           );
@@ -106,13 +109,15 @@ export const GatewayResponseProvider = () =>
             return yield* Effect.die("GatewayResponse props were not resolved");
           }
           const news = newsIn as Input.ResolveProps<GatewayResponseProps>;
-          yield* ag.putGatewayResponse({
-            restApiId: output.restApiId,
-            responseType: output.responseType,
-            statusCode: news.statusCode,
-            responseParameters: news.responseParameters,
-            responseTemplates: news.responseTemplates,
-          });
+          yield* retryOnApiStatusUpdating(
+            ag.putGatewayResponse({
+              restApiId: output.restApiId,
+              responseType: output.responseType,
+              statusCode: news.statusCode,
+              responseParameters: news.responseParameters,
+              responseTemplates: news.responseTemplates,
+            }),
+          );
           yield* session.note(
             `Updated gateway response ${output.responseType}`,
           );
@@ -123,12 +128,14 @@ export const GatewayResponseProvider = () =>
           };
         }),
         delete: Effect.fn(function* ({ output, session }) {
-          yield* ag
-            .deleteGatewayResponse({
-              restApiId: output.restApiId,
-              responseType: output.responseType,
-            })
-            .pipe(Effect.catchTag("NotFoundException", () => Effect.void));
+          yield* retryOnApiStatusUpdating(
+            ag
+              .deleteGatewayResponse({
+                restApiId: output.restApiId,
+                responseType: output.responseType,
+              })
+              .pipe(Effect.catchTag("NotFoundException", () => Effect.void)),
+          );
           yield* session.note(
             `Deleted gateway response ${output.responseType}`,
           );

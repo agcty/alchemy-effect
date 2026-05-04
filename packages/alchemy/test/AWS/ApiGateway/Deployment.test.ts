@@ -5,7 +5,10 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete deployment", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete deployment", (stack) =>
   Effect.gen(function* () {
     const { api, deployment } = yield* stack.deploy(
       Effect.gen(function* () {
@@ -32,7 +35,9 @@ test.provider("create and delete deployment", (stack) =>
   }),
 );
 
-test.provider("deployment trigger change creates new deployment", (stack) =>
+test.provider.skipIf(!runLive)(
+  "deployment trigger change creates new deployment",
+  (stack) =>
   Effect.gen(function* () {
     const { api, d1 } = yield* stack.deploy(
       Effect.gen(function* () {

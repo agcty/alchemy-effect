@@ -6,12 +6,14 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
 const targetArn = process.env.ALCHEMY_TEST_VPC_LINK_TARGET_ARN;
 
 /**
  * Requires a load balancer ARN accepted by API Gateway VPC links (set env when running live).
  */
-test.provider.skipIf(!targetArn)(
+test.provider.skipIf(!runLive || !targetArn)(
   "create, update description, delete VPC link",
   (stack) =>
     Effect.gen(function* () {

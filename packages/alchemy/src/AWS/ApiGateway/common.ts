@@ -31,24 +31,48 @@ const isApiStatusUpdatingError = (error: unknown): boolean => {
 };
 
 /**
- * Retry schedule for `apiStatus is UPDATING` races. Fixed 2s delay with
- * jitter, capped at 15 attempts (~30s total). API Gateway typically
- * settles within a few seconds after a prior mutation; an unbounded
- * exponential schedule would blow past Vitest's 120s timeout if the race
- * ever failed to resolve, so we use spaced + recurs for predictable
- * bounds.
+ * `Create/Update/DeleteRestApi` (and a few sibling operations) are governed
+ * by a hard account-wide quota of one request every 30 seconds. The
+ * blanket SDK retry policy caps at 5 attempts with sub-second backoff, so
+ * tests and parallel deploys see `TooManyRequestsException` bubble out as
+ * the SDK gives up well inside the throttle window.
  */
-const apiStatusUpdatingSchedule = pipe(
-  Schedule.spaced(Duration.seconds(2)),
-  Schedule.both(Schedule.recurs(15)),
+const isThrottlingError = (error: unknown): boolean =>
+  typeof error === "object" &&
+  error !== null &&
+  (error as { _tag?: string })._tag === "TooManyRequestsException";
+
+/**
+ * Schedule covering both fast (`apiStatus is UPDATING`) and slow
+ * (throttle) recoverable conditions. Exponential 2s base capped at 35s,
+ * with up to 12 attempts (~5 minutes total). The fast cases settle in the
+ * first few iterations; throttle waits ride the cap until a token is
+ * available.
+ */
+const apiGatewayMutationSchedule = pipe(
+  Schedule.exponential(Duration.seconds(2), 2),
+  Schedule.modifyDelay((d: Duration.Duration) =>
+    Effect.succeed(
+      Duration.isGreaterThan(d, Duration.seconds(35))
+        ? Duration.seconds(35)
+        : d,
+    ),
+  ),
+  Schedule.both(Schedule.recurs(12)),
   Schedule.addDelay(() =>
-    Effect.succeed(Duration.millis(Math.random() * 500)),
+    Effect.succeed(Duration.millis(Math.random() * 1000)),
   ),
 );
 
 /**
- * Wraps an API Gateway mutation so that 4xx responses indicating the
- * target RestApi is mid-update are retried with backoff. Drop-in usage:
+ * Wraps an API Gateway mutation so that recoverable 4xx responses are
+ * retried with backoff:
+ *
+ * - `BadRequestException` with `apiStatus is UPDATING` or
+ *   `already an update in progress` (transient, clears in seconds)
+ * - `TooManyRequestsException` (account-wide throttle, ~30s window)
+ *
+ * Drop-in usage:
  *
  * ```ts
  * yield* retryOnApiStatusUpdating(
@@ -60,8 +84,9 @@ export const retryOnApiStatusUpdating = <A, E, R>(
   effect: Effect.Effect<A, E, R>,
 ): Effect.Effect<A, E, R> =>
   Effect.retry(effect, {
-    schedule: apiStatusUpdatingSchedule,
-    while: isApiStatusUpdatingError,
+    schedule: apiGatewayMutationSchedule,
+    while: (error: unknown) =>
+      isApiStatusUpdatingError(error) || isThrottlingError(error),
   }) as Effect.Effect<A, E, R>;
 
 export const restApiArn = (region: string, restApiId: string) =>

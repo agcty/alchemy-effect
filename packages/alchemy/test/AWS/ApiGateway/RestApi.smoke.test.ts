@@ -3,6 +3,7 @@ import { AWSEnvironment } from "@/AWS/Environment";
 import * as Output from "@/Output";
 import * as Test from "@/Test/Vitest";
 import { expect } from "@effect/vitest";
+import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -10,7 +11,10 @@ import { TestFunction, TestFunctionLive } from "../Lambda/handler.ts";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider(
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)(
   "REST API proxies to Lambda (primitives)",
   (stack) =>
     Effect.gen(function* () {
@@ -100,8 +104,18 @@ test.provider(
             : Effect.fail(new Error(`invoke URL returned ${response.status}`)),
         ),
         Effect.retry({
+          // Stage propagation + Lambda permission can take 30–90s after the
+          // last create. Cap exponential at 10s so we keep polling at a
+          // steady cadence instead of doubling out to multi-minute waits.
           schedule: Schedule.exponential(500).pipe(
-            Schedule.both(Schedule.recurs(10)),
+            Schedule.modifyDelay((d: Duration.Duration) =>
+              Effect.succeed(
+                Duration.isGreaterThan(d, Duration.seconds(10))
+                  ? Duration.seconds(10)
+                  : d,
+              ),
+            ),
+            Schedule.both(Schedule.recurs(20)),
           ),
         }),
       );
@@ -111,5 +125,5 @@ test.provider(
 
       yield* stack.destroy();
     }),
-  { timeout: 300_000 },
+  { timeout: 600_000 },
 );

@@ -6,7 +6,10 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete usage plan", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete usage plan", (stack) =>
   Effect.gen(function* () {
     const plan = yield* stack.deploy(
       Effect.gen(function* () {
@@ -22,7 +25,9 @@ test.provider("create and delete usage plan", (stack) =>
   }),
 );
 
-test.provider("usage plan throttle updates in place", (stack) =>
+test.provider.skipIf(!runLive)(
+  "usage plan throttle updates in place",
+  (stack) =>
   Effect.gen(function* () {
     const plan = yield* stack.deploy(
       Effect.gen(function* () {

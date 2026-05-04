@@ -6,7 +6,10 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete gateway response", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete gateway response", (stack) =>
   Effect.gen(function* () {
     const { api } = yield* stack.deploy(
       Effect.gen(function* () {
@@ -34,7 +37,9 @@ test.provider("create and delete gateway response", (stack) =>
   }),
 );
 
-test.provider("update gateway response status and templates", (stack) =>
+test.provider.skipIf(!runLive)(
+  "update gateway response status and templates",
+  (stack) =>
   Effect.gen(function* () {
     const { api } = yield* stack.deploy(
       Effect.gen(function* () {

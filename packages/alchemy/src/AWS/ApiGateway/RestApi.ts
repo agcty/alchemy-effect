@@ -356,21 +356,23 @@ export const RestApiProvider = () =>
           const name = yield* generatedName(id, news);
           const internalTags = yield* createInternalTags(id);
           const allTags = { ...(news.tags ?? {}), ...internalTags };
-          const created = yield* ag.createRestApi({
-            name,
-            description: news.description,
-            version: news.version,
-            cloneFrom: news.cloneFrom,
-            binaryMediaTypes: news.binaryMediaTypes,
-            minimumCompressionSize: news.minimumCompressionSize,
-            apiKeySource: news.apiKeySource,
-            endpointConfiguration: news.endpointConfiguration,
-            policy: news.policy,
-            tags: allTags,
-            disableExecuteApiEndpoint: news.disableExecuteApiEndpoint,
-            securityPolicy: news.securityPolicy,
-            endpointAccessMode: news.endpointAccessMode,
-          });
+          const created = yield* retryOnApiStatusUpdating(
+            ag.createRestApi({
+              name,
+              description: news.description,
+              version: news.version,
+              cloneFrom: news.cloneFrom,
+              binaryMediaTypes: news.binaryMediaTypes,
+              minimumCompressionSize: news.minimumCompressionSize,
+              apiKeySource: news.apiKeySource,
+              endpointConfiguration: news.endpointConfiguration,
+              policy: news.policy,
+              tags: allTags,
+              disableExecuteApiEndpoint: news.disableExecuteApiEndpoint,
+              securityPolicy: news.securityPolicy,
+              endpointAccessMode: news.endpointAccessMode,
+            }),
+          );
           if (!created.id || !created.rootResourceId) {
             return yield* Effect.die(
               "createRestApi missing id or rootResourceId",

@@ -23,7 +23,11 @@ export AWS_RETRY_MODE=${AWS_RETRY_MODE:-standard}
 
 FILTER_QUERY="${FILTER_QUERY:-items[?contains(name, \`Ag\`)].id}"
 
-sleep_between_apis_seconds="${SLEEP_BETWEEN_APIS_SECONDS:-2}"
+# AWS DeleteRestApi has a hard 30s/account throttle. Match it on the inner
+# retry so we don't burn tokens with sub-30s backoff.
+sleep_between_apis_seconds="${SLEEP_BETWEEN_APIS_SECONDS:-32}"
+initial_retry_seconds="${INITIAL_RETRY_SECONDS:-32}"
+max_retry_seconds="${MAX_RETRY_SECONDS:-120}"
 
 ts() {
   date -u +"%Y-%m-%dT%H:%M:%SZ"
@@ -49,10 +53,9 @@ delete_one_until_ok() {
       return 0
     fi
 
-    local wait_sec
-    wait_sec=$((1 + attempt / 10))
-    if ((wait_sec > 120)); then
-      wait_sec=120
+    local wait_sec=$initial_retry_seconds
+    if ((wait_sec > max_retry_seconds)); then
+      wait_sec=$max_retry_seconds
     fi
 
     printf '%s delete %s failed; retry in %ds | %s\n' \

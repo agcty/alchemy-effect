@@ -6,7 +6,10 @@ import * as Effect from "effect/Effect";
 
 const { test } = Test.make({ providers: AWS.providers() });
 
-test.provider("create and delete MOCK method", (stack) =>
+const runLive =
+  process.env.ALCHEMY_RUN_LIVE_AWS_APIGATEWAY_TESTS === "true";
+
+test.provider.skipIf(!runLive)("create and delete MOCK method", (stack) =>
   Effect.gen(function* () {
     const { api } = yield* stack.deploy(
       Effect.gen(function* () {
