@@ -1522,9 +1522,6 @@ ${[
                   },
                 },
               },
-              builder: {
-                sharedConfigBuild: true,
-              },
               plugins: [
                 cloudflareVite({
                   compatibilityDate,
