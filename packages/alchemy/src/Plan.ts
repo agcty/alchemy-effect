@@ -20,6 +20,7 @@ import {
 import {
   diffBindings,
   havePropsChanged,
+  isResolved,
   type NoopDiff,
   type UpdateDiff,
 } from "./Diff.ts";
@@ -463,13 +464,25 @@ export const make = <A>(
             //                                      update overwrite tags / etc.
             //   - unowned + adopt disabled       → fail with
             //                                      `OwnedBySomeoneElse`.
-            // When `read` returns an `Unowned`-branded result, a takeover is
-            // happening: the engine will run the resource's normal `update`
-            // path so the provider rewrites ownership tags / etc. with our
-            // logical id. For owned (plain) attrs, adoption is silent and
-            // the resource stays a noop.
-            let forceUpdateAfterTakeover = false;
-            if (oldState === undefined && provider.read) {
+            // After a cold-start adoption (engine just discovered an
+            // existing cloud resource via `read`), force the engine's
+            // normal `update` path so the provider can re-sync ownership
+            // tags, configuration, etc. against the desired props.
+            // Adoption persists state with `props: news`, so the default
+            // diff sees no drift and would noop — which would leave any
+            // foreign-owned tags / divergent config in place. Forcing
+            // update keeps the deploy idempotent: if cloud state already
+            // matches news, the provider's update is a no-op write.
+            //
+            // Skip the adoption probe entirely when `news` still contains
+            // unresolved upstream Outputs (e.g. a `streamArn` referencing
+            // a stream being created in the same plan). Calling `read` with
+            // an unresolved value would surface as `ParseError` from the
+            // SDK protocol layer. Resources whose props depend on
+            // not-yet-created upstreams cannot themselves be pre-existing
+            // — there's nothing to adopt.
+            let forceUpdateAfterAdoption = false;
+            if (oldState === undefined && provider.read && isResolved(news)) {
               const adoptInstanceId = yield* generateInstanceId();
               const readResult = yield* provider
                 .read({
@@ -513,7 +526,7 @@ export const make = <A>(
                   value: adoptedState,
                 });
                 oldState = adoptedState;
-                forceUpdateAfterTakeover = isUnowned;
+                forceUpdateAfterAdoption = true;
               }
             }
 
@@ -605,12 +618,14 @@ export const make = <A>(
                     } satisfies UpdateDiff)
                   : diff,
               ),
-              // After taking over an `Unowned` resource, force at least an
-              // update so the provider rewrites ownership tags / config to
-              // reflect the new logical id (otherwise the takeover would
-              // noop and the resource would still appear foreign-owned).
+              // After a cold-start adoption (silent or takeover), force at
+              // least an update so the provider re-syncs ownership tags /
+              // config against the desired props (otherwise the engine
+              // would noop and any drift between the existing cloud
+              // resource and `news` — including foreign-owned tags after a
+              // takeover — would persist).
               Effect.map((diff) =>
-                forceUpdateAfterTakeover && diff.action === "noop"
+                forceUpdateAfterAdoption && diff.action === "noop"
                   ? ({ action: "update" } satisfies UpdateDiff)
                   : diff,
               ),

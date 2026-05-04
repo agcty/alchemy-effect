@@ -1,3 +1,4 @@
+import { Retry } from "@distilled.cloud/cloudflare";
 import * as Layer from "effect/Layer";
 import { Command } from "../Build/Command.ts";
 import * as Build from "../Build/index.ts";
@@ -99,5 +100,13 @@ export const providers = () =>
     Layer.provideMerge(CloudflareEnvironment.fromProfile()),
     Layer.provideMerge(CloudflareAuth),
     Layer.provideMerge(Access.AccessLive),
+    // Apply a blanket retry policy to every Cloudflare API call issued by
+    // any resource provider. `Retry.makeDefault` (from
+    // @distilled.cloud/cloudflare 0.16.x) retries transient errors
+    // (throttling, 5xx, network) with exponential backoff, jitter,
+    // `Retry-After` header awareness, and a cap of 5 attempts. Without
+    // this, brief transient-auth/throttling blips during a deploy surface
+    // as test failures and resource leaks.
+    Layer.provideMerge(Layer.succeed(Retry.Retry, Retry.makeDefault)),
     Layer.orDie,
   );

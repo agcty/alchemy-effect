@@ -339,6 +339,24 @@ export const BucketProvider = () =>
         };
       });
 
+      const fetchBucketTags = (
+        bucketName: string,
+      ): Effect.Effect<Record<string, string>, never, any> =>
+        s3
+          .getBucketTagging({ Bucket: bucketName })
+          .pipe(
+            Effect.map(
+              (r) =>
+                Object.fromEntries(
+                  (r.TagSet ?? []).map((t) => [t.Key!, t.Value!]),
+                ) as Record<string, string>,
+            ),
+            Effect.catchTag("NoSuchTagSet", () =>
+              Effect.succeed({} as Record<string, string>),
+            ),
+            Effect.catch(() => Effect.succeed({} as Record<string, string>)),
+          );
+
       const syncBucketTags = Effect.fnUntraced(function* ({
         bucketName,
         oldTags,
@@ -352,7 +370,10 @@ export const BucketProvider = () =>
         session: ScopedPlanStatusSession;
         operation: "create" | "update";
       }) {
-        const previousTags = oldTags ?? {};
+        // Compare against the cloud's actual tags so drift surfaces
+        // correctly even after a cold-start adoption (where olds.tags
+        // equals news.tags and would otherwise look like a no-op).
+        const previousTags = oldTags ?? (yield* fetchBucketTags(bucketName));
         const desiredTags = newTags ?? {};
         const { removed, upsert } = diffTags(previousTags, desiredTags);
         const canSkip = oldTags !== undefined;
@@ -540,7 +561,9 @@ export const BucketProvider = () =>
         }) {
           yield* syncBucketTags({
             bucketName: output.bucketName,
-            oldTags: olds.tags,
+            // Omit `oldTags` so syncBucketTags fetches the cloud's actual
+            // current tags. This makes drift detection correct even after
+            // a cold-start adoption where olds.tags would equal news.tags.
             newTags: news.tags,
             session,
             operation: "update",

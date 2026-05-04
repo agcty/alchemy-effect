@@ -2452,7 +2452,7 @@ describe("engine-level adoption", () => {
     }) as Effect.Effect<Plan.Plan<A>, any, State>;
 
   test(
-    "owned read result is silently adopted (no AdoptPolicy needed)",
+    "owned read result is silently adopted (no AdoptPolicy needed) and forced to update",
     Effect.gen(function* () {
       const plan = yield* makeAdoptPlan(
         Effect.gen(function* () {
@@ -2461,7 +2461,11 @@ describe("engine-level adoption", () => {
         { readHook: () => Effect.succeed(ownedAttrs) },
       );
 
-      expect(plan.resources.Adopted!.action).toBe("noop");
+      // Cold-start adoption forces an update so the provider can re-sync
+      // tags / config against `news` — even when read returns plain
+      // (owned) attrs, the cloud resource may carry drift the engine
+      // can't detect from `props` alone.
+      expect(plan.resources.Adopted!.action).toBe("update");
 
       const state = yield* State;
       const persisted = yield* state.get({
@@ -2475,7 +2479,7 @@ describe("engine-level adoption", () => {
   );
 
   test(
-    "Unowned read result + adopt enabled -> takeover (silent adoption)",
+    "Unowned read result + adopt enabled -> takeover forces an update",
     Effect.gen(function* () {
       const plan = yield* makeAdoptPlan(
         Effect.gen(function* () {
@@ -2487,7 +2491,11 @@ describe("engine-level adoption", () => {
         },
       );
 
-      expect(plan.resources.Adopted!.action).toBe("noop");
+      // Takeover of an Unowned resource forces `update` so the provider's
+      // update path can rewrite ownership tags / config to match this
+      // logical id (a plain noop would leave the resource looking
+      // foreign-owned to subsequent deploys).
+      expect(plan.resources.Adopted!.action).toBe("update");
 
       const state = yield* State;
       const persisted = yield* state.get({
