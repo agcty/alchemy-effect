@@ -15,6 +15,7 @@ import {
   type OperationMethod,
   type PaginatedOperationMethod,
 } from "@distilled.cloud/core/client";
+import { retryableKey } from "@distilled.cloud/core/category";
 import {
   paginateCursor,
   paginateSingle,
@@ -44,6 +45,19 @@ import { type ErrorMatcher, getErrorMatchers } from "../traits.ts";
 // ============================================================================
 
 /**
+ * Tag an error instance as retryable. Cloudflare reuses code 10001 for
+ * both a permanent permission failure ("Method not allowed for token")
+ * and a transient internal hiccup ("internal error"). Marking the
+ * specific instance — not the whole class — keeps legitimate
+ * permission failures non-retryable while letting the blanket retry
+ * policy ride out the transient case.
+ */
+const tagRetryable = <E>(error: E): E => {
+  (error as Record<string, unknown>)[retryableKey] = {};
+  return error;
+};
+
+/**
  * Cloudflare error codes that map to global/default errors regardless of operation.
  * These are infrastructure-level errors that can occur on any endpoint.
  */
@@ -70,10 +84,23 @@ const GLOBAL_ERROR_CODE_MAP: Record<
   9106: (message) => new Unauthorized({ message }),
   // 9109: Unauthorized to access requested resource / Max auth failures reached
   9109: (message) => new Unauthorized({ message }),
-  // 10000: Authentication error / Authentication failed
+  // 10000: Authentication error / Authentication failed.
+  // Deliberately NOT tagged retryable: Cloudflare uses the same message
+  // for both transient auth-edge blips and a genuinely invalid token,
+  // so there is no message we can match on to discriminate. Auto-retrying
+  // would silently loop on real auth failures, making them slower to
+  // surface without fixing anything. If callers want to retry these
+  // anyway, they can override the retry predicate.
   10000: (message) => new Unauthorized({ message }),
-  // 10001: Method not allowed for token (authorization, not authentication)
-  10001: (message) => new Forbidden({ message }),
+  // 10001: dual-use code. The permanent-failure variant has message
+  // "Method not allowed for token" (legitimate permission denial); the
+  // transient variant has message "internal error" (CF infrastructure
+  // hiccup mistagged as 403). Those two messages are unambiguously
+  // distinct, so we can safely tag only the transient variant retryable.
+  10001: (message) => {
+    const error = new Forbidden({ message });
+    return /internal error/i.test(message) ? tagRetryable(error) : error;
+  },
 };
 
 /**
