@@ -7,8 +7,10 @@ export {
 } from "./BasePathMapping.ts";
 export {
   Deployment,
+  DeploymentResource,
   DeploymentProvider,
   type DeploymentProps,
+  type DeploymentType,
 } from "./Deployment.ts";
 export {
   DomainName,
@@ -22,18 +24,31 @@ export {
 } from "./GatewayResponse.ts";
 export {
   Resource,
+  GatewayResource,
   ResourceProvider,
   type ApiGatewayResource,
   type ApiGatewayResourceProps,
 } from "./GatewayResource.ts";
 export {
   Method,
+  MethodResource,
   MethodProvider,
   type MethodIntegrationProps,
   type MethodProps,
+  type MethodType,
 } from "./Method.ts";
-export { RestApi, RestApiProvider, type RestApiProps } from "./RestApi.ts";
-export { Stage, StageProvider, type StageProps } from "./Stage.ts";
+export {
+  RestApi,
+  RestApiProvider,
+  type RestApiProps,
+  type RestApiBinding,
+} from "./RestApi.ts";
+export {
+  Stage,
+  StageResource,
+  StageProvider,
+  type StageProps,
+} from "./Stage.ts";
 export {
   UsagePlan,
   UsagePlanProvider,

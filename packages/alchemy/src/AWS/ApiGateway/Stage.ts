@@ -8,11 +8,25 @@ import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
 import { createInternalTags } from "../../Tags.ts";
 
-import { stageArn, syncTags } from "./common.ts";
+import type { RestApi } from "./RestApi.ts";
+import { retryOnApiStatusUpdating, stageArn, syncTags } from "./common.ts";
 
 export interface StageProps {
-  restApiId: Input<string>;
+  /**
+   * The `RestApi` this stage belongs to. When supplied, `restApiId` is
+   * derived from `restApi.restApiId` automatically.
+   */
+  restApi?: RestApi;
+  /**
+   * ID of the REST API. Usually derived from `restApi.restApiId`.
+   */
+  restApiId?: Input<string>;
   stageName: string;
+  /**
+   * The `deploymentId` this stage points at. Pass `deployment.deploymentId`
+   * — Alchemy will automatically wait for the deployment to be created
+   * before creating the stage.
+   */
   deploymentId: Input<string>;
   description?: string;
   cacheClusterEnabled?: boolean;
@@ -56,19 +70,92 @@ export interface ApiGatewayStage extends Resource<
 /**
  * A stage for a REST API deployment.
  *
+ * A Stage is what clients actually call. It binds a name (`dev`, `prod`,
+ * `v2`) to a specific `Deployment` of a `RestApi` and exposes it at a
+ * stable URL:
+ *
+ * ```
+ * https://<restApiId>.execute-api.<region>.amazonaws.com/<stageName>/
+ * ```
+ *
  * @section Stages
- * @example Dev stage
+ * @example A dev stage pointing at the latest deployment
  * ```typescript
  * const stage = yield* ApiGateway.Stage("Dev", {
- *   restApiId: api.restApiId,
+ *   restApi: api,
  *   stageName: "dev",
  *   deploymentId: deployment.deploymentId,
  * });
  * ```
+ *
+ * @section Stage variables
+ * @example Override values per stage
+ * ```typescript
+ * const stage = yield* ApiGateway.Stage("Prod", {
+ *   restApi: api,
+ *   stageName: "prod",
+ *   deploymentId: deployment.deploymentId,
+ *   variables: {
+ *     logLevel: "info",
+ *     featureFlag: "on",
+ *   },
+ * });
+ * ```
+ *
+ * @section Canary deployments
+ * Point `canarySettings` at a different `Deployment` to split traffic
+ * between the stable and canary versions. `percentTraffic` is the
+ * percent of requests routed to the canary deployment.
+ *
+ * @example Shift 10% of traffic to a canary deployment
+ * ```typescript
+ * const stage = yield* ApiGateway.Stage("Prod", {
+ *   restApi: api,
+ *   stageName: "prod",
+ *   deploymentId: stableDeployment.deploymentId,
+ *   canarySettings: {
+ *     percentTraffic: 10,
+ *     deploymentId: canaryDeployment.deploymentId,
+ *   },
+ * });
+ * ```
  */
-const StageResource = Resource<ApiGatewayStage>("AWS.ApiGateway.Stage");
+export const StageResource = Resource<ApiGatewayStage>("AWS.ApiGateway.Stage");
 
-export { StageResource as Stage };
+interface StageInputProps {
+  restApi?: RestApi;
+  restApiId?: Input<string>;
+  stageName: Input<string>;
+  deploymentId: Input<string>;
+  description?: Input<string>;
+  cacheClusterEnabled?: Input<boolean>;
+  cacheClusterSize?: Input<ag.CacheClusterSize>;
+  variables?: Input<{ [key: string]: string | undefined }>;
+  documentationVersion?: Input<string>;
+  canarySettings?: Input<ag.CanarySettings>;
+  tracingEnabled?: Input<boolean>;
+  methodSettings?: Input<{ [key: string]: ag.MethodSetting | undefined }>;
+  accessLogSettings?: Input<ag.AccessLogSettings>;
+  webAclArn?: Input<string>;
+  tags?: Input<Record<string, string>>;
+}
+
+/**
+ * User-facing wrapper that derives `restApiId` from `restApi` when supplied.
+ */
+const StageImpl = (id: string, props: StageInputProps) =>
+  Effect.gen(function* () {
+    const { restApi, ...rest } = props;
+    const restApiId = rest.restApiId ?? restApi?.restApiId;
+    if (!restApiId) {
+      return yield* Effect.die(
+        "Stage requires either `restApi` (preferred) or explicit `restApiId`.",
+      );
+    }
+    return yield* StageResource(id, { ...rest, restApiId } as any);
+  });
+
+export const Stage = StageImpl;
 
 const toTagRecord = (tags: ag.Stage["tags"]) =>
   Object.fromEntries(
@@ -108,24 +195,78 @@ const parseMethodSettingKey = (key: string) => {
   };
 };
 
+/**
+ * API Gateway `updateStage` rejects patch paths that use the raw schema
+ * field name (e.g. `/*\/*\/throttlingBurstLimit`). Each field maps to a
+ * slashed path under a category (`throttling`, `caching`, `metrics`,
+ * `logging`). The accepted forms are documented at:
+ * https://docs.aws.amazon.com/apigateway/latest/api/API_UpdateStage.html
+ */
+const methodSettingFieldToPath: Record<keyof ag.MethodSetting, string> = {
+  metricsEnabled: "metrics/enabled",
+  loggingLevel: "logging/loglevel",
+  dataTraceEnabled: "logging/dataTrace",
+  throttlingBurstLimit: "throttling/burstLimit",
+  throttlingRateLimit: "throttling/rateLimit",
+  cachingEnabled: "caching/enabled",
+  cacheTtlInSeconds: "caching/ttlInSeconds",
+  cacheDataEncrypted: "caching/dataEncrypted",
+  requireAuthorizationForCacheControl:
+    "caching/requireAuthorizationForCacheControl",
+  unauthorizedCacheControlHeaderStrategy:
+    "caching/unauthorizedCacheControlHeaderStrategy",
+};
+
 function methodSettingScalarPatch(
   base: string,
   field: keyof ag.MethodSetting,
   prev: ag.MethodSetting | undefined,
   next: ag.MethodSetting | undefined,
 ): ag.PatchOperation | undefined {
-  if (prev?.[field] === next?.[field]) return undefined;
-  const v = next?.[field];
-  if (v === undefined) {
-    return { op: "remove", path: `${base}/${field}` };
+  const pv = prev?.[field];
+  const nv = next?.[field];
+  if (pv === nv) return undefined;
+  const segment = methodSettingFieldToPath[field];
+  if (nv === undefined) {
+    // Only emit `remove` if the field was actually set upstream; AWS
+    // rejects removes against fields that have no existing setting with
+    // `Cannot remove method setting ... because there is no method setting
+    // for this method`.
+    if (pv === undefined) return undefined;
+    return { op: "remove", path: `${base}/${segment}` };
   }
   return {
     op: "replace",
-    path: `${base}/${field}`,
-    value: typeof v === "boolean" ? String(v) : String(v),
+    path: `${base}/${segment}`,
+    value: typeof nv === "boolean" ? String(nv) : String(nv),
   };
 }
 
+/**
+ * AWS API Gateway's `getStage` response populates `methodSettings` with
+ * every field defaulted (e.g. `metricsEnabled: false`, `loggingLevel: "OFF"`),
+ * even when the user only set one field like `throttlingBurstLimit`. This
+ * makes round-tripping tricky: we cannot tell which fields the user
+ * actually set versus which AWS defaulted. If we naively diff the full
+ * object and emit a `remove` op for every field that's missing from the
+ * user's next spec, AWS rejects with "Cannot remove method setting ...
+ * because there is no method setting for this method".
+ *
+ * The pragmatic policy is additive: for each `(resourcePath, httpMethod)`
+ * key that appears in the user's `next` spec, emit `replace` ops only
+ * for fields the user explicitly set (own-property on `next[key]`).
+ * Fields the user never specified are left alone, matching the
+ * "fields default to whatever AWS chose" semantic the API itself uses.
+ *
+ * To *clear* a field, the user can explicitly set it to `undefined` on
+ * `next[key]`; that path still produces a `remove` op, and `remove`s are
+ * only emitted when `prev[key][field]` was actually set (see
+ * `methodSettingScalarPatch`).
+ *
+ * To drop a whole `(resourcePath, httpMethod)` key, we walk the fields
+ * present on `prev[key]` and emit `remove`s for each — but again only
+ * if that field was actually set upstream.
+ */
 const buildMethodSettingPatches = (
   prev: { [key: string]: ag.MethodSetting | undefined } | undefined,
   next: { [key: string]: ag.MethodSetting | undefined } | undefined,
@@ -135,18 +276,6 @@ const buildMethodSettingPatches = (
     ...Object.keys(next ?? {}),
   ]);
   const patches: ag.PatchOperation[] = [];
-  const fields: (keyof ag.MethodSetting)[] = [
-    "metricsEnabled",
-    "loggingLevel",
-    "dataTraceEnabled",
-    "throttlingBurstLimit",
-    "throttlingRateLimit",
-    "cachingEnabled",
-    "cacheTtlInSeconds",
-    "cacheDataEncrypted",
-    "requireAuthorizationForCacheControl",
-    "unauthorizedCacheControlHeaderStrategy",
-  ];
   for (const key of keys) {
     const p = prev?.[key];
     const n = next?.[key];
@@ -156,14 +285,20 @@ const buildMethodSettingPatches = (
     const hm = encodeJsonPointerSegment(httpMethod);
     const base = `/${rp}/${hm}`;
     if (!n) {
-      for (const f of fields) {
+      // Key removed entirely: try to clear each field that was explicitly
+      // set on the prior spec. `methodSettingScalarPatch` will drop the
+      // remove if the field wasn't actually present on `p`.
+      for (const f of Object.keys(p ?? {}) as (keyof ag.MethodSetting)[]) {
         const op = methodSettingScalarPatch(base, f, p, undefined);
         if (op) patches.push(op);
       }
       continue;
     }
     if (p && deepEqual(p, n)) continue;
-    for (const f of fields) {
+    // Iterate only the fields the user actually specified on `n`. This
+    // intentionally ignores AWS-default fields that leaked into `p` via
+    // `getStage`, so we never emit phantom `remove` ops for defaults.
+    for (const f of Object.keys(n) as (keyof ag.MethodSetting)[]) {
       const op = methodSettingScalarPatch(base, f, p, n);
       if (op) patches.push(op);
     }
@@ -429,19 +564,21 @@ export const StageProvider = () =>
           const internalTags = yield* createInternalTags(id);
           const allTags = { ...news.tags, ...internalTags };
 
-          yield* ag.createStage({
-            restApiId: news.restApiId as string,
-            stageName: news.stageName,
-            deploymentId: news.deploymentId as string,
-            description: news.description,
-            cacheClusterEnabled: news.cacheClusterEnabled,
-            cacheClusterSize: news.cacheClusterSize,
-            variables: news.variables,
-            documentationVersion: news.documentationVersion,
-            canarySettings: news.canarySettings,
-            tracingEnabled: news.tracingEnabled,
-            tags: allTags,
-          });
+          yield* retryOnApiStatusUpdating(
+            ag.createStage({
+              restApiId: news.restApiId as string,
+              stageName: news.stageName,
+              deploymentId: news.deploymentId as string,
+              description: news.description,
+              cacheClusterEnabled: news.cacheClusterEnabled,
+              cacheClusterSize: news.cacheClusterSize,
+              variables: news.variables,
+              documentationVersion: news.documentationVersion,
+              canarySettings: news.canarySettings,
+              tracingEnabled: news.tracingEnabled,
+              tags: allTags,
+            }),
+          );
 
           const s0 = yield* ag.getStage({
             restApiId: news.restApiId as string,
@@ -454,11 +591,13 @@ export const StageProvider = () =>
           );
           const patches = buildStagePatches(prev, news);
           if (patches.length > 0) {
-            yield* ag.updateStage({
-              restApiId: news.restApiId as string,
-              stageName: news.stageName,
-              patchOperations: patches,
-            });
+            yield* retryOnApiStatusUpdating(
+              ag.updateStage({
+                restApiId: news.restApiId as string,
+                stageName: news.stageName,
+                patchOperations: patches,
+              }),
+            );
           }
 
           yield* session.note(`Created stage ${news.stageName}`);
@@ -475,11 +614,13 @@ export const StageProvider = () =>
           const news = newsIn as Input.ResolveProps<StageProps>;
           const patches = buildStagePatches(output, news);
           if (patches.length > 0) {
-            yield* ag.updateStage({
-              restApiId: output.restApiId,
-              stageName: output.stageName,
-              patchOperations: patches,
-            });
+            yield* retryOnApiStatusUpdating(
+              ag.updateStage({
+                restApiId: output.restApiId,
+                stageName: output.stageName,
+                patchOperations: patches,
+              }),
+            );
           }
 
           const internalTags = yield* createInternalTags(id);
@@ -501,12 +642,14 @@ export const StageProvider = () =>
           return snapshotStage(s, output.restApiId, output.stageName);
         }),
         delete: Effect.fn(function* ({ output, session }) {
-          yield* ag
-            .deleteStage({
-              restApiId: output.restApiId,
-              stageName: output.stageName,
-            })
-            .pipe(Effect.catchTag("NotFoundException", () => Effect.void));
+          yield* retryOnApiStatusUpdating(
+            ag
+              .deleteStage({
+                restApiId: output.restApiId,
+                stageName: output.stageName,
+              })
+              .pipe(Effect.catchTag("NotFoundException", () => Effect.void)),
+          );
           yield* session.note(`Deleted stage ${output.stageName}`);
         }),
       };

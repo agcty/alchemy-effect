@@ -5,6 +5,7 @@ import type { Input } from "../../Input.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
+import type { RestApi } from "./RestApi.ts";
 
 /**
  * Integration configuration for an API Gateway method (passed to `putIntegration`).
@@ -34,8 +35,31 @@ export interface MethodIntegrationProps {
 }
 
 export interface MethodProps {
-  restApiId: Input<string>;
-  resourceId: Input<string>;
+  /**
+   * The `RestApi` this method lives on. When supplied, the method auto-binds
+   * itself to the API so that any `Deployment` of this API waits for the
+   * method to be created before snapshotting.
+   *
+   * When `restApi` is provided, `resourceId` defaults to `restApi.rootResourceId`,
+   * which is the common case for methods on the API root (`/`). Pass an
+   * explicit `resourceId` when targeting a sub-path defined by
+   * `ApiGateway.Resource`.
+   *
+   * Passing a raw `restApiId` instead is still supported but opts out of
+   * automatic deployment ordering — you must then manage `Deployment.triggers`
+   * yourself.
+   */
+  restApi?: RestApi;
+  /**
+   * ID of the REST API. Usually derived from `restApi.restApiId`; supply
+   * explicitly only when not using `restApi`.
+   */
+  restApiId?: Input<string>;
+  /**
+   * ID of the API Gateway Resource this method attaches to. Defaults to
+   * `restApi.rootResourceId` when `restApi` is provided.
+   */
+  resourceId?: Input<string>;
   /** HTTP verb, e.g. `GET`, `POST`, `ANY`. */
   httpMethod: string;
   /**
@@ -54,7 +78,7 @@ export interface MethodProps {
   integration?: MethodIntegrationProps;
 }
 
-export interface Method extends Resource<
+export interface MethodType extends Resource<
   "AWS.ApiGateway.Method",
   MethodProps,
   {
@@ -76,14 +100,47 @@ export interface Method extends Resource<
 > {}
 
 /**
- * HTTP method on an API Gateway resource, optionally with Lambda/proxy integration.
+ * An HTTP method on an API Gateway Resource.
  *
- * @section Lambda proxy
- * @example ANY method with AWS_PROXY
+ * A `Method` is a single HTTP verb (`GET`, `POST`, `ANY`, …) attached to a
+ * REST API resource path. Most methods also carry an `integration` — the
+ * downstream target that actually handles the request (a Lambda function,
+ * an HTTP endpoint, a mock response, etc.).
+ *
+ * @section Binding to a RestApi
+ * Pass the `RestApi` value on `restApi`. This threads the API id through
+ * and registers the method as a `RestApiBinding` on the API, so that any
+ * `Deployment` of the same API is automatically ordered after this method
+ * completes. You do not need to manage `Deployment.triggers` yourself.
+ *
+ * @example GET on the API root with a mock integration
  * ```typescript
+ * yield* ApiGateway.Method("GetRoot", {
+ *   restApi: api,
+ *   httpMethod: "GET",
+ *   authorizationType: "NONE",
+ *   integration: { type: "MOCK" },
+ * });
+ * ```
+ *
+ * @section Lambda proxy integration
+ * For Lambda-backed APIs, the integration `uri` follows the
+ * `arn:aws:apigateway:<region>:lambda:path/2015-03-31/functions/<function-arn>/invocations`
+ * shape. Use `Output.map` to resolve the function ARN before building the
+ * URI, since the function's ARN is only known at deploy time.
+ *
+ * @example ANY method with Lambda AWS_PROXY integration
+ * ```typescript
+ * import * as Output from "alchemy/Output";
+ *
+ * const invokeUri = Output.map(
+ *   fn.functionArn,
+ *   (arn) =>
+ *     `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${arn}/invocations`,
+ * );
+ *
  * yield* ApiGateway.Method("RootAny", {
- *   restApiId: api.restApiId,
- *   resourceId: api.rootResourceId,
+ *   restApi: api,
  *   httpMethod: "ANY",
  *   authorizationType: "NONE",
  *   integration: {
@@ -93,10 +150,82 @@ export interface Method extends Resource<
  *   },
  * });
  * ```
+ *
+ * @section Methods on sub-paths
+ * Attach a method to a nested path by creating an `ApiGateway.Resource` and
+ * passing its `resourceId` explicitly. `restApi` is still required so the
+ * method binds for deployment ordering.
+ *
+ * @example Method on `/items`
+ * ```typescript
+ * const items = yield* ApiGateway.Resource("Items", {
+ *   restApi: api,
+ *   parentId: api.rootResourceId,
+ *   pathPart: "items",
+ * });
+ *
+ * yield* ApiGateway.Method("ListItems", {
+ *   restApi: api,
+ *   resourceId: items.resourceId,
+ *   httpMethod: "GET",
+ *   authorizationType: "NONE",
+ *   integration: { type: "MOCK" },
+ * });
+ * ```
  */
-const MethodResource = Resource<Method>("AWS.ApiGateway.Method");
+export const MethodResource = Resource<MethodType>("AWS.ApiGateway.Method");
 
-export { MethodResource as Method };
+export interface MethodInputProps {
+  restApi?: RestApi;
+  restApiId?: Input<string>;
+  resourceId?: Input<string>;
+  httpMethod: Input<string>;
+  authorizationType?: Input<string>;
+  authorizerId?: Input<string>;
+  apiKeyRequired?: Input<boolean>;
+  operationName?: Input<string>;
+  requestParameters?: Input<MethodProps["requestParameters"]>;
+  requestModels?: Input<MethodProps["requestModels"]>;
+  requestValidatorId?: Input<string>;
+  authorizationScopes?: Input<string[]>;
+  integration?: Input<MethodIntegrationProps>;
+}
+
+const MethodImpl = (id: string, props: MethodInputProps) =>
+  Effect.gen(function* () {
+    const { restApi, ...rest } = props;
+    const restApiId = rest.restApiId ?? restApi?.restApiId;
+    const resourceId = rest.resourceId ?? restApi?.rootResourceId;
+    if (!restApiId || !resourceId) {
+      return yield* Effect.die(
+        "Method requires either `restApi` (preferred) or explicit " +
+          "`restApiId` and `resourceId`.",
+      );
+    }
+    const method = yield* MethodResource(id, {
+      ...rest,
+      restApiId,
+      resourceId,
+    } as any);
+    if (restApi) {
+      yield* restApi.bind`${method}`({
+        kind: "method",
+        methodId: method.LogicalId,
+        restApiId: method.restApiId,
+        resourceId: method.resourceId,
+        httpMethod: method.httpMethod,
+      });
+    }
+    return method;
+  });
+
+/**
+ * User-facing wrapper for the Method resource. Accepts `restApi: RestApi`
+ * as the idiomatic way to attach a method — this both forwards the API id
+ * and registers the method as a binding on the RestApi so the scheduler
+ * orders `Deployment` after it.
+ */
+export const Method = MethodImpl;
 
 const putIntegrationRequest = (
   restApiId: string,

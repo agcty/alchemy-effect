@@ -1,5 +1,6 @@
 import * as AWS from "@/AWS";
 import { AWSEnvironment } from "@/AWS/Environment";
+import * as Output from "@/Output";
 import * as Test from "@/Test/Vitest";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -26,16 +27,19 @@ test.provider(
           });
 
           const proxyResource = yield* AWS.ApiGateway.Resource("AgSmokeProxy", {
-            restApiId: api.restApiId,
+            restApi: api,
             parentId: api.rootResourceId,
             pathPart: "{proxy+}",
           });
 
-          const invokeUri = `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${fn.functionArn}/invocations`;
+          const invokeUri = Output.map(
+            fn.functionArn,
+            (arn: string) =>
+              `arn:aws:apigateway:${region}:lambda:path/2015-03-31/functions/${arn}/invocations`,
+          );
 
           yield* AWS.ApiGateway.Method("AgSmokeRootAny", {
-            restApiId: api.restApiId,
-            resourceId: api.rootResourceId,
+            restApi: api,
             httpMethod: "ANY",
             authorizationType: "NONE",
             integration: {
@@ -46,7 +50,7 @@ test.provider(
           });
 
           yield* AWS.ApiGateway.Method("AgSmokeProxyAny", {
-            restApiId: api.restApiId,
+            restApi: api,
             resourceId: proxyResource.resourceId,
             httpMethod: "ANY",
             authorizationType: "NONE",
@@ -58,12 +62,12 @@ test.provider(
           });
 
           const deployment = yield* AWS.ApiGateway.Deployment("AgSmokeDep", {
-            restApiId: api.restApiId,
+            restApi: api,
             description: "smoke",
           });
 
           const stage = yield* AWS.ApiGateway.Stage("AgSmokeStage", {
-            restApiId: api.restApiId,
+            restApi: api,
             stageName: "test",
             deploymentId: deployment.deploymentId,
           });
@@ -72,10 +76,18 @@ test.provider(
             action: "lambda:InvokeFunction",
             functionName: fn.functionName,
             principal: "apigateway.amazonaws.com",
-            sourceArn: `arn:aws:execute-api:${region}:${accountId}:${api.restApiId}/*/*/*`,
+            sourceArn: Output.map(
+              api.restApiId,
+              (id: string) =>
+                `arn:aws:execute-api:${region}:${accountId}:${id}/*/*/*`,
+            ),
           });
 
-          const invokeUrl = `https://${api.restApiId}.execute-api.${region}.amazonaws.com/${stage.stageName}/`;
+          const invokeUrl = Output.map(
+            Output.all(api.restApiId, stage.stageName),
+            ([id, sn]: [string, string]) =>
+              `https://${id}.execute-api.${region}.amazonaws.com/${sn}/`,
+          );
 
           return { invokeUrl };
         }),

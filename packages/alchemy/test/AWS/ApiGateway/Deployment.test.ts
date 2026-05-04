@@ -13,14 +13,13 @@ test.provider("create and delete deployment", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgDepMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgDep", {
-          restApiId: api.restApiId,
+          restApi: api,
           description: "alchemy-test-deployment",
         });
         return { api, deployment };
@@ -41,14 +40,13 @@ test.provider("deployment trigger change creates new deployment", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgTrigMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgTrigDep", {
-          restApiId: api.restApiId,
+          restApi: api,
           description: "v1",
           triggers: { t: "a" },
         });
@@ -62,14 +60,13 @@ test.provider("deployment trigger change creates new deployment", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgTrigMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgTrigDep", {
-          restApiId: api.restApiId,
+          restApi: api,
           description: "v1",
           triggers: { t: "b" },
         });

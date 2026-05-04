@@ -2,13 +2,14 @@ import { Region } from "@distilled.cloud/aws/Region";
 import * as ag from "@distilled.cloud/aws/api-gateway";
 import * as Effect from "effect/Effect";
 import { deepEqual, isResolved } from "../../Diff.ts";
+import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
 import { createInternalTags, tagRecord } from "../../Tags.ts";
 
-import { restApiArn, syncTags } from "./common.ts";
+import { restApiArn, retryOnApiStatusUpdating, syncTags } from "./common.ts";
 
 export interface RestApiProps {
   /**
@@ -33,6 +34,38 @@ export interface RestApiProps {
   tags?: Record<string, string>;
 }
 
+/**
+ * Structured metadata a child resource attaches to its RestApi via `.bind`.
+ *
+ * These bindings are the mechanism by which Methods, Resources, Authorizers,
+ * and other REST-API-scoped children declare a reverse dependency on the API
+ * itself. The presence of any such binding is what forces `RestApi.create` to
+ * run *after* every child has been created — which is exactly the ordering
+ * CloudFormation asks users to write manually via `DependsOn`.
+ *
+ * Consumers should not construct these directly; the child resource
+ * constructors (e.g. `Method`, `Resource`) handle binding on behalf of the
+ * user.
+ */
+export type RestApiBinding =
+  | {
+      kind: "method";
+      methodId: Input<string>;
+      restApiId: Input<string>;
+      resourceId: Input<string>;
+      httpMethod: Input<string>;
+    }
+  | {
+      kind: "resource";
+      resourceId: Input<string>;
+      parentId: Input<string>;
+      pathPart: Input<string>;
+    }
+  | {
+      kind: "authorizer";
+      authorizerId: Input<string>;
+    };
+
 export interface RestApi extends Resource<
   "AWS.ApiGateway.RestApi",
   RestApiProps,
@@ -52,29 +85,61 @@ export interface RestApi extends Resource<
     endpointAccessMode: ag.EndpointAccessMode | undefined;
     tags: Record<string, string>;
   },
-  never,
+  RestApiBinding,
   Providers
 > {}
 
 /**
  * An Amazon API Gateway REST API (v1).
  *
- * This is the low-level REST API primitive. Compose it with
- * `GatewayResource`, `Method`, `Deployment`, and `Stage` when you need
- * precise control over REST API configuration. Higher-level OpenAPI or
- * Effect HttpApi schema generation can be layered on top separately.
+ * `RestApi` is the root of an API Gateway v1 stack. Every other ApiGateway
+ * resource — `Resource`, `Method`, `Authorizer`, `Deployment`, `Stage` —
+ * hangs off a `RestApi`. The only identity you need to thread through your
+ * stack is the `RestApi` value itself: child resources accept `restApi: api`
+ * and register themselves back onto the API so that deployments and stages
+ * wait for them without any user-authored dependency lists.
  *
- * @section Creating an API
- * @example Regional REST API with Generated Name
+ * @section Getting started
+ * A minimal API Gateway stack is four pieces: the `RestApi`, one or more
+ * `Method`s, a `Deployment` that snapshots those methods, and a `Stage` that
+ * exposes the deployment at a URL.
+ *
+ * @example Mock HTTP GET on the root path
  * ```typescript
  * import * as ApiGateway from "alchemy/AWS/ApiGateway";
  *
- * const api = yield* ApiGateway.RestApi("PublicApi", {
+ * const api = yield* ApiGateway.RestApi("Api", {
  *   endpointConfiguration: { types: ["REGIONAL"] },
- *   tags: { service: "orders" },
+ * });
+ *
+ * yield* ApiGateway.Method("GetRoot", {
+ *   restApi: api,
+ *   httpMethod: "GET",
+ *   authorizationType: "NONE",
+ *   integration: { type: "MOCK" },
+ * });
+ *
+ * const deployment = yield* ApiGateway.Deployment("Release", {
+ *   restApi: api,
+ * });
+ *
+ * const stage = yield* ApiGateway.Stage("Prod", {
+ *   restApi: api,
+ *   stageName: "prod",
+ *   deploymentId: deployment.deploymentId,
  * });
  * ```
  *
+ * @section How dependencies flow
+ * Writing `restApi: api` on a child (rather than `restApiId: api.restApiId`)
+ * does two things: it threads the restApi id through, and it registers a
+ * `RestApiBinding` back onto the API. The Alchemy scheduler sees those
+ * bindings as reverse edges from children into the API, and `Deployment`
+ * reads them to express a transitive dependency on every child. You never
+ * have to write a `DependsOn` list or a `triggers` hash — adding a new
+ * `Method` automatically orders it before the next `Deployment`.
+ *
+ * @section Private REST APIs
  * @example Private REST API
  * ```typescript
  * const api = yield* ApiGateway.RestApi("PrivateApi", {
@@ -95,7 +160,7 @@ export interface RestApi extends Resource<
  * ```
  *
  * @section Binary payloads
- * @example Enable Binary Media Types
+ * @example Enable binary media types
  * ```typescript
  * const api = yield* ApiGateway.RestApi("BinaryApi", {
  *   binaryMediaTypes: ["application/octet-stream", "image/png"],
@@ -104,7 +169,7 @@ export interface RestApi extends Resource<
  * ```
  *
  * @section Endpoint hardening
- * @example Disable Default Execute API Endpoint
+ * @example Disable the default execute-api endpoint
  * ```typescript
  * const api = yield* ApiGateway.RestApi("CustomDomainOnlyApi", {
  *   endpointConfiguration: { types: ["REGIONAL"] },
@@ -273,16 +338,24 @@ export const RestApiProvider = () =>
           if (!api?.id) return undefined;
           return snapshotFromApi(api);
         }),
-        create: Effect.fn(function* ({ id, news: newsIn, session }) {
+        // The REST API is brought up in two phases. `precreate` creates the
+        // REST API in full so child resources (`Method`, `Resource`, etc.)
+        // can resolve `api.restApiId` and start their own creates — this is
+        // the cycle-breaker that lets children register themselves back onto
+        // the API via `restApi.bind`. `create` then runs last — after every
+        // bound child — and is effectively a no-op that re-reads the API to
+        // publish the final snapshot. The key property is that any
+        // `Deployment` referencing `api.*` outputs will see a value produced
+        // only after every bound child has settled, because the bindings on
+        // the API force `create` to wait for them before returning.
+        precreate: Effect.fn(function* ({ id, news: newsIn, session }) {
           if (!isResolved(newsIn)) {
             return yield* Effect.die("RestApi props were not resolved");
           }
           const news = newsIn as RestApiProps;
           const name = yield* generatedName(id, news);
           const internalTags = yield* createInternalTags(id);
-          const userTags = news.tags ?? {};
-          const allTags = { ...userTags, ...internalTags };
-
+          const allTags = { ...(news.tags ?? {}), ...internalTags };
           const created = yield* ag.createRestApi({
             name,
             description: news.description,
@@ -298,20 +371,32 @@ export const RestApiProvider = () =>
             securityPolicy: news.securityPolicy,
             endpointAccessMode: news.endpointAccessMode,
           });
-
           if (!created.id || !created.rootResourceId) {
             return yield* Effect.die(
               "createRestApi missing id or rootResourceId",
             );
           }
-
           yield* session.note(`Created REST API ${created.id}`);
-
           const full = yield* ag.getRestApi({ restApiId: created.id });
-          if (!full.id || !full.rootResourceId) {
-            return yield* Effect.die("getRestApi missing id or rootResourceId");
-          }
           return snapshotFromApi(full);
+        }),
+        create: Effect.fn(function* ({ news: newsIn, output, session }) {
+          if (!isResolved(newsIn)) {
+            return yield* Effect.die("RestApi props were not resolved");
+          }
+          // Precreate already populated `output`. All children have settled
+          // by now (they appear in `node.bindings`, which upstream resolution
+          // forces us to wait for). Just re-read and return the snapshot so
+          // consumers observe the API only after its bound children exist.
+          if (output?.restApiId) {
+            yield* session.note(`Sealed REST API ${output.restApiId}`);
+            const full = yield* ag.getRestApi({ restApiId: output.restApiId });
+            return snapshotFromApi(full);
+          }
+          // Defensive: shouldn't happen because precreate always runs first.
+          return yield* Effect.die(
+            "RestApi create reached without a precreate output",
+          );
         }),
         update: Effect.fn(function* ({ id, news: newsIn, output, session }) {
           if (!isResolved(newsIn)) {
@@ -320,10 +405,12 @@ export const RestApiProvider = () =>
           const news = newsIn as RestApiProps;
           const patches = buildUpdatePatches(news, output);
           if (patches.length > 0) {
-            yield* ag.updateRestApi({
-              restApiId: output.restApiId,
-              patchOperations: patches,
-            });
+            yield* retryOnApiStatusUpdating(
+              ag.updateRestApi({
+                restApiId: output.restApiId,
+                patchOperations: patches,
+              }),
+            );
           }
 
           const internalTags = yield* createInternalTags(id);
@@ -346,9 +433,11 @@ export const RestApiProvider = () =>
           return snapshotFromApi(full);
         }),
         delete: Effect.fn(function* ({ output, session }) {
-          yield* ag
-            .deleteRestApi({ restApiId: output.restApiId })
-            .pipe(Effect.catchTag("NotFoundException", () => Effect.void));
+          yield* retryOnApiStatusUpdating(
+            ag
+              .deleteRestApi({ restApiId: output.restApiId })
+              .pipe(Effect.catchTag("NotFoundException", () => Effect.void)),
+          );
           yield* session.note(`Deleted REST API ${output.restApiId}`);
         }),
       };

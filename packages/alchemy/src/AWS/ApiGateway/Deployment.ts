@@ -3,12 +3,29 @@ import * as Effect from "effect/Effect";
 import { createHash } from "node:crypto";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
+import * as Output from "../../Output.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
+import { Stack } from "../../Stack.ts";
 import type { Providers } from "../Providers.ts";
+import { retryOnApiStatusUpdating } from "./common.ts";
+import type { RestApi, RestApiBinding } from "./RestApi.ts";
 
 export interface DeploymentProps {
-  restApiId: Input<string>;
+  /**
+   * The `RestApi` to deploy. When supplied, the Deployment reads every
+   * `RestApiBinding` already registered on the API (each `Method`,
+   * `Resource`, etc. that was declared with `restApi: api`) and pulls
+   * those into its dependency graph. Adding a new `Method` automatically
+   * causes the next apply to produce a fresh deployment — no user-authored
+   * `DependsOn` or `triggers` hash required.
+   */
+  restApi?: RestApi;
+  /**
+   * ID of the REST API. Usually derived from `restApi.restApiId`; supply
+   * explicitly only when not using `restApi`.
+   */
+  restApiId?: Input<string>;
   description?: string;
   stageName?: string;
   stageDescription?: string;
@@ -18,12 +35,22 @@ export interface DeploymentProps {
   canarySettings?: ag.DeploymentCanarySettings;
   tracingEnabled?: boolean;
   /**
-   * Opaque key/value map; when any value changes, a replacement deployment is planned.
+   * Opaque key/value map; when any value changes, a replacement deployment
+   * is planned. Each value may be a literal string or an `Input<string>`
+   * (such as a resource output) — output references create real dependency
+   * edges, which is how Alchemy ensures a new deployment runs after the
+   * resources it references are updated.
+   *
+   * You rarely need to set this manually: when you pass `restApi`, the
+   * deployment already depends on every bound `Method` and redeploys
+   * automatically when any of them change. Reach for `triggers` only when
+   * you want to force a redeploy on some other signal (e.g. a config hash,
+   * a manual version bump).
    */
-  triggers?: Record<string, string>;
+  triggers?: Record<string, Input<string>>;
 }
 
-export interface Deployment extends Resource<
+export interface DeploymentType extends Resource<
   "AWS.ApiGateway.Deployment",
   DeploymentProps,
   {
@@ -36,20 +63,123 @@ export interface Deployment extends Resource<
 > {}
 
 /**
- * An API Gateway deployment snapshot for a REST API.
+ * A point-in-time snapshot of a REST API, ready to be served through a
+ * `Stage`.
  *
- * @section Deployments
- * @example Create deployment
+ * @section Creating a deployment
+ * A Deployment captures whatever methods, integrations, resources, and
+ * authorizers currently exist on the REST API and produces an immutable
+ * `deploymentId` that a `Stage` can point at. Pass the `RestApi` value on
+ * `restApi` and Alchemy handles all the ordering for you — the deployment
+ * will run after every method bound to the API.
+ *
+ * @example Deployment of a REST API
  * ```typescript
+ * const api = yield* ApiGateway.RestApi("Api", {
+ *   endpointConfiguration: { types: ["REGIONAL"] },
+ * });
+ *
+ * yield* ApiGateway.Method("GetRoot", {
+ *   restApi: api,
+ *   httpMethod: "GET",
+ *   authorizationType: "NONE",
+ *   integration: { type: "MOCK" },
+ * });
+ *
  * const deployment = yield* ApiGateway.Deployment("Release", {
- *   restApiId: api.restApiId,
+ *   restApi: api,
  *   description: "v1",
  * });
  * ```
+ *
+ * @section Forcing a redeploy
+ * Usually you do not have to: `restApi` already makes the Deployment
+ * depend on every method, so any change to a method re-plans a new
+ * deployment. Use `triggers` when you want to couple the deployment to a
+ * signal Alchemy cannot see — for example, a manual version bump or a
+ * hash of configuration computed outside the stack.
+ *
+ * @example Force redeploy on a version bump
+ * ```typescript
+ * const deployment = yield* ApiGateway.Deployment("Release", {
+ *   restApi: api,
+ *   triggers: { version: "2026-05-01" },
+ * });
+ * ```
+ *
+ * @section Why no DependsOn?
+ * CloudFormation's `AWS::ApiGateway::Deployment` famously requires a
+ * hand-written `DependsOn: [Method1, Method2, ...]` listing every method.
+ * Alchemy derives that list automatically from the bindings registered on
+ * the `RestApi`, so adding a method never requires editing the deployment.
  */
-const DeploymentResource = Resource<Deployment>("AWS.ApiGateway.Deployment");
+export const DeploymentResource = Resource<DeploymentType>(
+  "AWS.ApiGateway.Deployment",
+);
 
-export { DeploymentResource as Deployment };
+interface DeploymentInputProps {
+  restApi?: RestApi;
+  restApiId?: Input<string>;
+  description?: Input<string>;
+  stageName?: Input<string>;
+  stageDescription?: Input<string>;
+  cacheClusterEnabled?: Input<boolean>;
+  cacheClusterSize?: Input<ag.CacheClusterSize>;
+  variables?: Input<{ [key: string]: string | undefined }>;
+  canarySettings?: Input<ag.DeploymentCanarySettings>;
+  tracingEnabled?: Input<boolean>;
+  triggers?: Record<string, Input<string>>;
+}
+
+/**
+ * User-facing wrapper that adds a dependency edge from the Deployment to
+ * every resource bound to the supplied `restApi`. Implementation detail:
+ * each binding's output references get copied into the deployment's
+ * `triggers` map so `resolveUpstream` sees them as real upstream dependencies.
+ */
+export const Deployment = (id: string, props: DeploymentInputProps) =>
+  Effect.gen(function* () {
+    const { restApi, ...rest } = props;
+    const restApiId = rest.restApiId ?? restApi?.restApiId;
+    if (!restApiId) {
+      return yield* Effect.die(
+        "Deployment requires either `restApi` (preferred) or explicit " +
+          "`restApiId`.",
+      );
+    }
+    let triggers: Record<string, Input<string>> | undefined = rest.triggers;
+    if (restApi) {
+      const stack = yield* Stack;
+      const bindings = stack.bindings[restApi.FQN] ?? [];
+      const autoTriggers: Record<string, Input<string>> = {};
+      for (const b of bindings) {
+        autoTriggers[`@alchemy:binding:${b.sid}`] = bindingDigest(b.data);
+      }
+      triggers = { ...autoTriggers, ...(triggers ?? {}) };
+    }
+    return yield* DeploymentResource(id, {
+      ...rest,
+      restApiId,
+      triggers,
+    } as any);
+  });
+
+/**
+ * Serializes a binding payload down to a deterministic `Input<string>` so
+ * it can ride along as a trigger value. The inner `Output.all` is what
+ * surfaces the underlying resource FQNs to the dependency resolver.
+ */
+const bindingDigest = (data: RestApiBinding): Input<string> => {
+  const entries = Object.entries(data as Record<string, unknown>).filter(
+    ([k]) => k !== "kind",
+  );
+  const values = entries.map(([, v]) =>
+    Output.asOutput(v as string | Output.Output<string>),
+  );
+  return Output.map(Output.all(...values), (parts) =>
+    [data.kind, ...(parts as unknown as unknown[]).map(String)].join("|"),
+  );
+};
 
 const embedTriggers = (
   description: string | undefined,
@@ -126,19 +256,21 @@ export const DeploymentProvider = () =>
           const news = newsIn as Input.ResolveProps<DeploymentProps>;
           const description = yield* embedTriggers(
             news.description,
-            news.triggers,
+            news.triggers as Record<string, string> | undefined,
           );
-          const d = yield* ag.createDeployment({
-            restApiId: news.restApiId as string,
-            stageName: news.stageName,
-            stageDescription: news.stageDescription,
-            description,
-            cacheClusterEnabled: news.cacheClusterEnabled,
-            cacheClusterSize: news.cacheClusterSize,
-            variables: news.variables,
-            canarySettings: news.canarySettings,
-            tracingEnabled: news.tracingEnabled,
-          });
+          const d = yield* retryOnApiStatusUpdating(
+            ag.createDeployment({
+              restApiId: news.restApiId as string,
+              stageName: news.stageName,
+              stageDescription: news.stageDescription,
+              description,
+              cacheClusterEnabled: news.cacheClusterEnabled,
+              cacheClusterSize: news.cacheClusterSize,
+              variables: news.variables,
+              canarySettings: news.canarySettings,
+              tracingEnabled: news.tracingEnabled,
+            }),
+          );
           if (!d.id) return yield* Effect.die("createDeployment missing id");
           yield* session.note(`Created deployment ${d.id}`);
           return {
@@ -154,16 +286,18 @@ export const DeploymentProvider = () =>
           const news = newsIn as Input.ResolveProps<DeploymentProps>;
           const description = yield* embedTriggers(
             news.description,
-            news.triggers,
+            news.triggers as Record<string, string> | undefined,
           );
           if (description !== output.description) {
-            yield* ag.updateDeployment({
-              restApiId: output.restApiId,
-              deploymentId: output.deploymentId,
-              patchOperations: description
-                ? [{ op: "replace", path: "/description", value: description }]
-                : [{ op: "remove", path: "/description" }],
-            });
+            yield* retryOnApiStatusUpdating(
+              ag.updateDeployment({
+                restApiId: output.restApiId,
+                deploymentId: output.deploymentId,
+                patchOperations: description
+                  ? [{ op: "replace", path: "/description", value: description }]
+                  : [{ op: "remove", path: "/description" }],
+              }),
+            );
           }
           yield* session.note(`Updated deployment ${output.deploymentId}`);
           const d = yield* ag.getDeployment({
@@ -177,12 +311,14 @@ export const DeploymentProvider = () =>
           };
         }),
         delete: Effect.fn(function* ({ output, session }) {
-          yield* ag
-            .deleteDeployment({
-              restApiId: output.restApiId,
-              deploymentId: output.deploymentId,
-            })
-            .pipe(Effect.catchTag("NotFoundException", () => Effect.void));
+          yield* retryOnApiStatusUpdating(
+            ag
+              .deleteDeployment({
+                restApiId: output.restApiId,
+                deploymentId: output.deploymentId,
+              })
+              .pipe(Effect.catchTag("NotFoundException", () => Effect.void)),
+          );
           yield* session.note(`Deleted deployment ${output.deploymentId}`);
         }),
       };

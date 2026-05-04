@@ -1,3 +1,4 @@
+import { makeDefault as defaultRetryPolicy, Retry } from "@distilled.cloud/aws/Retry";
 import * as Layer from "effect/Layer";
 import { Command, CommandProvider } from "../Build/Command.ts";
 import * as Provider from "../Provider.ts";
@@ -51,13 +52,13 @@ export const providers = () =>
       ApiGateway.ApiKey,
       ApiGateway.Authorizer,
       ApiGateway.BasePathMapping,
-      ApiGateway.Deployment,
+      ApiGateway.DeploymentResource,
       ApiGateway.DomainName,
       ApiGateway.GatewayResponse,
-      ApiGateway.Method,
-      ApiGateway.Resource,
+      ApiGateway.MethodResource,
+      ApiGateway.GatewayResource,
       ApiGateway.RestApi,
-      ApiGateway.Stage,
+      ApiGateway.StageResource,
       ApiGateway.UsagePlan,
       ApiGateway.UsagePlanKey,
       ApiGateway.VpcLink,
@@ -562,5 +563,15 @@ export const providers = () =>
     Layer.provideMerge(Endpoint.fromEnvironment),
     Layer.provideMerge(DefaultEnvironment),
     Layer.provideMerge(AwsAuth),
+    // Apply a blanket retry policy to every AWS SDK call issued by any
+    // resource provider. `makeDefault` is the same retry policy the SDK
+    // itself applies: retries throttling (`TooManyRequests`, etc.), 5xx
+    // responses, and errors tagged with Smithy's @retryable trait, with
+    // exponential backoff, jitter, `RetryAfter` header awareness, and a
+    // cap of 5 attempts. The cap is important: unbounded retries (like
+    // `transientOptions`) mask real rate-limit pressure as an indefinite
+    // hang. This benefits every user of the AWS providers, not just tests,
+    // by absorbing transient failures without hiding systemic issues.
+    Layer.provideMerge(Layer.succeed(Retry, defaultRetryPolicy)),
     Layer.orDie,
   );

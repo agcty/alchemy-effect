@@ -14,8 +14,7 @@ test.provider("create and delete MOCK method", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgMockGet", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: {

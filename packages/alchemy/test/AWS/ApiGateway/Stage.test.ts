@@ -14,17 +14,16 @@ test.provider("create and delete stage", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgStageMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgStageDep", {
-          restApiId: api.restApiId,
+          restApi: api,
         });
         const stage = yield* AWS.ApiGateway.Stage("AgStageDev", {
-          restApiId: api.restApiId,
+          restApi: api,
           stageName: "dev",
           deploymentId: deployment.deploymentId,
         });
@@ -46,17 +45,16 @@ test.provider("stage variables update in place", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgStageVarMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgStageVarDep", {
-          restApiId: api.restApiId,
+          restApi: api,
         });
         const stage = yield* AWS.ApiGateway.Stage("AgStageVar", {
-          restApiId: api.restApiId,
+          restApi: api,
           stageName: "dev",
           deploymentId: deployment.deploymentId,
           variables: { K: "1" },
@@ -71,17 +69,16 @@ test.provider("stage variables update in place", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgStageVarMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
         });
         const deployment = yield* AWS.ApiGateway.Deployment("AgStageVarDep", {
-          restApiId: api.restApiId,
+          restApi: api,
         });
         yield* AWS.ApiGateway.Stage("AgStageVar", {
-          restApiId: api.restApiId,
+          restApi: api,
           stageName: "dev",
           deploymentId: deployment.deploymentId,
           variables: { K: "2" },
@@ -108,8 +105,7 @@ test.provider("stage method settings update in place", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgStageMethodMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
@@ -117,11 +113,11 @@ test.provider("stage method settings update in place", (stack) =>
         const deployment = yield* AWS.ApiGateway.Deployment(
           "AgStageMethodDep",
           {
-            restApiId: api.restApiId,
+            restApi: api,
           },
         );
         yield* AWS.ApiGateway.Stage("AgStageMethod", {
-          restApiId: api.restApiId,
+          restApi: api,
           stageName: "dev",
           deploymentId: deployment.deploymentId,
           methodSettings: {
@@ -138,8 +134,7 @@ test.provider("stage method settings update in place", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         yield* AWS.ApiGateway.Method("AgStageMethodMock", {
-          restApiId: api.restApiId,
-          resourceId: api.rootResourceId,
+          restApi: api,
           httpMethod: "GET",
           authorizationType: "NONE",
           integration: { type: "MOCK" },
@@ -147,11 +142,11 @@ test.provider("stage method settings update in place", (stack) =>
         const deployment = yield* AWS.ApiGateway.Deployment(
           "AgStageMethodDep",
           {
-            restApiId: api.restApiId,
+            restApi: api,
           },
         );
         yield* AWS.ApiGateway.Stage("AgStageMethod", {
-          restApiId: api.restApiId,
+          restApi: api,
           stageName: "dev",
           deploymentId: deployment.deploymentId,
           methodSettings: {

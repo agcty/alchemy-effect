@@ -14,7 +14,7 @@ test.provider("create and delete API Gateway resource", (stack) =>
           endpointConfiguration: { types: ["REGIONAL"] },
         });
         const res = yield* AWS.ApiGateway.Resource("AgSubPath", {
-          restApiId: api.restApiId,
+          restApi: api,
           parentId: api.rootResourceId,
           pathPart: "items",
         });
