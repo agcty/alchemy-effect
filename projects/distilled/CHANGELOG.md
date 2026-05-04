@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.16.5](https://github.com/alchemy-run/distilled/releases/tag/v0.16.5) (2026-05-04)
+
+### Bug Fixes
+
+- depend on effect >= 4.0.0-beta.60 - by Sam Goodwin [(e9385d5)](https://github.com/alchemy-run/distilled/commit/e9385d5d61d6bbe5322db7cf6e62713d7033e493)
+- update effect to 4.0.0-beta.60 - by @john-royal in [#235](https://github.com/alchemy-run/distilled/pull/235) [(ff934f9)](https://github.com/alchemy-run/distilled/commit/ff934f981f0c43f357438f33d0d8bd9534fd0e1c)
+- **cloudflare**: tag 10001 internal-error variant retryable - by sam in [#233](https://github.com/alchemy-run/distilled/pull/233) [(fce421b)](https://github.com/alchemy-run/distilled/commit/fce421b2c0000a72ac325da790eae11317d1db4e)
+- **aws**: wrap SSO cache JSON.parse in Effect.try - by sam in [#234](https://github.com/alchemy-run/distilled/pull/234) [(b3b151b)](https://github.com/alchemy-run/distilled/commit/b3b151b2c5b1d7b98bcbd7bc394b7b5cfda7ae07)
+
 ## [v0.16.4](https://github.com/alchemy-run/distilled/releases/tag/v0.16.4) (2026-05-04)
 
 ### Bug Fixes
