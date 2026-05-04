@@ -172,24 +172,106 @@ export const TopicProvider = () =>
         return { action: "replace" } as const;
       }
     }),
-    create: Effect.fn(function* ({ id, news = {}, session }) {
+    reconcile: Effect.fn(function* ({ id, news = {}, output, session }) {
       const topicName = yield* toTopicName(id, news);
-      const tags = {
-        ...(yield* createInternalTags(id)),
-        ...news.tags,
-      };
+      const internalTags = yield* createInternalTags(id);
+      const desiredTags = { ...internalTags, ...news.tags };
+      const desiredAttributes = toAttributes(news);
 
-      const response = yield* sns.createTopic({
+      // Observe — never trust a stale `output.topicArn` blindly. SNS
+      // `createTopic` is idempotent for an identical name+fifo combo and
+      // returns the existing ARN, so we use it as our ensure step rather
+      // than racing with separate listTopics + createTopic calls.
+      const createResponse = yield* sns.createTopic({
         Name: topicName,
-        Attributes: toAttributes(news),
-        Tags: createTagsList(tags),
+        Attributes: desiredAttributes,
+        Tags: createTagsList(desiredTags),
         DataProtectionPolicy: news.dataProtectionPolicy,
       });
-
-      const topicArn = response.TopicArn;
-
+      const topicArn = createResponse.TopicArn;
       if (!topicArn) {
         return yield* Effect.die(new Error(`createTopic returned no ARN`));
+      }
+
+      // Sync attributes — fetch observed cloud attributes and apply only
+      // the delta. Tags + DataProtectionPolicy on `createTopic` only apply
+      // on a true first create; for adoption or attribute drift we converge
+      // here.
+      const observedState = yield* sns
+        .getTopicAttributes({ TopicArn: topicArn })
+        .pipe(
+          Effect.catchTag("NotFoundException", () => Effect.succeed(undefined)),
+        );
+      const observedAttributes = toAttributeMap(observedState?.Attributes);
+
+      for (const [name, value] of Object.entries(desiredAttributes)) {
+        if (observedAttributes[name] !== value) {
+          yield* sns.setTopicAttributes({
+            TopicArn: topicArn,
+            AttributeName: name,
+            AttributeValue: value,
+          });
+        }
+      }
+
+      // Reset previously-managed attributes the user no longer specifies.
+      // Restrict to keys we set in a prior reconcile (`output.attributes`)
+      // so we don't clear SNS system attributes that we never touched.
+      for (const name of Object.keys(output?.attributes ?? {})) {
+        if (
+          !(name in desiredAttributes) &&
+          name !== "FifoTopic" &&
+          name in observedAttributes
+        ) {
+          yield* sns.setTopicAttributes({
+            TopicArn: topicArn,
+            AttributeName: name,
+          });
+        }
+      }
+
+      // Sync tags — diff observed cloud tags against desired so that an
+      // adoption-takeover (cloud tags identify a different logical id)
+      // correctly rewrites ownership tags.
+      const observedTagsResp = yield* sns
+        .listTagsForResource({ ResourceArn: topicArn })
+        .pipe(
+          Effect.catchTag("ResourceNotFoundException", () =>
+            Effect.succeed({ Tags: [] as sns.Tag[] }),
+          ),
+        );
+      const observedTags = toTagMap(observedTagsResp.Tags);
+      const { removed, upsert } = diffTags(observedTags, desiredTags);
+
+      if (upsert.length > 0) {
+        yield* sns.tagResource({
+          ResourceArn: topicArn,
+          Tags: upsert,
+        });
+      }
+
+      if (removed.length > 0) {
+        yield* sns.untagResource({
+          ResourceArn: topicArn,
+          TagKeys: removed,
+        });
+      }
+
+      // Sync data protection policy — observed ↔ desired.
+      const observedPolicy = yield* sns
+        .getDataProtectionPolicy({ ResourceArn: topicArn })
+        .pipe(
+          Effect.map((r) => r.DataProtectionPolicy),
+          Effect.catchTag("NotFoundException", () => Effect.succeed(undefined)),
+        );
+      if (
+        news.dataProtectionPolicy !== undefined &&
+        news.dataProtectionPolicy !== observedPolicy
+      ) {
+        yield* sns.putDataProtectionPolicy({
+          ResourceArn: topicArn,
+          DataProtectionPolicy: news.dataProtectionPolicy,
+        });
       }
 
       yield* session.note(topicArn);
@@ -198,84 +280,9 @@ export const TopicProvider = () =>
         topicArn: topicArn as TopicArn,
         topicName,
         fifo: news.fifo ?? false,
-        attributes: toAttributes(news),
-        dataProtectionPolicy: news.dataProtectionPolicy,
-        tags,
-      };
-    }),
-    update: Effect.fn(function* ({
-      id,
-      news = {},
-      olds = {},
-      output,
-      session,
-    }) {
-      const newAttributes = toAttributes(news);
-      const oldAttributes = toAttributes(olds);
-
-      for (const [name, value] of Object.entries(newAttributes)) {
-        if (oldAttributes[name] !== value) {
-          yield* sns.setTopicAttributes({
-            TopicArn: output.topicArn,
-            AttributeName: name,
-            AttributeValue: value,
-          });
-        }
-      }
-
-      for (const name of Object.keys(oldAttributes)) {
-        if (!(name in newAttributes)) {
-          yield* sns.setTopicAttributes({
-            TopicArn: output.topicArn,
-            AttributeName: name,
-          });
-        }
-      }
-
-      const newTags = {
-        ...(yield* createInternalTags(id)),
-        ...news.tags,
-      };
-      // Use the cloud's actual tags as the "previous state" so that an
-      // adoption-takeover (where olds.tags == news.tags but the cloud tags
-      // identify a different logical id) correctly rewrites ownership
-      // tags on the topic.
-      const oldTags = output.tags ?? {};
-      const { removed, upsert } = diffTags(oldTags, newTags);
-
-      if (upsert.length > 0) {
-        yield* sns.tagResource({
-          ResourceArn: output.topicArn,
-          Tags: upsert,
-        });
-      }
-
-      if (removed.length > 0) {
-        yield* sns.untagResource({
-          ResourceArn: output.topicArn,
-          TagKeys: removed,
-        });
-      }
-
-      if (
-        news.dataProtectionPolicy !== undefined &&
-        news.dataProtectionPolicy !== olds.dataProtectionPolicy
-      ) {
-        yield* sns.putDataProtectionPolicy({
-          ResourceArn: output.topicArn,
-          DataProtectionPolicy: news.dataProtectionPolicy,
-        });
-      }
-
-      yield* session.note(output.topicArn);
-
-      return {
-        ...output,
-        fifo: news.fifo ?? false,
-        attributes: newAttributes,
-        dataProtectionPolicy:
-          news.dataProtectionPolicy ?? output.dataProtectionPolicy,
-        tags: newTags,
+        attributes: desiredAttributes,
+        dataProtectionPolicy: news.dataProtectionPolicy ?? observedPolicy,
+        tags: desiredTags,
       };
     }),
     delete: Effect.fn(function* ({ output }) {
