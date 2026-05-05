@@ -171,14 +171,45 @@ export interface Platform<
     | Exclude<InitReq, Services | PlatformServices>
   >;
   /**
-   * Factory form. The user's `export default Worker((args) => Worker(...))`
-   * is the wrapped function; deploy-side calls invoke the inner
-   * Effect and persist `args` into the Worker's env, and the runtime
-   * entrypoint re-applies them after import.
+   * Factory form. The user writes:
+   *
+   * ```ts
+   * export default Worker((scriptName: string) => [
+   *   "Api",
+   *   { name: scriptName, main: import.meta.filename, ... },
+   *   Effect.gen(function* () { ... }),
+   * ]);
+   * ```
+   *
+   * The function returns the same `[id, props, impl]` tuple that
+   * positional `Worker(id, props, impl)` accepts. Deploy-side
+   * `yield* MyWorker(...args)` invokes the function, applies the
+   * tuple to the platform constructor, and persists `args` into the
+   * resource's env so the runtime entrypoint can re-apply them after
+   * import.
    */
-  <Args extends readonly unknown[], R, Req = never>(
-    factory: (...args: Args) => Effect.Effect<R, never, Req>,
-  ): ((...args: Args) => Effect.Effect<R, never, Req>) & {
+  <
+    Args extends readonly unknown[],
+    Shape extends MainShape,
+    PropsReq = never,
+    InitReq extends Services | PlatformServices = never,
+  >(
+    factory: (...args: Args) => readonly [
+      id: string,
+      props:
+        | InputProps<Resource["Props"]>
+        | Effect.Effect<InputProps<Resource["Props"]>, never, PropsReq>,
+      impl: Effect.Effect<Shape, never, InitReq>,
+    ],
+  ): ((
+    ...args: Args
+  ) => Effect.Effect<
+    Resource & Rpc<Shape>,
+    never,
+    | Resource["Providers"]
+    | PropsReq
+    | Exclude<InitReq, Services | PlatformServices>
+  >) & {
     readonly [FACTORY_MARKER]: true;
     readonly Type: Resource["Type"];
   };
@@ -212,24 +243,32 @@ export const Platform = <
   const PlatformContext = ExecutionContext(type);
 
   const constructor = (
-    id?: string | ((...args: any[]) => Effect.Effect<any>),
+    id?: string | ((...args: any[]) => readonly [string, any, Impl]),
     props?: any,
     impl?: Impl,
     isTag = false,
   ): any => {
     if (typeof id === "function") {
       // Factory form, e.g.
-      //   export default Worker((scriptName: string) =>
-      //     Worker("Api", { name: scriptName, main: import.meta.filename, ... }, body));
+      //   export default Worker((scriptName: string) => [
+      //     "Api",
+      //     { name: scriptName, main: import.meta.filename, ... },
+      //     Effect.gen(function* () { ... }),
+      //   ]);
       //
-      // The user's default export is the wrapped function. At deploy
-      // time `yield* MyWorker(...args)` runs the inner Effect and
-      // stamps each arg as its own env binding. At runtime, the
-      // generated entrypoint detects the `__alchemyFactory` marker,
-      // reads the args back from `env`, and calls the function before
-      // treating the result as a Layer/Effect. See `Factory.ts` for
-      // the encoding details (Redacted args ride `secret_text`).
-      return Object.assign(makeFactory(id), { Type: type });
+      // The user's default export is the wrapped function. The inner
+      // function returns the same `[id, props, impl]` tuple the
+      // positional `Worker(id, props, impl)` form accepts. At deploy
+      // time `yield* MyWorker(...args)` calls the function, applies
+      // the tuple to this constructor, and stamps each arg as its own
+      // env binding so the runtime entrypoint can re-apply them after
+      // import (see `Factory.ts` — Redacted args ride `secret_text`).
+      const tupleFactory = id as (...a: any[]) => readonly [string, any, Impl];
+      const inner = (...args: any[]) => {
+        const tuple = tupleFactory(...args);
+        return constructor(tuple[0], tuple[1], tuple[2]);
+      };
+      return Object.assign(makeFactory(inner), { Type: type });
     } else if (!id) {
       // impl was not provided inline, this is a tagged instance
       // e.g.

@@ -6,7 +6,7 @@ import { toFqn } from "./FQN.ts";
 import type { Input, InputProps } from "./Input.ts";
 import { CurrentNamespace, type NamespaceNode } from "./Namespace.ts";
 import * as Output from "./Output.ts";
-import { makeFactory } from "./Factory.ts";
+import { FACTORY_MARKER, makeFactory } from "./Factory.ts";
 import { Provider } from "./Provider.ts";
 import { RemovalPolicy } from "./RemovalPolicy.ts";
 import { Self } from "./Self.ts";
@@ -36,6 +36,22 @@ export type ResourceConstructor<R extends ResourceLike, Req = never> = {
     id: string,
     props: Effect.Effect<InputProps<R["Props"]>, never, PropsReq>,
   ): Effect.Effect<R, never, PropsReq | Req>;
+  /**
+   * Factory form. The inner function returns the same `[id, props]`
+   * tuple the positional `Resource(id, props)` form accepts.
+   */
+  <Args extends readonly unknown[], PropsReq = never>(
+    factory: (...args: Args) => readonly [
+      id: string,
+      props:
+        | InputProps<R["Props"]>
+        | Effect.Effect<InputProps<R["Props"]>, never, PropsReq>,
+    ],
+  ): ((
+    ...args: Args
+  ) => Effect.Effect<R, never, Req | PropsReq>) & {
+    readonly [FACTORY_MARKER]: true;
+  };
 };
 
 export type ResourceClassWithMethods<
@@ -297,13 +313,26 @@ export function Resource<R extends ResourceLike>(
       ...args:
         | [id: string, props: R["Props"]]
         | [methods: object]
-        | [factory: (...args: any[]) => Effect.Effect<any>]
-    ) =>
-      typeof args[0] === "function"
-        ? makeFactory(args[0] as (...args: any[]) => Effect.Effect<any>)
-        : typeof args[0] === "object"
-          ? Object.assign(ResourceClass, args[0])
-          : constructor(...(args as [string, R["Props"]])),
+        | [factory: (...args: any[]) => readonly [string, any]]
+    ) => {
+      if (typeof args[0] === "function") {
+        // Factory form: the user's function returns `[id, props]`,
+        // which we apply to the resource constructor. See `Factory.ts`
+        // for how the factory args are persisted into Props.env.
+        const tupleFactory = args[0] as (
+          ...a: any[]
+        ) => readonly [string, any];
+        const inner = (...factoryArgs: any[]) => {
+          const [id, props] = tupleFactory(...factoryArgs);
+          return constructor(id, props);
+        };
+        return makeFactory(inner);
+      }
+      if (typeof args[0] === "object") {
+        return Object.assign(ResourceClass, args[0]);
+      }
+      return constructor(...(args as [string, R["Props"]]));
+    },
     Service,
   ) as any;
 

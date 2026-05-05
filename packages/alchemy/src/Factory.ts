@@ -51,8 +51,8 @@ const encodeArg = (arg: unknown): unknown =>
   Output.isOutput(arg) ? arg.pipe(Output.map(encodeOne)) : encodeOne(arg);
 
 export const makeFactory = (
-  fn: (...args: any[]) => Effect.Effect<any>,
-): ((...args: any[]) => Effect.Effect<any>) & {
+  fn: (...args: any[]) => Effect.Effect<any, any, any>,
+): ((...args: any[]) => Effect.Effect<any, any, any>) & {
   readonly [FACTORY_MARKER]: true;
 } => {
   const factory = (...args: any[]) =>
