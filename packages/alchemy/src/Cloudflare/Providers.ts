@@ -32,6 +32,7 @@ import * as Tunnel from "./Tunnel/index.ts";
 import * as VpcService from "./VpcService/index.ts";
 import * as Workers from "./Workers/index.ts";
 import * as Workflows from "./Workers/Workflow.ts";
+import * as Zone from "./Zone/index.ts";
 
 export { Credentials } from "@distilled.cloud/cloudflare/Credentials";
 
@@ -84,6 +85,7 @@ export const providers = () =>
       Workers.FetchPolicy,
       Workers.Worker,
       Workflows.WorkflowResource,
+      Zone.Zone,
     ]),
   ).pipe(
     Layer.provide(
@@ -122,6 +124,7 @@ export const providers = () =>
         Workers.FetchPolicyLive,
         Workers.WorkerProvider(),
         Workflows.WorkflowProvider(),
+        Zone.ZoneProvider(),
       ),
     ),
     Layer.provideMerge(

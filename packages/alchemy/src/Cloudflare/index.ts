@@ -19,3 +19,4 @@ export * from "./Tunnel/index.ts";
 export * from "./VpcService/index.ts";
 export * from "./Website/index.ts";
 export * from "./Workers/index.ts";
+export * from "./Zone/index.ts";
