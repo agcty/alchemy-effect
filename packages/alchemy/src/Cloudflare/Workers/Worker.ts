@@ -59,6 +59,10 @@ import { D1Database } from "../D1/D1Database.ts";
 import { fromCloudflareFetcher } from "../Fetcher.ts";
 import type { HyperdriveDevOrigin } from "../Hyperdrive/Hyperdrive.ts";
 import type { KVNamespace } from "../KV/KVNamespace.ts";
+import {
+  isImages as isImagesBinding,
+  type Images as ImagesBinding,
+} from "../Images/Images.ts";
 import { SidecarLive } from "../Local/Sidecar.ts";
 import { CloudflareLogs } from "../Logs.ts";
 import type { Providers } from "../Providers.ts";
@@ -191,6 +195,7 @@ export type WorkerBindingResource =
   | CloudflareQueue
   | AiGateway
   | ArtifactsBinding
+  | ImagesBinding
   | DurableObjectNamespaceLike<any>;
 
 export type WorkerBindings = {
@@ -734,48 +739,55 @@ export const Worker: Platform<
                 name: bindingName,
                 namespace: binding.namespace,
               } as any)
-            : isDurableObjectNamespaceLike(binding)
+            : isImagesBinding(binding)
               ? {
-                  type: "durable_object_namespace",
+                  type: "images",
                   name: bindingName,
-                  className: binding.className ?? binding.name,
                 }
-              : binding.Type === "Cloudflare.D1Database"
+              : isDurableObjectNamespaceLike(binding)
                 ? {
-                    type: "d1",
-                    id: binding.databaseId,
+                    type: "durable_object_namespace",
                     name: bindingName,
+                    className: binding.className ?? binding.name,
                   }
-                : binding.Type === "Cloudflare.R2Bucket"
+                : binding.Type === "Cloudflare.D1Database"
                   ? {
-                      type: "r2_bucket",
+                      type: "d1",
+                      id: binding.databaseId,
                       name: bindingName,
-                      bucketName: binding.bucketName,
-                      jurisdiction: binding.jurisdiction.pipe(
-                        Output.map((jurisdiction) =>
-                          jurisdiction === "default" ? undefined : jurisdiction,
-                        ),
-                      ),
                     }
-                  : binding.Type === "Cloudflare.KVNamespace"
+                  : binding.Type === "Cloudflare.R2Bucket"
                     ? {
-                        type: "kv_namespace",
+                        type: "r2_bucket",
                         name: bindingName,
-                        namespaceId: binding.namespaceId,
+                        bucketName: binding.bucketName,
+                        jurisdiction: binding.jurisdiction.pipe(
+                          Output.map((jurisdiction) =>
+                            jurisdiction === "default"
+                              ? undefined
+                              : jurisdiction,
+                          ),
+                        ),
                       }
-                    : binding.Type === "Cloudflare.Queue"
+                    : binding.Type === "Cloudflare.KVNamespace"
                       ? {
-                          type: "queue",
+                          type: "kv_namespace",
                           name: bindingName,
-                          queueName: binding.queueName,
+                          namespaceId: binding.namespaceId,
                         }
-                      : binding.Type === "Cloudflare.AiGateway"
+                      : binding.Type === "Cloudflare.Queue"
                         ? {
-                            type: "ai",
+                            type: "queue",
                             name: bindingName,
+                            queueName: binding.queueName,
                           }
-                        : // TODO(sam): handle others
-                          undefined;
+                        : binding.Type === "Cloudflare.AiGateway"
+                          ? {
+                              type: "ai",
+                              name: bindingName,
+                            }
+                          : // TODO(sam): handle others
+                            undefined;
 
         if (bindingMeta) {
           yield* resource.bind`${bindingName}`({
