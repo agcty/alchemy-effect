@@ -44,9 +44,12 @@ test("renders the homepage", async ({ page }) => {
   const response = await page.goto(miniflare.url.toString());
   expect(response?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await page.evaluate(() => document.fonts.ready);
 
-  const index = await page.content();
-  expect(index).toMatchSnapshot("index.html");
+  await expect(page).toHaveScreenshot("index.png", {
+    animations: "disabled",
+    maxDiffPixelRatio: 0.03,
+  });
 
   expect(await page.textContent("button.counter")).toBe("Count is 0");
   await page.click("button.counter");

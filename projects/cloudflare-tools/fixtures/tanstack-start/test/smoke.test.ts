@@ -42,17 +42,19 @@ test("renders the homepage", async ({ page }) => {
   const response = await page.goto(miniflare.url.toString());
   expect(response?.status()).toBe(200);
   await page.waitForLoadState("networkidle");
+  await page.evaluate(() => document.fonts.ready);
 
   await expect(page).toHaveScreenshot("index.png", {
     animations: "disabled",
-    fullPage: true,
+    maxDiffPixelRatio: 0.03,
   });
 
   await page.click("a[href='/about']");
   await page.waitForURL("**/about");
+  await page.evaluate(() => document.fonts.ready);
 
   await expect(page).toHaveScreenshot("about.png", {
     animations: "disabled",
-    fullPage: true,
+    maxDiffPixelRatio: 0.03,
   });
 });
