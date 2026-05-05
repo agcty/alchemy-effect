@@ -78,6 +78,7 @@ test.provider.skipIf(!zoneId || !zoneName)(
         .pipe(
           Effect.map(() => false),
           Effect.catchTag("DomainNotFound", () => Effect.succeed(true)),
+          Effect.catchTag("NoSuchBucket", () => Effect.succeed(true)),
         );
       expect(deleted).toEqual(true);
 
