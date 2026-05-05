@@ -13,14 +13,6 @@ export type ImagesProps = {
    * @default "IMAGES"
    */
   name?: string;
-  dev?: {
-    /**
-     * Whether local development should use a remote Images binding.
-     *
-     * @default true
-     */
-    remote?: boolean;
-  };
 };
 
 /**
@@ -34,9 +26,6 @@ export type ImagesProps = {
 export type Images = {
   kind: ImagesTypeId;
   name: string;
-  dev: {
-    remote?: boolean;
-  };
 };
 
 export const isImages = (value: unknown): value is Images =>
@@ -87,7 +76,6 @@ export const Images: {
     return {
       kind: ImagesTypeId,
       name: props?.name ?? "IMAGES",
-      dev: props?.dev ?? {},
     } satisfies Images;
   }),
   {
