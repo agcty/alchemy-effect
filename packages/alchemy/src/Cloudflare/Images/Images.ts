@@ -59,7 +59,9 @@ export const isImages = (value: unknown): value is Images =>
  * @section Effect-style Worker
  * @example
  * ```typescript
- * const images = yield* Cloudflare.Images.bind(Images);
+ * Cloudflare.Worker("Worker", props, Effect.gen(function* () {
+ *   const images = yield* Cloudflare.Images.bind(Images);
+ * }).pipe(Effect.provide(Cloudflare.ImagesBindingLive)));
  * ```
  *
  * @see https://developers.cloudflare.com/images/transform-images/bindings/
