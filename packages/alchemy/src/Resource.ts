@@ -15,6 +15,25 @@ import { Stack } from "./Stack.ts";
 export type ResourceConstructor<R extends ResourceLike, Req = never> = {
   Type: R["Type"];
   Props: R["Props"];
+  /**
+   * Factory form. The inner function returns the same `[id, props]`
+   * tuple the positional `Resource(id, props)` form accepts. Listed
+   * before the methods overload because a function value also
+   * satisfies `{ [key: string]: any }`, and TS overload resolution
+   * picks the first match.
+   */
+  <Args extends readonly unknown[], PropsReq = never>(
+    factory: (
+      ...args: Args
+    ) => readonly [
+      id: string,
+      props:
+        | InputProps<R["Props"]>
+        | Effect.Effect<InputProps<R["Props"]>, never, PropsReq>,
+    ],
+  ): ((...args: Args) => Effect.Effect<R, never, Req | PropsReq>) & {
+    readonly [FACTORY_MARKER]: true;
+  };
   <const Methods extends { [key: string]: any }>(
     methods: Methods,
   ): ResourceClassWithMethods<R, Methods>;
@@ -36,22 +55,6 @@ export type ResourceConstructor<R extends ResourceLike, Req = never> = {
     id: string,
     props: Effect.Effect<InputProps<R["Props"]>, never, PropsReq>,
   ): Effect.Effect<R, never, PropsReq | Req>;
-  /**
-   * Factory form. The inner function returns the same `[id, props]`
-   * tuple the positional `Resource(id, props)` form accepts.
-   */
-  <Args extends readonly unknown[], PropsReq = never>(
-    factory: (
-      ...args: Args
-    ) => readonly [
-      id: string,
-      props:
-        | InputProps<R["Props"]>
-        | Effect.Effect<InputProps<R["Props"]>, never, PropsReq>,
-    ],
-  ): ((...args: Args) => Effect.Effect<R, never, Req | PropsReq>) & {
-    readonly [FACTORY_MARKER]: true;
-  };
 };
 
 export type ResourceClassWithMethods<
