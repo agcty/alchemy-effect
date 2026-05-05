@@ -1,13 +1,15 @@
 import * as ecs from "@distilled.cloud/aws/ecs";
 import * as elbv2 from "@distilled.cloud/aws/elastic-load-balancing-v2";
 import * as Effect from "effect/Effect";
+import * as Schedule from "effect/Schedule";
+import { Unowned } from "../../AdoptPolicy.ts";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
-import { createInternalTags } from "../../Tags.ts";
+import { createInternalTags, diffTags, hasAlchemyTags } from "../../Tags.ts";
 import type { AccountID } from "../Environment.ts";
 import type { RegionID } from "../Region.ts";
 import type { ClusterArn } from "./Cluster.ts";
@@ -173,6 +175,13 @@ export interface Service extends Resource<
      * ARN of the generated listener, when `public: true`.
      */
     listenerArn?: string;
+
+    /**
+     * Resolved tag map currently applied to the ECS service. Combines
+     * internal alchemy tags with user-supplied tags. Read directly from
+     * the cloud during reconcile so adoption converges correctly.
+     */
+    tags: Record<string, string>;
   },
   never,
   Providers
@@ -257,6 +266,33 @@ export const ServiceProvider = () =>
           : (((cluster as any).clusterArn ?? cluster) as string);
       const toEcsTags = (tags: Record<string, string>): ecs.Tag[] =>
         Object.entries(tags).map(([key, value]) => ({ key, value }));
+
+      const tagsFromService = (service: ecs.Service | undefined) =>
+        Object.fromEntries(
+          (service?.tags ?? [])
+            .filter(
+              (t): t is { key: string; value: string } =>
+                typeof t.key === "string" && typeof t.value === "string",
+            )
+            .map((t) => [t.key, t.value]),
+        );
+
+      // ECS surfaces `UpdateInProgressException` when a prior service
+      // mutation hasn't propagated. Bounded retry (60s) so we converge
+      // through transient lag without looping forever if the service
+      // stays wedged.
+      const retryOnUpdateInProgress = <A, E, R>(
+        effect: Effect.Effect<A, E, R>,
+      ) =>
+        effect.pipe(
+          Effect.retry({
+            while: (e) =>
+              (e as { _tag?: string })._tag === "UpdateInProgressException",
+            schedule: Schedule.fixed("2 seconds").pipe(
+              Schedule.both(Schedule.recurs(30)),
+            ),
+          }),
+        );
 
       const toServiceName = (
         id: string,
@@ -436,18 +472,34 @@ export const ServiceProvider = () =>
                 Effect.succeed(undefined),
               ),
             );
-          const service = described?.services?.[0];
+          // ECS keeps INACTIVE services in describeServices for ~1h after
+          // delete; treat them as gone so reconcile recreates rather than
+          // trying to update a tombstone. DRAINING means an in-flight
+          // delete-replace, also not adoptable.
+          const service = described?.services?.find(
+            (s) =>
+              s.serviceName === serviceName &&
+              s.status !== "INACTIVE" &&
+              s.status !== "DRAINING",
+          );
           if (!service?.serviceArn) {
             return undefined;
           }
-          return {
+          const observedTags = tagsFromService(service);
+          const attrs = {
             ...output!,
             serviceArn: service.serviceArn as ServiceArn,
             serviceName: service.serviceName!,
             clusterArn: service.clusterArn as ClusterArn,
             taskDefinitionArn: service.taskDefinition!,
             status: service.status ?? "ACTIVE",
+            tags: observedTags,
           };
+          // Foreign services (no alchemy tags) require `--adopt` /
+          // `adopt(true)` before the engine takes them over.
+          return (yield* hasAlchemyTags(id, observedTags))
+            ? attrs
+            : Unowned(attrs);
         }),
         reconcile: Effect.fn(function* ({ id, news, output, session }) {
           const serviceName = yield* toServiceName(id, news);
@@ -536,28 +588,55 @@ export const ServiceProvider = () =>
               loadBalancerArn: ingress?.loadBalancerArn,
               targetGroupArn: ingress?.targetGroupArn,
               listenerArn: ingress?.listenerArn,
+              tags: tagsFromService(service),
             };
           }
 
           // Sync — apply mutable fields (taskDefinition, desiredCount,
           // network, deployment) via updateService with a forced new
-          // deployment.
-          const updated = yield* ecs.updateService({
-            ...serviceInput(news, output),
-            service: serviceName,
-            cluster: clusterArn,
-            loadBalancers: ingress?.targetGroupArn
-              ? [
-                  {
-                    targetGroupArn: ingress.targetGroupArn,
-                    containerName: news.task.containerName,
-                    containerPort: news.task.port ?? 3000,
-                  },
-                ]
-              : undefined,
-            forceNewDeployment: true,
-          });
+          // deployment. ECS surfaces `UpdateInProgressException` if a
+          // prior mutation hasn't propagated; retry briefly so we don't
+          // fail loud on transient lag.
+          const updated = yield* retryOnUpdateInProgress(
+            ecs.updateService({
+              ...serviceInput(news, output),
+              service: serviceName,
+              cluster: clusterArn,
+              loadBalancers: ingress?.targetGroupArn
+                ? [
+                    {
+                      targetGroupArn: ingress.targetGroupArn,
+                      containerName: news.task.containerName,
+                      containerPort: news.task.port ?? 3000,
+                    },
+                  ]
+                : undefined,
+              forceNewDeployment: true,
+            }),
+          );
           const service = updated.service;
+          const serviceArn = (observed.serviceArn ?? service?.serviceArn) as
+            | ServiceArn
+            | undefined;
+
+          // Sync tags — diff observed cloud tags against desired so
+          // adoption (where `observed.tags` may not match what we last
+          // persisted) and out-of-band tag drift both converge.
+          const observedTags = tagsFromService(observed);
+          const { removed, upsert } = diffTags(observedTags, desiredTags);
+          if (serviceArn && upsert.length > 0) {
+            yield* ecs.tagResource({
+              resourceArn: serviceArn,
+              tags: upsert.map((tag) => ({ key: tag.Key, value: tag.Value })),
+            });
+          }
+          if (serviceArn && removed.length > 0) {
+            yield* ecs.untagResource({
+              resourceArn: serviceArn,
+              tagKeys: removed,
+            });
+          }
+
           yield* session.note(observed.serviceArn);
           return {
             serviceArn: observed.serviceArn as ServiceArn,
@@ -573,30 +652,38 @@ export const ServiceProvider = () =>
             loadBalancerArn: ingress?.loadBalancerArn,
             targetGroupArn: ingress?.targetGroupArn,
             listenerArn: ingress?.listenerArn,
+            tags: desiredTags,
           };
         }),
         delete: Effect.fn(function* ({ output }) {
-          yield* ecs
-            .updateService({
+          // Drain to zero first, retrying on transient
+          // `UpdateInProgressException`. `ServiceNotFoundException` /
+          // `ClusterNotFoundException` mean the resource is already gone
+          // (idempotent delete).
+          yield* retryOnUpdateInProgress(
+            ecs.updateService({
               cluster: output.clusterArn,
               service: output.serviceName,
               desiredCount: 0,
-            })
-            .pipe(
-              Effect.catchTag("ServiceNotFoundException", () => Effect.void),
-              Effect.catchTag("ClusterNotFoundException", () => Effect.void),
-            );
+            }),
+          ).pipe(
+            Effect.catchTag("ServiceNotFoundException", () => Effect.void),
+            Effect.catchTag("ClusterNotFoundException", () => Effect.void),
+          );
 
-          yield* ecs
-            .deleteService({
+          // `force: true` lets us delete without waiting for tasks to
+          // drain (we already set desiredCount to 0 above; force avoids
+          // the API rejecting the delete on lingering replicas).
+          yield* retryOnUpdateInProgress(
+            ecs.deleteService({
               cluster: output.clusterArn,
               service: output.serviceName,
               force: true,
-            })
-            .pipe(
-              Effect.catchTag("ServiceNotFoundException", () => Effect.void),
-              Effect.catchTag("ClusterNotFoundException", () => Effect.void),
-            );
+            }),
+          ).pipe(
+            Effect.catchTag("ServiceNotFoundException", () => Effect.void),
+            Effect.catchTag("ClusterNotFoundException", () => Effect.void),
+          );
 
           if (output.listenerArn) {
             yield* elbv2
@@ -608,11 +695,15 @@ export const ServiceProvider = () =>
               );
           }
           if (output.targetGroupArn) {
-            yield* elbv2
-              .deleteTargetGroup({
-                TargetGroupArn: output.targetGroupArn,
-              })
-              .pipe(Effect.catch(() => Effect.void));
+            // `deleteTargetGroup` is idempotent for a missing target group
+            // and surfaces `ResourceInUseException` only if the target
+            // group is still attached to a listener. We delete the
+            // listener above, so a `ResourceInUseException` here would be
+            // a real ordering bug — let it surface instead of swallowing
+            // it with a blanket catch.
+            yield* elbv2.deleteTargetGroup({
+              TargetGroupArn: output.targetGroupArn,
+            });
           }
           if (output.loadBalancerArn) {
             yield* elbv2
