@@ -3,8 +3,10 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Test from "@/Test/Vitest";
 import * as r2 from "@distilled.cloud/cloudflare/r2";
 import { expect } from "@effect/vitest";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";
+import * as Schedule from "effect/Schedule";
 
 const { test } = Test.make({ providers: Cloudflare.providers() });
 
@@ -14,9 +16,12 @@ const logLevel = Effect.provideService(
 );
 
 const zoneId = process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_ID;
-const domain = process.env.CLOUDFLARE_TEST_R2_DOMAIN;
+const zoneName = process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_NAME;
+const domain = zoneName
+  ? `alchemy-r2-test-${Math.random().toString(36).slice(2, 8)}.${zoneName}`
+  : undefined;
 
-test.provider.skipIf(!zoneId || !domain)(
+test.provider.skipIf(!zoneId || !zoneName)(
   "creates, updates, and deletes a bucket custom domain",
   (stack) =>
     Effect.gen(function* () {
@@ -75,5 +80,28 @@ test.provider.skipIf(!zoneId || !domain)(
           Effect.catchTag("DomainNotFound", () => Effect.succeed(true)),
         );
       expect(deleted).toEqual(true);
+
+      yield* waitForBucketToBeDeleted(bucket.bucketName, accountId);
     }).pipe(logLevel),
 );
+
+const waitForBucketToBeDeleted = Effect.fn(function* (
+  bucketName: string,
+  accountId: string,
+) {
+  yield* r2
+    .getBucket({
+      accountId,
+      bucketName,
+    })
+    .pipe(
+      Effect.flatMap(() => Effect.fail(new BucketStillExists())),
+      Effect.retry({
+        while: (e): e is BucketStillExists => e instanceof BucketStillExists,
+        schedule: Schedule.exponential(100),
+      }),
+      Effect.catchTag("NoSuchBucket", () => Effect.void),
+    );
+});
+
+class BucketStillExists extends Data.TaggedError("BucketStillExists") {}
