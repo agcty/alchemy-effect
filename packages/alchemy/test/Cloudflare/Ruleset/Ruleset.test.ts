@@ -12,19 +12,24 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
-const zoneId = process.env.CLOUDFLARE_TEST_RULESET_ZONE_ID;
+const zoneId = process.env.CLOUDFLARE_TEST_EMPTY_RULESET_ZONE_ID;
+const phase = "http_request_firewall_custom";
+type TestRulesetPhase = typeof phase;
 
 test.provider.skipIf(!zoneId)(
   "creates, updates, and deletes a zone phase entrypoint ruleset",
   (stack) =>
     Effect.gen(function* () {
+      const existingRules = yield* getPhaseRules(zoneId!, phase);
+      expect(existingRules).toEqual([]);
+
       yield* stack.destroy();
 
       const initial = yield* stack.deploy(
         Effect.gen(function* () {
           return yield* Cloudflare.Ruleset("TestRuleset", {
             zone: { zoneId: zoneId! },
-            phase: "http_request_firewall_custom",
+            phase,
             rules: [
               {
                 description: "Alchemy test rule",
@@ -37,14 +42,14 @@ test.provider.skipIf(!zoneId)(
       );
 
       expect(initial.zoneId).toEqual(zoneId);
-      expect(initial.phase).toEqual("http_request_firewall_custom");
+      expect(initial.phase).toEqual(phase);
       expect(initial.rules).toHaveLength(1);
 
       const updated = yield* stack.deploy(
         Effect.gen(function* () {
           return yield* Cloudflare.Ruleset("TestRuleset", {
             zone: { zoneId: zoneId! },
-            phase: "http_request_firewall_custom",
+            phase,
             rules: [
               {
                 description: "Updated Alchemy test rule",
@@ -63,10 +68,28 @@ test.provider.skipIf(!zoneId)(
 
       yield* stack.destroy();
 
-      const actual = yield* rulesets.getPhas({
-        zoneId: zoneId!,
-        rulesetPhase: "http_request_firewall_custom",
-      } as any);
-      expect(actual.rules).toHaveLength(0);
+      const actualRules = yield* getPhaseRules(zoneId!, phase);
+      expect(actualRules).toEqual([]);
     }).pipe(logLevel),
 );
+
+const getPhaseRules = Effect.fn(function* (
+  zoneId: string,
+  phase: TestRulesetPhase,
+) {
+  return yield* rulesets
+    .getPhas({
+      zoneId,
+      rulesetPhase: phase,
+    } as any)
+    .pipe(
+      Effect.map((ruleset) => ruleset.rules),
+      Effect.catchIf(isNotFoundError, () => Effect.succeed([])),
+    );
+});
+
+const isNotFoundError = (error: unknown): boolean =>
+  typeof error === "object" &&
+  error !== null &&
+  (("status" in error && (error as { status: unknown }).status === 404) ||
+    ("_tag" in error && (error as { _tag: unknown })._tag === "NotFound"));
