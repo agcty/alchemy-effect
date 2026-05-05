@@ -27,6 +27,7 @@ import * as Images from "./Images/index.ts";
 import * as KV from "./KV/index.ts";
 import * as Queue from "./Queue/index.ts";
 import * as R2 from "./R2/index.ts";
+import * as RateLimit from "./RateLimit/index.ts";
 import * as SecretsStore from "./SecretsStore/index.ts";
 import * as Tunnel from "./Tunnel/index.ts";
 import * as VpcService from "./VpcService/index.ts";
@@ -74,6 +75,7 @@ export const providers = () =>
       Queue.QueueEventSourcePolicy,
       R2.R2Bucket,
       R2.R2BucketBindingPolicy,
+      RateLimit.RateLimitBindingPolicy,
       SecretsStore.SecretBindingPolicy,
       SecretsStore.SecretsStore,
       SecretsStore.Secret,
@@ -114,6 +116,7 @@ export const providers = () =>
         Queue.QueueConsumerProvider(),
         R2.R2BucketBindingPolicyLive,
         R2.R2BucketProvider(),
+        RateLimit.RateLimitBindingPolicyLive,
         SecretsStore.SecretBindingPolicyLive,
         SecretsStore.SecretsStoreProvider(),
         SecretsStore.StoreSecretProvider(),
