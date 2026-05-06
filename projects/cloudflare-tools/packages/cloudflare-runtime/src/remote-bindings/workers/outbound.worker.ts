@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { decodeResponse } from "../../internal/response.shared.ts";
 import type { RemoteWorkerConfig, RemoteWorkerResult } from "../RemoteWorkerConfig.shared.ts";
 
 interface Env {
@@ -42,15 +43,9 @@ export class RemoteBindingProxy extends DurableObject<Env> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(this.env.OPTIONS),
       });
-      const json = await response.json<
-        | { success: true; result: RemoteWorkerResult }
-        | { success: false; error: { message: string } }
-      >();
-      if (!json.success) {
-        throw new Error(`Failed to fetch config: ${response.statusText}`, { cause: json.error });
-      }
-      this.config = json.result;
-      return json.result;
+      const json = await decodeResponse<RemoteWorkerResult>(response);
+      this.config = json;
+      return json;
     });
   }
 

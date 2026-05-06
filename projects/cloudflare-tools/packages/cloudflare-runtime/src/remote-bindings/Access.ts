@@ -2,23 +2,18 @@ import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/unstable/process/ChildProcessSpawner";
+import { ConfigError, SystemError } from "../RuntimeError.shared.ts";
 import { cachedFunction } from "../internal/cached-function.ts";
-
-export class AccessError extends Schema.TaggedErrorClass<AccessError>()("AccessError", {
-  message: Schema.String,
-  cause: Schema.optional(Schema.Defect),
-}) {}
 
 export class Access extends Context.Service<
   Access,
   {
     readonly getAccessHeaders: (
       domain: string,
-    ) => Effect.Effect<Record<string, string>, AccessError>;
+    ) => Effect.Effect<Record<string, string>, ConfigError | SystemError>;
   }
 >()("cloudflare-runtime/remote-bindings/Access") {}
 
@@ -26,6 +21,11 @@ export const layer = Layer.effect(
   Access,
   Effect.gen(function* () {
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+    // Intentional: probe failures (timeout, DNS, network blip) are coerced
+    // to "domain does not use Access" so we don't pop a login prompt for
+    // every transient hiccup. This mirrors workers-sdk's behavior. The
+    // tradeoff is that a real outage on a genuinely Access-protected host
+    // can briefly look like a non-Access host until the cache clears.
     const domainUsesAccess = yield* cachedFunction((domain: string) =>
       Effect.promise((signal) => fetch(`https://${domain}`, { redirect: "manual", signal })).pipe(
         Effect.map(
@@ -43,10 +43,10 @@ export const layer = Layer.effect(
         Effect.flatMap((process) => Stream.runCollect(process.stdout)),
         Effect.mapError(
           (error) =>
-            new AccessError({
-              message:
-                `The domain "${domain}" uses Cloudflare Access, but \`cloudflared\` is not installed. ` +
-                `Please install it from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation.`,
+            new SystemError({
+              subtag: "CloudflaredMissing",
+              message: `The domain "${domain}" uses Cloudflare Access but the \`cloudflared\` CLI could not be invoked.`,
+              hint: "Install cloudflared from https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation, or set CLOUDFLARE_ACCESS_CLIENT_ID and CLOUDFLARE_ACCESS_CLIENT_SECRET.",
               cause: error,
             }),
         ),
@@ -55,8 +55,11 @@ export const layer = Layer.effect(
           return matches && matches.length >= 2
             ? Effect.succeed({ Cookie: `CF_Authorization=${matches[1]}` })
             : Effect.fail(
-                new AccessError({
-                  message: "Failed to authenticate with Cloudflare Access",
+                new SystemError({
+                  subtag: "CloudflaredAuth",
+                  message: "Failed to extract a token from `cloudflared access login`.",
+                  hint: "Try running `cloudflared access login <domain>` manually to debug.",
+                  detail: { stdout: stdout.toString() },
                 }),
               );
         }),
@@ -83,13 +86,17 @@ export const layer = Layer.effect(
         }
 
         if (clientId !== undefined || clientSecret !== undefined) {
-          yield* Effect.logWarning(
-            "Both CLOUDFLARE_ACCESS_CLIENT_ID and CLOUDFLARE_ACCESS_CLIENT_SECRET must be set to use Access Service Token authentication. " +
-              `Only ${
+          return yield* Effect.fail(
+            new ConfigError({
+              subtag: "AccessTokenIncomplete",
+              message:
+                "Both CLOUDFLARE_ACCESS_CLIENT_ID and CLOUDFLARE_ACCESS_CLIENT_SECRET must be set to use Access service-token authentication.",
+              hint: `Only ${
                 clientId !== undefined
                   ? "CLOUDFLARE_ACCESS_CLIENT_ID"
                   : "CLOUDFLARE_ACCESS_CLIENT_SECRET"
-              } was found.`,
+              } was found. Set the missing variable, unset both to fall back to interactive login, or remove the value to disable service-token auth.`,
+            }),
           );
         }
 

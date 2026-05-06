@@ -40,13 +40,13 @@
     "./proxy": "./dist/proxy/index.mjs",
     "./proxy/LocalProxy": "./dist/proxy/LocalProxy.mjs",
     "./proxy/ProxyApi": "./dist/proxy/ProxyApi.shared.mjs",
-    "./proxy/ProxyError": "./dist/proxy/ProxyError.mjs",
     "./proxy/RemoteProxy": "./dist/proxy/RemoteProxy.mjs",
     "./remote-bindings": "./dist/remote-bindings/index.mjs",
     "./remote-bindings/Access": "./dist/remote-bindings/Access.mjs",
     "./remote-bindings/RemoteBindings": "./dist/remote-bindings/RemoteBindings.mjs",
     "./remote-bindings/RemoteWorker": "./dist/remote-bindings/RemoteWorker.mjs",
     "./remote-bindings/RemoteWorkerConfig": "./dist/remote-bindings/RemoteWorkerConfig.shared.mjs",
+    "./RuntimeError": "./dist/RuntimeError.shared.mjs",
     "./RuntimeServices": "./dist/RuntimeServices.mjs",
     "./Server": "./dist/Server.mjs",
     "./Storage": "./dist/Storage.mjs",
@@ -54,7 +54,6 @@
     "./workerd": "./dist/workerd/index.mjs",
     "./workerd/Config": "./dist/workerd/Config.mjs",
     "./workerd/Runtime": "./dist/workerd/Runtime.mjs",
-    "./workerd/RuntimeError": "./dist/workerd/RuntimeError.mjs",
     "./WorkerModule": "./dist/WorkerModule.mjs",
     "./package.json": "./package.json"
   },
@@ -97,6 +96,7 @@
     }
   },
   "inlinedDependencies": {
-    "capnweb": "0.7.0"
+    "capnweb": "0.7.0",
+    "effect": "4.0.0-beta.60"
   }
 }

@@ -1,3 +1,4 @@
+export * as RuntimeError from "./RuntimeError.shared.ts";
 export * as RuntimeServices from "./RuntimeServices.ts";
 export * as Server from "./Server.ts";
 export * as Storage from "./Storage.ts";

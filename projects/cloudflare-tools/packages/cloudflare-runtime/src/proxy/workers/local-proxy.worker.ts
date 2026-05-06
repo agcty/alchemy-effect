@@ -1,6 +1,8 @@
 import type { RpcStub } from "capnweb";
 import { newWebSocketRpcSession } from "capnweb";
 import { DurableObject } from "cloudflare:workers";
+import { makeErrorResponse } from "../../internal/response.shared.ts";
+import { SystemError } from "../../RuntimeError.shared.ts";
 import {
   LOCAL_CONFIGURE_PATH,
   REMOTE_WEBSOCKET_PATH,
@@ -36,9 +38,15 @@ export class LocalProxy extends DurableObject<Env> {
       try {
         return await this.handleProxyControllerRequest(request);
       } catch (error) {
-        return new Response(error instanceof Error ? error.message : String(error), {
-          status: 500,
-        });
+        return makeErrorResponse(
+          new SystemError({
+            subtag: "LocalProxyController",
+            message: `Local proxy controller failed to handle a control message: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+            cause: error,
+          }),
+        );
       }
     }
     return await this.handleUserWorkerRequest(request);
@@ -95,7 +103,15 @@ export class LocalProxy extends DurableObject<Env> {
       if (segments.length < 2 || !name) {
         this.queue.delete(request);
         this.retryQueue.delete(request);
-        return promise.resolve(new Response("Invalid request", { status: 400 }));
+        return promise.resolve(
+          makeErrorResponse(
+            new SystemError({
+              subtag: "InvalidProxyHostname",
+              message: `Invalid request: hostname "${original.hostname}" is missing a worker subdomain.`,
+            }),
+            { status: 400 },
+          ),
+        );
       }
       const local = this.workers[name]?.local;
       if (!local) {
@@ -116,12 +132,13 @@ export class LocalProxy extends DurableObject<Env> {
               this.retryQueue.set(request, promise);
             } else {
               promise.resolve(
-                new Response(
-                  "Your worker restarted mid-request. Please try sending the request again. Only GET or HEAD requests are retried automatically.",
-                  {
-                    status: 503,
-                    headers: { "Retry-After": "0" },
-                  },
+                makeErrorResponse(
+                  new SystemError({
+                    subtag: "WorkerRestartedMidRequest",
+                    message: "Your worker restarted mid-request.",
+                    hint: "Try sending the request again. Only GET and HEAD requests are retried automatically.",
+                  }),
+                  { status: 503, headers: { "retry-after": "0" } },
                 ),
               );
             }

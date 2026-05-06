@@ -23,7 +23,7 @@ export interface Middleware {
   upstreamBindingName: string;
 }
 
-export const build = Effect.fn(function* <E = never>(worker: Worker, plugins: Array<Plugin<E>>) {
+export const build = Effect.fn(function* <E>(worker: Worker, plugins: Array<Plugin<E>>) {
   const outputs = yield* Effect.all(plugins.map((plugin) => plugin.make(worker)));
   const services = outputs.flatMap((output) => output.services ?? []);
   const bindings = outputs.flatMap((output) => output.bindings ?? []);

@@ -1,19 +1,18 @@
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
 import type * as Scope from "effect/Scope";
 import * as Bindings from "./Bindings.ts";
 import * as Entry from "./entry/EntryPlugin.ts";
 import * as Hyperdrive from "./hyperdrive/HyperdrivePlugin.ts";
 import * as Plugin from "./Plugin.ts";
 import * as LocalProxy from "./proxy/LocalProxy.ts";
-import { ProxyError } from "./proxy/ProxyError.ts";
 import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
+import type { RuntimeError } from "./RuntimeError.shared.ts";
 import * as Storage from "./Storage.ts";
 import type { Worker } from "./Worker.ts";
 import * as Runtime from "./workerd/Runtime.ts";
-import { RuntimeError } from "./workerd/RuntimeError.ts";
 import * as WorkerModule from "./WorkerModule.ts";
 
 export interface ServeResult {
@@ -21,17 +20,10 @@ export interface ServeResult {
   readonly address: string;
 }
 
-export const ServeError = Schema.Union([
-  RuntimeError,
-  ProxyError,
-  Bindings.UnsupportedBindingError,
-]);
-export type ServeError = RuntimeError | ProxyError | Bindings.UnsupportedBindingError;
-
 export class Server extends Context.Service<
   Server,
   {
-    readonly serve: (worker: Worker) => Effect.Effect<ServeResult, ServeError, Scope.Scope>;
+    readonly serve: (worker: Worker) => Effect.Effect<ServeResult, RuntimeError, Scope.Scope>;
   }
 >()("cloudflare-runtime/Server") {}
 
@@ -95,7 +87,12 @@ export const layer = Layer.effect(
               worker: worker.name,
               address,
             })
-            .pipe(Effect.ignore),
+            // Teardown noise should not surface as a serve failure but we
+            // want to keep it recoverable from logs.
+            .pipe(
+              Effect.tapCause((cause) => Effect.logDebug(Cause.pretty(cause))),
+              Effect.ignore,
+            ),
         );
         return {
           name: worker.name,

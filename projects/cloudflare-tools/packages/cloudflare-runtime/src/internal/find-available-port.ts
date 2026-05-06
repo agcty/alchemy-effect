@@ -1,9 +1,11 @@
 import * as Effect from "effect/Effect";
 import * as Net from "node:net";
+import { SystemError } from "../RuntimeError.shared.ts";
 
 const MAX_PORT = 65535;
 
 export const findAvailablePort = /* @__PURE__ */ Effect.fn(function* (port: number, host?: string) {
+  const start = port;
   while (port <= MAX_PORT) {
     if (yield* isPortAvailable(port, host)) {
       return port;
@@ -11,7 +13,14 @@ export const findAvailablePort = /* @__PURE__ */ Effect.fn(function* (port: numb
     yield* Effect.log(`Port ${port} is not available, trying ${port + 1}...`);
     port++;
   }
-  return yield* Effect.die(new Error(`Port ${port} is not available`));
+  return yield* Effect.fail(
+    new SystemError({
+      subtag: "PortExhausted",
+      message: `No available port found starting from ${start}${host ? ` on ${host}` : ""}.`,
+      hint: "Free up a port in this range or pick a different starting port.",
+      detail: { start, host },
+    }),
+  );
 });
 
 const isPortAvailable = (port: number, host?: string) =>

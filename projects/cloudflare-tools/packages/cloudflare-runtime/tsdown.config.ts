@@ -11,7 +11,13 @@ export default defineConfig([
     outDir: "dist/workers",
     tsconfig: "tsconfig.workers.json",
     format: "esm",
+    minify: {
+      mangle: false,
+    },
     plugins: [cloudflare({ compatibilityDate: "2026-03-10" }), workerExportsPlugin()],
+    deps: {
+      alwaysBundle: () => true,
+    },
   },
   {
     entry: ["src/**/*.ts", "!src/**/*.worker.ts", "!src/global.d.ts"],

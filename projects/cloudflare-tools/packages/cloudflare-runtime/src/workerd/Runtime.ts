@@ -7,8 +7,8 @@ import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/unstable/process/ChildProcessSpawner";
+import { ConfigError, SystemError } from "../RuntimeError.shared.ts";
 import type { Config } from "./Config.ts";
-import { RuntimeError } from "./RuntimeError.ts";
 import { serializeConfig } from "./internal/config.serialize.ts";
 import * as Workerd from "./internal/workerd.ts";
 
@@ -30,7 +30,7 @@ export class Runtime extends Context.Service<
     readonly serve: (
       config: Config,
       args?: Record<string, string | number | boolean>,
-    ) => Effect.Effect<Array<ControlMessage>, RuntimeError, Scope.Scope>;
+    ) => Effect.Effect<Array<ControlMessage>, ConfigError | SystemError, Scope.Scope>;
   }
 >()("cloudflare-runtime/workerd/Runtime") {}
 
@@ -59,7 +59,18 @@ export const layer = Layer.effect(
           stderr: "pipe",
           additionalFds: { fd3: { type: "output" } },
         },
-      ).pipe(spawner.spawn, mapToRuntimeError("Failed to spawn workerd"));
+      ).pipe(
+        spawner.spawn,
+        Effect.mapError(
+          (error) =>
+            new SystemError({
+              subtag: "WorkerdSpawn",
+              message: "Failed to spawn the Workers runtime (workerd) process.",
+              hint: "Make sure the workerd binary is available for this platform.",
+              cause: error,
+            }),
+        ),
+      );
 
     return Runtime.of({
       compatibilityDate: Workerd.compatibilityDate,
@@ -106,7 +117,12 @@ const readControlMessages = (stream: Stream.Stream<Uint8Array, PlatformError>, c
       ),
     ),
     Effect.mapError(
-      (error) => new RuntimeError({ message: "Failed to read control messages", cause: error }),
+      (error) =>
+        new SystemError({
+          subtag: "WorkerdIpc",
+          message: "Failed to read control messages from the Workers runtime.",
+          cause: error,
+        }),
     ),
   );
 
@@ -118,22 +134,55 @@ const failureFromStderr = (stream: Stream.Stream<Uint8Array, PlatformError>) =>
       () => "",
       (acc, data) => acc + data,
     ),
+    // If reading stderr itself fails, log a debug breadcrumb and fall back
+    // to the same generic "failed to start" path so callers always see a
+    // structured tagged error.
+    Effect.tapCause((cause) => Effect.logDebug(cause)),
     Effect.orElseSucceed(() => undefined),
-    Effect.flatMap((stderr) =>
-      Effect.fail(
-        new RuntimeError({
-          message: "The Workers runtime failed to start.",
-          stderr: stderr?.trim(),
-        }),
-      ),
-    ),
+    Effect.flatMap((stderr) => Effect.fail(classifyWorkerdStderr(stderr))),
   );
 
-const mapToRuntimeError = (message: string) =>
-  Effect.mapError(
-    (error: unknown) =>
-      new RuntimeError({
-        message,
-        cause: error,
-      }),
-  );
+/**
+ * Workerd writes failures to stderr in a few well-known shapes. This
+ * classifier inspects the captured stderr and decides whether the failure
+ * is a user-facing config error (bad worker script or config) or a
+ * lower-level system error (port conflict, internal workerd error, etc.).
+ */
+const classifyWorkerdStderr = (stderr: string | undefined): ConfigError | SystemError => {
+  const text = (stderr ?? "").trim();
+  const lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  // Pattern: `service <name>: <message>` is workerd's way of reporting a
+  // problem with one of the user's services (script load failure, missing
+  // compatibility date, syntax error in user script, etc.).
+  const serviceLine = lines.find((line) => /^service [^:]+:/.test(line));
+  if (serviceLine) {
+    const match = serviceLine.match(/^service ([^:]+): (.*)$/);
+    const [, service, detail] = match ?? [];
+    return new ConfigError({
+      subtag: "WorkerdUserScript",
+      message: detail ?? serviceLine,
+      hint: service ? `Check the configuration for service "${service}".` : undefined,
+      detail: { stderr: text, service },
+    });
+  }
+
+  // Pattern: address-in-use comes through as a `kj::Exception`.
+  if (/Address already in use/i.test(text)) {
+    return new SystemError({
+      subtag: "WorkerdAddressInUse",
+      message: "The Workers runtime could not bind to the requested address (already in use).",
+      hint: "Pick a different port or stop the process using it.",
+      detail: { stderr: text },
+    });
+  }
+
+  return new SystemError({
+    subtag: "WorkerdStartFailed",
+    message: "The Workers runtime failed to start.",
+    detail: { stderr: text },
+  });
+};

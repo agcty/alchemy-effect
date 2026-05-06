@@ -1,11 +1,19 @@
 import { newWorkersRpcResponse } from "capnweb";
 import { EmailMessage } from "cloudflare:email";
+import { ConfigError, SystemError } from "../../RuntimeError.shared.ts";
+import { makeErrorResponse } from "../../internal/response.shared.ts";
 
 interface Env extends Record<string, unknown> {}
 
 class BindingNotFoundError extends Error {
+  readonly bindingName?: string;
   constructor(name?: string) {
-    super(`Binding ${name ? `"${name}"` : ""} not found`);
+    super(
+      name
+        ? `Binding "${name}" not found in remote worker bindings.`
+        : "Missing binding name in remote-binding request.",
+    );
+    this.bindingName = name;
   }
 }
 
@@ -13,6 +21,9 @@ class BindingNotFoundError extends Error {
  * For most bindings, we expose them as
  *  - RPC stubs directly to capnweb, or
  *  - HTTP based fetchers
+ * Failures are encoded with the shared {@link makeErrorResponse} helper so
+ * the upstream proxy can rehydrate a structured tagged error.
+ *
  * However, there are some special cases:
  *  - SendEmail bindings need to take EmailMessage as their first parameter,
  *    which is not serialisable. As such, we reconstruct it before sending it
@@ -126,9 +137,26 @@ export default {
       }
     } catch (e) {
       if (e instanceof BindingNotFoundError) {
-        return new Response(e.message, { status: 400 });
+        return makeErrorResponse(
+          new ConfigError({
+            subtag: "BindingNotFound",
+            message: e.message,
+            hint: e.bindingName
+              ? `Add "${e.bindingName}" to the worker's bindings or remove the reference to it.`
+              : undefined,
+            detail: { bindingName: e.bindingName },
+          }),
+          { status: 400 },
+        );
       }
-      return new Response((e as Error).message, { status: 500 });
+      const message = e instanceof Error ? e.message : String(e);
+      return makeErrorResponse(
+        new SystemError({
+          subtag: "RemoteBindingProxy",
+          message: `Remote binding handler threw an error: ${message}`,
+          cause: e,
+        }),
+      );
     }
   },
 } satisfies ExportedHandler<Env>;
