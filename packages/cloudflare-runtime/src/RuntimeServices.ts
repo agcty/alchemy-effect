@@ -1,10 +1,8 @@
 import * as Layer from "effect/Layer";
+import * as LocalProxy from "./proxy/LocalProxy.ts";
+import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
 import * as Server from "./Server.ts";
 import * as Storage from "./Storage.ts";
-import * as Access from "./bindings/Access.ts";
-import * as Bindings from "./bindings/Bindings.ts";
-import * as RemoteSession from "./bindings/RemoteSession.ts";
-import * as LocalProxy from "./proxy/LocalProxy.ts";
 import * as Runtime from "./workerd/Runtime.ts";
 
 export const layer = (config: {
@@ -21,10 +19,7 @@ export const layer = (config: {
       Layer.mergeAll(
         Runtime.layer,
         config.storage ? Storage.layerDisk(config.storage) : Storage.layerTemp(),
-        Layer.provide(
-          Bindings.layer,
-          Layer.provide(RemoteSession.layer(config.accountId), Access.layer),
-        ),
+        RemoteBindings.layerServices(config.accountId),
       ),
     ),
   );

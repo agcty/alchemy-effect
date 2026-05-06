@@ -16,7 +16,11 @@ export default defineConfig([
   {
     entry: ["src/**/*.ts", "!src/**/*.worker.ts", "!src/global.d.ts"],
     exports: {
-      exclude: ["**/internal/**"],
+      exclude: ["**/internal/**", "**/*.worker.ts"],
+      customExports: (exports) =>
+        Object.fromEntries(
+          Object.entries(exports).map(([key, value]) => [key.replace(".shared", ""), value]),
+        ),
     },
     outDir: "dist",
     tsconfig: "tsconfig.bundle.json",

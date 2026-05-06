@@ -4,13 +4,13 @@ import * as Layer from "effect/Layer";
 import * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import * as LocalProxyWorker from "worker:./internal/local-proxy.worker.ts";
+import * as LocalProxyWorker from "worker:./workers/local-proxy.worker.ts";
 import * as WorkerModule from "../WorkerModule.ts";
+import { findAvailablePort } from "../internal/find-available-port.ts";
 import * as Config from "../workerd/Config.ts";
 import * as Runtime from "../workerd/Runtime.ts";
-import { LOCAL_CONFIGURE_PATH, type ControllerMessage } from "./ProxyApi.ts";
+import { LOCAL_CONFIGURE_PATH, type ControllerMessage } from "./ProxyApi.shared.ts";
 import { ProxyError } from "./ProxyError.ts";
-import { findAvailablePort } from "./internal/find-available-port.ts";
 
 export class LocalProxy extends Context.Service<
   LocalProxy,

@@ -1,10 +1,10 @@
 import { DurableObject } from "cloudflare:workers";
-import type { OutboundConfig, SessionOptions } from "../RemoteConfig.ts";
+import type { RemoteWorkerConfig, RemoteWorkerResult } from "../RemoteWorkerConfig.shared.ts";
 
 interface Env {
   PROXY: ColoLocalActorNamespace;
   LOOPBACK: Fetcher;
-  OPTIONS: SessionOptions;
+  OPTIONS: RemoteWorkerConfig;
 }
 
 export default {
@@ -15,7 +15,7 @@ export default {
 };
 
 export class RemoteBindingProxy extends DurableObject<Env> {
-  private config: OutboundConfig | undefined;
+  private config: RemoteWorkerResult | undefined;
 
   async fetch(request: Request): Promise<Response> {
     const config = await this.configure();
@@ -43,7 +43,8 @@ export class RemoteBindingProxy extends DurableObject<Env> {
         body: JSON.stringify(this.env.OPTIONS),
       });
       const json = await response.json<
-        { success: true; session: OutboundConfig } | { success: false; error: { message: string } }
+        | { success: true; session: RemoteWorkerResult }
+        | { success: false; error: { message: string } }
       >();
       if (!json.success) {
         throw new Error(`Failed to fetch config: ${response.statusText}`, { cause: json.error });
@@ -53,7 +54,7 @@ export class RemoteBindingProxy extends DurableObject<Env> {
     });
   }
 
-  private async proxy(request: Request, config: OutboundConfig): Promise<Response> {
+  private async proxy(request: Request, config: RemoteWorkerResult): Promise<Response> {
     const origin = new URL(request.url);
     const target = new URL(origin.pathname + origin.search, config.url);
     const proxiedHeaders = new Headers(request.headers);

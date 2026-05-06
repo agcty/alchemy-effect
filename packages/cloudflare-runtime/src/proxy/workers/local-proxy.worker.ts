@@ -7,7 +7,7 @@ import {
   type ControllerMessage,
   type WebSocketProxy,
   type WorkerProxy,
-} from "../ProxyApi.ts";
+} from "../ProxyApi.shared.ts";
 
 interface Env {
   PROXY: ColoLocalActorNamespace;

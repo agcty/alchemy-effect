@@ -1,23 +1,10 @@
-import * as Cause from "effect/Cause";
-import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Fiber from "effect/Fiber";
 import { absurd } from "effect/Function";
-import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
-import * as HttpServer from "effect/unstable/http/HttpServer";
-import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import * as ClientWorker from "worker:./workers/client.worker.ts";
-import * as HyperdriveBindingWorker from "worker:./workers/hyperdrive-binding.worker.ts";
-import * as OutboundWorker from "worker:./workers/outbound.worker.ts";
-import type * as Plugin from "../Plugin.ts";
-import type * as Worker from "../Worker.ts";
-import * as Config from "../workerd/Config.ts";
-import * as WorkerModule from "../WorkerModule.ts";
-import type * as Access from "./Access.ts";
-import type { OutboundConfig, RemoteBinding, SessionOptions } from "./RemoteConfig.ts";
-import * as RemoteSession from "./RemoteSession.ts";
+import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
+import type { RemoteBinding } from "./remote-bindings/RemoteWorkerConfig.shared.ts";
+import type * as Worker from "./Worker.ts";
+import * as Config from "./workerd/Config.ts";
 
 export class UnsupportedBindingError extends Schema.TaggedErrorClass<UnsupportedBindingError>()(
   "UnsupportedBindingError",
@@ -27,138 +14,12 @@ export class UnsupportedBindingError extends Schema.TaggedErrorClass<Unsupported
   },
 ) {}
 
-export class Bindings extends Context.Service<Bindings, Plugin.Plugin<UnsupportedBindingError>>()(
-  "cloudflare-runtime/bindings/Bindings",
-) {}
-
-export const layer = Layer.effect(
-  Bindings,
-  Effect.gen(function* () {
-    const httpServer = yield* HttpServer.HttpServer;
-    const remoteSession = yield* RemoteSession.RemoteSession;
-    const prewarms = new Map<
-      string,
-      Fiber.Fiber<OutboundConfig, RemoteSession.SessionError | Access.AccessError>
-    >();
-
-    const address = httpServer.address as HttpServer.TcpAddress;
-
-    const createSession = Effect.fn(
-      function* (options: SessionOptions) {
-        const fiber = prewarms.get(options.name);
-        if (fiber) {
-          prewarms.delete(options.name);
-          return yield* Fiber.join(fiber);
-        }
-        const session = yield* remoteSession.create(options);
-        return session;
-      },
-      (effect) =>
-        effect.pipe(
-          Effect.exit,
-          Effect.flatMap((exit) => {
-            return exit._tag === "Success"
-              ? HttpServerResponse.json({ success: true, session: exit.value })
-              : HttpServerResponse.json(
-                  { success: false, error: { message: Cause.pretty(exit.cause) } },
-                  { status: 500 },
-                );
-          }),
-        ),
-    );
-
-    yield* httpServer.serve(
-      Effect.gen(function* () {
-        const request = yield* HttpServerRequest.HttpServerRequest;
-        const json = (yield* request.json) as unknown as SessionOptions;
-        return yield* createSession(json);
-      }),
-    );
-
-    const makeServices = (options: SessionOptions) => {
-      const config = {
-        name: "remote-bindings:config",
-        external: {
-          address: `${address.hostname}:${address.port}`,
-          http: {},
-        },
-      } satisfies Config.Service;
-      const outbound = {
-        name: "remote-bindings:outbound",
-        worker: {
-          compatibilityDate: "2026-03-10",
-          modules: OutboundWorker.modules.map(WorkerModule.toWorkerd),
-          bindings: [
-            {
-              name: "PROXY",
-              durableObjectNamespace: { className: "RemoteBindingProxy" },
-            },
-            {
-              name: "LOOPBACK",
-              service: { name: config.name },
-            },
-            {
-              name: "OPTIONS",
-              json: JSON.stringify(options),
-            },
-          ],
-          durableObjectNamespaces: [
-            {
-              className: "RemoteBindingProxy",
-              enableSql: true,
-              preventEviction: true,
-              ephemeralLocal: Config.kVoid,
-            },
-          ],
-        },
-      } satisfies Config.Service;
-      const client = {
-        name: "remote-bindings:client",
-        worker: {
-          compatibilityDate: "2026-03-10",
-          modules: ClientWorker.modules.map(WorkerModule.toWorkerd),
-          globalOutbound: { name: outbound.name },
-        },
-      } satisfies Config.Service;
-      return [client, outbound, config];
-    };
-
-    return Bindings.of({
-      name: "bindings",
-      make: Effect.fn(function* (worker) {
-        const { workerBindings, remoteBindings, extensions, services } = yield* buildBindings(
-          worker.bindings,
-          worker.hyperdrives ?? {},
-        );
-        if (remoteBindings.length > 0) {
-          const options = {
-            name: worker.name,
-            bindings: remoteBindings,
-          };
-          prewarms.set(worker.name, yield* Effect.forkDetach(remoteSession.create(options)));
-          services.push(...makeServices(options));
-        }
-        return {
-          bindings: workerBindings,
-          services,
-          extensions,
-        };
-      }),
-    });
-  }),
-);
-
-const buildBindings = Effect.fn(function* (
-  bindings: ReadonlyArray<Worker.Binding>,
-  hyperdrives: Record<string, Worker.HyperdriveOrigin>,
-) {
+export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker.Binding>) {
   const remoteBindings: Array<RemoteBinding> = [];
-  const extensions: Array<Config.Extension> = [];
-  const services: Array<Config.Service> = [];
   const workerBindings = yield* Effect.forEach(
     bindings,
     Effect.fn(function* (binding): Effect.fn.Return<
-      Config.Worker_Binding,
+      Config.Worker_Binding | undefined,
       UnsupportedBindingError
     > {
       switch (binding.type) {
@@ -175,7 +36,7 @@ const buildBindings = Effect.fn(function* (
               innerBindings: [
                 {
                   name: "fetcher",
-                  service: makeRemoteBindingServiceDesignator(binding.name),
+                  service: RemoteBindings.makeServiceDesignator(binding.name),
                 },
               ],
             },
@@ -192,7 +53,7 @@ const buildBindings = Effect.fn(function* (
           });
           return {
             name: binding.name,
-            service: makeRemoteBindingServiceDesignator(binding.name),
+            service: RemoteBindings.makeServiceDesignator(binding.name),
           };
         }
         case "assets":
@@ -213,7 +74,7 @@ const buildBindings = Effect.fn(function* (
               innerBindings: [
                 {
                   name: "fetcher",
-                  service: makeRemoteBindingServiceDesignator(binding.name),
+                  service: RemoteBindings.makeServiceDesignator(binding.name),
                 },
               ],
             },
@@ -240,39 +101,8 @@ const buildBindings = Effect.fn(function* (
           };
         }
         case "hyperdrive": {
-          const origin = hyperdrives[binding.id];
-          if (origin) {
-            if (
-              !extensions.some((extension) =>
-                extension.modules?.some(
-                  (module) => module.name === "cloudflare-internal:hyperdrive",
-                ),
-              )
-            ) {
-              extensions.push({
-                modules: [
-                  {
-                    name: "cloudflare-internal:hyperdrive",
-                    internal: true,
-                    esModule: HyperdriveBindingWorker.modules[0].content as string,
-                  },
-                ],
-              });
-            }
-            return {
-              name: binding.name,
-              wrapped: {
-                moduleName: "cloudflare-internal:hyperdrive",
-                innerBindings: [
-                  {
-                    name: "ORIGIN",
-                    json: JSON.stringify(origin),
-                  },
-                ],
-              },
-            };
-          }
-          return yield* makeUnsupportedBindingError(binding);
+          // handled by Hyperdrive plugin
+          return;
         }
         case "images": {
           remoteBindings.push({
@@ -287,7 +117,7 @@ const buildBindings = Effect.fn(function* (
               innerBindings: [
                 {
                   name: "fetcher",
-                  service: makeRemoteBindingServiceDesignator(binding.name),
+                  service: RemoteBindings.makeServiceDesignator(binding.name),
                 },
               ],
             },
@@ -310,7 +140,7 @@ const buildBindings = Effect.fn(function* (
           });
           return {
             name: binding.name,
-            kvNamespace: makeRemoteBindingServiceDesignator(binding.name),
+            kvNamespace: RemoteBindings.makeServiceDesignator(binding.name),
           };
         }
         case "mtls_certificate":
@@ -347,7 +177,7 @@ const buildBindings = Effect.fn(function* (
           });
           return {
             name: binding.name,
-            r2Bucket: makeRemoteBindingServiceDesignator(binding.name),
+            r2Bucket: RemoteBindings.makeServiceDesignator(binding.name),
           };
         }
         case "secret_key":
@@ -371,7 +201,7 @@ const buildBindings = Effect.fn(function* (
           });
           return {
             name: binding.name,
-            service: makeRemoteBindingServiceDesignator(binding.name),
+            service: RemoteBindings.makeServiceDesignator(binding.name),
           };
         }
         case "text_blob": {
@@ -423,8 +253,6 @@ const buildBindings = Effect.fn(function* (
   );
   return {
     remoteBindings,
-    extensions,
-    services,
     workerBindings: workerBindings.filter((b) => b !== undefined),
   };
 });
@@ -434,13 +262,4 @@ function makeUnsupportedBindingError(binding: Worker.Binding): UnsupportedBindin
     message: `Unsupported binding: ${binding.type}`,
     binding,
   });
-}
-
-function makeRemoteBindingServiceDesignator(binding: string): Config.ServiceDesignator {
-  return {
-    name: "remote-bindings:client",
-    props: {
-      json: JSON.stringify({ binding }),
-    },
-  };
 }

@@ -1,5 +1,6 @@
 import type * as workers from "@distilled.cloud/cloudflare/workers";
 import type { WorkerModule } from "./WorkerModule";
+import type { HyperdriveOrigin } from "./hyperdrive/HyperdriveOrigin.shared";
 
 export interface Worker {
   name: string;
@@ -7,9 +8,7 @@ export interface Worker {
   compatibilityFlags: Array<string>;
   bindings: Array<Binding>;
   /**
-   * Local-mode connection details for hyperdrive bindings, keyed by
-   * binding name. When set, the runtime wires the matching hyperdrive
-   * binding to the given database via a workerd `external` TCP service
+   * Connection details for hyperdrive bindings, keyed by `binding.id`.
    */
   hyperdrives?: Record<string, HyperdriveOrigin>;
   durableObjectNamespaces?: Array<DurableObjectNamespace>;
@@ -23,18 +22,7 @@ export interface DurableObjectNamespace {
   uniqueKey: string;
 }
 
-/**
- * Connection details for a hyperdrive binding running in local mode.
- */
-export interface HyperdriveOrigin {
-  scheme: string;
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-  sslmode?: string;
-}
+export type { HyperdriveOrigin };
 
 type WorkerMetadata = workers.PutScriptRequest["metadata"];
 export type Binding = NonNullable<WorkerMetadata["bindings"]>[number];
