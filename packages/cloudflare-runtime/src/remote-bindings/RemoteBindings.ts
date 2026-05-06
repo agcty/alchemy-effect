@@ -1,4 +1,3 @@
-import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Fiber from "effect/Fiber";
@@ -9,7 +8,9 @@ import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as ClientWorker from "worker:./workers/client.worker.ts";
 import * as OutboundWorker from "worker:./workers/outbound.worker.ts";
+import { makeErrorEnvelope } from "../internal/response.shared.ts";
 import type { Plugin } from "../Plugin.ts";
+import type { ApiError, ConfigError, SystemError } from "../RuntimeError.shared.ts";
 import * as Config from "../workerd/Config.ts";
 import * as WorkerModule from "../WorkerModule.ts";
 import * as Access from "./Access.ts";
@@ -34,7 +35,7 @@ export const layer = Layer.effect(
     const remoteWorker = yield* RemoteWorker.RemoteWorker;
     const prefetches = new Map<
       number,
-      Fiber.Fiber<RemoteWorkerResult, RemoteWorker.SessionError | Access.AccessError>
+      Fiber.Fiber<RemoteWorkerResult, ApiError | ConfigError | SystemError>
     >();
     yield* httpServer.serve(
       Effect.gen(function* () {
@@ -46,13 +47,13 @@ export const layer = Layer.effect(
           prefetches.delete(hash);
         }
         const deploy = prefetched ? Fiber.join(prefetched) : remoteWorker.deploy(json);
-        const result = yield* deploy.pipe(
-          Effect.map((result) => ({ success: true, result })),
-          Effect.catchCause((cause) =>
-            Effect.succeed({ success: false, error: { message: Cause.pretty(cause) } }),
+        return yield* deploy.pipe(
+          Effect.flatMap((result) => HttpServerResponse.json({ ok: true, result })),
+          Effect.catchIf(
+            (e) => e._tag === "ApiError" || e._tag === "ConfigError" || e._tag === "SystemError",
+            (error) => HttpServerResponse.json(makeErrorEnvelope(error), { status: 500 }),
           ),
         );
-        return yield* HttpServerResponse.json(result, { status: result.success ? 200 : 500 });
       }),
     );
     const address = httpServer.address as HttpServer.TcpAddress;

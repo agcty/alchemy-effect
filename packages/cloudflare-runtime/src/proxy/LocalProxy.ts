@@ -5,18 +5,18 @@ import * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as LocalProxyWorker from "worker:./workers/local-proxy.worker.ts";
+import { SystemError } from "../RuntimeError.shared.ts";
 import * as WorkerModule from "../WorkerModule.ts";
 import { findAvailablePort } from "../internal/find-available-port.ts";
 import * as Config from "../workerd/Config.ts";
 import * as Runtime from "../workerd/Runtime.ts";
 import { LOCAL_CONFIGURE_PATH, type ControllerMessage } from "./ProxyApi.shared.ts";
-import { ProxyError } from "./ProxyError.ts";
 
 export class LocalProxy extends Context.Service<
   LocalProxy,
   {
     readonly address: string;
-    readonly send: (message: ControllerMessage) => Effect.Effect<void, ProxyError>;
+    readonly send: (message: ControllerMessage) => Effect.Effect<void, SystemError>;
   }
 >()("cloudflare-runtime/proxy/LocalProxy") {}
 
@@ -77,7 +77,11 @@ export const layerLive = (config: LocalProxyConfig) =>
               Effect.flatMap(HttpClientResponse.filterStatusOk),
               Effect.mapError(
                 (e) =>
-                  new ProxyError({ message: "Failed to send message to local proxy", cause: e }),
+                  new SystemError({
+                    subtag: "LocalProxyControlPlane",
+                    message: "Failed to send message to the local proxy controller.",
+                    cause: e,
+                  }),
               ),
             ),
         ),

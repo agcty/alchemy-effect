@@ -1,24 +1,22 @@
 import * as workers from "@distilled.cloud/cloudflare/workers";
+import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Schema from "effect/Schema";
+import * as Result from "effect/Result";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as RemoteWorkerScript from "worker:./workers/remote.worker.ts";
+import type { ConfigError, SystemError } from "../RuntimeError.shared.ts";
+import { ApiError } from "../RuntimeError.shared.ts";
 import * as Access from "./Access.ts";
 import type { RemoteWorkerConfig, RemoteWorkerResult } from "./RemoteWorkerConfig.shared.ts";
-
-export class SessionError extends Schema.TaggedErrorClass<SessionError>()("SessionError", {
-  message: Schema.String,
-  cause: Schema.optional(Schema.DefectWithStack),
-}) {}
 
 export class RemoteWorker extends Context.Service<
   RemoteWorker,
   {
     readonly deploy: (
       options: RemoteWorkerConfig,
-    ) => Effect.Effect<RemoteWorkerResult, SessionError | Access.AccessError>;
+    ) => Effect.Effect<RemoteWorkerResult, ApiError | ConfigError | SystemError>;
   }
 >()("cloudflare-runtime/remote-bindings/RemoteWorker") {}
 
@@ -31,36 +29,30 @@ export const make = Effect.fn(function* (accountId: string) {
   const createScriptEdgePreview = yield* workers.createScriptEdgePreview;
 
   const AccountSubdomain = yield* Effect.cached(
-    getSubdomain({ accountId }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new SessionError({
-            message: `Failed to get workers.dev subdomain for account ${accountId}`,
-            cause,
-          }),
-      ),
+    sandboxApi(
+      "PreviewSubdomain",
+      `Failed to get the workers.dev subdomain for account ${accountId}.`,
+      getSubdomain({ accountId }),
     ),
   );
 
   const createPreviewUploadToken = Effect.fn(function* () {
-    const { token, exchangeUrl } = yield* createSubdomainEdgePreviewSession({
-      accountId,
-    }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new SessionError({
-            message: `Failed to create subdomain edge preview session for account ${accountId}`,
-            cause,
-          }),
-      ),
+    const { token, exchangeUrl } = yield* sandboxApi(
+      "PreviewSession",
+      `Failed to create a preview session for account ${accountId}.`,
+      createSubdomainEdgePreviewSession({ accountId }),
     );
     if (!exchangeUrl) {
       return token;
     }
+    // Intentional: if the exchange URL fails or returns an unexpected
+    // shape we silently fall back to the original token. This mirrors
+    // workers-sdk's behavior. We tap the cause into the debug log so it's
+    // recoverable from logs without changing behavior.
     const json = yield* http.get(exchangeUrl).pipe(
       Effect.flatMap((response) => response.json),
-      Effect.timeout(30_000),
-      Effect.catch(() => Effect.succeed(null)),
+      Effect.tapCause(Effect.logDebug),
+      Effect.orElseSucceed(() => undefined),
     );
     if (
       typeof json === "object" &&
@@ -81,26 +73,21 @@ export const make = Effect.fn(function* (accountId: string) {
       (module) =>
         new File([module.content], module.name, { type: "application/javascript+module" }),
     );
-    return yield* createScriptEdgePreview({
-      accountId,
-      scriptName: options.name,
-      cfPreviewUploadConfigToken,
-      wranglerSessionConfig: { workersDev: true, minimalMode: true },
-      metadata: {
-        compatibilityDate: "2025-04-28",
-        bindings: options.bindings,
-        mainModule: files[0].name,
-      },
-      files,
-    }).pipe(
-      Effect.timeout(30_000),
-      Effect.mapError(
-        (cause) =>
-          new SessionError({
-            message: `Failed to create script edge preview for account ${accountId}`,
-            cause,
-          }),
-      ),
+    return yield* sandboxApi(
+      "PreviewUpload",
+      `Failed to upload the script preview for "${options.name}".`,
+      createScriptEdgePreview({
+        accountId,
+        scriptName: options.name,
+        cfPreviewUploadConfigToken,
+        wranglerSessionConfig: { workersDev: true, minimalMode: true },
+        metadata: {
+          compatibilityDate: "2025-04-28",
+          bindings: options.bindings,
+          mainModule: files[0].name,
+        },
+        files,
+      }),
     );
   });
 
@@ -134,3 +121,41 @@ export const make = Effect.fn(function* (accountId: string) {
 });
 
 export const layer = (accountId: string) => Layer.effect(RemoteWorker, make(accountId));
+
+/**
+ * Wrap a Cloudflare SDK call so that both typed failures and defects (the
+ * SDK calls `Effect.die` on some validation errors) surface as a tagged
+ * {@link ApiError} in the typed channel. This means downstream callers
+ * only need to handle the union of `ApiError | AccessError`, not arbitrary
+ * defects.
+ */
+const sandboxApi = <A, E, R>(
+  subtag: string,
+  message: string,
+  effect: Effect.Effect<A, E, R>,
+): Effect.Effect<A, ApiError, R> =>
+  effect.pipe(
+    Effect.catchCause((cause) => {
+      const failure = Cause.findErrorOption(cause);
+      const defect = Cause.findDefect(cause);
+      const original: unknown =
+        failure._tag === "Some" ? failure.value : Result.isSuccess(defect) ? defect.success : cause;
+      return Effect.fail(
+        new ApiError({
+          subtag,
+          message,
+          cause: original,
+        }),
+      );
+    }),
+    Effect.timeout(30_000),
+    Effect.catchTag("TimeoutError", () =>
+      Effect.fail(
+        new ApiError({
+          subtag,
+          message,
+          hint: "The request timed out after 30 seconds.",
+        }),
+      ),
+    ),
+  );

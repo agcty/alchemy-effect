@@ -1,18 +1,10 @@
 import * as Effect from "effect/Effect";
 import { absurd } from "effect/Function";
-import * as Schema from "effect/Schema";
 import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
 import type { RemoteBinding } from "./remote-bindings/RemoteWorkerConfig.shared.ts";
+import { ConfigError } from "./RuntimeError.shared.ts";
 import type * as Worker from "./Worker.ts";
 import type * as Config from "./workerd/Config.ts";
-
-export class UnsupportedBindingError extends Schema.TaggedErrorClass<UnsupportedBindingError>()(
-  "UnsupportedBindingError",
-  {
-    message: Schema.String,
-    binding: Schema.Any,
-  },
-) {}
 
 export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker.Binding>) {
   const remoteBindings: Array<RemoteBinding> = [];
@@ -20,7 +12,7 @@ export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker
     bindings,
     Effect.fn(function* (binding): Effect.fn.Return<
       Config.Worker_Binding | undefined,
-      UnsupportedBindingError
+      ConfigError
     > {
       switch (binding.type) {
         case "ai": {
@@ -90,9 +82,11 @@ export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker
           return yield* makeUnsupportedBindingError(binding);
         case "durable_object_namespace": {
           if (binding.scriptName) {
-            return yield* new UnsupportedBindingError({
-              message: "Durable object namespace bindings must be linked to the current script.",
-              binding,
+            return yield* new ConfigError({
+              subtag: "DurableObjectExternalScript",
+              message: `Durable Object binding "${binding.name}" references a script other than the current worker, which is not supported.`,
+              hint: "Remove the `scriptName` field so the binding refers to the current worker.",
+              detail: { binding },
             });
           }
           return {
@@ -257,9 +251,11 @@ export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker
   };
 });
 
-function makeUnsupportedBindingError(binding: Worker.Binding): UnsupportedBindingError {
-  return new UnsupportedBindingError({
-    message: `Unsupported binding: ${binding.type}`,
-    binding,
+function makeUnsupportedBindingError(binding: Worker.Binding): ConfigError {
+  return new ConfigError({
+    subtag: "UnsupportedBinding",
+    message: `Unsupported binding type "${binding.type}" for binding "${binding.name}".`,
+    hint: `Bindings of type "${binding.type}" are not yet supported by cloudflare-runtime.`,
+    detail: { binding },
   });
 }

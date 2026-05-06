@@ -1,3 +1,6 @@
+import { makeErrorResponse } from "../internal/response.shared.ts";
+import { SystemError } from "../RuntimeError.shared.ts";
+
 interface Env {
   USER_WORKER: Fetcher;
 }
@@ -22,11 +25,17 @@ export default <ExportedHandler<Env>>{
           })),
           json.metadata,
         );
-        return Response.json(result);
+        return Response.json({ ok: true, result });
       } catch (error) {
-        return new Response(error instanceof Error ? error.message : String(error), {
-          status: 500,
-        });
+        return makeErrorResponse(
+          new SystemError({
+            subtag: "UserQueueHandler",
+            message: `User worker's queue handler threw: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+            cause: error,
+          }),
+        );
       }
     }
     return await env.USER_WORKER.fetch(request);

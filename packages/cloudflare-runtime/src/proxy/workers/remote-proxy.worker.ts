@@ -1,6 +1,8 @@
 import { RpcSession, type RpcStub, type RpcTransport } from "capnweb";
 import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
+import { SystemError } from "../../RuntimeError.shared.ts";
 import type { EntryQueuePayload } from "../../entry/entry.worker.ts";
+import { decodeResponse, makeErrorResponse } from "../../internal/response.shared.ts";
 import {
   REMOTE_WEBSOCKET_PATH,
   type WebSocketProxy,
@@ -35,11 +37,7 @@ export default class extends WorkerEntrypoint<Env> {
         metadata: batch.metadata,
       } satisfies EntryQueuePayload),
     });
-    if (!response.ok) {
-      const text = await response.text();
-      throw new Error(`Failed to send queue messages (${response.status}): ${text}`);
-    }
-    const json = await response.json<FetcherQueueResult>();
+    const json = await decodeResponse<FetcherQueueResult>(response);
     if (json.ackAll) {
       batch.ackAll();
     }
@@ -115,7 +113,14 @@ export class RemoteBridge extends DurableObject {
       return new Response(null, { status: 101, webSocket: client });
     }
     if (!this.remoteMain) {
-      return new Response("Bad Gateway", { status: 502 });
+      return makeErrorResponse(
+        new SystemError({
+          subtag: "RemoteBridgeNotConnected",
+          message: "Remote bridge has no active session to forward this request to.",
+          hint: "The local proxy may not have connected yet, or the connection was dropped.",
+        }),
+        { status: 502 },
+      );
     }
     const result = await this.remoteMain.fetch(request);
     switch (result._tag) {
