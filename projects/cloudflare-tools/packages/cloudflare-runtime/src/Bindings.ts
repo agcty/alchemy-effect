@@ -4,7 +4,7 @@ import * as Schema from "effect/Schema";
 import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
 import type { RemoteBinding } from "./remote-bindings/RemoteWorkerConfig.shared.ts";
 import type * as Worker from "./Worker.ts";
-import * as Config from "./workerd/Config.ts";
+import type * as Config from "./workerd/Config.ts";
 
 export class UnsupportedBindingError extends Schema.TaggedErrorClass<UnsupportedBindingError>()(
   "UnsupportedBindingError",
