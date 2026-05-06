@@ -4,23 +4,23 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as RemoteWorker from "worker:./workers/remote.worker.ts";
+import * as RemoteWorkerScript from "worker:./workers/remote.worker.ts";
 import * as Access from "./Access.ts";
-import type { OutboundConfig, SessionOptions } from "./RemoteConfig.ts";
+import type { RemoteWorkerConfig, RemoteWorkerResult } from "./RemoteWorkerConfig.shared.ts";
 
 export class SessionError extends Schema.TaggedErrorClass<SessionError>()("SessionError", {
   message: Schema.String,
   cause: Schema.optional(Schema.DefectWithStack),
 }) {}
 
-export class RemoteSession extends Context.Service<
-  RemoteSession,
+export class RemoteWorker extends Context.Service<
+  RemoteWorker,
   {
-    readonly create: (
-      options: SessionOptions,
-    ) => Effect.Effect<OutboundConfig, SessionError | Access.AccessError>;
+    readonly deploy: (
+      options: RemoteWorkerConfig,
+    ) => Effect.Effect<RemoteWorkerResult, SessionError | Access.AccessError>;
   }
->()("RemoteSession") {}
+>()("cloudflare-runtime/remote-bindings/RemoteWorker") {}
 
 export const make = Effect.fn(function* (accountId: string) {
   const http = yield* HttpClient.HttpClient;
@@ -74,10 +74,10 @@ export const make = Effect.fn(function* (accountId: string) {
   });
 
   const uploadPreviewScript = Effect.fn(function* (
-    options: SessionOptions,
+    options: RemoteWorkerConfig,
     cfPreviewUploadConfigToken: string,
   ) {
-    const files = RemoteWorker.modules.map(
+    const files = RemoteWorkerScript.modules.map(
       (module) =>
         new File([module.content], module.name, { type: "application/javascript+module" }),
     );
@@ -104,8 +104,8 @@ export const make = Effect.fn(function* (accountId: string) {
     );
   });
 
-  return RemoteSession.of({
-    create: Effect.fn(function* (options) {
+  return RemoteWorker.of({
+    deploy: Effect.fn(function* (options) {
       const [{ previewToken }, { url, headers }] = yield* Effect.all(
         [
           createPreviewUploadToken().pipe(
@@ -133,4 +133,4 @@ export const make = Effect.fn(function* (accountId: string) {
   });
 });
 
-export const layer = (accountId: string) => Layer.effect(RemoteSession, make(accountId));
+export const layer = (accountId: string) => Layer.effect(RemoteWorker, make(accountId));

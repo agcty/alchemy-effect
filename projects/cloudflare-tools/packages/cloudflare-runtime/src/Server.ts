@@ -3,11 +3,13 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
 import type * as Scope from "effect/Scope";
-import * as Bindings from "./bindings/Bindings.ts";
-import * as Entry from "./entry/Entry.ts";
+import * as Bindings from "./Bindings.ts";
+import * as Entry from "./entry/EntryPlugin.ts";
+import * as Hyperdrive from "./hyperdrive/HyperdrivePlugin.ts";
 import * as Plugin from "./Plugin.ts";
 import * as LocalProxy from "./proxy/LocalProxy.ts";
 import { ProxyError } from "./proxy/ProxyError.ts";
+import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
 import * as Storage from "./Storage.ts";
 import type { Worker } from "./Worker.ts";
 import * as Runtime from "./workerd/Runtime.ts";
@@ -39,12 +41,15 @@ export const layer = Layer.effect(
     const runtime = yield* Runtime.Runtime;
     const localProxy = yield* LocalProxy.LocalProxy;
     const storage = yield* Storage.Storage;
-    const bindingsService = yield* Bindings.Bindings;
+    const remoteBindings = yield* RemoteBindings.RemoteBindings;
+
     return Server.of({
       serve: Effect.fn(function* (worker) {
+        const builtBindings = yield* Bindings.buildBindings(worker.bindings);
         const { entry, bindings, services, extensions } = yield* Plugin.build(worker, [
           Entry.EntryPlugin,
-          bindingsService,
+          Hyperdrive.HyperdrivePlugin,
+          remoteBindings(builtBindings.remoteBindings),
         ]);
         const result = yield* runtime.serve({
           sockets: [
@@ -66,7 +71,7 @@ export const layer = Layer.effect(
                   enableSql: namespace.sql,
                   uniqueKey: namespace.uniqueKey,
                 })),
-                bindings,
+                bindings: [...builtBindings.workerBindings, ...bindings],
                 durableObjectStorage: {
                   localDisk: storage.name,
                 },

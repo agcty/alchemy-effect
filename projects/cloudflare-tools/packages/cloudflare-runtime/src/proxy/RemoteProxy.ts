@@ -1,1 +1,1 @@
-export * as RemoteProxyWorker from "worker:./internal/remote-proxy.worker.ts";
+export * as RemoteProxyWorker from "worker:./workers/remote-proxy.worker.ts";
