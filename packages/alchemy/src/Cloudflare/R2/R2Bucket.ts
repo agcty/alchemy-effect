@@ -164,48 +164,6 @@ export declare namespace R2Bucket {
   };
 }
 
-const isZoneIdString = (zone: string): boolean => /^[a-f0-9]{32}$/i.test(zone);
-
-const matchesHostname = (zoneName: string, hostname: string): boolean =>
-  hostname === zoneName || hostname.endsWith(`.${zoneName}`);
-
-const normalizeDomains = (
-  domains: R2BucketProps["domains"],
-): R2BucketCustomDomain[] =>
-  domains === undefined ? [] : Array.isArray(domains) ? domains : [domains];
-
-const toCustomDomainAttributes = (
-  domain:
-    | r2.GetBucketDomainCustomResponse
-    | r2.ListBucketDomainCustomsResponse["domains"][number],
-): R2Bucket.CustomDomain => ({
-  domain: domain.domain,
-  zoneId: domain.zoneId ?? undefined,
-  enabled: domain.enabled,
-  ciphers: domain.ciphers ?? undefined,
-  minTLS: domain.minTLS ?? undefined,
-  status: "status" in domain ? domain.status : undefined,
-});
-
-const sameCustomDomainConfig = (
-  observed: R2Bucket.CustomDomain | undefined,
-  desired: R2BucketCustomDomain,
-  zoneId: string,
-): boolean =>
-  observed !== undefined &&
-  observed.zoneId === zoneId &&
-  observed.enabled === (desired.enabled ?? true) &&
-  deepEqual(observed.ciphers, desired.ciphers) &&
-  observed.minTLS === desired.minTLS;
-
-const isMissingCustomDomainOrBucket = (error: unknown): boolean =>
-  typeof error === "object" &&
-  error !== null &&
-  (("status" in error && (error as { status: unknown }).status === 404) ||
-    ("_tag" in error &&
-      ((error as { _tag: unknown })._tag === "DomainNotFound" ||
-        (error as { _tag: unknown })._tag === "NoSuchBucket")));
-
 export const R2BucketProvider = () =>
   Provider.effect(
     R2Bucket,
@@ -288,29 +246,40 @@ export const R2BucketProvider = () =>
             desired.map((domain) => domain.domain),
           );
 
-          for (const previousDomain of previous) {
-            if (!desiredDomains.has(previousDomain.domain)) {
-              yield* deleteBucketDomainCustom({
-                accountId,
-                bucketName,
-                domain: previousDomain.domain,
-                jurisdiction,
-              }).pipe(
-                Effect.catchIf(
-                  isMissingCustomDomainOrBucket,
-                  () => Effect.void,
-                ),
-              );
-            }
-          }
+          yield* Effect.forEach(
+            previous,
+            (previousDomain) =>
+              desiredDomains.has(previousDomain.domain)
+                ? Effect.void
+                : deleteBucketDomainCustom({
+                    accountId,
+                    bucketName,
+                    domain: previousDomain.domain,
+                    jurisdiction,
+                  }).pipe(
+                    Effect.catchIf(
+                      isMissingCustomDomainOrBucket,
+                      () => Effect.void,
+                    ),
+                  ),
+            { concurrency: "unbounded" },
+          );
 
-          const applied: R2Bucket.CustomDomain[] = [];
-          for (const domain of desired) {
-            const zoneId = yield* resolveZoneId(domain.zone);
-            const observedDomain = observedByDomain.get(domain.domain);
-            if (!sameCustomDomainConfig(observedDomain, domain, zoneId)) {
-              if (observedDomain) {
-                if (observedDomain.zoneId !== zoneId) {
+          const applied = yield* Effect.forEach(
+            desired,
+            (domain) =>
+              Effect.gen(function* () {
+                const zoneId = yield* resolveZoneId(domain.zone);
+                const observedDomain = observedByDomain.get(domain.domain);
+
+                if (
+                  observedDomain &&
+                  sameCustomDomainConfig(observedDomain, domain, zoneId)
+                ) {
+                  return observedDomain;
+                }
+
+                if (observedDomain && observedDomain.zoneId !== zoneId) {
                   yield* deleteBucketDomainCustom({
                     accountId,
                     bucketName,
@@ -322,7 +291,10 @@ export const R2BucketProvider = () =>
                       () => Effect.void,
                     ),
                   );
-                  yield* createBucketDomainCustom({
+                }
+
+                if (!observedDomain || observedDomain.zoneId !== zoneId) {
+                  const created = yield* createBucketDomainCustom({
                     accountId,
                     bucketName,
                     jurisdiction,
@@ -332,41 +304,26 @@ export const R2BucketProvider = () =>
                     ciphers: domain.ciphers,
                     minTLS: domain.minTLS,
                   });
-                } else {
-                  yield* updateBucketDomainCustom({
-                    accountId,
-                    bucketName,
-                    domain: domain.domain,
-                    jurisdiction,
-                    enabled: domain.enabled ?? true,
-                    ciphers: domain.ciphers,
-                    minTLS: domain.minTLS,
-                  });
+                  return toCustomDomainAttributes({ ...created, zoneId });
                 }
-              } else {
-                yield* createBucketDomainCustom({
+
+                const updated = yield* updateBucketDomainCustom({
                   accountId,
                   bucketName,
-                  jurisdiction,
                   domain: domain.domain,
+                  jurisdiction,
                   enabled: domain.enabled ?? true,
-                  zoneId,
                   ciphers: domain.ciphers,
                   minTLS: domain.minTLS,
                 });
-              }
-            }
-
-            const refreshed = yield* r2
-              .getBucketDomainCustom({
-                accountId,
-                bucketName,
-                domain: domain.domain,
-                jurisdiction,
-              })
-              .pipe(Effect.map(toCustomDomainAttributes));
-            applied.push(refreshed);
-          }
+                return toCustomDomainAttributes({
+                  ...updated,
+                  enabled: updated.enabled ?? domain.enabled ?? true,
+                  zoneId,
+                });
+              }),
+            { concurrency: "unbounded" },
+          );
 
           return applied.sort((a, b) => a.domain.localeCompare(b.domain));
         });
@@ -500,31 +457,66 @@ export const R2BucketProvider = () =>
             bucketName: name,
             jurisdiction: output?.jurisdiction ?? olds?.jurisdiction,
           }).pipe(
-            Effect.flatMap((bucket) =>
-              Effect.gen(function* () {
-                const jurisdiction = bucket.jurisdiction ?? "default";
-                const existingDomains =
-                  output?.domains && output.domains.length > 0
-                    ? yield* listCustomDomains(bucket.name!, jurisdiction)
-                    : [];
-                const ownedDomains = new Set(
-                  output?.domains.map((domain) => domain.domain) ?? [],
-                );
-                return {
-                  bucketName: bucket.name!,
-                  storageClass: bucket.storageClass ?? "Standard",
-                  jurisdiction,
-                  location: normalizeLocation(bucket.location),
-                  accountId: acct,
-                  domains: existingDomains.filter((domain) =>
-                    ownedDomains.has(domain.domain),
-                  ),
-                };
-              }),
-            ),
+            Effect.map((bucket) => ({
+              bucketName: bucket.name!,
+              storageClass: bucket.storageClass ?? "Standard",
+              jurisdiction: bucket.jurisdiction ?? "default",
+              location: normalizeLocation(bucket.location),
+              accountId: acct,
+              domains: output?.domains ?? [],
+            })),
             Effect.catchTag("NoSuchBucket", () => Effect.succeed(undefined)),
           );
         }),
       };
     }),
   );
+
+const isZoneIdString = (zone: string): boolean => /^[a-f0-9]{32}$/i.test(zone);
+
+const matchesHostname = (zoneName: string, hostname: string): boolean =>
+  hostname === zoneName || hostname.endsWith(`.${zoneName}`);
+
+const normalizeDomains = (
+  domains: R2BucketProps["domains"],
+): R2BucketCustomDomain[] =>
+  domains === undefined ? [] : Array.isArray(domains) ? domains : [domains];
+
+type CustomDomainResponse = {
+  domain: string;
+  zoneId?: string | null;
+  enabled?: boolean | null;
+  ciphers?: string[] | null;
+  minTLS?: "1.0" | "1.1" | "1.2" | "1.3" | null;
+  status?: R2Bucket.CustomDomain["status"];
+};
+
+const toCustomDomainAttributes = (
+  domain: CustomDomainResponse,
+): R2Bucket.CustomDomain => ({
+  domain: domain.domain,
+  zoneId: domain.zoneId ?? undefined,
+  enabled: domain.enabled ?? true,
+  ciphers: domain.ciphers ?? undefined,
+  minTLS: domain.minTLS ?? undefined,
+  status: domain.status,
+});
+
+const sameCustomDomainConfig = (
+  observed: R2Bucket.CustomDomain | undefined,
+  desired: R2BucketCustomDomain,
+  zoneId: string,
+): boolean =>
+  observed !== undefined &&
+  observed.zoneId === zoneId &&
+  observed.enabled === (desired.enabled ?? true) &&
+  deepEqual(observed.ciphers, desired.ciphers) &&
+  observed.minTLS === desired.minTLS;
+
+const isMissingCustomDomainOrBucket = (error: unknown): boolean =>
+  typeof error === "object" &&
+  error !== null &&
+  (("status" in error && (error as { status: unknown }).status === 404) ||
+    ("_tag" in error &&
+      ((error as { _tag: unknown })._tag === "DomainNotFound" ||
+        (error as { _tag: unknown })._tag === "NoSuchBucket")));
