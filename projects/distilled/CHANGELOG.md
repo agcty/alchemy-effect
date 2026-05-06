@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.17.0](https://github.com/alchemy-run/distilled/releases/tag/v0.17.0) (2026-05-06)
+
+### Features
+
+- **gcp**: split into stable and unstable - by Michael K in [#265](https://github.com/alchemy-run/distilled/pull/265) [(8ba3a99)](https://github.com/alchemy-run/distilled/commit/8ba3a990323ffee9cd9355823ccea99a86332003)
+- **gcp**: method-keyed default 4xx errors in generator - by Andy Jefferson in [#264](https://github.com/alchemy-run/distilled/pull/264) [(b5e9f57)](https://github.com/alchemy-run/distilled/commit/b5e9f571aec46613d1e56ea8ebaa7a504f0c8d17)
+
+### Bug Fixes
+
+- **planetscale**: add missing nullable and optional fields to branch and role - by Lucas Thevenet in [#230](https://github.com/alchemy-run/distilled/pull/230) [(6b94fc8)](https://github.com/alchemy-run/distilled/commit/6b94fc8f44896296e5a09455a55a34cd969e641e)
+- make effect a peer dependency - by Dan van der Merwe in [#266](https://github.com/alchemy-run/distilled/pull/266) [(af4df55)](https://github.com/alchemy-run/distilled/commit/af4df55634f3a7b58c7b8620934efc7f92054bd0)
+
 ## [v0.16.9](https://github.com/alchemy-run/distilled/releases/tag/v0.16.9) (2026-05-06)
 
 ### Bug Fixes
