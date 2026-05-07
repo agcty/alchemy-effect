@@ -15,9 +15,10 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
-const zoneName = process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_NAME;
+const zoneName =
+  process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_NAME ?? "alchemy-test-2.us";
 const domain = zoneName
-  ? `alchemy-r2-test-${Math.random().toString(36).slice(2, 8)}.${zoneName}`
+  ? `alchemy-r2-test-${process.env.PULL_REQUEST ?? process.env.USER}.${zoneName}`
   : undefined;
 
 test.provider.skipIf(!zoneName)(
