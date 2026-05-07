@@ -125,6 +125,58 @@ export type R2Bucket = Resource<
  *   contentLength: Number(request.headers["content-length"] ?? 0),
  * });
  * ```
+ *
+ * @section Custom Domains
+ *
+ * Attach one or more custom domains to serve bucket objects from a hostname
+ * you control. The domain's zone must already exist in your Cloudflare
+ * account; the zone is inferred from the hostname when omitted, or you can
+ * pass a `Cloudflare.Zone` resource, a zone ID, or any hostname inside the
+ * zone via the `zone` field.
+ *
+ * @example Single custom domain
+ * ```typescript
+ * const bucket = yield* Cloudflare.R2Bucket("MyBucket", {
+ *   domain: {
+ *     name: "assets.example.com",
+ *   },
+ * });
+ * ```
+ *
+ * @example Multiple custom domains
+ * ```typescript
+ * const bucket = yield* Cloudflare.R2Bucket("MyBucket", {
+ *   domain: [
+ *     { name: "assets.example.com" },
+ *     { name: "static.example.com" },
+ *   ],
+ * });
+ * ```
+ *
+ * @example Disable a custom domain without removing it
+ * ```typescript
+ * const bucket = yield* Cloudflare.R2Bucket("MyBucket", {
+ *   domain: {
+ *     name: "assets.example.com",
+ *     enabled: false,
+ *   },
+ * });
+ * ```
+ *
+ * @example Custom domain with explicit zone and TLS settings
+ * ```typescript
+ * const zone = yield* Cloudflare.Zone("ExampleZone", {
+ *   name: "example.com",
+ * });
+ *
+ * const bucket = yield* Cloudflare.R2Bucket("MyBucket", {
+ *   domain: {
+ *     name: "assets.example.com",
+ *     zone,
+ *     minTLS: "1.2",
+ *   },
+ * });
+ * ```
  */
 export const R2Bucket = Resource<R2Bucket>("Cloudflare.R2Bucket")({
   bind: R2BucketBinding.bind,
