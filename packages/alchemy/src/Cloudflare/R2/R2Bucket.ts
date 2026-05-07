@@ -1,8 +1,6 @@
 import * as r2 from "@distilled.cloud/cloudflare/r2";
-import * as zones from "@distilled.cloud/cloudflare/zones";
 import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Stream from "effect/Stream";
+import * as Schedule from "effect/Schedule";
 
 import { deepEqual, isResolved } from "../../Diff.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
@@ -10,13 +8,12 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type * as Cloudflare from "../Providers.ts";
+import * as Zone from "../Zone.ts";
 import { R2BucketBinding } from "./R2BucketBinding.ts";
 
 export type R2BucketName = string;
 
-export type R2BucketCustomDomainZone =
-  | string
-  | { zoneId: string; name?: string };
+export type R2BucketCustomDomainZone = Zone.ZoneReference;
 
 export type R2BucketCustomDomain = {
   /**
@@ -24,11 +21,11 @@ export type R2BucketCustomDomain = {
    */
   domain: string;
   /**
-   * Zone that contains the custom domain. Pass a zone ID string, a hostname in
-   * the zone, or any object with a `zoneId` attribute such as
-   * `Cloudflare.Zone`.
+   * Zone that contains the custom domain. If omitted, the zone is inferred
+   * from `domain`. Pass a zone ID string, a hostname in the zone, or any object
+   * with a `zoneId` attribute such as `Cloudflare.Zone`.
    */
-  zone: R2BucketCustomDomainZone;
+  zone?: R2BucketCustomDomainZone;
   /**
    * Whether public bucket access is enabled at this custom domain.
    * @default true
@@ -194,28 +191,6 @@ export const R2BucketProvider = () =>
         return location.toLowerCase() as R2Bucket.Location;
       };
 
-      const resolveZoneId = (zone: R2BucketCustomDomainZone) =>
-        Effect.gen(function* () {
-          if (typeof zone !== "string") return zone.zoneId;
-          if (isZoneIdString(zone)) return zone;
-
-          const match = yield* zones.listZones.items({}).pipe(
-            Stream.filter(
-              (candidate) =>
-                candidate.account.id === accountId &&
-                matchesHostname(candidate.name, zone),
-            ),
-            Stream.runHead,
-            Effect.map(Option.getOrUndefined),
-          );
-          if (!match) {
-            return yield* Effect.fail(
-              new Error(`Cloudflare zone not found for ${zone}`),
-            );
-          }
-          return match.id;
-        });
-
       const listCustomDomains = (
         bucketName: string,
         jurisdiction: R2Bucket.Jurisdiction,
@@ -225,10 +200,14 @@ export const R2BucketProvider = () =>
           bucketName,
           jurisdiction,
         }).pipe(
+          Effect.retry({
+            while: isNoSuchBucket,
+            schedule: r2CustomDomainConsistencySchedule,
+          }),
           Effect.map((response) =>
             response.domains.map(toCustomDomainAttributes),
           ),
-          Effect.catchTag("NoSuchBucket", () => Effect.succeed([])),
+          Effect.catchTag("NoSuchBucket", () => Effect.succeed(undefined)),
         );
 
       const reconcileCustomDomains = (
@@ -239,6 +218,13 @@ export const R2BucketProvider = () =>
       ) =>
         Effect.gen(function* () {
           const observed = yield* listCustomDomains(bucketName, jurisdiction);
+          if (!observed) {
+            return yield* Effect.fail(
+              new Error(
+                `Cannot reconcile custom domains for missing R2 bucket "${bucketName}"`,
+              ),
+            );
+          }
           const observedByDomain = new Map(
             observed.map((domain) => [domain.domain, domain]),
           );
@@ -246,6 +232,9 @@ export const R2BucketProvider = () =>
             desired.map((domain) => domain.domain),
           );
 
+          // Remove domains that are no longer desired. Domains that keep the
+          // same hostname but move zones are intentionally skipped here and
+          // handled in the per-domain flow below.
           yield* Effect.forEach(
             previous,
             (previousDomain) =>
@@ -269,7 +258,11 @@ export const R2BucketProvider = () =>
             desired,
             (domain) =>
               Effect.gen(function* () {
-                const zoneId = yield* resolveZoneId(domain.zone);
+                const zoneId = yield* Zone.resolveZoneId({
+                  accountId,
+                  zone: domain.zone,
+                  hostname: domain.domain,
+                });
                 const observedDomain = observedByDomain.get(domain.domain);
 
                 if (
@@ -280,6 +273,10 @@ export const R2BucketProvider = () =>
                 }
 
                 if (observedDomain && observedDomain.zoneId !== zoneId) {
+                  // Cloudflare does not mutate the zone for an existing custom
+                  // domain. This is not a duplicate of the stale-domain prune
+                  // above: the hostname is still desired, so that prune skips it
+                  // and this branch deletes only to recreate it in the new zone.
                   yield* deleteBucketDomainCustom({
                     accountId,
                     bucketName,
@@ -303,7 +300,12 @@ export const R2BucketProvider = () =>
                     zoneId,
                     ciphers: domain.ciphers,
                     minTLS: domain.minTLS,
-                  });
+                  }).pipe(
+                    Effect.retry({
+                      while: isNoSuchBucket,
+                      schedule: r2CustomDomainConsistencySchedule,
+                    }),
+                  );
                   return toCustomDomainAttributes({ ...created, zoneId });
                 }
 
@@ -315,7 +317,12 @@ export const R2BucketProvider = () =>
                   enabled: domain.enabled ?? true,
                   ciphers: domain.ciphers,
                   minTLS: domain.minTLS,
-                });
+                }).pipe(
+                  Effect.retry({
+                    while: isNoSuchBucket,
+                    schedule: r2CustomDomainConsistencySchedule,
+                  }),
+                );
                 return toCustomDomainAttributes({
                   ...updated,
                   enabled: updated.enabled ?? domain.enabled ?? true,
@@ -472,10 +479,12 @@ export const R2BucketProvider = () =>
     }),
   );
 
-const isZoneIdString = (zone: string): boolean => /^[a-f0-9]{32}$/i.test(zone);
-
-const matchesHostname = (zoneName: string, hostname: string): boolean =>
-  hostname === zoneName || hostname.endsWith(`.${zoneName}`);
+// R2 can make a newly-created bucket visible to `getBucket` before the custom
+// domain endpoints accept it. Retry only that narrow `NoSuchBucket` lag here;
+// not-found domains are still treated as terminal for idempotent deletes.
+const r2CustomDomainConsistencySchedule = Schedule.exponential(100).pipe(
+  Schedule.both(Schedule.recurs(5)),
+);
 
 const normalizeDomains = (
   domains: R2BucketProps["domains"],
@@ -520,3 +529,9 @@ const isMissingCustomDomainOrBucket = (error: unknown): boolean =>
     ("_tag" in error &&
       ((error as { _tag: unknown })._tag === "DomainNotFound" ||
         (error as { _tag: unknown })._tag === "NoSuchBucket")));
+
+const isNoSuchBucket = (error: unknown): boolean =>
+  typeof error === "object" &&
+  error !== null &&
+  "_tag" in error &&
+  (error as { _tag: unknown })._tag === "NoSuchBucket";

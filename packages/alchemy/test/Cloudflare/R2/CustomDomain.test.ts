@@ -15,13 +15,12 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
-const zoneId = process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_ID;
 const zoneName = process.env.CLOUDFLARE_TEST_R2_DOMAIN_ZONE_NAME;
 const domain = zoneName
   ? `alchemy-r2-test-${Math.random().toString(36).slice(2, 8)}.${zoneName}`
   : undefined;
 
-test.provider.skipIf(!zoneId || !zoneName)(
+test.provider.skipIf(!zoneName)(
   "creates, updates, and deletes a bucket custom domain",
   (stack) =>
     Effect.gen(function* () {
@@ -34,7 +33,6 @@ test.provider.skipIf(!zoneId || !zoneName)(
           return yield* Cloudflare.R2Bucket("DomainBucket", {
             domains: {
               domain: domain!,
-              zone: { zoneId: zoneId! },
             },
           });
         }),
@@ -57,7 +55,6 @@ test.provider.skipIf(!zoneId || !zoneName)(
           return yield* Cloudflare.R2Bucket("DomainBucket", {
             domains: {
               domain: domain!,
-              zone: { zoneId: zoneId! },
               enabled: false,
             },
           });
