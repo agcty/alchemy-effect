@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.19.0](https://github.com/alchemy-run/distilled/releases/tag/v0.19.0) (2026-05-07)
+
+### Features
+
+- **cloudflare**: add R2 listObjects and deleteObjects operations and update pagination wrappers - by Michael K in [#278](https://github.com/alchemy-run/distilled/pull/278) [(4a6cdde)](https://github.com/alchemy-run/distilled/commit/4a6cdde7197e65b4ca3e4cd26c6d297d85d93dc8)
+- **neon**: bump spec submodule to 2026-05-07 - by sam in [#275](https://github.com/alchemy-run/distilled/pull/275) [(a9bc044)](https://github.com/alchemy-run/distilled/commit/a9bc0447990639257855fc0c59ed91e30f969425)
+
+### Bug Fixes
+
+- **aws**: surface SSO portal errors instead of TypeError - by sam in [#281](https://github.com/alchemy-run/distilled/pull/281) [(2108e6a)](https://github.com/alchemy-run/distilled/commit/2108e6a62f2da203b4a48d3690118f19f0cd3639)
+- **cloudflare/workers**: widen json binding value to unknown - by Michael K in [#277](https://github.com/alchemy-run/distilled/pull/277) [(9fa4717)](https://github.com/alchemy-run/distilled/commit/9fa4717323876d65cbbfa6308c71952b514b9088)
+
 ## [v0.18.2](https://github.com/alchemy-run/distilled/releases/tag/v0.18.2) (2026-05-07)
 
 ### Bug Fixes
