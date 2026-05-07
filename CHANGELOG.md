@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.18.0](https://github.com/alchemy-run/distilled/releases/tag/v0.18.0) (2026-05-07)
+
+### Features
+
+- use Effect Config in SDK src; fix planetscale/posthog/workos tests - by Michael K in [#269](https://github.com/alchemy-run/distilled/pull/269) [(047ffb6)](https://github.com/alchemy-run/distilled/commit/047ffb61938cec15da801c5cc454b22a9373a5d0)
+- Update SDK specs - by Michael K in [#268](https://github.com/alchemy-run/distilled/pull/268) [(2b8c4e3)](https://github.com/alchemy-run/distilled/commit/2b8c4e3099bdcf5a95a158ba7411f0af4fb2f751)
+- **gcp**: surface gRPC status + details[] from the error envelope - by Andy Jefferson in [#267](https://github.com/alchemy-run/distilled/pull/267) [(71755ea)](https://github.com/alchemy-run/distilled/commit/71755ea4fa3d90ea89899d83c78fd2e148b31ad5)
+
+### Bug Fixes
+
+- **aws/s3**: classify SlowDown as ThrottlingError + RetryableError - by sam in [#270](https://github.com/alchemy-run/distilled/pull/270) [(4449ec5)](https://github.com/alchemy-run/distilled/commit/4449ec59d80dc2079b17b7e3524700828dd5c39a)
+
 ## [v0.17.0](https://github.com/alchemy-run/distilled/releases/tag/v0.17.0) (2026-05-06)
 
 ### Features
