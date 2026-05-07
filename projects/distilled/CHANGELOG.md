@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.18.2](https://github.com/alchemy-run/distilled/releases/tag/v0.18.2) (2026-05-07)
+
+### Bug Fixes
+
+- **cloudflare**: classify code 1000 "Request timeout" as GatewayTimeout - by sam in [#274](https://github.com/alchemy-run/distilled/pull/274) [(5e778ae)](https://github.com/alchemy-run/distilled/commit/5e778ae0a1c57c761b3bfec2e59c0f5fdfa95fab)
+- **core**: merge allOf body + re-export operations from root - by sam in [#272](https://github.com/alchemy-run/distilled/pull/272) [(e38266c)](https://github.com/alchemy-run/distilled/commit/e38266c86a9d70fe92c3f03e7e2c2364e3942dd9)
+- **cloudflare**: tag QueueHandlerMissing (code 11001) as a typed error - by sam in [#273](https://github.com/alchemy-run/distilled/pull/273) [(613d0fb)](https://github.com/alchemy-run/distilled/commit/613d0fbbe6cb67d6ba6cc56fc49319fabc39d895)
+
 ## [v0.18.1](https://github.com/alchemy-run/distilled/releases/tag/v0.18.1) (2026-05-07)
 
 ### Bug Fixes
