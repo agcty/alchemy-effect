@@ -1,7 +1,8 @@
-import * as zones from "@distilled.cloud/cloudflare/zones";
+import {
+  Credentials,
+  formatHeaders,
+} from "@distilled.cloud/cloudflare/Credentials";
 import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Stream from "effect/Stream";
 
 export type ZoneReference = string | { zoneId: string; name?: string };
 
@@ -26,19 +27,62 @@ export const resolveZoneId = ({
     if (typeof zone === "string" && isZoneId(zone)) return zone;
 
     const lookup = zone ?? hostname;
-    const match = yield* zones.listZones.items({}).pipe(
-      Stream.filter(
-        (candidate) =>
-          candidate.account.id === accountId &&
-          matchesZoneHostname(candidate.name, lookup),
-      ),
-      Stream.runHead,
-      Effect.map(Option.getOrUndefined),
+    for (const candidate of zoneNameCandidates(lookup)) {
+      const match = yield* findZoneByName({ accountId, name: candidate });
+      if (match) return match.id;
+    }
+    return yield* Effect.fail(
+      new Error(`Cloudflare zone not found for ${lookup}`),
     );
-    if (!match) {
+  });
+
+type ZoneListResponse = {
+  success: boolean;
+  errors?: { message?: string }[];
+  result?: { id: string; name: string; account: { id?: string | null } }[];
+};
+
+const findZoneByName = ({
+  accountId,
+  name,
+}: {
+  accountId: string;
+  name: string;
+}) =>
+  Effect.gen(function* () {
+    const credentialsEffect = yield* Credentials;
+    const credentials = yield* credentialsEffect;
+    const url = new URL(`${credentials.apiBaseUrl}/zones`);
+    url.searchParams.set("account.id", accountId);
+    url.searchParams.set("name", name);
+    url.searchParams.set("per_page", "1");
+
+    const json = yield* Effect.tryPromise({
+      try: async () => {
+        const response = await fetch(url, {
+          headers: formatHeaders(credentials),
+        });
+        return (await response.json()) as ZoneListResponse;
+      },
+      catch: (cause) => new Error(`Failed to list Cloudflare zones`, { cause }),
+    });
+
+    if (!json.success) {
       return yield* Effect.fail(
-        new Error(`Cloudflare zone not found for ${lookup}`),
+        new Error(
+          json.errors?.map((error) => error.message).join(", ") ??
+            `Failed to list Cloudflare zones`,
+        ),
       );
     }
-    return match.id;
+
+    return json.result?.find(
+      (candidate) =>
+        candidate.name === name && candidate.account.id === accountId,
+    );
   });
+
+const zoneNameCandidates = (hostname: string): string[] => {
+  const parts = hostname.split(".");
+  return parts.slice(0, -1).map((_, index) => parts.slice(index).join("."));
+};
