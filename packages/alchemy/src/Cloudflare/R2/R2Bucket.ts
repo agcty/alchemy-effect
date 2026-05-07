@@ -19,7 +19,7 @@ export type R2BucketCustomDomain = {
   /**
    * Custom domain name to attach to the bucket.
    */
-  domain: string;
+  name: string;
   /**
    * Zone that contains the custom domain. If omitted, the zone is inferred
    * from `domain`. Pass a zone ID string, a hostname in the zone, or any object
@@ -65,7 +65,7 @@ export type R2BucketProps = {
   /**
    * Custom domain or domains to attach to the bucket.
    */
-  domains?: R2BucketCustomDomain | R2BucketCustomDomain[];
+  domain?: R2BucketCustomDomain | R2BucketCustomDomain[];
 };
 
 export type R2Bucket = Resource<
@@ -228,9 +228,7 @@ export const R2BucketProvider = () =>
           const observedByDomain = new Map(
             observed.map((domain) => [domain.domain, domain]),
           );
-          const desiredDomains = new Set(
-            desired.map((domain) => domain.domain),
-          );
+          const desiredDomains = new Set(desired.map((domain) => domain.name));
 
           // Remove domains that are no longer desired. Domains that keep the
           // same hostname but move zones are intentionally skipped here and
@@ -261,9 +259,9 @@ export const R2BucketProvider = () =>
                 const zoneId = yield* Zone.resolveZoneId({
                   accountId,
                   zone: domain.zone,
-                  hostname: domain.domain,
+                  hostname: domain.name,
                 });
-                const observedDomain = observedByDomain.get(domain.domain);
+                const observedDomain = observedByDomain.get(domain.name);
 
                 if (
                   observedDomain &&
@@ -280,7 +278,7 @@ export const R2BucketProvider = () =>
                   yield* deleteBucketDomainCustom({
                     accountId,
                     bucketName,
-                    domain: domain.domain,
+                    domain: domain.name,
                     jurisdiction,
                   }).pipe(
                     Effect.catchIf(
@@ -295,7 +293,7 @@ export const R2BucketProvider = () =>
                     accountId,
                     bucketName,
                     jurisdiction,
-                    domain: domain.domain,
+                    domain: domain.name,
                     enabled: domain.enabled ?? true,
                     zoneId,
                     ciphers: domain.ciphers,
@@ -312,7 +310,7 @@ export const R2BucketProvider = () =>
                 const updated = yield* updateBucketDomainCustom({
                   accountId,
                   bucketName,
-                  domain: domain.domain,
+                  domain: domain.name,
                   jurisdiction,
                   enabled: domain.enabled ?? true,
                   ciphers: domain.ciphers,
@@ -361,7 +359,7 @@ export const R2BucketProvider = () =>
               stables: oldName === name ? ["bucketName"] : undefined,
             } as const;
           }
-          if (!deepEqual(olds.domains, news.domains)) {
+          if (!deepEqual(olds.domain, news.domain)) {
             return { action: "update" } as const;
           }
         }),
@@ -429,7 +427,7 @@ export const R2BucketProvider = () =>
           const domains = yield* reconcileCustomDomains(
             attrs.bucketName,
             attrs.jurisdiction,
-            normalizeDomains(news.domains),
+            normalizeDomains(news.domain),
             output?.domains ?? [],
           );
 
@@ -487,7 +485,7 @@ const r2CustomDomainConsistencySchedule = Schedule.exponential(100).pipe(
 );
 
 const normalizeDomains = (
-  domains: R2BucketProps["domains"],
+  domains: R2BucketProps["domain"],
 ): R2BucketCustomDomain[] =>
   domains === undefined ? [] : Array.isArray(domains) ? domains : [domains];
 
