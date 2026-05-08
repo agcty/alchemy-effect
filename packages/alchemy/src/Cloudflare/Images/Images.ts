@@ -38,31 +38,65 @@ export const isImages = (value: unknown): value is Images =>
  * A Cloudflare Images binding for image transformation and manipulation inside
  * Workers.
  *
+ * The Effect-native interface (`Cloudflare.Images.bind(...)`) returns an
+ * `ImagesClient` whose methods take Effect `Stream.Stream<Uint8Array>`
+ * inputs and return `Effect`s — `info`, `input(...).transform(...)
+ * .draw(...).output(...)`. The runtime conversion to Cloudflare's
+ * `ReadableStream` is handled internally.
+ *
  * @section Declaring Images
  * @example
  * ```typescript
- * const Images = yield* Cloudflare.Images();
+ * const Pipeline = yield* Cloudflare.Images({ name: "PIPELINE" });
  * ```
  *
- * @section Binding to a Worker
+ * @section Effect-style Worker (recommended)
+ * @example Read image format and dimensions from the request body
+ * ```typescript
+ * import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
+ *
+ * Cloudflare.Worker("ImageWorker", { main: import.meta.filename },
+ *   Effect.gen(function* () {
+ *     const pipeline = yield* Pipeline;
+ *     const images = yield* Cloudflare.Images.bind(pipeline);
+ *     return {
+ *       fetch: Effect.gen(function* () {
+ *         const request = yield* HttpServerRequest;
+ *         // request.stream is Stream.Stream<Uint8Array>
+ *         const info = yield* images.info(request.stream);
+ *         return yield* HttpServerResponse.json(info);
+ *       }),
+ *     };
+ *   }).pipe(Effect.provide(Cloudflare.ImagesBindingLive)),
+ * );
+ * ```
+ *
+ * @example Transform an image — chainable pipeline, single Effect at the end
+ * ```typescript
+ * const result = yield* (yield* images.input(request.stream))
+ *   .transform({ width: 128 })
+ *   .output({ format: "image/jpeg" });
+ *
+ * const response = yield* result.response;
+ * ```
+ *
+ * @section Binding to a Worker (declarative)
  * @example
  * ```typescript
  * export const Worker = Cloudflare.Worker("Worker", {
  *   main: "./src/worker.ts",
- *   bindings: { Images },
+ *   bindings: { MEDIA: Pipeline },
  * });
  *
  * export type WorkerEnv = Cloudflare.InferEnv<typeof Worker>;
- * //   { Images: ImagesBinding }
+ * //   { MEDIA: ImagesBinding }
  * ```
  *
- * @section Effect-style Worker
- * @example
- * ```typescript
- * Cloudflare.Worker("Worker", props, Effect.gen(function* () {
- *   const images = yield* Cloudflare.Images.bind(Images);
- * }).pipe(Effect.provide(Cloudflare.ImagesBindingLive)));
- * ```
+ * Inside the Worker, the raw Cloudflare runtime binding is reachable via
+ * `client.raw` if you need to call `info()` / `input()` directly with
+ * `async`/`await`. The Effect-native interface is preferred — it returns
+ * tagged `ImagesError`s, threads `WorkerEnvironment`, and lets you stream
+ * Effect `Stream<Uint8Array>` sources without manual conversion.
  *
  * @see https://developers.cloudflare.com/images/transform-images/bindings/
  */
