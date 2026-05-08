@@ -6,7 +6,7 @@ const { connect } = await import("cloudflare:sockets");
 export default function makeBinding(env: { ORIGIN: HyperdriveOrigin }) {
   let connectionString = `${env.ORIGIN.scheme}://${env.ORIGIN.user}:${env.ORIGIN.password}@${env.ORIGIN.host}:${env.ORIGIN.port}/${env.ORIGIN.database}`;
   if (env.ORIGIN.sslmode) {
-    connectionString += `?${env.ORIGIN.scheme === "postgresql" ? "sslmode" : "ssl-mode"}=${env.ORIGIN.sslmode}`;
+    connectionString += `?${env.ORIGIN.scheme === "postgresql" || env.ORIGIN.scheme === "postgres" ? "sslmode" : "ssl-mode"}=${env.ORIGIN.sslmode}`;
   }
   return {
     connect: () => connect({ hostname: env.ORIGIN.host, port: env.ORIGIN.port }),
