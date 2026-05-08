@@ -5,6 +5,7 @@ import * as HttpBody from "effect/unstable/http/HttpBody";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import * as LocalProxyWorker from "worker:./workers/local-proxy.worker.ts";
+import * as Internet from "../Internet.ts";
 import { SystemError } from "../RuntimeError.shared.ts";
 import * as WorkerModule from "../WorkerModule.ts";
 import { findAvailablePort } from "../internal/find-available-port.ts";
@@ -31,6 +32,7 @@ export const layerLive = (config: LocalProxyConfig) =>
     Effect.gen(function* () {
       const runtime = yield* Runtime.Runtime;
       const http = yield* HttpClient.HttpClient;
+      const internet = yield* Internet.Internet;
       const result = yield* runtime.serve({
         sockets: [
           {
@@ -51,18 +53,7 @@ export const layerLive = (config: LocalProxyConfig) =>
               ],
             },
           },
-          {
-            name: "internet",
-            network: {
-              // Allow access to private/public addresses:
-              // https://github.com/cloudflare/miniflare/issues/412
-              allow: ["public", "private", "240.0.0.0/4"],
-              deny: [],
-              tlsOptions: {
-                trustBrowserCas: true,
-              },
-            },
-          },
+          internet,
         ],
       });
       const address = `${config.host}:${result[0].port}`;
