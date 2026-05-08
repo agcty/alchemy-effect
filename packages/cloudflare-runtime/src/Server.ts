@@ -6,6 +6,7 @@ import type * as Scope from "effect/Scope";
 import * as Bindings from "./Bindings.ts";
 import * as Entry from "./entry/EntryPlugin.ts";
 import * as Hyperdrive from "./hyperdrive/HyperdrivePlugin.ts";
+import * as Internet from "./Internet.ts";
 import * as Plugin from "./Plugin.ts";
 import * as LocalProxy from "./proxy/LocalProxy.ts";
 import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
@@ -34,6 +35,7 @@ export const layer = Layer.effect(
     const localProxy = yield* LocalProxy.LocalProxy;
     const storage = yield* Storage.Storage;
     const remoteBindings = yield* RemoteBindings.RemoteBindings;
+    const internet = yield* Internet.Internet;
 
     return Server.of({
       serve: Effect.fn(function* (worker) {
@@ -69,18 +71,7 @@ export const layer = Layer.effect(
                 },
               },
             },
-            {
-              name: "internet",
-              network: {
-                // Allow access to private/public addresses:
-                // https://github.com/cloudflare/miniflare/issues/412
-                allow: ["public", "private", "240.0.0.0/4"],
-                deny: [],
-                tlsOptions: {
-                  trustBrowserCas: true,
-                },
-              },
-            },
+            internet,
             ...services,
             storage,
           ],

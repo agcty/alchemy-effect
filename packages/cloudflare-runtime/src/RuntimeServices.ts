@@ -1,4 +1,5 @@
 import * as Layer from "effect/Layer";
+import * as Internet from "./Internet.ts";
 import * as LocalProxy from "./proxy/LocalProxy.ts";
 import * as RemoteBindings from "./remote-bindings/RemoteBindings.ts";
 import * as Server from "./Server.ts";
@@ -19,6 +20,7 @@ export const layer = (config: {
       Layer.mergeAll(
         Runtime.layer,
         config.storage ? Storage.layerDisk(config.storage) : Storage.layerTemp(),
+        Internet.layer,
         RemoteBindings.layerServices(config.accountId),
       ),
     ),

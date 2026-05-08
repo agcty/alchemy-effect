@@ -36,6 +36,7 @@
     "./hyperdrive": "./dist/hyperdrive/index.mjs",
     "./hyperdrive/HyperdriveOrigin": "./dist/hyperdrive/HyperdriveOrigin.shared.mjs",
     "./hyperdrive/HyperdrivePlugin": "./dist/hyperdrive/HyperdrivePlugin.mjs",
+    "./Internet": "./dist/Internet.mjs",
     "./Plugin": "./dist/Plugin.mjs",
     "./proxy": "./dist/proxy/index.mjs",
     "./proxy/LocalProxy": "./dist/proxy/LocalProxy.mjs",
