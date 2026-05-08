@@ -29,6 +29,8 @@ type GetBindingType<T> = T extends Cloudflare.Assets
               ? Artifacts
               : T extends Cloudflare.Images
                 ? ImagesBinding
-                : T extends Cloudflare.DurableObjectNamespaceLike
-                  ? DurableObjectNamespace<Exclude<T["Shape"], undefined>>
-                  : never;
+                : T extends Cloudflare.Hyperdrive
+                  ? Hyperdrive
+                  : T extends Cloudflare.DurableObjectNamespaceLike
+                    ? DurableObjectNamespace<Exclude<T["Shape"], undefined>>
+                    : never;

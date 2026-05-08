@@ -5,7 +5,10 @@ import * as Path from "effect/Path";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as AlchemyContext from "../../AlchemyContext.ts";
 import { AuthProviders } from "../../Auth/AuthProvider.ts";
+import { CredentialsStoreLive } from "../../Auth/Credentials.ts";
+import { ProfileLive } from "../../Auth/Profile.ts";
 import * as RpcServer from "../../Sidecar/RpcServer.ts";
+import * as RpcServices from "../../Sidecar/RpcServices.ts";
 import {
   httpServer,
   PlatformServices,
@@ -23,6 +26,8 @@ const apiServices = Layer.merge(
 ).pipe(
   Layer.provide(CloudflareAuth),
   Layer.provide(Layer.succeed(AuthProviders, {})),
+  Layer.provide(ProfileLive),
+  Layer.provide(CredentialsStoreLive),
 );
 
 const runtimeServices = SidecarHandlers.pipe(
@@ -46,7 +51,7 @@ const runtimeServices = SidecarHandlers.pipe(
 );
 
 const services = Layer.provideMerge(
-  Layer.provideMerge(runtimeServices, RpcServer.layerServices(import.meta.url)),
+  Layer.provideMerge(runtimeServices, RpcServices.layer(import.meta.url)),
   PlatformServices,
 );
 
