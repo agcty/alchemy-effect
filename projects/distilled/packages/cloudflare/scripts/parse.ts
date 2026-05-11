@@ -145,7 +145,14 @@ interface OpenApiRequestBody {
 interface OpenApiResponse {
   description?: string;
   content?: Record<string, OpenApiMediaType>;
+  headers?: Record<string, OpenApiHeader | { $ref: string }>;
   $ref?: string;
+}
+
+interface OpenApiHeader {
+  description?: string;
+  required?: boolean;
+  schema?: OpenApiSchema;
 }
 
 interface OpenApiMediaType {
@@ -1669,6 +1676,13 @@ function resolveOpenApiResponse(
   return openApiPointer<OpenApiResponse>(response.$ref, spec);
 }
 
+function resolveOpenApiHeader(
+  header: { $ref: string },
+  spec: OpenApiSpec,
+): OpenApiHeader | undefined {
+  return openApiPointer<OpenApiHeader>(header.$ref, spec);
+}
+
 function buildLiteralTypeInfo(
   values: Array<string | number | boolean>,
 ): TypeInfo {
@@ -1820,15 +1834,29 @@ function requestBodyToParams(
     return [];
   }
 
-  const mediaType =
-    requestBody.content["application/json"] ??
-    Object.values(requestBody.content)[0];
+  // Prefer JSON when present; otherwise pick whichever content type the spec
+  // declares first. We track the chosen wire content-type so a raw binary
+  // body (`application/octet-stream` with `format: binary`) gets routed to
+  // `kind: "binary"` instead of being conflated with multipart `kind: "file"`.
+  const jsonContent = requestBody.content["application/json"];
+  const [firstContentType, firstMediaType] =
+    Object.entries(requestBody.content)[0] ?? [];
+  const mediaType = jsonContent ?? firstMediaType;
+  const wireContentType = jsonContent ? "application/json" : firstContentType;
   const schema = mediaType?.schema;
   if (!schema) {
     return [];
   }
 
-  const type = schemaObjectToTypeInfo(schema, spec);
+  let type = schemaObjectToTypeInfo(schema, spec);
+  // Octet-stream + `format: binary` is a raw byte body, not a form-data file.
+  if (
+    type.kind === "file" &&
+    typeof wireContentType === "string" &&
+    wireContentType.toLowerCase().startsWith("application/octet-stream")
+  ) {
+    type = { kind: "binary" };
+  }
   if (type.kind === "object" && type.properties && type.properties.length > 0) {
     return type.properties.map((property) => ({
       name: property.name,
@@ -1919,14 +1947,48 @@ function buildOpenApiOperation(
   const successResponse = successResponseKey
     ? resolveOpenApiResponse(operation.responses[successResponseKey], spec)
     : undefined;
-  const mediaType =
-    successResponse?.content?.["application/json"] ??
-    (successResponse?.content ? Object.values(successResponse.content)[0] : undefined);
+  const responseJson = successResponse?.content?.["application/json"];
+  const [responseFirstContentType, responseFirstMediaType] =
+    successResponse?.content ? Object.entries(successResponse.content)[0] ?? [] : [];
+  const mediaType = responseJson ?? responseFirstMediaType;
+  const responseWireContentType = responseJson
+    ? "application/json"
+    : responseFirstContentType;
   const requestContentTypes = Object.keys(operation.requestBody?.content ?? {});
   const isMultipart = requestContentTypes.some((type) =>
     type.includes("multipart/form-data"),
   );
   const responseType = schemaObjectToTypeInfo(mediaType?.schema, spec);
+  // Octet-stream + `format: binary` response → surfaced as an object of the
+  // shape `{ body: Stream.Stream<Uint8Array>, ...headers }`. The body is
+  // never decoded through the output schema; the headers are populated from
+  // the `responses.<code>.headers` block of the OpenAPI spec.
+  const isBinaryResponse =
+    responseType.kind === "file" &&
+    typeof responseWireContentType === "string" &&
+    responseWireContentType
+      .toLowerCase()
+      .startsWith("application/octet-stream");
+  const responseHeaderInfos: ParamInfo[] = [];
+  if (isBinaryResponse && successResponse?.headers) {
+    for (const [headerName, headerSpec] of Object.entries(
+      successResponse.headers,
+    )) {
+      const resolved =
+        (headerSpec as { $ref?: string }).$ref !== undefined
+          ? (resolveOpenApiHeader(headerSpec as { $ref: string }, spec) ??
+            (headerSpec as OpenApiHeader))
+          : (headerSpec as OpenApiHeader);
+      if (!resolved.schema) continue;
+      responseHeaderInfos.push({
+        name: headerName.toLowerCase(),
+        type: schemaObjectToTypeInfo(resolved.schema, spec),
+        location: "header",
+        required: resolved.required ?? false,
+        description: resolved.description,
+      });
+    }
+  }
   const methodName = getOperationMethodName(operation.operationId);
   const resourceName = getOperationResourceName(operation.operationId, methodName);
   const errors: OperationErrorInfo[] = Object.entries(
@@ -1951,6 +2013,11 @@ function buildOpenApiOperation(
     responseType,
     responsePath: operation["x-distilled-response-path"],
     isMultipart: isMultipart || undefined,
+    responseContentType: isBinaryResponse ? "binary" : undefined,
+    responseHeaders:
+      isBinaryResponse && responseHeaderInfos.length > 0
+        ? responseHeaderInfos
+        : undefined,
     paginationClassName: operation["x-distilled-pagination-class"],
     summary: operation.summary,
     description: operation.description,

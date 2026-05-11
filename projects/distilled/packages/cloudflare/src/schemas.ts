@@ -1,19 +1,35 @@
 /**
  * Common schemas for Cloudflare API types.
  *
- * Includes file upload schemas for multipart form-data operations.
+ * Cloudflare-specific schemas live here. The cloud-agnostic raw-binary HTTP
+ * body schemas (`BinaryBodySchema`, `BinaryStreamResponseSchema`,
+ * `Uint8ArraySchema`, etc.) live in `@distilled.cloud/core/schemas` and are
+ * re-exported below for convenience.
  */
 
 import * as Schema from "effect/Schema";
+import { BlobSchema } from "@distilled.cloud/core/schemas";
+
+export {
+  ArrayBufferSchema,
+  BinaryBodySchema,
+  BinaryStreamResponseSchema,
+  BlobSchema,
+  ReadableStreamSchema,
+  StreamSchema,
+  Uint8ArraySchema,
+  type BinaryBody,
+} from "@distilled.cloud/core/schemas";
 
 // =============================================================================
-// File Upload Schemas
+// File Upload Schemas (multipart form-data)
 // =============================================================================
 
 /**
  * Schema for File objects (browser File API).
  *
- * Used for multipart form-data file uploads.
+ * Used for multipart form-data file uploads (e.g. Workers script bundles,
+ * Pages assets, brand-protection submissions).
  */
 export const FileSchema = Schema.declare(
   (input): input is File =>
@@ -21,20 +37,6 @@ export const FileSchema = Schema.declare(
   {
     identifier: "File",
     description: "A File object for upload",
-  },
-);
-
-/**
- * Schema for Blob objects.
- *
- * Used for binary data uploads.
- */
-export const BlobSchema = Schema.declare(
-  (input): input is Blob =>
-    typeof Blob !== "undefined" && input instanceof Blob,
-  {
-    identifier: "Blob",
-    description: "A Blob object for upload",
   },
 );
 

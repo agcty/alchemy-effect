@@ -361,7 +361,16 @@ export interface TypeInfo {
     | "object"
     | "null"
     | "unknown"
-    | "file";
+    | "file"
+    /**
+     * Raw binary HTTP body (e.g. `application/octet-stream` request bodies on
+     * R2 PutObject). Kept distinct from `"file"` (which represents a single
+     * field within a `multipart/form-data` upload) so the codegen and runtime
+     * can route them differently:
+     *   - `"file"`  → multipart form field (`UploadableSchema.pipe(T.HttpFormDataFile())`)
+     *   - `"binary"` → entire raw request body (`BinaryBodySchema.pipe(T.HttpBody())`)
+     */
+    | "binary";
   value?: string; // For primitives and literals
   values?: TypeInfo[]; // For unions
   elementType?: TypeInfo; // For arrays
@@ -430,6 +439,21 @@ export interface ParsedOperation {
   urlPathParams: string[]; // Path parameters from URL, e.g., ["account_id", "bucketName"]
   /** True when the SDK method uses Core.multipartFormRequestOptions */
   isMultipart?: boolean;
+  /**
+   * When set to `"binary"`, the operation's response body is a raw
+   * `application/octet-stream` download surfaced as an object of the shape
+   * `{ body: Stream.Stream<Uint8Array>, ...headers }` (e.g. R2 GetObject).
+   * The `body` field is filled by the runtime; sibling fields are populated
+   * from response headers declared on `responseHeaders` below.
+   */
+  responseContentType?: "binary";
+
+  /**
+   * Response headers to surface on the response object when the operation is
+   * a binary download. Each entry maps a TS field name (camelCase) to the
+   * wire header name (lowercase) and its declared schema kind.
+   */
+  responseHeaders?: ParamInfo[];
   /** Pagination wrapper type: "items" when V4PagePagination (result.items), "array" when V4PagePaginationArray/SinglePage (result directly) */
   paginationType?: "items" | "array";
   /** Upstream Cloudflare page class name, e.g. V4PagePaginationArray */
