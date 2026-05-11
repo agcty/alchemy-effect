@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.19.1](https://github.com/alchemy-run/distilled/releases/tag/v0.19.1) (2026-05-11)
+
+### Features
+
+- **core/openapi**: emit makePaginated for cursor/page/token list ops - by sam in [#285](https://github.com/alchemy-run/distilled/pull/285) [(e3837e7)](https://github.com/alchemy-run/distilled/commit/e3837e70ea158fd61479886417c8b1d5a6eddf75)
+- **cloudflare**: S3-style PutObject + GetObject (octet-stream + Stream<Uint8Array> downloads) - by sam in [#288](https://github.com/alchemy-run/distilled/pull/288) [(93415b0)](https://github.com/alchemy-run/distilled/commit/93415b08ca6c70d66e6d3bfb89268f528ccdfedf)
+- **gcp**: add lustre v1, regenerate against latest specs, fix TS7056 - by Andy Jefferson in [#286](https://github.com/alchemy-run/distilled/pull/286) [(b26cd7a)](https://github.com/alchemy-run/distilled/commit/b26cd7af1ca20717508d6fce65bc983394f7eb1e)
+
+### Bug Fixes
+
+- **cloudflare**: split account-or-zone scoped operations into per-scope variants - by Michael K in [#282](https://github.com/alchemy-run/distilled/pull/282) [(74f2df2)](https://github.com/alchemy-run/distilled/commit/74f2df2d6125404300c8e7bbf3ed33bd954af8e2)
+
 ## [v0.19.0](https://github.com/alchemy-run/distilled/releases/tag/v0.19.0) (2026-05-07)
 
 ### Features
