@@ -136,7 +136,7 @@ function wrapEntryInput(input: string | Array<string> | Record<string, string>) 
     return input.map(virtualEntryId);
   }
   return Object.fromEntries(
-    Object.entries(input).map(([key, value]) => [virtualEntryId(key), value]),
+    Object.entries(input).map(([key, value]) => [key, virtualEntryId(value)]),
   );
 }
 
