@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.19.2](https://github.com/alchemy-run/distilled/releases/tag/v0.19.2) (2026-05-12)
+
+### Bug Fixes
+
+- **cloudflare**: allow empty ruleset phase responses - by Alex in [#289](https://github.com/alchemy-run/distilled/pull/289) [(4700496)](https://github.com/alchemy-run/distilled/commit/47004960e965906a4f026a07a2a28ddfeec09f2d)
+
 ## [v0.19.1](https://github.com/alchemy-run/distilled/releases/tag/v0.19.1) (2026-05-11)
 
 ### Features
