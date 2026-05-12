@@ -122,7 +122,7 @@ export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker
         case "json": {
           return {
             name: binding.name,
-            json: binding.json,
+            json: typeof binding.json === "string" ? binding.json : JSON.stringify(binding.json),
           };
         }
         case "kv_namespace": {
@@ -161,6 +161,8 @@ export const buildBindings = Effect.fn(function* (bindings: ReadonlyArray<Worker
           // };
           return yield* makeUnsupportedBindingError(binding);
         }
+        case "ratelimit":
+          return yield* makeUnsupportedBindingError(binding);
         case "r2_bucket": {
           remoteBindings.push({
             name: binding.name,
