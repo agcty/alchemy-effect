@@ -78,10 +78,10 @@ const getPhaseRules = Effect.fn(function* (
   phase: TestRulesetPhase,
 ) {
   return yield* rulesets
-    .getPhas({
+    .getPhasForZone({
       zoneId,
       rulesetPhase: phase,
-    } as any)
+    })
     .pipe(
       Effect.map((ruleset) => ruleset.rules),
       Effect.catchIf(isNotFoundError, () => Effect.succeed([])),

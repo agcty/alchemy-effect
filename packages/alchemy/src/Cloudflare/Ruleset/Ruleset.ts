@@ -10,8 +10,10 @@ import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
 
-export type RulesetPhase = rulesets.CreateRulesetRequest["phase"];
-export type RulesetRule = NonNullable<rulesets.PutPhasRequest["rules"]>[number];
+export type RulesetPhase = rulesets.CreateRulesetForZoneRequest["phase"];
+export type RulesetRule = NonNullable<
+  rulesets.PutPhasForZoneRequest["rules"]
+>[number];
 export type RulesetOutputRule = Omit<
   rulesets.GetPhasResponse["rules"][number],
   "lastUpdated" | "version"
@@ -120,8 +122,8 @@ export const RulesetProvider = () =>
     Ruleset,
     Effect.gen(function* () {
       const { accountId } = yield* CloudflareEnvironment;
-      const getPhas = yield* rulesets.getPhas;
-      const putPhas = yield* rulesets.putPhas;
+      const getPhas = yield* rulesets.getPhasForZone;
+      const putPhas = yield* rulesets.putPhasForZone;
 
       const createRulesetName = (id: string, name: string | undefined) =>
         Effect.gen(function* () {
@@ -210,7 +212,7 @@ export const RulesetProvider = () =>
             name,
             description: news.description,
             rules: news.rules,
-          } as any);
+          });
           return toRulesetAttributes<typeof news.phase>(zoneId, ruleset);
         }),
         delete: Effect.fn(function* ({ olds, output }) {
@@ -220,14 +222,14 @@ export const RulesetProvider = () =>
             name: output.name,
             description: output.description,
             rules: [],
-          } as any).pipe(Effect.catchIf(isNotFoundError, () => Effect.void));
+          }).pipe(Effect.catchIf(isNotFoundError, () => Effect.void));
         }),
         read: Effect.fn(function* ({ olds, output }) {
           const zoneId = output?.zoneId ?? (yield* resolveZoneId(olds.zone));
           return yield* getPhas({
             zoneId,
             rulesetPhase: output?.phase ?? olds.phase,
-          } as any).pipe(
+          }).pipe(
             Effect.map((ruleset) => toRulesetAttributes(zoneId, ruleset)),
             Effect.catchIf(isNotFoundError, () => Effect.succeed(undefined)),
           );
