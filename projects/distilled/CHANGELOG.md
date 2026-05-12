@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.20.0](https://github.com/alchemy-run/distilled/releases/tag/v0.20.0) (2026-05-12)
+
+### Bug Fixes
+
+- move to effect@4.0.0-beta.66 - by sam in [#292](https://github.com/alchemy-run/distilled/pull/292) [(01024e9)](https://github.com/alchemy-run/distilled/commit/01024e9fd3ece3b5cb2a12ed715fe421e13f7272)
+- **cloudflare/workers**: type code 10002 'unknown error' on putScript - by sam in [#290](https://github.com/alchemy-run/distilled/pull/290) [(b235915)](https://github.com/alchemy-run/distilled/commit/b23591527f64805709ddeeedf1471474017d169f)
+
 ## [v0.19.2](https://github.com/alchemy-run/distilled/releases/tag/v0.19.2) (2026-05-12)
 
 ### Bug Fixes
