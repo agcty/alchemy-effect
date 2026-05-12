@@ -9,13 +9,14 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
+import { toRulesetAttributes } from "./attributes.ts";
 
 export type RulesetPhase = rulesets.CreateRulesetForZoneRequest["phase"];
 export type RulesetRule = NonNullable<
   rulesets.PutPhasForZoneRequest["rules"]
 >[number];
 export type RulesetOutputRule = Omit<
-  rulesets.GetPhasResponse["rules"][number],
+  NonNullable<rulesets.GetPhasResponse["rules"]>[number],
   "lastUpdated" | "version"
 >;
 
@@ -86,22 +87,6 @@ export type Ruleset<Phase extends RulesetPhase = RulesetPhase> = Resource<
  * ```
  */
 export const Ruleset = Resource<Ruleset>("Cloudflare.Ruleset")({});
-
-type RulesetResponse = rulesets.GetPhasResponse | rulesets.PutPhasResponse;
-
-const toRulesetAttributes = <Phase extends RulesetPhase>(
-  zoneId: string,
-  ruleset: RulesetResponse,
-): Ruleset<Phase>["Attributes"] => ({
-  rulesetId: ruleset.id,
-  zoneId,
-  phase: ruleset.phase as Phase,
-  name: ruleset.name,
-  description: ruleset.description ?? undefined,
-  rules: ruleset.rules.map(({ lastUpdated, version, ...rule }) => rule),
-  lastUpdated: ruleset.lastUpdated,
-  version: ruleset.version,
-});
 
 const isNotFoundError = (error: unknown): boolean =>
   typeof error === "object" &&

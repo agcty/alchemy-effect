@@ -31,7 +31,8 @@ test.provider(
             rules: [
               {
                 description: "Alchemy test rule",
-                expression: "false",
+                expression:
+                  'http.request.uri.path eq "/__alchemy_ruleset_test__"',
                 action: "block",
               },
             ],
@@ -50,7 +51,8 @@ test.provider(
             rules: [
               {
                 description: "Updated Alchemy test rule",
-                expression: "false",
+                expression:
+                  'http.request.uri.path eq "/__alchemy_ruleset_test__"',
                 action: "managed_challenge",
               },
             ],
@@ -81,7 +83,7 @@ const getPhaseRules = Effect.fn(function* (
       rulesetPhase: phase,
     })
     .pipe(
-      Effect.map((ruleset) => ruleset.rules),
+      Effect.map((ruleset) => ruleset.rules ?? []),
       Effect.catchIf(isNotFoundError, () => Effect.succeed([])),
     );
 });
