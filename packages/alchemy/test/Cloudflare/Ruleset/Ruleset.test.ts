@@ -12,23 +12,21 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
-const zoneId = process.env.CLOUDFLARE_TEST_EMPTY_RULESET_ZONE_ID;
+const zoneName =
+  process.env.CLOUDFLARE_TEST_RULESET_ZONE_NAME ?? "alchemy-test-2.us";
 const phase = "http_request_firewall_custom";
 type TestRulesetPhase = typeof phase;
 
-test.provider.skipIf(!zoneId)(
+test.provider(
   "creates, updates, and deletes a zone phase entrypoint ruleset",
   (stack) =>
     Effect.gen(function* () {
-      const existingRules = yield* getPhaseRules(zoneId!, phase);
-      expect(existingRules).toEqual([]);
-
       yield* stack.destroy();
 
       const initial = yield* stack.deploy(
         Effect.gen(function* () {
           return yield* Cloudflare.Ruleset("TestRuleset", {
-            zone: { zoneId: zoneId! },
+            zone: zoneName,
             phase,
             rules: [
               {
@@ -41,14 +39,13 @@ test.provider.skipIf(!zoneId)(
         }),
       );
 
-      expect(initial.zoneId).toEqual(zoneId);
       expect(initial.phase).toEqual(phase);
       expect(initial.rules).toHaveLength(1);
 
       const updated = yield* stack.deploy(
         Effect.gen(function* () {
           return yield* Cloudflare.Ruleset("TestRuleset", {
-            zone: { zoneId: zoneId! },
+            zone: zoneName,
             phase,
             rules: [
               {
@@ -61,6 +58,7 @@ test.provider.skipIf(!zoneId)(
         }),
       );
 
+      expect(updated.zoneId).toEqual(initial.zoneId);
       expect(updated.rules[0]?.description).toEqual(
         "Updated Alchemy test rule",
       );
@@ -68,7 +66,7 @@ test.provider.skipIf(!zoneId)(
 
       yield* stack.destroy();
 
-      const actualRules = yield* getPhaseRules(zoneId!, phase);
+      const actualRules = yield* getPhaseRules(initial.zoneId, phase);
       expect(actualRules).toEqual([]);
     }).pipe(logLevel),
 );
