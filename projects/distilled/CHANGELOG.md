@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.20.2](https://github.com/alchemy-run/distilled/releases/tag/v0.20.2) (2026-05-13)
+
+### Bug Fixes
+
+- **planetscale**: Add missing error return codes and nullable fields to branch, resize request, roles - by Lucas Thevenet in [#294](https://github.com/alchemy-run/distilled/pull/294) [(fd8e355)](https://github.com/alchemy-run/distilled/commit/fd8e35506d3ba9f26b958271145e009ff05a682c)
+
 ## [v0.20.1](https://github.com/alchemy-run/distilled/releases/tag/v0.20.1) (2026-05-13)
 
 ### Bug Fixes
