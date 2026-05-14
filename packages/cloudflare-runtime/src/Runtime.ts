@@ -7,7 +7,6 @@ import type * as Globals from "./globals/Globals.ts";
 import * as Storage from "./globals/Storage.ts";
 import type { BindingHook } from "./PluginContext.ts";
 import * as PluginContext from "./PluginContext.ts";
-import * as LocalProxy from "./proxy/LocalProxy.ts";
 import type { RuntimeError } from "./RuntimeError.shared.ts";
 import { moduleToWorkerd, type BindingHooks, type RuntimeWorker } from "./RuntimeWorker.ts";
 import * as Workerd from "./workerd/Workerd.ts";
@@ -29,7 +28,6 @@ export const RuntimeLive = Layer.effect(
   Effect.gen(function* () {
     const workerd = yield* Workerd.Workerd;
     const storage = yield* Storage.Storage;
-    const localProxy = yield* LocalProxy.LocalProxy;
     const plugins = yield* PluginContext.pickPluginsFromContext<Globals.Globals>();
 
     return Runtime.of({
@@ -75,22 +73,7 @@ export const RuntimeLive = Layer.effect(
           { "debug-port": "127.0.0.1:0" },
         );
         yield* context.start(ports);
-        const address = `http://localhost:${ports.http}`;
-        yield* localProxy.send({
-          _tag: "Local.Set",
-          worker: worker.name,
-          address,
-        });
-        yield* Effect.addFinalizer(() =>
-          localProxy
-            .send({
-              _tag: "Local.Unset",
-              worker: worker.name,
-              address,
-            })
-            .pipe(Effect.ignore),
-        );
-        return `${worker.name}.${localProxy.address}`;
+        return `http://127.0.0.1:${ports[SOCKET_HTTP]}`;
       }),
     });
   }),

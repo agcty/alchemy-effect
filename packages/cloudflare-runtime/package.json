@@ -68,6 +68,7 @@
     "./proxy/LocalProxy": "./dist/proxy/LocalProxy.mjs",
     "./proxy/ProxyApi": "./dist/proxy/ProxyApi.shared.mjs",
     "./proxy/RemoteProxy": "./dist/proxy/RemoteProxy.mjs",
+    "./proxy/workers/proxy": "./dist/proxy/workers/proxy.shared.mjs",
     "./remote-bindings": "./dist/remote-bindings/index.mjs",
     "./remote-bindings/Access": "./dist/remote-bindings/Access.mjs",
     "./remote-bindings/RemoteBindings": "./dist/remote-bindings/RemoteBindings.mjs",
@@ -93,6 +94,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "capnweb": "^0.7.0",
     "chokidar": "^4.0.1",
     "workerd": "catalog:workers",
     "xdg-app-paths": "^8.3.0"
@@ -104,7 +106,6 @@
     "@effect/platform-node": "catalog:effect",
     "@effect/vitest": "catalog:effect",
     "capnp-es": "^0.0.14",
-    "capnweb": "^0.7.0",
     "rolldown": "catalog:",
     "tsdown": "catalog:",
     "vitest": "catalog:"
