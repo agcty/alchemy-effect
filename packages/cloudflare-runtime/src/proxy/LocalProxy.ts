@@ -102,17 +102,25 @@ export const LocalProxyLive = Layer.effect(
     }) as unknown as ProxyControllerRpcs;
     return LocalProxy.of({
       address,
-      registerWorker: (workerName) =>
-        controller.registerWorker(workerName).pipe(Effect.as(`http://${workerName}.${address}`)),
-      unregisterWorker: (workerName) => controller.unregisterWorker(workerName),
-      setLocalAddress: (workerName, address) =>
-        Effect.acquireRelease(controller.setLocalAddress(workerName, address), () =>
-          controller.unsetLocalAddress(workerName, address).pipe(Effect.ignore),
-        ),
-      setRemoteAddress: (workerName, address) =>
-        Effect.acquireRelease(controller.setRemoteAddress(workerName, address), () =>
-          controller.unsetRemoteAddress(workerName).pipe(Effect.ignore),
-        ),
+      registerWorker: (workerName) => {
+        const subdomain = workerName.toLowerCase();
+        return controller
+          .registerWorker(subdomain)
+          .pipe(Effect.as(`http://${subdomain}.${address}`));
+      },
+      unregisterWorker: (workerName) => controller.unregisterWorker(workerName.toLowerCase()),
+      setLocalAddress: (workerName, address) => {
+        const subdomain = workerName.toLowerCase();
+        return Effect.acquireRelease(controller.setLocalAddress(subdomain, address), () =>
+          controller.unsetLocalAddress(subdomain, address).pipe(Effect.ignore),
+        );
+      },
+      setRemoteAddress: (workerName, address) => {
+        const subdomain = workerName.toLowerCase();
+        return Effect.acquireRelease(controller.setRemoteAddress(subdomain, address), () =>
+          controller.unsetRemoteAddress(subdomain).pipe(Effect.ignore),
+        );
+      },
     });
   }),
 );
