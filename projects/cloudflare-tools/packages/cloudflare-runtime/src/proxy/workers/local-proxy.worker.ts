@@ -45,34 +45,29 @@ export class LocalProxy extends DurableObject<Env> {
   private controller: ProxyController = {
     listWorkers: () => Array.from(this.workers.keys()),
     registerWorker: (workerName: string) => {
-      workerName = workerName.toLowerCase();
       const existing = this.workers.get(workerName);
       if (existing) return;
       const worker = { localAddress: undefined, remoteMain: undefined };
       this.workers.set(workerName, worker);
     },
     unregisterWorker: (workerName: string) => {
-      workerName = workerName.toLowerCase();
       const worker = this.workers.get(workerName);
       if (!worker) return;
       worker.remoteMain?.[Symbol.dispose]();
       this.workers.delete(workerName);
     },
     setLocalAddress: (workerName: string, address: string) => {
-      workerName = workerName.toLowerCase();
       this.controller.registerWorker(workerName);
       const worker = this.workers.get(workerName)!;
       worker.localAddress = address;
     },
     unsetLocalAddress: (workerName: string, address: string) => {
-      workerName = workerName.toLowerCase();
       this.controller.registerWorker(workerName);
       const worker = this.workers.get(workerName)!;
       if (worker.localAddress !== address) return;
       worker.localAddress = undefined;
     },
     setRemoteAddress: async (workerName: string, address: string) => {
-      workerName = workerName.toLowerCase();
       const url = new URL(address);
       url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
       url.pathname = CONTROLLER_WEBSOCKET_PATH;
@@ -97,7 +92,6 @@ export class LocalProxy extends DurableObject<Env> {
       worker.remoteMain = remoteMain;
     },
     unsetRemoteAddress: (workerName: string) => {
-      workerName = workerName.toLowerCase();
       const worker = this.workers.get(workerName);
       if (!worker || worker.remoteMain === undefined) return;
       worker.remoteMain?.[Symbol.dispose]();
