@@ -1,3 +1,4 @@
+import * as ConfigProvider from "effect/ConfigProvider";
 import * as Layer from "effect/Layer";
 import { Assets, Hyperdrive } from "./bindings/index.ts";
 import * as DevRegistry from "./dev-registry/DevRegistry.ts";
@@ -53,8 +54,17 @@ export type BindingServices =
 
 export type RuntimeServices = Runtime.Runtime | BindingServices;
 
-export const layerLocalProxy = () =>
-  Layer.provide(LocalProxy.LocalProxyLive, Layer.merge(Internet.InternetLive, Workerd.WorkerdLive));
+export const layerLocalProxy = (port?: number) =>
+  Layer.provide(
+    LocalProxy.LocalProxyLive,
+    Layer.mergeAll(
+      Internet.InternetLive,
+      Workerd.WorkerdLive,
+      typeof port === "number"
+        ? ConfigProvider.layerAdd(ConfigProvider.fromUnknown({ LOCAL_PROXY_PORT: port }))
+        : Layer.empty,
+    ),
+  );
 
 export const layerRuntime = (config: RuntimeConfig) =>
   Runtime.RuntimeLive.pipe(
