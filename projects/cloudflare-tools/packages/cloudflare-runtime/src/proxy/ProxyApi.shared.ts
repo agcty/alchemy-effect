@@ -1,22 +1,14 @@
-export const LOCAL_CONFIGURE_PATH = "/__distilled/proxy/configure";
-export const REMOTE_WEBSOCKET_PATH = "/__distilled/proxy/websocket";
+export const CONTROLLER_WEBSOCKET_PATH = "/__distilled/proxy/websocket";
+export const CONTROLLER_SECRET_KEY = "distilled-proxy-secret";
 
-export type ControllerMessage = ControllerMessage.Set | ControllerMessage.Unset;
-
-export declare namespace ControllerMessage {
-  type WorkerKind = "Local" | "Remote";
-
-  interface Set {
-    readonly _tag: `${WorkerKind}.Set`;
-    readonly worker: string;
-    readonly address: string;
-  }
-
-  interface Unset {
-    readonly _tag: `${WorkerKind}.Unset`;
-    readonly worker: string;
-    readonly address: string;
-  }
+export interface ProxyController {
+  readonly listWorkers: () => Array<string>;
+  readonly registerWorker: (workerName: string) => void;
+  readonly unregisterWorker: (workerName: string) => void;
+  readonly setLocalAddress: (workerName: string, address: string) => void;
+  readonly unsetLocalAddress: (workerName: string, address: string) => void;
+  readonly setRemoteAddress: (workerName: string, address: string) => Promise<void>;
+  readonly unsetRemoteAddress: (workerName: string) => void;
 }
 
 export interface WebSocketProxy {

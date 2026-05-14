@@ -1,80 +1,118 @@
+import { newWebSocketRpcSession } from "capnweb";
+import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as HttpBody from "effect/unstable/http/HttpBody";
-import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type * as Scope from "effect/Scope";
 import * as LocalProxyWorker from "worker:./workers/local-proxy.worker.ts";
 import * as Internet from "../globals/Internet.ts";
 import { findAvailablePort } from "../internal/find-available-port.ts";
 import { SystemError } from "../RuntimeError.shared.ts";
 import { moduleToWorkerd } from "../RuntimeWorker.ts";
-import * as Config from "../workerd/Config.ts";
+import * as WorkerdConfig from "../workerd/Config.ts";
 import * as Workerd from "../workerd/Workerd.ts";
-import { LOCAL_CONFIGURE_PATH, type ControllerMessage } from "./ProxyApi.shared.ts";
+import type { ProxyController } from "./ProxyApi.shared.ts";
+import { CONTROLLER_SECRET_KEY, CONTROLLER_WEBSOCKET_PATH } from "./ProxyApi.shared.ts";
+
+type ProxyControllerRpcs = {
+  [K in keyof ProxyController]: (
+    ...args: Parameters<ProxyController[K]>
+  ) => Effect.Effect<void, SystemError>;
+};
 
 export class LocalProxy extends Context.Service<
   LocalProxy,
   {
     readonly address: string;
-    readonly send: (message: ControllerMessage) => Effect.Effect<void, SystemError>;
+    readonly registerWorker: (workerName: string) => Effect.Effect<string, SystemError>;
+    readonly unregisterWorker: (workerName: string) => Effect.Effect<void, SystemError>;
+    readonly setLocalAddress: (
+      workerName: string,
+      address: string,
+    ) => Effect.Effect<void, SystemError, Scope.Scope>;
+    readonly setRemoteAddress: (
+      workerName: string,
+      address: string,
+    ) => Effect.Effect<void, SystemError, Scope.Scope>;
   }
 >()("cloudflare-runtime/proxy/LocalProxy") {}
 
-export interface LocalProxyConfig {
-  readonly host: string;
-  readonly port: number;
-}
+export const LocalProxyPort = Config.port("LOCAL_PROXY_PORT").pipe(Config.withDefault(0));
 
-export const layerLive = (config: LocalProxyConfig) =>
-  Layer.effect(
-    LocalProxy,
-    Effect.gen(function* () {
-      const runtime = yield* Workerd.Workerd;
-      const http = yield* HttpClient.HttpClient;
-      const ports = yield* runtime.serve({
-        sockets: [
-          {
-            name: "http",
-            address: `${config.host}:${yield* findAvailablePort(config.port, config.host)}`,
-            service: { name: "proxy:local" },
+export const LocalProxyLive = Layer.effect(
+  LocalProxy,
+  Effect.gen(function* () {
+    const runtime = yield* Workerd.Workerd;
+    const secret = crypto.randomUUID();
+    const port = yield* LocalProxyPort;
+    const ports = yield* runtime.serve({
+      sockets: [
+        {
+          name: "http",
+          address: `127.0.0.1:${yield* findAvailablePort(port, "127.0.0.1")}`,
+          service: { name: "proxy:local" },
+        },
+      ],
+      services: [
+        {
+          name: "proxy:local",
+          worker: {
+            compatibilityDate: "2026-03-10",
+            modules: LocalProxyWorker.modules.map(moduleToWorkerd),
+            bindings: [
+              { name: "PROXY", durableObjectNamespace: { className: "LocalProxy" } },
+              { name: "PROXY_SECRET", text: secret },
+            ],
+            durableObjectNamespaces: [
+              {
+                className: "LocalProxy",
+                ephemeralLocal: WorkerdConfig.kVoid,
+                preventEviction: true,
+              },
+            ],
           },
-        ],
-        services: [
-          {
-            name: "proxy:local",
-            worker: {
-              compatibilityDate: "2026-03-10",
-              modules: LocalProxyWorker.modules.map(moduleToWorkerd),
-              bindings: [{ name: "PROXY", durableObjectNamespace: { className: "LocalProxy" } }],
-              durableObjectNamespaces: [
-                { className: "LocalProxy", ephemeralLocal: Config.kVoid, preventEviction: true },
-              ],
-            },
-          },
-          yield* Internet.Internet,
-        ],
-      });
-      const address = `${config.host}:${ports.http}`;
-      return LocalProxy.of({
-        address,
-        send: Effect.fn((message) =>
-          http
-            .post(new URL(LOCAL_CONFIGURE_PATH, `http://${address}`), {
-              body: HttpBody.jsonUnsafe(message),
-            })
-            .pipe(
-              Effect.flatMap(HttpClientResponse.filterStatusOk),
-              Effect.mapError(
-                (e) =>
-                  new SystemError({
-                    subtag: "LocalProxyControlPlane",
-                    message: "Failed to send message to the local proxy controller.",
-                    cause: e,
-                  }),
-              ),
-            ),
+        },
+        yield* Internet.Internet,
+      ],
+    });
+    const address = `localhost:${ports.http}`;
+    const session = yield* Effect.acquireDisposable(
+      Effect.sync(() =>
+        newWebSocketRpcSession<ProxyController>(
+          `ws://${address}${CONTROLLER_WEBSOCKET_PATH}?${CONTROLLER_SECRET_KEY}=${secret}`,
         ),
-      });
-    }),
-  );
+      ),
+    );
+    const controller = new Proxy(session, {
+      get(target, prop) {
+        return (...args: Array<any>) =>
+          Effect.tryPromise({
+            try: () =>
+              (target[prop as keyof typeof target] as (...args: Array<any>) => Promise<void>)(
+                ...args,
+              ),
+            catch: (error) =>
+              new SystemError({
+                subtag: "LocalProxyControlPlane",
+                message: `Failed to call controller method "${String(prop)}".`,
+                cause: error,
+              }),
+          });
+      },
+    }) as unknown as ProxyControllerRpcs;
+    return LocalProxy.of({
+      address,
+      registerWorker: (workerName) =>
+        controller.registerWorker(workerName).pipe(Effect.as(`http://${workerName}.${address}`)),
+      unregisterWorker: (workerName) => controller.unregisterWorker(workerName),
+      setLocalAddress: (workerName, address) =>
+        Effect.acquireRelease(controller.setLocalAddress(workerName, address), () =>
+          controller.unsetLocalAddress(workerName, address).pipe(Effect.ignore),
+        ),
+      setRemoteAddress: (workerName, address) =>
+        Effect.acquireRelease(controller.setRemoteAddress(workerName, address), () =>
+          controller.unsetRemoteAddress(workerName).pipe(Effect.ignore),
+        ),
+    });
+  }),
+);

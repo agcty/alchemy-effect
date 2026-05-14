@@ -1,30 +1,26 @@
 import { RpcSession, type RpcStub, type RpcTransport } from "capnweb";
 import { DurableObject, WorkerEntrypoint } from "cloudflare:workers";
-import { SystemError } from "../../RuntimeError.shared.ts";
 import type { EntryQueuePayload } from "../../globals/entry.worker.ts";
-import { decodeResponse, makeErrorResponse } from "../../internal/response.shared.ts";
-import {
-  REMOTE_WEBSOCKET_PATH,
-  type WebSocketProxy,
-  type WorkerProxy,
-} from "../ProxyApi.shared.ts";
+import { decodeResponse } from "../../internal/response.shared.ts";
+import type { WebSocketProxy, WorkerProxy } from "../ProxyApi.shared.ts";
+import { isProxyControllerRequest, ProxyError } from "./proxy.shared.ts";
 
 interface Env {
-  BRIDGE: DurableObjectNamespace<RemoteBridge>;
-  BRIDGE_SECRET: string;
+  PROXY: DurableObjectNamespace<RemoteProxy>;
+  PROXY_SECRET: string;
 }
 
 export default class extends WorkerEntrypoint<Env> {
-  get bridge() {
-    return this.env.BRIDGE.getByName("global");
+  get proxy() {
+    return this.env.PROXY.getByName("global");
   }
 
   async fetch(request: Request) {
-    return await this.bridge.fetch(request);
+    return await this.proxy.fetch(request);
   }
 
   async queue(batch: MessageBatch<unknown>) {
-    const response = await this.bridge.fetch("http://stub/cdn-cgi/handler/queue", {
+    const response = await this.proxy.fetch("http://stub/cdn-cgi/handler/queue", {
       method: "POST",
       body: JSON.stringify({
         queue: batch.queue,
@@ -56,7 +52,7 @@ export default class extends WorkerEntrypoint<Env> {
   }
 }
 
-export class RemoteBridge extends DurableObject {
+export class RemoteProxy extends DurableObject<Env> {
   transport?: Transport;
   session?: RpcSession<WorkerProxy>;
   remoteMain?: RpcStub<WorkerProxy>;
@@ -103,37 +99,35 @@ export class RemoteBridge extends DurableObject {
   }
 
   async fetch(request: Request) {
-    if (
-      request.headers.get("upgrade") === "websocket" &&
-      request.url.endsWith(REMOTE_WEBSOCKET_PATH)
-    ) {
-      const [server, client] = Object.values(new WebSocketPair());
-      this.ctx.acceptWebSocket(server, ["local"]);
-      this.makeSession(server);
-      return new Response(null, { status: 101, webSocket: client });
-    }
-    if (!this.remoteMain) {
-      return makeErrorResponse(
-        new SystemError({
-          subtag: "RemoteBridgeNotConnected",
-          message: "Remote bridge has no active session to forward this request to.",
-          hint: "The local proxy may not have connected yet, or the connection was dropped.",
-        }),
-        { status: 502 },
-      );
-    }
-    const result = await this.remoteMain.fetch(request);
-    switch (result._tag) {
-      case "Response":
-        return result.response;
-      case "Upgrade":
+    try {
+      if (isProxyControllerRequest(request, this.env)) {
         const [server, client] = Object.values(new WebSocketPair());
-        this.ctx.acceptWebSocket(server, ["remote", result.id]);
-        return new Response(null, {
-          status: result.status,
-          headers: result.headers,
-          webSocket: client,
+        this.ctx.acceptWebSocket(server, ["local"]);
+        this.makeSession(server);
+        return new Response(null, { status: 101, webSocket: client });
+      }
+      if (!this.remoteMain) {
+        throw new ProxyError({
+          message: "Remote proxy has no active session to forward this request to.",
+          hint: "The local proxy may not have connected yet, or the connection was dropped.",
+          status: 502,
         });
+      }
+      const result = await this.remoteMain.fetch(request);
+      switch (result._tag) {
+        case "Response":
+          return result.response;
+        case "Upgrade":
+          const [server, client] = Object.values(new WebSocketPair());
+          this.ctx.acceptWebSocket(server, ["remote", result.id]);
+          return new Response(null, {
+            status: result.status,
+            headers: result.headers,
+            webSocket: client,
+          });
+      }
+    } catch (error) {
+      return ProxyError.fromUnknown(error).toResponse();
     }
   }
 

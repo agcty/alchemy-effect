@@ -13,14 +13,8 @@ import * as Runtime from "./Runtime.ts";
 import * as Workerd from "./workerd/Workerd.ts";
 
 export interface RuntimeConfig {
-  server: HttpServerConfig;
   api: ApiConfig;
   storage?: StorageConfig;
-}
-
-export interface HttpServerConfig {
-  port: number;
-  host: string;
 }
 
 export interface ApiConfig {
@@ -59,11 +53,13 @@ export type BindingServices =
 
 export type RuntimeServices = Runtime.Runtime | BindingServices;
 
+export const layerLocalProxy = () =>
+  Layer.provide(LocalProxy.LocalProxyLive, Layer.merge(Internet.InternetLive, Workerd.WorkerdLive));
+
 export const layerRuntime = (config: RuntimeConfig) =>
   Runtime.RuntimeLive.pipe(
     Layer.provideMerge(layerLocalBindings()),
     Layer.provideMerge(layerRemoteBindings(config.api)),
-    Layer.provide(LocalProxy.layerLive(config.server)),
     Layer.provide(Globals.GlobalsLive),
     Layer.provideMerge(layerLoopback()),
     Layer.provide(layerStorage(config.storage)),
