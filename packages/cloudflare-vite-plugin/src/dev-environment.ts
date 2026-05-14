@@ -17,7 +17,9 @@ export class DistilledDevEnvironment extends vite.DevEnvironment {
   }
 
   async connect(address: string) {
-    const url = new URL(`ws://${address}${INIT_PATH}`);
+    const url = new URL(address);
+    url.protocol = "ws";
+    url.pathname = INIT_PATH;
     const ws = new WebSocket(url, {
       headers: {
         [ENVIRONMENT_NAME_HEADER]: this.name,
