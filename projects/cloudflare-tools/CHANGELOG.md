@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.5.3](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.5.3) (2026-05-15)
+
+### Bug Fixes
+
+- **vite-plugin**: log failed to evaluate module - by @john-royal [(fdc9c0d)](https://github.com/alchemy-run/cloudflare-tools/commit/fdc9c0de9a2073ebc826cc28d1ff0b5e049650bc)
+
 ## [v0.5.2](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.5.2) (2026-05-15)
 
 ### Bug Fixes
