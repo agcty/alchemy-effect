@@ -1,4 +1,4 @@
-name: pr-package
+name: Publish Preview Packages
 
 # Publishes per-package tarballs to the pr-package service at pkg.ing on every
 # push to main and every PR sync. Only packages whose paths-filter matched the
