@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.5.2](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.5.2) (2026-05-15)
+
+### Bug Fixes
+
+- **runtime**: retry on broken pipe - by @john-royal [(c182190)](https://github.com/alchemy-run/cloudflare-tools/commit/c1821908386b982432e7388b58611cace8a803a7)
+
 ## [v0.5.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.5.1) (2026-05-15)
 
 ### Bug Fixes
