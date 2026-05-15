@@ -72,10 +72,10 @@ const res = await fetch(webhook, {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({
-    username: "Distilled Releases",
+    username: "Cloudflare Tools Releases",
     embeds: [
       {
-        title: `cloudflare-tools ${tag} (${channel}) released`,
+        title: `cloudflare-tools ${tag} ${channel}`,
         url: releaseUrl,
         description,
       },
