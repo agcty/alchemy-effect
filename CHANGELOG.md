@@ -1,0 +1,16 @@
+# Changelog
+
+## [v0.5.0](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.5.0) (2026-05-15)
+
+### Features
+
+- **vite-plugin**: update runtime - by @john-royal [(296c6cc)](https://github.com/alchemy-run/cloudflare-tools/commit/296c6cc614c395309c69cd02623ecb1ebe71ed7b)
+- **runtime**: decouple local proxy - by @john-royal [(9ec791a)](https://github.com/alchemy-run/cloudflare-tools/commit/9ec791a87780b2036f07287f705cb4e4b378d649)
+
+### Bug Fixes
+
+- **runtime**: tweak error logging - by @john-royal [(965e776)](https://github.com/alchemy-run/cloudflare-tools/commit/965e7765991080f25dc008459719aecca74ffc8f)
+- **runtime**: local proxy port - by @john-royal [(2583d2d)](https://github.com/alchemy-run/cloudflare-tools/commit/2583d2d1b022587cb2fe6d3fd4fa1d3fe0976156)
+- **vite-plugin**: handle url address when connecting to workerd - by @john-royal [(660460c)](https://github.com/alchemy-run/cloudflare-tools/commit/660460c8211d5de0b43df1b65cb5ff7fc0dd8af5)
+- **runtime**: add setter for local proxy port - by @john-royal [(cdeeb73)](https://github.com/alchemy-run/cloudflare-tools/commit/cdeeb73aeeee0fcf1e1a7fcf4655793b1b57296a)
+- **runtime**: normalize local proxy subdomain - by @john-royal [(17e4c11)](https://github.com/alchemy-run/cloudflare-tools/commit/17e4c11602fe8aa8859371bddc4687042a26cf7d)
