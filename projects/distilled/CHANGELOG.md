@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.21.2](https://github.com/alchemy-run/distilled/releases/tag/v0.21.2) (2026-05-18)
+
+### Bug Fixes
+
+- **planetscale**: type plain_text as non-nullable for create/renew password - by Michael K in [#299](https://github.com/alchemy-run/distilled/pull/299) [(777eb07)](https://github.com/alchemy-run/distilled/commit/777eb077ef2cd4d80788a6852a969f9137d2d017)
+
 ## [v0.21.1](https://github.com/alchemy-run/distilled/releases/tag/v0.21.1) (2026-05-18)
 
 ### Bug Fixes
