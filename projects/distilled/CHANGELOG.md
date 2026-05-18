@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.21.3](https://github.com/alchemy-run/distilled/releases/tag/v0.21.3) (2026-05-18)
+
+### Features
+
+- **core**: split Sensitive into input-friendly + output-strict variants - by Michael K in [#300](https://github.com/alchemy-run/distilled/pull/300) [(290c38f)](https://github.com/alchemy-run/distilled/commit/290c38f5252da8c329b255ec1ed55e7890ea9077)
+
 ## [v0.21.2](https://github.com/alchemy-run/distilled/releases/tag/v0.21.2) (2026-05-18)
 
 ### Bug Fixes
