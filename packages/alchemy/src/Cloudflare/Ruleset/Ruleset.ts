@@ -1,14 +1,16 @@
 import * as rulesets from "@distilled.cloud/cloudflare/rulesets";
-import * as zones from "@distilled.cloud/cloudflare/zones";
 import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
+import {
+  isZoneId,
+  resolveZoneId as resolveCloudflareZoneId,
+  type ZoneReference,
+} from "../Zone.ts";
 import { toRulesetAttributes } from "./attributes.ts";
 
 export type RulesetPhase = rulesets.CreateRulesetForZoneRequest["phase"];
@@ -20,7 +22,7 @@ export type RulesetOutputRule = Omit<
   "lastUpdated" | "version"
 >;
 
-export type RulesetZone = string | { zoneId: string; name?: string };
+export type RulesetZone = ZoneReference;
 
 export type RulesetProps<Phase extends RulesetPhase = RulesetPhase> = {
   /**
@@ -97,11 +99,6 @@ const isNotFoundError = (error: unknown): boolean =>
 const zoneRef = (zone: RulesetZone): string =>
   typeof zone === "string" ? zone : zone.zoneId;
 
-const isZoneIdString = (zone: string): boolean => /^[a-f0-9]{32}$/i.test(zone);
-
-const matchesHostname = (zoneName: string, hostname: string): boolean =>
-  hostname === zoneName || hostname.endsWith(`.${zoneName}`);
-
 export const RulesetProvider = () =>
   Provider.effect(
     Ruleset,
@@ -116,27 +113,10 @@ export const RulesetProvider = () =>
         });
 
       const resolveZoneId = (zone: RulesetZone) =>
-        Effect.gen(function* () {
-          if (typeof zone !== "string") return zone.zoneId;
-          if (isZoneIdString(zone)) return zone;
-
-          const matches = yield* zones.listZones.items({}).pipe(
-            Stream.filter(
-              (candidate) =>
-                candidate.account.id === accountId &&
-                matchesHostname(candidate.name, zone),
-            ),
-            Stream.runCollect,
-          );
-          const match = [...matches].sort(
-            (a, b) => b.name.length - a.name.length,
-          )[0];
-          if (!match) {
-            return yield* Effect.fail(
-              new Error(`Cloudflare zone not found for ${zone}`),
-            );
-          }
-          return match.id;
+        resolveCloudflareZoneId({
+          accountId,
+          zone,
+          hostname: typeof zone === "string" ? zone : (zone.name ?? ""),
         });
 
       return {
@@ -145,13 +125,12 @@ export const RulesetProvider = () =>
           if (!isResolved(news)) return undefined;
           const desiredZone = zoneRef(news.zone);
           const desiredZoneId =
-            typeof news.zone !== "string" || isZoneIdString(news.zone)
+            typeof news.zone !== "string" || isZoneId(news.zone)
               ? desiredZone
               : undefined;
           const oldZone = olds.zone ? zoneRef(olds.zone) : undefined;
           const oldZoneId =
-            olds.zone &&
-            (typeof olds.zone !== "string" || isZoneIdString(olds.zone))
+            olds.zone && (typeof olds.zone !== "string" || isZoneId(olds.zone))
               ? oldZone
               : undefined;
 
