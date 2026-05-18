@@ -102,6 +102,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:workers",
     "@distilled.cloud/cloudflare-rolldown-plugin": "workspace:*",
+    "@distilled.cloud/vendor-workers-shared": "workspace:*",
     "@effect/platform-bun": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "@effect/vitest": "catalog:effect",
@@ -125,8 +126,13 @@
     }
   },
   "inlinedDependencies": {
+    "@sentry/core": "8.9.2",
+    "@sentry/utils": "8.9.2",
     "capnp-es": "0.0.14",
     "capnweb": "0.7.0",
-    "effect": "4.0.0-beta.66"
+    "effect": "4.0.0-beta.66",
+    "ignore": "5.3.2",
+    "mime": "4.1.0",
+    "toucan-js": "4.0.0"
   }
 }
