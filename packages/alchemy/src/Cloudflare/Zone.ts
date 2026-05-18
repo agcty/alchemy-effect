@@ -42,7 +42,7 @@ type ZoneListResponse = {
   result?: { id: string; name: string; account: { id?: string | null } }[];
 };
 
-const findZoneByName = ({
+export const findZoneByName = ({
   accountId,
   name,
 }: {

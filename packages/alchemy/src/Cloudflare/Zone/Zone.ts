@@ -1,12 +1,11 @@
 import * as zones from "@distilled.cloud/cloudflare/zones";
 import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
+import { findZoneByName as findCloudflareZoneByName } from "../Zone.ts";
 
 export type ZoneType = "full" | "partial" | "secondary" | "internal";
 
@@ -140,13 +139,7 @@ export const ZoneProvider = () =>
       const deleteZone = yield* zones.deleteZone;
 
       const findZoneByName = (name: string) =>
-        zones.listZones.items({}).pipe(
-          Stream.filter(
-            (zone) => zone.name === name && zone.account.id === accountId,
-          ),
-          Stream.runHead,
-          Effect.map(Option.getOrUndefined),
-        );
+        findCloudflareZoneByName({ accountId, name });
 
       const readById = (zoneId: string) =>
         getZone({ zoneId }).pipe(
@@ -185,9 +178,7 @@ export const ZoneProvider = () =>
 
           if (!observed) {
             const existing = yield* findZoneByName(news.name);
-            observed = existing
-              ? toZoneAttributes(existing, accountId)
-              : undefined;
+            observed = existing ? yield* readById(existing.id) : undefined;
           }
 
           if (!observed) {
@@ -228,7 +219,7 @@ export const ZoneProvider = () =>
           }
 
           const existing = yield* findZoneByName(olds.name);
-          return existing ? toZoneAttributes(existing, accountId) : undefined;
+          return existing ? yield* readById(existing.id) : undefined;
         }),
       };
     }),

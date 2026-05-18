@@ -1,12 +1,11 @@
 import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
+import { findZoneByName as findCloudflareZoneByName } from "@/Cloudflare/Zone.ts";
 import * as Test from "@/Test/Vitest";
 import * as zones from "@distilled.cloud/cloudflare/zones";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
 import { MinimumLogLevel } from "effect/References";
-import * as Stream from "effect/Stream";
 
 const { test } = Test.make({ providers: Cloudflare.providers() });
 
@@ -22,7 +21,7 @@ test.provider.skipIf(!zoneName)(
   (stack) =>
     Effect.gen(function* () {
       const { accountId } = yield* CloudflareEnvironment;
-      const existing = yield* findZoneByName(zoneName!, accountId);
+      const existing = yield* findTestZoneByName(zoneName!, accountId);
 
       yield* stack.destroy();
 
@@ -52,18 +51,16 @@ test.provider.skipIf(!zoneName)(
     }).pipe(logLevel),
 );
 
-const findZoneByName = Effect.fn(function* (
+const findTestZoneByName = Effect.fn(function* (
   name: string,
   accountId: string,
 ) {
-  return yield* zones.listZones.items({}).pipe(
-    Stream.filter((zone) => zone.name === name && zone.account.id === accountId),
-    Stream.runHead,
-    Effect.map(Option.getOrUndefined),
+  const match = yield* findCloudflareZoneByName({ accountId, name }).pipe(
     Effect.flatMap((zone) =>
       zone
         ? Effect.succeed(zone)
         : Effect.fail(new Error(`Cloudflare test zone not found: ${name}`)),
     ),
   );
+  return yield* zones.getZone({ zoneId: match.id });
 });
