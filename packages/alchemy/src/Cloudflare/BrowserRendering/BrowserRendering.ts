@@ -91,7 +91,7 @@ export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
  * //   { BROWSER: Fetcher }
  * ```
  *
- * @example Async-style worker
+ * @example Async-style worker with the raw runtime binding
  * ```typescript
  * import puppeteer from "@cloudflare/puppeteer";
  * import type { WorkerEnv } from "../alchemy.run.ts";
