@@ -41,12 +41,6 @@ export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
  *
  * @binding
  *
- * @section Declaring Browser Rendering
- * @example
- * ```typescript
- * const Browser = yield* Cloudflare.BrowserRendering({ name: "BROWSER" });
- * ```
- *
  * @section Effect-style Worker (recommended)
  * @example Render a page title with managed browser cleanup
  * ```typescript
@@ -75,6 +69,12 @@ export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
  *     };
  *   }).pipe(Effect.provide(Cloudflare.BrowserRenderingBindingLive)),
  * );
+ * ```
+ *
+ * @section Declaring Browser Rendering
+ * @example
+ * ```typescript
+ * const Browser = yield* Cloudflare.BrowserRendering({ name: "BROWSER" });
  * ```
  *
  * @section Worker binding metadata
