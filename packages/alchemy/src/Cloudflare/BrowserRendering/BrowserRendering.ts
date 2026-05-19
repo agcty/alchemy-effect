@@ -47,7 +47,37 @@ export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
  * const Browser = yield* Cloudflare.BrowserRendering({ name: "BROWSER" });
  * ```
  *
- * @section Binding to a Worker (declarative)
+ * @section Effect-style Worker (recommended)
+ * @example Render a page title with managed browser cleanup
+ * ```typescript
+ * import puppeteer from "@cloudflare/puppeteer";
+ * import * as Effect from "effect/Effect";
+ *
+ * const Browser = Cloudflare.BrowserRendering({ name: "BROWSER" });
+ *
+ * Cloudflare.Worker(
+ *   "BrowserWorker",
+ *   { main: import.meta.filename },
+ *   Effect.gen(function* () {
+ *     const browserRendering = yield* Cloudflare.BrowserRendering.bind(
+ *       yield* Browser,
+ *     );
+ *
+ *     return {
+ *       fetch: browserRendering.withBrowser(puppeteer, (browser) =>
+ *         Effect.gen(function* () {
+ *           const page = yield* Effect.tryPromise(() => browser.newPage());
+ *           yield* Effect.tryPromise(() => page.goto("https://example.com"));
+ *           const title = yield* Effect.tryPromise(() => page.title());
+ *           return Response.json({ title });
+ *         }),
+ *       ),
+ *     };
+ *   }).pipe(Effect.provide(Cloudflare.BrowserRenderingBindingLive)),
+ * );
+ * ```
+ *
+ * @section Worker binding metadata
  * @example
  * ```typescript
  * export const Worker = Cloudflare.Worker("Worker", {
@@ -79,41 +109,6 @@ export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
  *     });
  *   },
  * };
- * ```
- *
- * @section Effect-style Worker
- * @example Binding in the init phase
- * ```typescript
- * import puppeteer from "@cloudflare/puppeteer";
- *
- * const Browser = Cloudflare.BrowserRendering({ name: "BROWSER" });
- *
- * Cloudflare.Worker(
- *   "BrowserWorker",
- *   { main: import.meta.filename },
- *   Effect.gen(function* () {
- *     const browserRendering = yield* Cloudflare.BrowserRendering.bind(
- *       yield* Browser,
- *     );
- *
- *     return {
- *       fetch: Effect.gen(function* () {
- *         const binding = yield* browserRendering.raw;
- *         const browser = yield* Effect.promise(() =>
- *           puppeteer.launch(binding),
- *         );
- *         try {
- *           const page = yield* Effect.promise(() => browser.newPage());
- *           yield* Effect.promise(() => page.goto("https://example.com"));
- *           const title = yield* Effect.promise(() => page.title());
- *           return Response.json({ title });
- *         } finally {
- *           yield* Effect.promise(() => browser.close());
- *         }
- *       }),
- *     };
- *   }).pipe(Effect.provide(Cloudflare.BrowserRenderingBindingLive)),
- * );
  * ```
  *
  * @see https://developers.cloudflare.com/browser-rendering/workers-binding-api/
