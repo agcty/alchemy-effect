@@ -1,12 +1,17 @@
 import * as zaraz from "@distilled.cloud/cloudflare/zaraz";
 import * as Effect from "effect/Effect";
-import * as Redacted from "effect/Redacted";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
+import {
+  stripNullFields,
+  stripUndefinedFields,
+  unwrapRedacted,
+} from "../../Util/data.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
 import { resolveZoneId, type ZoneReference } from "../Zone.ts";
+import { defineZarazEvents } from "./ZarazEventTypes.ts";
 
 export type ZarazWorkflow = zaraz.GetWorkflowResponse;
 export type ZarazSettings = zaraz.PutConfigRequest["settings"];
@@ -133,6 +138,10 @@ export type ZarazConfigAttributes = {
 /**
  * A Cloudflare Zaraz zone configuration.
  *
+ * Cloudflare Zaraz loads third-party tools and tracks analytics events from the
+ * edge without shipping every vendor script to the browser. See the
+ * {@link https://developers.cloudflare.com/zaraz/ | Cloudflare Zaraz docs}.
+ *
  * Zaraz is a zone-level singleton. This resource reconciles the current zone
  * config to the desired values while retaining existing settings for fields
  * omitted from props.
@@ -161,7 +170,18 @@ export type ZarazConfigAttributes = {
  * });
  * ```
  */
-export const ZarazConfig = Resource<ZarazConfig>("Cloudflare.ZarazConfig");
+export const ZarazConfig = Object.assign(
+  Resource<ZarazConfig>("Cloudflare.ZarazConfig"),
+  {
+    /**
+     * Define a type-only contract for the events sent through this Zaraz config.
+     *
+     * The returned value carries only types. Browser code should use
+     * Cloudflare's injected `window.zaraz` API at runtime.
+     */
+    events: defineZarazEvents,
+  },
+);
 
 type ConfigResponse =
   | zaraz.GetConfigResponse
@@ -232,12 +252,9 @@ const toPutConfig = (
     dataLayer: config.dataLayer,
     debugKey: config.debugKey,
     settings: stripNullFields(config.settings) as ZarazSettings,
-    tools: unwrapRedactedFields(config.tools) as Record<string, unknown>,
-    triggers: unwrapRedactedFields(config.triggers) as Record<string, unknown>,
-    variables: unwrapRedactedFields(config.variables) as Record<
-      string,
-      unknown
-    >,
+    tools: unwrapRedacted(config.tools) as Record<string, unknown>,
+    triggers: unwrapRedacted(config.triggers) as Record<string, unknown>,
+    variables: unwrapRedacted(config.variables) as Record<string, unknown>,
     zarazVersion: config.zarazVersion,
     analytics: config.analytics
       ? (stripNullFields(config.analytics) as ZarazAnalytics)
@@ -273,35 +290,6 @@ const configForCompare = (
     ...observed,
     variables: props.variables,
   };
-};
-
-const stripNullFields = <T>(value: T): T => stripFields(value, null) as T;
-
-const stripUndefinedFields = <T>(value: T): T =>
-  stripFields(value, undefined) as T;
-
-const unwrapRedactedFields = (value: unknown): unknown => {
-  if (Redacted.isRedacted(value)) return Redacted.value(value);
-  if (Array.isArray(value)) return value.map(unwrapRedactedFields);
-  if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(
-    Object.entries(value).map(([key, entry]) => [
-      key,
-      unwrapRedactedFields(entry),
-    ]),
-  );
-};
-
-const stripFields = (value: unknown, empty: null | undefined): unknown => {
-  if (Array.isArray(value)) {
-    return value.map((item) => stripFields(item, empty));
-  }
-  if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([, entry]) => entry !== empty)
-      .map(([key, entry]) => [key, stripFields(entry, empty)]),
-  );
 };
 
 export const ZarazConfigProvider = () =>

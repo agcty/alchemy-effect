@@ -1,4 +1,12 @@
 /**
+ * Type-only helpers for Cloudflare Zaraz events.
+ *
+ * These declarations are not a runtime event source. They only model the
+ * browser-side `window.zaraz` API and Zaraz HTTP event payloads so application
+ * code can share an event contract with infrastructure code.
+ */
+
+/**
  * A map of Zaraz event names to the properties accepted by each event.
  *
  * Use `undefined` for events that do not accept custom properties.
@@ -120,12 +128,12 @@ export type ZarazEventContract<
  *
  * @example
  * ```typescript
- * const zaraz = Cloudflare.defineZarazEvents<{
+ * const zaraz = Cloudflare.ZarazConfig.events<{
  *   Login: { method: "google" | "email" | "email-link" };
  *   "Button Clicked": { button_label: string; context?: string };
  * }>();
  *
- * const zarazWithEcommerce = Cloudflare.defineZarazEvents<{
+ * const zarazWithEcommerce = Cloudflare.ZarazConfig.events<{
  *   Login: { method: "google" | "email" | "email-link" };
  * }>({ ecommerce: true });
  *
@@ -140,7 +148,9 @@ export function defineZarazEvents<
 >(options?: { readonly ecommerce?: false }): ZarazEventContract<Events, {}>;
 export function defineZarazEvents<
   const Events extends ZarazEventMap,
->(): ZarazEventContract<Events, {}> {
+>(_options?: {
+  readonly ecommerce?: boolean;
+}): ZarazEventContract<Events, ZarazEventMap> {
   return {} as ZarazEventContract<Events, {}>;
 }
 

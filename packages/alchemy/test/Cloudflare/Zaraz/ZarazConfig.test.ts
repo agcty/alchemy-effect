@@ -1,5 +1,6 @@
 import * as Cloudflare from "@/Cloudflare";
 import * as Test from "@/Test/Vitest";
+import { stripNullFields, stripUndefinedFields } from "@/Util/data";
 import * as zaraz from "@distilled.cloud/cloudflare/zaraz";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -120,20 +121,3 @@ const toPutConfig = (
     consent: config.consent ? stripNullFields(config.consent) : undefined,
     historyChange: config.historyChange ?? undefined,
   }) as zaraz.PutConfigRequest;
-
-const stripNullFields = <T>(value: T): T => stripFields(value, null) as T;
-
-const stripUndefinedFields = <T>(value: T): T =>
-  stripFields(value, undefined) as T;
-
-const stripFields = (value: unknown, empty: null | undefined): unknown => {
-  if (Array.isArray(value)) {
-    return value.map((item) => stripFields(item, empty));
-  }
-  if (!value || typeof value !== "object") return value;
-  return Object.fromEntries(
-    Object.entries(value)
-      .filter(([, entry]) => entry !== empty)
-      .map(([key, entry]) => [key, stripFields(entry, empty)]),
-  );
-};

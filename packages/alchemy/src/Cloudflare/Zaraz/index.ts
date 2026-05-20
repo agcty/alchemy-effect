@@ -1,2 +1,25 @@
 export * from "./ZarazConfig.ts";
-export * from "./ZarazEvents.ts";
+export type {
+  InferZarazEcommerceEvents,
+  InferZarazEvents,
+  ZarazClientProperties,
+  ZarazEcommerce,
+  ZarazEcommerceCheckoutStep,
+  ZarazEcommerceEvents,
+  ZarazEcommerceOrder,
+  ZarazEcommercePayment,
+  ZarazEcommerceProduct,
+  ZarazEcommercePromotion,
+  ZarazEcommerceRefund,
+  ZarazEcommerceSearch,
+  ZarazEventContract,
+  ZarazEventMap,
+  ZarazEventName,
+  ZarazEventProperties,
+  ZarazHttpEvent,
+  ZarazHttpEventsPayload,
+  ZarazSetScope,
+  ZarazSystem,
+  ZarazTrack,
+  ZarazWebApi,
+} from "./ZarazEventTypes.ts";
