@@ -138,9 +138,10 @@ export type ZarazConfigAttributes = {
 /**
  * A Cloudflare Zaraz zone configuration.
  *
- * Cloudflare Zaraz loads third-party tools and tracks analytics events from the
- * edge without shipping every vendor script to the browser. See the
- * {@link https://developers.cloudflare.com/zaraz/ | Cloudflare Zaraz docs}.
+ * Cloudflare Zaraz is an edge-managed third-party tool manager and analytics
+ * event pipeline. See the
+ * {@link https://developers.cloudflare.com/zaraz/ | Cloudflare Zaraz docs} and
+ * {@link https://developers.cloudflare.com/zaraz/web-api/ | Web API docs}.
  *
  * Zaraz is a zone-level singleton. This resource reconciles the current zone
  * config to the desired values while retaining existing settings for fields

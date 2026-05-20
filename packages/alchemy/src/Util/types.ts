@@ -10,6 +10,8 @@ export type UnionToIntersection<U> = (
   ? I
   : never;
 
+export type Simplify<T> = { readonly [K in keyof T]: T[K] } & {};
+
 export const assertDefined = <T>(value: T | undefined, message: string): T => {
   if (!value) {
     throw new Error(message);

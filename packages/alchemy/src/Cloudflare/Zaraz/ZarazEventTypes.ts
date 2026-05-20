@@ -1,10 +1,12 @@
 /**
  * Type-only helpers for Cloudflare Zaraz events.
  *
- * These declarations are not a runtime event source. They only model the
- * browser-side `window.zaraz` API and Zaraz HTTP event payloads so application
- * code can share an event contract with infrastructure code.
+ * These declarations are not an Alchemy EventSource resource and do not send
+ * events at runtime. They only model the browser-side `window.zaraz` API and
+ * Zaraz HTTP event payloads so application code can share an event contract
+ * with infrastructure code.
  */
+import type { Simplify } from "../../Util/types.ts";
 
 /**
  * A map of Zaraz event names to the properties accepted by each event.
@@ -233,8 +235,6 @@ export type ZarazSystem = {
     encoding?: string;
   };
 };
-
-type Simplify<T> = { readonly [K in keyof T]: T[K] } & {};
 
 export type ZarazClientProperties<
   Events extends ZarazEventMap,
