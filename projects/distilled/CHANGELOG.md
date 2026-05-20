@@ -1,3 +1,14 @@
+## v0.21.4
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**:
+  - **zaraz**: Send workflow updates as raw body &nbsp;-&nbsp; by **Alex** in https://github.com/alchemy-run/distilled/issues/301 [<samp>(8d5c1)</samp>](https://github.com/alchemy-run/distilled/commit/8d5c1799)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.21.3...HEAD)
+
+---
+
 # Changelog
 
 ## [v0.21.3](https://github.com/alchemy-run/distilled/releases/tag/v0.21.3) (2026-05-18)
