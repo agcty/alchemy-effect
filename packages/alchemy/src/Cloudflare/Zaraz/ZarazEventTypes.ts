@@ -1,3 +1,5 @@
+import type { Simplify } from "../../Util/types.ts";
+
 /**
  * Type-only helpers for Cloudflare Zaraz events.
  *
@@ -6,7 +8,6 @@
  * Zaraz HTTP event payloads so application code can share an event contract
  * with infrastructure code.
  */
-import type { Simplify } from "../../Util/types.ts";
 
 /**
  * A map of Zaraz event names to the properties accepted by each event.
