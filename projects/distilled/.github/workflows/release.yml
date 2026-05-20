@@ -26,18 +26,22 @@ jobs:
       version: ${{ inputs.version }}
       repo: alchemy-run/distilled
       current-version: "0.22.0"
+      # Each package builds inside its own publish job; aws and gcp run
+      # on a larger runner because their builds are too heavy for the
+      # default ubuntu-latest box.
+      build-mode: per-package
       build-command: "bun run build"
       packages: |
         [
           { "dir": "packages/core",            "name": "@distilled.cloud/core" },
-          { "dir": "packages/aws",             "name": "@distilled.cloud/aws" },
+          { "dir": "packages/aws",             "name": "@distilled.cloud/aws",             "runner": "ubuntu-22-large" },
           { "dir": "packages/axiom",           "name": "@distilled.cloud/axiom" },
           { "dir": "packages/azure",           "name": "@distilled.cloud/azure" },
           { "dir": "packages/cloudflare",      "name": "@distilled.cloud/cloudflare" },
           { "dir": "packages/coinbase",        "name": "@distilled.cloud/coinbase" },
           { "dir": "packages/expo-eas",        "name": "@distilled.cloud/expo-eas" },
           { "dir": "packages/fly-io",          "name": "@distilled.cloud/fly-io" },
-          { "dir": "packages/gcp",             "name": "@distilled.cloud/gcp" },
+          { "dir": "packages/gcp",             "name": "@distilled.cloud/gcp",             "runner": "ubuntu-22-large" },
           { "dir": "packages/kubernetes",      "name": "@distilled.cloud/kubernetes" },
           { "dir": "packages/mongodb-atlas",   "name": "@distilled.cloud/mongodb-atlas" },
           { "dir": "packages/neon",            "name": "@distilled.cloud/neon" },
