@@ -1,4 +1,4 @@
-import type { Simplify } from "../../Util/types.ts";
+import type { Simplify } from "effect/Types";
 
 /**
  * Type-only helpers for Cloudflare Zaraz events.
