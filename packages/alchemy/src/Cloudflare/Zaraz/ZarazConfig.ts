@@ -63,10 +63,16 @@ export type ZarazConfigProps = {
    */
   historyChange?: boolean;
   /**
+   * Zaraz workflow mode. When omitted, the current workflow is retained.
+   */
+  workflow?: ZarazWorkflow;
+  /**
    * Whether destroy should restore Cloudflare's default Zaraz config.
    *
    * By default, destroy only removes this resource from Alchemy state and keeps
    * the current zone-level Zaraz config intact.
+   * If `workflow` is set, `delete: true` restores the workflow to real-time
+   * mode, Cloudflare's default.
    * @default false
    */
   delete?: boolean;
@@ -126,11 +132,7 @@ export type ZarazConfigAttributes = {
    */
   historyChange?: boolean | null;
   /**
-   * Current Zaraz workflow.
-   *
-   * This is observed only. Live API testing currently rejects documented
-   * workflow PUT values, so this resource does not reconcile workflow until the
-   * lower-level API behavior is reliable.
+   * Current Zaraz workflow mode.
    */
   workflow: ZarazWorkflow;
 };
@@ -144,8 +146,8 @@ export type ZarazConfigAttributes = {
  * {@link https://developers.cloudflare.com/zaraz/web-api/ | Web API docs}.
  *
  * Zaraz is a zone-level singleton. This resource reconciles the current zone
- * config to the desired values while retaining existing settings for fields
- * omitted from props.
+ * config and workflow to the desired values while retaining existing settings
+ * for fields omitted from props.
  *
  * Destroy keeps the current Zaraz config by default to avoid wiping unrelated
  * zone-level analytics setup. Set `delete: true` to restore Cloudflare's
@@ -168,6 +170,14 @@ export type ZarazConfigAttributes = {
  *     autoInjectScript: true,
  *     hideIPAddress: true,
  *   },
+ * });
+ * ```
+ *
+ * @example Enable preview workflow
+ * ```typescript
+ * const zaraz = yield* Cloudflare.ZarazConfig("Analytics", {
+ *   zone: "example.com",
+ *   workflow: "preview",
  * });
  * ```
  */
@@ -302,6 +312,9 @@ export const ZarazConfigProvider = () =>
       const putConfig = yield* zaraz.putConfig;
       const getDefault = yield* zaraz.getDefault;
       const getWorkflow = yield* zaraz.getWorkflow;
+      // Cloudflare's OpenAPI operation name is `putZaraz`, but the endpoint
+      // updates the zone's Zaraz workflow mode.
+      const putWorkflow = yield* zaraz.putZaraz;
 
       const resolve = (zone: ZoneReference) =>
         resolveZoneId({
@@ -334,7 +347,9 @@ export const ZarazConfigProvider = () =>
           const outputConfig = fromAttributes(output);
           const comparableOutput = configForCompare(outputConfig, olds, news);
           const desired = desiredConfig(outputConfig, news);
+          const desiredWorkflow = news.workflow ?? output.workflow;
           if (
+            desiredWorkflow !== output.workflow ||
             !deepEqual(
               comparableConfig(comparableOutput),
               comparableConfig(desired),
@@ -354,6 +369,7 @@ export const ZarazConfigProvider = () =>
           const observed = yield* observe(zoneId);
           const observedConfig = fromAttributes(observed);
           const desired = desiredConfig(observedConfig, news);
+          const desiredWorkflow = news.workflow ?? observed.workflow;
 
           const updatedConfig = deepEqual(
             comparableConfig(observedConfig),
@@ -361,13 +377,26 @@ export const ZarazConfigProvider = () =>
           )
             ? observedConfig
             : yield* putConfig(toPutConfig(zoneId, desired));
+          const updatedWorkflow =
+            desiredWorkflow === observed.workflow
+              ? observed.workflow
+              : yield* putWorkflow({
+                  zoneId,
+                  workflow: desiredWorkflow,
+                });
 
-          return toAttributes(zoneId, updatedConfig, observed.workflow);
+          return toAttributes(zoneId, updatedConfig, updatedWorkflow);
         }),
         delete: Effect.fn(function* ({ output, olds }) {
           if (olds.delete !== true) return;
           const defaults = yield* getDefault({ zoneId: output.zoneId });
           yield* putConfig(toPutConfig(output.zoneId, defaults));
+          if (olds.workflow !== undefined) {
+            yield* putWorkflow({
+              zoneId: output.zoneId,
+              workflow: "realtime",
+            });
+          }
         }),
       };
     }),
