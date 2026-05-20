@@ -8,13 +8,13 @@ import * as Redacted from "effect/Redacted";
 import { describe, expect, test } from "vitest";
 
 describe("data utilities", () => {
-  test("isPlainObject accepts object literals and null-prototype records", () => {
+  test("isPlainObject accepts object literals", () => {
     expect(isPlainObject({})).toBe(true);
-    expect(isPlainObject(Object.create(null))).toBe(true);
   });
 
   test("isPlainObject rejects arrays and object instances", () => {
     expect(isPlainObject([])).toBe(false);
+    expect(isPlainObject(Object.create(null))).toBe(false);
     expect(isPlainObject(new Date())).toBe(false);
     expect(isPlainObject(Redacted.make("secret"))).toBe(false);
   });
