@@ -191,6 +191,13 @@ export default {
         headers: { "x-echo": "yes", "content-type": "text/plain" },
       });
     }
+    if (url.pathname === "/headers") {
+      return Response.json({
+        forwardedHost: request.headers.get("x-forwarded-host"),
+        forwardedProto: request.headers.get("x-forwarded-proto"),
+        host: request.headers.get("host"),
+      });
+    }
     return new Response("not found", { status: 404 });
   },
 };
@@ -225,6 +232,15 @@ export default {
           })),
         );
         expect(missing).toEqual({ status: 404, body: "not found" });
+
+        const proxyHost = new URL(proxyAddress).host;
+        const headers = yield* Effect.promise(() =>
+          fetch(new URL("/headers", proxyAddress)).then((res) => res.json()),
+        );
+        expect(headers).toMatchObject({
+          forwardedHost: proxyHost,
+          forwardedProto: "http",
+        });
       }),
     { timeout: 30_000 },
   );
