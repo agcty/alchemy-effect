@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.6.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.1) (2026-05-21)
+
+### Bug Fixes
+
+- **runtime**: include x-forwarded-for and x-forwarded-proto headers - by @john-royal [(1acca6b)](https://github.com/alchemy-run/cloudflare-tools/commit/1acca6b53b3d82c132553648450a398d44e4c7d9)
+
 ## [v0.6.0](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.0) (2026-05-19)
 
 ### Features
