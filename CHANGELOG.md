@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.6.3](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.3) (2026-05-22)
+
+### Bug Fixes
+
+- **runtime**: dynamic import from LoopbackServer - by @john-royal [(f9aacde)](https://github.com/alchemy-run/cloudflare-tools/commit/f9aacdefb291727a5ae54342e2df12c97b6e1263)
+
 ## [v0.6.2](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.2) (2026-05-22)
 
 ### Features
