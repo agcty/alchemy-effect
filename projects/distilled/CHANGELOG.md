@@ -1,3 +1,15 @@
+## v0.21.5
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**:
+  - Require `className` in worker bindings &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/distilled/issues/305 [<samp>(9e20b)</samp>](https://github.com/alchemy-run/distilled/commit/9e20b89f)
+  - Add missing binding types to workers edge preview api &nbsp;-&nbsp; by **John Royal** in https://github.com/alchemy-run/distilled/issues/304 [<samp>(cf8d5)</samp>](https://github.com/alchemy-run/distilled/commit/cf8d5ff4)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.21.4...HEAD)
+
+---
+
 ## v0.21.4
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
