@@ -1,5 +1,17 @@
 # Changelog
 
+## [v0.6.2](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.2) (2026-05-22)
+
+### Features
+
+- **runtime**: artifacts binding - by @john-royal in [#19](https://github.com/alchemy-run/cloudflare-tools/pull/19) [(8f8edd4)](https://github.com/alchemy-run/cloudflare-tools/commit/8f8edd4f78db8a0565519720794e5828f73c14fe)
+
+### Bug Fixes
+
+- **runtime**: hide CODE_MOVED warning - by @john-royal in [#18](https://github.com/alchemy-run/cloudflare-tools/pull/18) [(1d687bd)](https://github.com/alchemy-run/cloudflare-tools/commit/1d687bd3d863bffacafe5222258c76bfda86779f)
+- **vite-plugin**: use either BunServices or NodeServices - by @john-royal in [#17](https://github.com/alchemy-run/cloudflare-tools/pull/17) [(6cb7779)](https://github.com/alchemy-run/cloudflare-tools/commit/6cb7779792b3468d99bc1ac409304a8096dd8aed)
+- **vite-plugin**: server fails to start due to invalid internal binding - by @john-royal in [#16](https://github.com/alchemy-run/cloudflare-tools/pull/16) [(f1d3a4a)](https://github.com/alchemy-run/cloudflare-tools/commit/f1d3a4a0efcf9f02db556c1cd17795e6ff93c2c4)
+
 ## [v0.6.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.6.1) (2026-05-21)
 
 ### Bug Fixes
