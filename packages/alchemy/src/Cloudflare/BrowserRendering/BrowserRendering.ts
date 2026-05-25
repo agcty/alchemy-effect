@@ -31,9 +31,7 @@ export type BrowserRendering = {
 
 export const isBrowserRendering = (value: unknown): value is BrowserRendering =>
   typeof value === "object" &&
-  value !== null &&
-  "kind" in value &&
-  (value as BrowserRendering).kind === BrowserRenderingTypeId;
+  (value as BrowserRendering)?.kind === BrowserRenderingTypeId;
 
 /**
  * A Cloudflare Browser Rendering binding for launching headless browser

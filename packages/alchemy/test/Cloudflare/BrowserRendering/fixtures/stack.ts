@@ -10,6 +10,9 @@ const Browser = Cloudflare.BrowserRendering({ name: "BROWSER" });
 
 export const AsyncWorker = Cloudflare.Worker("BrowserRenderingAsyncWorker", {
   main: asyncWorkerMain,
+  compatibility: {
+    flags: ["nodejs_compat"],
+  },
   bindings: {
     BROWSER: Browser,
   },
@@ -28,9 +31,7 @@ export default Alchemy.Stack(
     const effectWorker = yield* BrowserRenderingEffectWorker;
 
     return {
-      asyncWorkerName: asyncWorker.workerName,
       asyncWorkerUrl: asyncWorker.url.as<string>(),
-      effectWorkerName: effectWorker.workerName,
       effectWorkerUrl: effectWorker.url.as<string>(),
     };
   }),
