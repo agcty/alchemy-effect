@@ -34,7 +34,8 @@ import * as RouterWorker from "worker:./router.worker.ts";
 import * as Plugin from "../../Plugin.ts";
 import { PluginContext, type BindingHook } from "../../PluginContext.ts";
 import { ConfigError, SystemError } from "../../RuntimeError.shared.ts";
-import { moduleToWorkerd, type RuntimeWorker } from "../../RuntimeWorker.ts";
+import type { RuntimeWorker } from "../../RuntimeWorker.ts";
+import { formatInternalWorkerModules } from "../../internal/internal-modules.ts";
 
 export class Assets extends Plugin.Service<Assets, { isConfigured: boolean }>()(
   "cloudflare-runtime/plugin/Assets",
@@ -245,7 +246,7 @@ export const AssetsLive = Layer.effect(
                     json: JSON.stringify(assetsReverseMap),
                   },
                 ],
-                modules: AssetsKvWorker.modules.map(moduleToWorkerd),
+                modules: formatInternalWorkerModules(AssetsKvWorker),
               },
             },
             {
@@ -269,7 +270,7 @@ export const AssetsLive = Layer.effect(
                     json: JSON.stringify(assetsConfig),
                   },
                 ],
-                modules: AssetsWorker.modules.map(moduleToWorkerd),
+                modules: formatInternalWorkerModules(AssetsWorker),
               },
             },
           ],
@@ -291,7 +292,7 @@ export const AssetsLive = Layer.effect(
                     json: JSON.stringify(routerConfig),
                   },
                 ],
-                modules: RouterWorker.modules.map(moduleToWorkerd),
+                modules: formatInternalWorkerModules(RouterWorker),
               },
               upstreamBindingName: "USER_WORKER",
             },

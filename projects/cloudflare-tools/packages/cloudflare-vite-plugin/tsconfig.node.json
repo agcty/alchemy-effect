@@ -3,7 +3,7 @@
   "include": ["src"],
   "exclude": ["dist", "**/*.worker.ts"],
   "compilerOptions": {
-    "tsBuildInfoFile": ".cache/tsconfig.build.tsbuildinfo",
+    "tsBuildInfoFile": ".cache/tsconfig.node.tsbuildinfo",
     "outDir": "dist",
     "rootDir": "src"
   }

@@ -2,10 +2,10 @@ import * as NodeServices from "@effect/platform-node/NodeServices";
 import { expect, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import * as Internet from "../src/globals/Internet.ts";
-import * as LocalProxy from "../src/proxy/LocalProxy.ts";
-import * as WorkerdConfig from "../src/workerd/Config.ts";
-import * as Workerd from "../src/workerd/Workerd.ts";
+import * as Internet from "../../src/globals/Internet.ts";
+import * as LocalProxy from "../../src/proxy/LocalProxy.ts";
+import * as WorkerdConfig from "../../src/workerd/Config.ts";
+import * as Workerd from "../../src/workerd/Workerd.ts";
 
 const services = LocalProxy.LocalProxyLive(0).pipe(
   Layer.provideMerge(Layer.mergeAll(Workerd.WorkerdLive, Internet.InternetLive)),

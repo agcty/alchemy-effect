@@ -3,8 +3,8 @@
   "include": ["src"],
   "exclude": ["src/internal/workers.d.ts", "src/**/*.worker.ts"],
   "compilerOptions": {
-    "tsBuildInfoFile": ".cache/tsconfig.bundle.tsbuildinfo",
-    "outDir": ".cache/bundle",
+    "tsBuildInfoFile": ".cache/tsconfig.node.tsbuildinfo",
+    "outDir": ".cache/node",
     "rootDir": "src",
     "emitDeclarationOnly": true
   }

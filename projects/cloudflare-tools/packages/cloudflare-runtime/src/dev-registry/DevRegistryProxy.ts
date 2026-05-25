@@ -4,9 +4,9 @@ import type * as Scope from "effect/Scope";
 import { HttpBody } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as DevRegistryProxyWorker from "worker:./workers/dev-registry-proxy.worker.ts";
+import { formatInternalWorkerModules } from "../internal/internal-modules.ts";
 import * as Plugin from "../Plugin.ts";
 import { PluginContext } from "../PluginContext.ts";
-import { moduleToWorkerd } from "../RuntimeWorker.ts";
 import * as WorkerdConfig from "../workerd/Config.ts";
 import type * as Workerd from "../workerd/Workerd.ts";
 import {
@@ -48,10 +48,6 @@ export class DevRegistryProxy extends Plugin.Service<
     ) => Effect.Effect<WorkerdConfig.Worker_DurableObjectNamespace>;
   }
 >()("cloudflare-runtime/plugin/DevRegistryProxy") {}
-
-const PROXY_MAIN_MODULE_NAME = "__dev-registry-proxy-main.mjs";
-
-const proxyWorkerEntryName = DevRegistryProxyWorker.modules[0].name;
 
 export const DevRegistryProxyLive = Layer.effect(
   DevRegistryProxy,
@@ -105,7 +101,6 @@ export const DevRegistryProxyLive = Layer.effect(
             return {};
           }
           const initialRegistry = yield* devRegistry.getRegistry();
-          const mainModuleSource = buildMainModule(externals, initialRegistry);
           const externalDOs: Array<[string, string]> = [];
           for (const [scriptName, { classNames }] of externals) {
             for (const className of classNames) {
@@ -117,14 +112,7 @@ export const DevRegistryProxyLive = Layer.effect(
             worker: {
               compatibilityDate: "2025-01-01",
               compatibilityFlags: ["service_binding_extra_handlers"],
-              modules: [
-                {
-                  name: PROXY_MAIN_MODULE_NAME,
-                  type: "ESModule" as const,
-                  content: mainModuleSource,
-                },
-                ...DevRegistryProxyWorker.modules,
-              ].map(moduleToWorkerd),
+              modules: buildWorkerModules(externals, initialRegistry),
               bindings: [
                 {
                   name: DEV_REGISTRY_DEBUG_PORT_BINDING,
@@ -188,17 +176,18 @@ export const DevRegistryProxyLive = Layer.effect(
   }),
 );
 
-const buildMainModule = (
+const buildWorkerModules = (
   externals: ExternalServiceMap,
   initialRegistry: Record<string, unknown>,
-): string => {
+) => {
+  const proxyWorkerEntryName = Object.keys(DevRegistryProxyWorker.modules)[0];
   const externalDOs: Array<[string, string]> = [];
   for (const [scriptName, { classNames }] of externals) {
     for (const className of classNames) {
       externalDOs.push([scriptName, className]);
     }
   }
-  return [
+  const main = [
     `import { ExternalServiceProxy, setRegistry, createProxyDurableObjectClass } from "./${proxyWorkerEntryName}";`,
     `export { ExternalServiceProxy };`,
     `setRegistry(${JSON.stringify(initialRegistry)});`,
@@ -223,4 +212,10 @@ const buildMainModule = (
     ),
     "",
   ].join("\n");
+  return formatInternalWorkerModules({
+    modules: {
+      "index.worker.mjs": main,
+      ...DevRegistryProxyWorker.modules,
+    },
+  });
 };

@@ -8,10 +8,10 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import * as ClientWorker from "worker:./workers/client.worker.ts";
 import * as OutboundWorker from "worker:./workers/outbound.worker.ts";
 import * as Loopback from "../globals/Loopback.ts";
+import { formatInternalWorkerModules } from "../internal/internal-modules.ts";
 import * as Plugin from "../Plugin.ts";
 import * as PluginContext from "../PluginContext.ts";
 import type { ApiError, ConfigError, SystemError } from "../RuntimeError.shared.ts";
-import { moduleToWorkerd } from "../RuntimeWorker.ts";
 import * as WorkerdConfig from "../workerd/Config.ts";
 import * as RemoteWorker from "./RemoteWorker.ts";
 import type {
@@ -69,7 +69,7 @@ export const RemoteBindingsLive = Layer.effect(
         name: "remote-bindings:outbound",
         worker: {
           compatibilityDate: "2026-03-10",
-          modules: OutboundWorker.modules.map(moduleToWorkerd),
+          modules: formatInternalWorkerModules(OutboundWorker),
           bindings: [
             {
               name: "PROXY",
@@ -98,7 +98,7 @@ export const RemoteBindingsLive = Layer.effect(
         name: "remote-bindings:client",
         worker: {
           compatibilityDate: "2026-03-10",
-          modules: ClientWorker.modules.map(moduleToWorkerd),
+          modules: formatInternalWorkerModules(ClientWorker),
           globalOutbound: { name: outbound.name },
         },
       } satisfies WorkerdConfig.Service;

@@ -5,10 +5,11 @@ import type * as Scope from "effect/Scope";
 import { SOCKET_HTTP, USER_WORKER_SERVICE_NAME } from "./dev-registry/Constants.shared.ts";
 import type * as Globals from "./globals/Globals.ts";
 import * as Storage from "./globals/Storage.ts";
+import { moduleToWorkerd } from "./internal/internal-modules.ts";
 import type { BindingHook } from "./PluginContext.ts";
 import * as PluginContext from "./PluginContext.ts";
 import type { RuntimeError } from "./RuntimeError.shared.ts";
-import { moduleToWorkerd, type BindingHooks, type RuntimeWorker } from "./RuntimeWorker.ts";
+import type { BindingHooks, RuntimeWorker } from "./RuntimeWorker.ts";
 import * as Workerd from "./workerd/Workerd.ts";
 
 export class Runtime extends Context.Service<
