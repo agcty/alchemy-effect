@@ -13,6 +13,5 @@ declare module "workerd" {
 }
 
 declare module "worker:*" {
-  // oxlint-disable-next-line typescript/consistent-type-imports
-  export const modules: Array<import("./RuntimeWorker.ts").Module>;
+  export const modules: Record<string, string>;
 }

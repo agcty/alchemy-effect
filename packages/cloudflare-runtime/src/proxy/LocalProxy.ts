@@ -6,8 +6,8 @@ import type * as Scope from "effect/Scope";
 import * as LocalProxyWorker from "worker:./workers/local-proxy.worker.ts";
 import * as Internet from "../globals/Internet.ts";
 import { findAvailablePort } from "../internal/find-available-port.ts";
+import { formatInternalWorkerModules } from "../internal/internal-modules.ts";
 import { SystemError } from "../RuntimeError.shared.ts";
-import { moduleToWorkerd } from "../RuntimeWorker.ts";
 import * as WorkerdConfig from "../workerd/Config.ts";
 import * as Workerd from "../workerd/Workerd.ts";
 import type { ProxyController } from "./ProxyApi.shared.ts";
@@ -55,7 +55,7 @@ export const LocalProxyLive = (port = 0) =>
             name: "proxy:local",
             worker: {
               compatibilityDate: "2026-03-10",
-              modules: LocalProxyWorker.modules.map(moduleToWorkerd),
+              modules: formatInternalWorkerModules(LocalProxyWorker),
               bindings: [
                 { name: "PROXY", durableObjectNamespace: { className: "LocalProxy" } },
                 { name: "PROXY_SECRET", text: secret },

@@ -6,5 +6,5 @@
     "composite": false,
     "noEmit": true
   },
-  "references": [{ "path": "./tsconfig.bundle.json" }, { "path": "./tsconfig.workers.json" }]
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.workers.json" }]
 }

@@ -1,8 +1,8 @@
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as EntryWorker from "worker:./entry.worker.ts";
+import { formatInternalWorkerModules } from "../internal/internal-modules.ts";
 import * as Plugin from "../Plugin.ts";
-import { moduleToWorkerd } from "../RuntimeWorker.ts";
 import * as Internet from "./Internet.ts";
 import * as Storage from "./Storage.ts";
 
@@ -24,7 +24,7 @@ export const GlobalsLive = Layer.effect(
               "enable_request_signal",
               "service_binding_extra_handlers",
             ],
-            modules: EntryWorker.modules.map(moduleToWorkerd),
+            modules: formatInternalWorkerModules(EntryWorker),
           },
           upstreamBindingName: "USER_WORKER",
         },

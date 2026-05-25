@@ -16,6 +16,7 @@
     "packages": [
       "packages/*",
       "packages/vendor/*",
+      "packages/tools/*",
       "fixtures/*"
     ],
     "catalogs": {

@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as HyperdriveBindingWorker from "worker:./hyperdrive-binding.worker.ts";
+import { formatExtensionModule } from "../../internal/internal-modules.ts";
 import * as Plugin from "../../Plugin.ts";
 import type { BindingHook } from "../../PluginContext.ts";
 import * as PluginContext from "../../PluginContext.ts";
@@ -23,7 +24,7 @@ export const HyperdriveLive = Layer.succeed(
               {
                 name: "cloudflare-runtime:hyperdrive",
                 internal: true,
-                esModule: HyperdriveBindingWorker.modules[0].content as string,
+                esModule: formatExtensionModule(HyperdriveBindingWorker),
               },
             ],
           },
