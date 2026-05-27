@@ -96,7 +96,6 @@ export const WorkerdLive = Layer.sync(Workerd, () => {
             "serve",
             "--binary",
             "--experimental",
-            "--verbose",
             "--control-fd=3",
             ...Object.entries(args ?? {}).map(([key, value]) =>
               typeof value === "boolean" ? `--${key}` : `--${key}=${value}`,
