@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.7.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.7.1) (2026-05-27)
+
+### Bug Fixes
+
+- **vite-plugin**: handle external `require` calls in vite dev - by @john-royal in [#25](https://github.com/alchemy-run/cloudflare-tools/pull/25) [(e7ea5a0)](https://github.com/alchemy-run/cloudflare-tools/commit/e7ea5a08fa0afec5d5f6c2f6db63d14b9c527bea)
+- **runtime**: remove verbose logging from workerd - by @john-royal [(e2599d7)](https://github.com/alchemy-run/cloudflare-tools/commit/e2599d74b048aacdaa9ebee61ada8f80d597c19f)
+
 ## [v0.7.0](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.7.0) (2026-05-27)
 
 ### Features
