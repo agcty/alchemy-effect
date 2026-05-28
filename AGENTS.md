@@ -86,10 +86,10 @@ If the binding has a local implementation, create a directory at `src/bindings/<
 
 See `src/bindings/assets` and `src/bindings/rate-limit` for examples. The `cloudflare-runtime` package includes a plugin system, similar to Miniflare's but adapted for Effect.
 
-Once a plugin is implemented, you will need to register it in `src/RuntimeServices.ts` in the `layerLocalBindings` function. For example:
+Once a plugin is implemented, you will need to register it in `src/RuntimeServices.ts` in the `layerLocalBindings` function and the `BindingServices` type. For example:
 
 ```ts
-layerLocalBindings = () =>
+export const layerLocalBindings = () =>
   Layer.mergeAll(
     Assets.AssetsLive,
     DevRegistryProxy.DevRegistryProxyLive,
@@ -97,6 +97,13 @@ layerLocalBindings = () =>
     RateLimit.RateLimitLive,
     <BindingName>.<BindingName>Live, // add new bindings to the list, in alphabetical order
   );
+
+export type BindingServices =
+  | Assets.Assets
+  | DevRegistryProxy.DevRegistryProxy
+  | Hyperdrive.Hyperdrive
+  | RateLimit.RateLimit
+  | <BindingName>.<BindingName> // add new bindings to the list, in alphabetical order
 ```
 
 ### 4. Adapt the relevant services and extensions

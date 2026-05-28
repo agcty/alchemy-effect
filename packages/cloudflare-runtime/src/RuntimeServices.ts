@@ -58,11 +58,15 @@ export const layerLocalBindings = () =>
   );
 
 export type BindingServices =
+  | AnalyticsEngine.AnalyticsEngine
   | Assets.Assets
-  | Loopback.Loopback
-  | Hyperdrive.Hyperdrive
-  | RemoteBindings.RemoteBindings
   | DevRegistryProxy.DevRegistryProxy
+  | DispatchNamespace.DispatchNamespace
+  | Hyperdrive.Hyperdrive
+  | Loopback.Loopback
+  | RateLimit.RateLimit
+  | RemoteBindings.RemoteBindings
+  | SendEmail.SendEmail
   | Workflows.Workflows;
 
 export type RuntimeServices = Runtime.Runtime | BindingServices;
