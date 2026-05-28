@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.8.0](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.8.0) (2026-05-28)
+
+### Bug Fixes
+
+- **vite-plugin**: handle websocket upgrade - by @john-royal in [#28](https://github.com/alchemy-run/cloudflare-tools/pull/28) [(3ae2801)](https://github.com/alchemy-run/cloudflare-tools/commit/3ae280136e1d6cbd8c99b14e917a0bc0b8b08811)
+- **runtime**: consistent binding prop names - by @john-royal in [#26](https://github.com/alchemy-run/cloudflare-tools/pull/26) [(38e8edc)](https://github.com/alchemy-run/cloudflare-tools/commit/38e8edcb014e5c021a427da779cd4e803951888b)
+
 ## [v0.7.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.7.1) (2026-05-27)
 
 ### Bug Fixes
