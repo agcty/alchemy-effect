@@ -135,6 +135,9 @@ layer(services)((it) => {
       // "*** Fatal uncaught kj::Exception: kj/async-io-unix.c++:945: failed: ::bind(sockfd, &addr.generic, addrlen): Address already in use; toString() = 127.0.0.1:61328\n" +
       //    "stack: 10505b7f7 10505b5db 10505a073 10277aadb 10277b2eb 10277bd2f 10277cf2f 1026f3d57 105086dff 105087127 10508599f 10508575f 1026e08db 18c753da3"
       expect(error.detail.stderr).toMatch(/Address already in use/);
+      assert(Predicate.hasProperty(error.detail, "address"));
+      expect(error.detail.address).toBe(`127.0.0.1:${port}`);
+      expect(error.message).toContain(`127.0.0.1:${port}`);
     }),
   );
 
