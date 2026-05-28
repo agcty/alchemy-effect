@@ -215,13 +215,17 @@ const classifyWorkerdError = (
     });
   }
 
-  // Pattern: address-in-use comes through as a `kj::Exception`.
+  // Pattern: address-in-use comes through as a `kj::Exception`. The offending
+  // address is reported via workerd's `toString() = <address>` suffix.
   if (/Address already in use/i.test(text)) {
+    const address = text.match(/toString\(\) = (\S+)/)?.[1];
     return new ConfigError({
       subtag: "WorkerdAddressInUse",
-      message: "The Workers runtime could not bind to the requested address (already in use).",
+      message: address
+        ? `The Workers runtime could not bind to ${address} (already in use).`
+        : "The Workers runtime could not bind to the requested address (already in use).",
       hint: "Pick a different port or stop the process using it.",
-      detail,
+      detail: { ...detail, address },
     });
   }
 
