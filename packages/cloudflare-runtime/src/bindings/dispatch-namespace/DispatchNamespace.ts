@@ -3,8 +3,8 @@ import * as DispatchNamespaceBindingWorker from "worker:./dispatch-namespace.wor
 import { formatExtensionModule } from "../../internal/internal-modules.ts";
 import * as Plugin from "../../Plugin.ts";
 import type { BindingHook } from "../../PluginContext.ts";
-import { makeRemoteBinding } from "../../remote-bindings/RemoteBindings.ts";
 import type { RemoteBindings } from "../../remote-bindings/RemoteBindings.ts";
+import { makeRemoteBinding } from "../../remote-bindings/RemoteBindings.ts";
 
 export class DispatchNamespace extends Plugin.Service<DispatchNamespace>()(
   "cloudflare-runtime/plugin/DispatchNamespace",
@@ -29,6 +29,15 @@ export const DispatchNamespaceLive = Layer.succeed(
   }),
 );
 
+export interface DispatchNamespaceProps {
+  readonly binding: string;
+  readonly namespace: string;
+  readonly outbound?: {
+    worker?: { service?: string; environment?: string };
+    params?: Array<{ name: string }>;
+  };
+}
+
 /**
  * Bind to a deployed dispatch namespace via the remote bindings proxy.
  *
@@ -37,18 +46,18 @@ export const DispatchNamespaceLive = Layer.succeed(
  * dispatched from the remote namespace.
  */
 export const remote = (
-  binding: string,
-  namespace: string,
+  props: DispatchNamespaceProps,
 ): BindingHook<RemoteBindings | DispatchNamespace> =>
   Plugin.use(DispatchNamespace, () =>
     makeRemoteBinding(
       {
-        name: binding,
+        name: props.binding,
         type: "dispatch_namespace",
-        namespace,
+        namespace: props.namespace,
+        outbound: props.outbound,
       },
       (service) => ({
-        name: binding,
+        name: props.binding,
         wrapped: {
           moduleName: EXTENSION_MODULE_NAME,
           innerBindings: [{ name: "proxyClient", service }],
