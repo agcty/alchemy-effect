@@ -3,8 +3,8 @@ import * as EmailWorker from "worker:./email.worker.ts";
 import { formatExtensionModule } from "../../internal/internal-modules.ts";
 import * as Plugin from "../../Plugin.ts";
 import type { BindingHook } from "../../PluginContext.ts";
-import { makeRemoteBinding } from "../../remote-bindings/RemoteBindings.ts";
 import type { RemoteBindings } from "../../remote-bindings/RemoteBindings.ts";
+import { makeRemoteBinding } from "../../remote-bindings/RemoteBindings.ts";
 
 export class SendEmail extends Plugin.Service<SendEmail>()("cloudflare-runtime/plugin/SendEmail") {}
 
@@ -26,9 +26,10 @@ export const SendEmailLive = Layer.succeed(
 );
 
 export interface RemoteSendEmailProps {
+  readonly binding: string;
   readonly destinationAddress?: string;
-  readonly allowedDestinationAddresses?: ReadonlyArray<string>;
-  readonly allowedSenderAddresses?: ReadonlyArray<string>;
+  readonly allowedDestinationAddresses?: Array<string>;
+  readonly allowedSenderAddresses?: Array<string>;
 }
 
 /**
@@ -38,27 +39,18 @@ export interface RemoteSendEmailProps {
  * the `EmailMessage` class to user code (workerd does not ship it
  * natively), matching the upstream Miniflare behaviour.
  */
-export const remote = (
-  binding: string,
-  props: RemoteSendEmailProps = {},
-): BindingHook<RemoteBindings | SendEmail> =>
+export const remote = (props: RemoteSendEmailProps): BindingHook<RemoteBindings | SendEmail> =>
   Plugin.use(SendEmail, () =>
     makeRemoteBinding(
       {
-        name: binding,
+        name: props.binding,
         type: "send_email",
-        ...(props.destinationAddress !== undefined
-          ? { destinationAddress: props.destinationAddress }
-          : {}),
-        ...(props.allowedDestinationAddresses !== undefined
-          ? { allowedDestinationAddresses: [...props.allowedDestinationAddresses] }
-          : {}),
-        ...(props.allowedSenderAddresses !== undefined
-          ? { allowedSenderAddresses: [...props.allowedSenderAddresses] }
-          : {}),
+        destinationAddress: props.destinationAddress,
+        allowedDestinationAddresses: props.allowedDestinationAddresses,
+        allowedSenderAddresses: props.allowedSenderAddresses,
       },
       (service) => ({
-        name: binding,
+        name: props.binding,
         service,
       }),
     ),
