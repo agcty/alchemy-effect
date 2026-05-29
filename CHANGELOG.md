@@ -1,3 +1,17 @@
+## v0.22.0
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **cloudflare**: Update cloudflare spec &nbsp;-&nbsp; by **Michael K** in https://github.com/alchemy-run/distilled/issues/312 [<samp>(f50ef)</samp>](https://github.com/alchemy-run/distilled/commit/f50ef4ed)
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Collapse unions containing `unknown` to `unknown` in parser &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/distilled/issues/310 [<samp>(cf15f)</samp>](https://github.com/alchemy-run/distilled/commit/cf15f0c0)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.21.6...HEAD)
+
+---
+
 ## v0.21.6
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
