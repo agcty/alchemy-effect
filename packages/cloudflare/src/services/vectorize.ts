@@ -17,6 +17,12 @@ import { UploadableSchema } from "../schemas.ts";
 // Errors
 // =============================================================================
 
+export class Gone extends Schema.TaggedErrorClass<Gone>()("Gone", {
+  code: Schema.Number,
+  message: Schema.String,
+}) {}
+T.applyErrorMatchers(Gone, [{ code: 3005 }]);
+
 export class IndexAlreadyExists extends Schema.TaggedErrorClass<IndexAlreadyExists>()(
   "IndexAlreadyExists",
   { code: Schema.Number, message: Schema.String },
@@ -207,7 +213,7 @@ export const GetIndexResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   )
   .pipe(T.ResponsePath("result")) as unknown as Schema.Schema<GetIndexResponse>;
 
-export type GetIndexError = DefaultErrors | NotFound;
+export type GetIndexError = DefaultErrors | NotFound | Gone;
 
 export const getIndex: API.OperationMethod<
   GetIndexRequest,
@@ -217,7 +223,7 @@ export const getIndex: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetIndexRequest,
   output: GetIndexResponse,
-  errors: [NotFound],
+  errors: [NotFound, Gone],
 }));
 
 export interface ListIndexesRequest {
@@ -420,7 +426,7 @@ export const DeleteIndexResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteIndexResponse>;
 
-export type DeleteIndexError = DefaultErrors | NotFound;
+export type DeleteIndexError = DefaultErrors | NotFound | Gone;
 
 export const deleteIndex: API.OperationMethod<
   DeleteIndexRequest,
@@ -430,7 +436,7 @@ export const deleteIndex: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteIndexRequest,
   output: DeleteIndexResponse,
-  errors: [NotFound],
+  errors: [NotFound, Gone],
 }));
 
 export interface InfoIndexRequest {
@@ -738,7 +744,7 @@ export const ListIndexMetadataIndexesResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<ListIndexMetadataIndexesResponse>;
 
-export type ListIndexMetadataIndexesError = DefaultErrors | NotFound;
+export type ListIndexMetadataIndexesError = DefaultErrors | NotFound | Gone;
 
 export const listIndexMetadataIndexes: API.OperationMethod<
   ListIndexMetadataIndexesRequest,
@@ -748,7 +754,7 @@ export const listIndexMetadataIndexes: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: ListIndexMetadataIndexesRequest,
   output: ListIndexMetadataIndexesResponse,
-  errors: [NotFound],
+  errors: [NotFound, Gone],
 }));
 
 export interface CreateIndexMetadataIndexRequest {
@@ -838,6 +844,7 @@ export const DeleteIndexMetadataIndexResponse =
 export type DeleteIndexMetadataIndexError =
   | DefaultErrors
   | NotFound
+  | Gone
   | MetadataIndexNotFound;
 
 export const deleteIndexMetadataIndex: API.OperationMethod<
@@ -848,7 +855,7 @@ export const deleteIndexMetadataIndex: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteIndexMetadataIndexRequest,
   output: DeleteIndexMetadataIndexResponse,
-  errors: [NotFound, MetadataIndexNotFound],
+  errors: [NotFound, Gone, MetadataIndexNotFound],
 }));
 
 // =============================================================================
