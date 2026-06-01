@@ -6,7 +6,7 @@ export const occupyPort = (port: number, host?: string) =>
     Effect.callback<NodeNet.Server>((resume) => {
       const server = NodeNet.createServer();
       server.once("error", (err) => resume(Effect.die(err)));
-      server.listen(port, host, () => resume(Effect.succeed(server)));
+      server.listen({ port, host, exclusive: true }, () => resume(Effect.succeed(server)));
     }),
     (server) =>
       Effect.callback<void>((resume) => {
