@@ -23,7 +23,7 @@ export interface CreateContentRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: URL to navigate to, eg. `https://example.com`. */
-  url: string;
+  url?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -148,12 +148,14 @@ export interface CreateContentRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
+  html?: string;
 }
 
 export const CreateContentRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  url: Schema.String,
+  url: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -322,6 +324,7 @@ export const CreateContentRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  html: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",
@@ -621,7 +624,7 @@ export interface CreateCrawlRequest {
     | (string & {})
   )[];
   /** Body param: Whether to render the page or fetch static content. True by default. */
-  render?: true;
+  render?: true | false;
   /** Body param */
   setExtraHTTPHeaders?: Record<string, unknown>;
   /** Body param */
@@ -854,7 +857,7 @@ export const CreateCrawlRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       ]),
     ),
   ),
-  render: Schema.optional(Schema.Literal(true)),
+  render: Schema.optional(Schema.Literals([true, false])),
   setExtraHTTPHeaders: Schema.optional(
     Schema.Record(Schema.String, Schema.Unknown),
   ),
@@ -1777,7 +1780,7 @@ export interface CreateJsonRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -1911,12 +1914,14 @@ export interface CreateJsonRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreateJsonRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  html: Schema.String,
+  html: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -2105,6 +2110,7 @@ export const CreateJsonRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  url: Schema.optional(Schema.String),
 }).pipe(
   Schema.encodeKeys({
     html: "html",
@@ -2129,6 +2135,7 @@ export const CreateJsonRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     viewport: "viewport",
     waitForSelector: "waitForSelector",
     waitForTimeout: "waitForTimeout",
+    url: "url",
   }),
   T.Http({
     method: "POST",
@@ -2168,7 +2175,7 @@ export interface CreateLinkRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -2297,12 +2304,14 @@ export interface CreateLinkRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreateLinkRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  html: Schema.String,
+  html: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -2473,6 +2482,7 @@ export const CreateLinkRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  url: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",
@@ -2511,7 +2521,7 @@ export interface CreateMarkdownRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: URL to navigate to, eg. `https://example.com`. */
-  url: string;
+  url?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -2636,12 +2646,14 @@ export interface CreateMarkdownRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
+  html?: string;
 }
 
 export const CreateMarkdownRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  url: Schema.String,
+  url: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -2810,6 +2822,7 @@ export const CreateMarkdownRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  html: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",
@@ -2847,7 +2860,7 @@ export interface CreatePdfRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -3008,12 +3021,14 @@ export interface CreatePdfRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreatePdfRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  html: Schema.String,
+  html: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -3226,6 +3241,7 @@ export const CreatePdfRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  url: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",
@@ -3263,7 +3279,7 @@ export interface CreateScrapeRequest {
   /** Body param */
   elements: { selector: string }[];
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -3388,6 +3404,8 @@ export interface CreateScrapeRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreateScrapeRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -3398,7 +3416,7 @@ export const CreateScrapeRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       selector: Schema.String,
     }),
   ),
-  html: Schema.String,
+  html: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -3567,6 +3585,7 @@ export const CreateScrapeRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  url: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",
@@ -3632,7 +3651,7 @@ export interface CreateScreenshotRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -3779,13 +3798,15 @@ export interface CreateScreenshotRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreateScreenshotRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     accountId: Schema.String.pipe(T.HttpPath("account_id")),
     cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-    html: Schema.String,
+    html: Schema.optional(Schema.String),
     actionTimeout: Schema.optional(Schema.Number),
     addScriptTag: Schema.optional(
       Schema.Array(
@@ -3984,6 +4005,7 @@ export const CreateScreenshotRequest =
       }),
     ),
     waitForTimeout: Schema.optional(Schema.Number),
+    url: Schema.optional(Schema.String),
   }).pipe(
     T.Http({
       method: "POST",
@@ -4036,7 +4058,7 @@ export interface CreateSnapshotRequest {
   /** Query param: Cache TTL default is 5s. Set to 0 to disable. */
   cacheTTL?: number;
   /** Body param: Set the content of the page, eg: `<h1>Hello World!!</h1>`. Either `html` or `url` must be set. */
-  html: string;
+  html?: string;
   /** Body param: The maximum duration allowed for the browser action to complete after the page has loaded (such as taking screenshots, extracting content, or generating PDFs). If this time limit is exceed */
   actionTimeout?: number;
   /** Body param: Adds a `<script>` tag into the page with the desired URL or content. */
@@ -4178,12 +4200,14 @@ export interface CreateSnapshotRequest {
   };
   /** Body param: Waits for a specified timeout before continuing. */
   waitForTimeout?: number;
+  /** Body param: URL to navigate to, eg. `https://example.com`. */
+  url?: string;
 }
 
 export const CreateSnapshotRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   cacheTTL: Schema.optional(Schema.Number).pipe(T.HttpQuery("cacheTTL")),
-  html: Schema.String,
+  html: Schema.optional(Schema.String),
   actionTimeout: Schema.optional(Schema.Number),
   addScriptTag: Schema.optional(
     Schema.Array(
@@ -4374,6 +4398,7 @@ export const CreateSnapshotRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
   ),
   waitForTimeout: Schema.optional(Schema.Number),
+  url: Schema.optional(Schema.String),
 }).pipe(
   T.Http({
     method: "POST",

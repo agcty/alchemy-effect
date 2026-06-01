@@ -6940,7 +6940,29 @@ export interface CreateRecordRequest {
   /** Body param: Time To Live (TTL) of the DNS record in seconds. Setting to 1 means 'automatic'. Value must be between 60 and 86400, with the minimum reduced to 30 for Enterprise zones. */
   ttl: number | "1";
   /** Body param: Record type. */
-  type: "A";
+  type:
+    | "A"
+    | "AAAA"
+    | "CNAME"
+    | "MX"
+    | "NS"
+    | "OPENPGPKEY"
+    | "PTR"
+    | "TXT"
+    | "CAA"
+    | "CERT"
+    | "DNSKEY"
+    | "DS"
+    | "HTTPS"
+    | "LOC"
+    | "NAPTR"
+    | "SMIMEA"
+    | "SRV"
+    | "SSHFP"
+    | "SVCB"
+    | "TLSA"
+    | "URI"
+    | (string & {});
   /** Body param: Comments or notes about the DNS record. This field has no effect on DNS responses. */
   comment?: string;
   /** Body param: A valid IPv4 address. */
@@ -6950,16 +6972,82 @@ export interface CreateRecordRequest {
   /** Body param: Whether the record is receiving the performance and security benefits of Cloudflare. */
   proxied?: boolean;
   /** Body param: Settings for the DNS record. */
-  settings?: { ipv4Only?: boolean; ipv6Only?: boolean };
+  settings?: { ipv4Only?: boolean; ipv6Only?: boolean; flattenCname?: boolean };
   /** Body param: Custom tags for the DNS record. This field has no effect on DNS responses. */
   tags?: string[];
+  /** Body param: Required for MX and URI records; ignored for other record types (but may still be returned by the API). Records with lower priorities are preferred. This field is to be deprecated in favor */
+  priority?: number;
+  /** Body param: Components of a CAA record. */
+  data?: {
+    flags?: number | string;
+    tag?: string;
+    value?: string;
+    algorithm?: number;
+    certificate?: string;
+    keyTag?: number;
+    type?: number;
+    protocol?: number;
+    publicKey?: string;
+    digest?: string;
+    digestType?: number;
+    priority?: number;
+    target?: string;
+    altitude?: number;
+    latDegrees?: number;
+    latDirection?: "N" | "S" | (string & {});
+    latMinutes?: number;
+    latSeconds?: number;
+    longDegrees?: number;
+    longDirection?: "E" | "W" | (string & {});
+    longMinutes?: number;
+    longSeconds?: number;
+    precisionHorz?: number;
+    precisionVert?: number;
+    size?: number;
+    order?: number;
+    preference?: number;
+    regex?: string;
+    replacement?: string;
+    service?: string;
+    matchingType?: number;
+    selector?: number;
+    usage?: number;
+    port?: number;
+    weight?: number;
+    fingerprint?: string;
+  };
 }
 
 export const CreateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
   name: Schema.String,
   ttl: Schema.Union([Schema.Number, Schema.Literal("1")]),
-  type: Schema.Literal("A"),
+  type: Schema.Union([
+    Schema.Literals([
+      "A",
+      "AAAA",
+      "CNAME",
+      "MX",
+      "NS",
+      "OPENPGPKEY",
+      "PTR",
+      "TXT",
+      "CAA",
+      "CERT",
+      "DNSKEY",
+      "DS",
+      "HTTPS",
+      "LOC",
+      "NAPTR",
+      "SMIMEA",
+      "SRV",
+      "SSHFP",
+      "SVCB",
+      "TLSA",
+      "URI",
+    ]),
+    Schema.String,
+  ]),
   comment: Schema.optional(Schema.String),
   content: Schema.optional(Schema.String),
   privateRouting: Schema.optional(Schema.Boolean),
@@ -6968,11 +7056,100 @@ export const CreateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     Schema.Struct({
       ipv4Only: Schema.optional(Schema.Boolean),
       ipv6Only: Schema.optional(Schema.Boolean),
+      flattenCname: Schema.optional(Schema.Boolean),
     }).pipe(
-      Schema.encodeKeys({ ipv4Only: "ipv4_only", ipv6Only: "ipv6_only" }),
+      Schema.encodeKeys({
+        ipv4Only: "ipv4_only",
+        ipv6Only: "ipv6_only",
+        flattenCname: "flatten_cname",
+      }),
     ),
   ),
   tags: Schema.optional(Schema.Array(Schema.String)),
+  priority: Schema.optional(Schema.Number),
+  data: Schema.optional(
+    Schema.Struct({
+      flags: Schema.optional(Schema.Union([Schema.Number, Schema.String])),
+      tag: Schema.optional(Schema.String),
+      value: Schema.optional(Schema.String),
+      algorithm: Schema.optional(Schema.Number),
+      certificate: Schema.optional(Schema.String),
+      keyTag: Schema.optional(Schema.Number),
+      type: Schema.optional(Schema.Number),
+      protocol: Schema.optional(Schema.Number),
+      publicKey: Schema.optional(Schema.String),
+      digest: Schema.optional(Schema.String),
+      digestType: Schema.optional(Schema.Number),
+      priority: Schema.optional(Schema.Number),
+      target: Schema.optional(Schema.String),
+      altitude: Schema.optional(Schema.Number),
+      latDegrees: Schema.optional(Schema.Number),
+      latDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["N", "S"]), Schema.String]),
+      ),
+      latMinutes: Schema.optional(Schema.Number),
+      latSeconds: Schema.optional(Schema.Number),
+      longDegrees: Schema.optional(Schema.Number),
+      longDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["E", "W"]), Schema.String]),
+      ),
+      longMinutes: Schema.optional(Schema.Number),
+      longSeconds: Schema.optional(Schema.Number),
+      precisionHorz: Schema.optional(Schema.Number),
+      precisionVert: Schema.optional(Schema.Number),
+      size: Schema.optional(Schema.Number),
+      order: Schema.optional(Schema.Number),
+      preference: Schema.optional(Schema.Number),
+      regex: Schema.optional(Schema.String),
+      replacement: Schema.optional(Schema.String),
+      service: Schema.optional(Schema.String),
+      matchingType: Schema.optional(Schema.Number),
+      selector: Schema.optional(Schema.Number),
+      usage: Schema.optional(Schema.Number),
+      port: Schema.optional(Schema.Number),
+      weight: Schema.optional(Schema.Number),
+      fingerprint: Schema.optional(Schema.String),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        tag: "tag",
+        value: "value",
+        algorithm: "algorithm",
+        certificate: "certificate",
+        keyTag: "key_tag",
+        type: "type",
+        protocol: "protocol",
+        publicKey: "public_key",
+        digest: "digest",
+        digestType: "digest_type",
+        priority: "priority",
+        target: "target",
+        altitude: "altitude",
+        latDegrees: "lat_degrees",
+        latDirection: "lat_direction",
+        latMinutes: "lat_minutes",
+        latSeconds: "lat_seconds",
+        longDegrees: "long_degrees",
+        longDirection: "long_direction",
+        longMinutes: "long_minutes",
+        longSeconds: "long_seconds",
+        precisionHorz: "precision_horz",
+        precisionVert: "precision_vert",
+        size: "size",
+        order: "order",
+        preference: "preference",
+        regex: "regex",
+        replacement: "replacement",
+        service: "service",
+        matchingType: "matching_type",
+        selector: "selector",
+        usage: "usage",
+        port: "port",
+        weight: "weight",
+        fingerprint: "fingerprint",
+      }),
+    ),
+  ),
 }).pipe(
   Schema.encodeKeys({
     name: "name",
@@ -6984,6 +7161,8 @@ export const CreateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     proxied: "proxied",
     settings: "settings",
     tags: "tags",
+    priority: "priority",
+    data: "data",
   }),
   T.Http({ method: "POST", path: "/zones/{zone_id}/dns_records" }),
 ) as unknown as Schema.Schema<CreateRecordRequest>;
@@ -8903,7 +9082,29 @@ export interface UpdateRecordRequest {
   /** Body param: Time To Live (TTL) of the DNS record in seconds. Setting to 1 means 'automatic'. Value must be between 60 and 86400, with the minimum reduced to 30 for Enterprise zones. */
   ttl: number | "1";
   /** Body param: Record type. */
-  type: "A";
+  type:
+    | "A"
+    | "AAAA"
+    | "CNAME"
+    | "MX"
+    | "NS"
+    | "OPENPGPKEY"
+    | "PTR"
+    | "TXT"
+    | "CAA"
+    | "CERT"
+    | "DNSKEY"
+    | "DS"
+    | "HTTPS"
+    | "LOC"
+    | "NAPTR"
+    | "SMIMEA"
+    | "SRV"
+    | "SSHFP"
+    | "SVCB"
+    | "TLSA"
+    | "URI"
+    | (string & {});
   /** Body param: Comments or notes about the DNS record. This field has no effect on DNS responses. */
   comment?: string;
   /** Body param: A valid IPv4 address. */
@@ -8913,9 +9114,50 @@ export interface UpdateRecordRequest {
   /** Body param: Whether the record is receiving the performance and security benefits of Cloudflare. */
   proxied?: boolean;
   /** Body param: Settings for the DNS record. */
-  settings?: { ipv4Only?: boolean; ipv6Only?: boolean };
+  settings?: { ipv4Only?: boolean; ipv6Only?: boolean; flattenCname?: boolean };
   /** Body param: Custom tags for the DNS record. This field has no effect on DNS responses. */
   tags?: string[];
+  /** Body param: Required for MX and URI records; ignored for other record types (but may still be returned by the API). Records with lower priorities are preferred. This field is to be deprecated in favor */
+  priority?: number;
+  /** Body param: Components of a CAA record. */
+  data?: {
+    flags?: number | string;
+    tag?: string;
+    value?: string;
+    algorithm?: number;
+    certificate?: string;
+    keyTag?: number;
+    type?: number;
+    protocol?: number;
+    publicKey?: string;
+    digest?: string;
+    digestType?: number;
+    priority?: number;
+    target?: string;
+    altitude?: number;
+    latDegrees?: number;
+    latDirection?: "N" | "S" | (string & {});
+    latMinutes?: number;
+    latSeconds?: number;
+    longDegrees?: number;
+    longDirection?: "E" | "W" | (string & {});
+    longMinutes?: number;
+    longSeconds?: number;
+    precisionHorz?: number;
+    precisionVert?: number;
+    size?: number;
+    order?: number;
+    preference?: number;
+    regex?: string;
+    replacement?: string;
+    service?: string;
+    matchingType?: number;
+    selector?: number;
+    usage?: number;
+    port?: number;
+    weight?: number;
+    fingerprint?: string;
+  };
 }
 
 export const UpdateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -8923,7 +9165,32 @@ export const UpdateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
   name: Schema.String,
   ttl: Schema.Union([Schema.Number, Schema.Literal("1")]),
-  type: Schema.Literal("A"),
+  type: Schema.Union([
+    Schema.Literals([
+      "A",
+      "AAAA",
+      "CNAME",
+      "MX",
+      "NS",
+      "OPENPGPKEY",
+      "PTR",
+      "TXT",
+      "CAA",
+      "CERT",
+      "DNSKEY",
+      "DS",
+      "HTTPS",
+      "LOC",
+      "NAPTR",
+      "SMIMEA",
+      "SRV",
+      "SSHFP",
+      "SVCB",
+      "TLSA",
+      "URI",
+    ]),
+    Schema.String,
+  ]),
   comment: Schema.optional(Schema.String),
   content: Schema.optional(Schema.String),
   privateRouting: Schema.optional(Schema.Boolean),
@@ -8932,11 +9199,100 @@ export const UpdateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     Schema.Struct({
       ipv4Only: Schema.optional(Schema.Boolean),
       ipv6Only: Schema.optional(Schema.Boolean),
+      flattenCname: Schema.optional(Schema.Boolean),
     }).pipe(
-      Schema.encodeKeys({ ipv4Only: "ipv4_only", ipv6Only: "ipv6_only" }),
+      Schema.encodeKeys({
+        ipv4Only: "ipv4_only",
+        ipv6Only: "ipv6_only",
+        flattenCname: "flatten_cname",
+      }),
     ),
   ),
   tags: Schema.optional(Schema.Array(Schema.String)),
+  priority: Schema.optional(Schema.Number),
+  data: Schema.optional(
+    Schema.Struct({
+      flags: Schema.optional(Schema.Union([Schema.Number, Schema.String])),
+      tag: Schema.optional(Schema.String),
+      value: Schema.optional(Schema.String),
+      algorithm: Schema.optional(Schema.Number),
+      certificate: Schema.optional(Schema.String),
+      keyTag: Schema.optional(Schema.Number),
+      type: Schema.optional(Schema.Number),
+      protocol: Schema.optional(Schema.Number),
+      publicKey: Schema.optional(Schema.String),
+      digest: Schema.optional(Schema.String),
+      digestType: Schema.optional(Schema.Number),
+      priority: Schema.optional(Schema.Number),
+      target: Schema.optional(Schema.String),
+      altitude: Schema.optional(Schema.Number),
+      latDegrees: Schema.optional(Schema.Number),
+      latDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["N", "S"]), Schema.String]),
+      ),
+      latMinutes: Schema.optional(Schema.Number),
+      latSeconds: Schema.optional(Schema.Number),
+      longDegrees: Schema.optional(Schema.Number),
+      longDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["E", "W"]), Schema.String]),
+      ),
+      longMinutes: Schema.optional(Schema.Number),
+      longSeconds: Schema.optional(Schema.Number),
+      precisionHorz: Schema.optional(Schema.Number),
+      precisionVert: Schema.optional(Schema.Number),
+      size: Schema.optional(Schema.Number),
+      order: Schema.optional(Schema.Number),
+      preference: Schema.optional(Schema.Number),
+      regex: Schema.optional(Schema.String),
+      replacement: Schema.optional(Schema.String),
+      service: Schema.optional(Schema.String),
+      matchingType: Schema.optional(Schema.Number),
+      selector: Schema.optional(Schema.Number),
+      usage: Schema.optional(Schema.Number),
+      port: Schema.optional(Schema.Number),
+      weight: Schema.optional(Schema.Number),
+      fingerprint: Schema.optional(Schema.String),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        tag: "tag",
+        value: "value",
+        algorithm: "algorithm",
+        certificate: "certificate",
+        keyTag: "key_tag",
+        type: "type",
+        protocol: "protocol",
+        publicKey: "public_key",
+        digest: "digest",
+        digestType: "digest_type",
+        priority: "priority",
+        target: "target",
+        altitude: "altitude",
+        latDegrees: "lat_degrees",
+        latDirection: "lat_direction",
+        latMinutes: "lat_minutes",
+        latSeconds: "lat_seconds",
+        longDegrees: "long_degrees",
+        longDirection: "long_direction",
+        longMinutes: "long_minutes",
+        longSeconds: "long_seconds",
+        precisionHorz: "precision_horz",
+        precisionVert: "precision_vert",
+        size: "size",
+        order: "order",
+        preference: "preference",
+        regex: "regex",
+        replacement: "replacement",
+        service: "service",
+        matchingType: "matching_type",
+        selector: "selector",
+        usage: "usage",
+        port: "port",
+        weight: "weight",
+        fingerprint: "fingerprint",
+      }),
+    ),
+  ),
 }).pipe(
   Schema.encodeKeys({
     name: "name",
@@ -8948,6 +9304,8 @@ export const UpdateRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     proxied: "proxied",
     settings: "settings",
     tags: "tags",
+    priority: "priority",
+    data: "data",
   }),
   T.Http({ method: "PUT", path: "/zones/{zone_id}/dns_records/{dnsRecordId}" }),
 ) as unknown as Schema.Schema<UpdateRecordRequest>;
@@ -10867,7 +11225,29 @@ export interface PatchRecordRequest {
   /** Body param: Time To Live (TTL) of the DNS record in seconds. Setting to 1 means 'automatic'. Value must be between 60 and 86400, with the minimum reduced to 30 for Enterprise zones. */
   ttl: number | "1";
   /** Body param: Record type. */
-  type: "A";
+  type:
+    | "A"
+    | "AAAA"
+    | "CNAME"
+    | "MX"
+    | "NS"
+    | "OPENPGPKEY"
+    | "PTR"
+    | "TXT"
+    | "CAA"
+    | "CERT"
+    | "DNSKEY"
+    | "DS"
+    | "HTTPS"
+    | "LOC"
+    | "NAPTR"
+    | "SMIMEA"
+    | "SRV"
+    | "SSHFP"
+    | "SVCB"
+    | "TLSA"
+    | "URI"
+    | (string & {});
   /** Body param: Comments or notes about the DNS record. This field has no effect on DNS responses. */
   comment?: string;
   /** Body param: A valid IPv4 address. */
@@ -10877,9 +11257,50 @@ export interface PatchRecordRequest {
   /** Body param: Whether the record is receiving the performance and security benefits of Cloudflare. */
   proxied?: boolean;
   /** Body param: Settings for the DNS record. */
-  settings?: { ipv4Only?: boolean; ipv6Only?: boolean };
+  settings?: { ipv4Only?: boolean; ipv6Only?: boolean; flattenCname?: boolean };
   /** Body param: Custom tags for the DNS record. This field has no effect on DNS responses. */
   tags?: string[];
+  /** Body param: Required for MX and URI records; ignored for other record types (but may still be returned by the API). Records with lower priorities are preferred. This field is to be deprecated in favor */
+  priority?: number;
+  /** Body param: Components of a CAA record. */
+  data?: {
+    flags?: number | string;
+    tag?: string;
+    value?: string;
+    algorithm?: number;
+    certificate?: string;
+    keyTag?: number;
+    type?: number;
+    protocol?: number;
+    publicKey?: string;
+    digest?: string;
+    digestType?: number;
+    priority?: number;
+    target?: string;
+    altitude?: number;
+    latDegrees?: number;
+    latDirection?: "N" | "S" | (string & {});
+    latMinutes?: number;
+    latSeconds?: number;
+    longDegrees?: number;
+    longDirection?: "E" | "W" | (string & {});
+    longMinutes?: number;
+    longSeconds?: number;
+    precisionHorz?: number;
+    precisionVert?: number;
+    size?: number;
+    order?: number;
+    preference?: number;
+    regex?: string;
+    replacement?: string;
+    service?: string;
+    matchingType?: number;
+    selector?: number;
+    usage?: number;
+    port?: number;
+    weight?: number;
+    fingerprint?: string;
+  };
 }
 
 export const PatchRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -10887,7 +11308,32 @@ export const PatchRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
   name: Schema.String,
   ttl: Schema.Union([Schema.Number, Schema.Literal("1")]),
-  type: Schema.Literal("A"),
+  type: Schema.Union([
+    Schema.Literals([
+      "A",
+      "AAAA",
+      "CNAME",
+      "MX",
+      "NS",
+      "OPENPGPKEY",
+      "PTR",
+      "TXT",
+      "CAA",
+      "CERT",
+      "DNSKEY",
+      "DS",
+      "HTTPS",
+      "LOC",
+      "NAPTR",
+      "SMIMEA",
+      "SRV",
+      "SSHFP",
+      "SVCB",
+      "TLSA",
+      "URI",
+    ]),
+    Schema.String,
+  ]),
   comment: Schema.optional(Schema.String),
   content: Schema.optional(Schema.String),
   privateRouting: Schema.optional(Schema.Boolean),
@@ -10896,11 +11342,100 @@ export const PatchRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     Schema.Struct({
       ipv4Only: Schema.optional(Schema.Boolean),
       ipv6Only: Schema.optional(Schema.Boolean),
+      flattenCname: Schema.optional(Schema.Boolean),
     }).pipe(
-      Schema.encodeKeys({ ipv4Only: "ipv4_only", ipv6Only: "ipv6_only" }),
+      Schema.encodeKeys({
+        ipv4Only: "ipv4_only",
+        ipv6Only: "ipv6_only",
+        flattenCname: "flatten_cname",
+      }),
     ),
   ),
   tags: Schema.optional(Schema.Array(Schema.String)),
+  priority: Schema.optional(Schema.Number),
+  data: Schema.optional(
+    Schema.Struct({
+      flags: Schema.optional(Schema.Union([Schema.Number, Schema.String])),
+      tag: Schema.optional(Schema.String),
+      value: Schema.optional(Schema.String),
+      algorithm: Schema.optional(Schema.Number),
+      certificate: Schema.optional(Schema.String),
+      keyTag: Schema.optional(Schema.Number),
+      type: Schema.optional(Schema.Number),
+      protocol: Schema.optional(Schema.Number),
+      publicKey: Schema.optional(Schema.String),
+      digest: Schema.optional(Schema.String),
+      digestType: Schema.optional(Schema.Number),
+      priority: Schema.optional(Schema.Number),
+      target: Schema.optional(Schema.String),
+      altitude: Schema.optional(Schema.Number),
+      latDegrees: Schema.optional(Schema.Number),
+      latDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["N", "S"]), Schema.String]),
+      ),
+      latMinutes: Schema.optional(Schema.Number),
+      latSeconds: Schema.optional(Schema.Number),
+      longDegrees: Schema.optional(Schema.Number),
+      longDirection: Schema.optional(
+        Schema.Union([Schema.Literals(["E", "W"]), Schema.String]),
+      ),
+      longMinutes: Schema.optional(Schema.Number),
+      longSeconds: Schema.optional(Schema.Number),
+      precisionHorz: Schema.optional(Schema.Number),
+      precisionVert: Schema.optional(Schema.Number),
+      size: Schema.optional(Schema.Number),
+      order: Schema.optional(Schema.Number),
+      preference: Schema.optional(Schema.Number),
+      regex: Schema.optional(Schema.String),
+      replacement: Schema.optional(Schema.String),
+      service: Schema.optional(Schema.String),
+      matchingType: Schema.optional(Schema.Number),
+      selector: Schema.optional(Schema.Number),
+      usage: Schema.optional(Schema.Number),
+      port: Schema.optional(Schema.Number),
+      weight: Schema.optional(Schema.Number),
+      fingerprint: Schema.optional(Schema.String),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        tag: "tag",
+        value: "value",
+        algorithm: "algorithm",
+        certificate: "certificate",
+        keyTag: "key_tag",
+        type: "type",
+        protocol: "protocol",
+        publicKey: "public_key",
+        digest: "digest",
+        digestType: "digest_type",
+        priority: "priority",
+        target: "target",
+        altitude: "altitude",
+        latDegrees: "lat_degrees",
+        latDirection: "lat_direction",
+        latMinutes: "lat_minutes",
+        latSeconds: "lat_seconds",
+        longDegrees: "long_degrees",
+        longDirection: "long_direction",
+        longMinutes: "long_minutes",
+        longSeconds: "long_seconds",
+        precisionHorz: "precision_horz",
+        precisionVert: "precision_vert",
+        size: "size",
+        order: "order",
+        preference: "preference",
+        regex: "regex",
+        replacement: "replacement",
+        service: "service",
+        matchingType: "matching_type",
+        selector: "selector",
+        usage: "usage",
+        port: "port",
+        weight: "weight",
+        fingerprint: "fingerprint",
+      }),
+    ),
+  ),
 }).pipe(
   Schema.encodeKeys({
     name: "name",
@@ -10912,6 +11447,8 @@ export const PatchRecordRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     proxied: "proxied",
     settings: "settings",
     tags: "tags",
+    priority: "priority",
+    data: "data",
   }),
   T.Http({
     method: "PATCH",

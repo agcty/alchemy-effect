@@ -3033,9 +3033,12 @@ export interface PutBucketSippyRequest {
   source?: {
     accessKeyId?: string;
     bucket?: string;
-    provider?: "aws";
+    provider?: "aws" | "gcs" | "s3" | (string & {});
     region?: string;
     secretAccessKey?: string;
+    clientEmail?: string;
+    privateKey?: string;
+    bucketUrl?: string;
   };
 }
 
@@ -3059,9 +3062,14 @@ export const PutBucketSippyRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     Schema.Struct({
       accessKeyId: Schema.optional(SensitiveString),
       bucket: Schema.optional(Schema.String),
-      provider: Schema.optional(Schema.Literal("aws")),
+      provider: Schema.optional(
+        Schema.Union([Schema.Literals(["aws", "gcs", "s3"]), Schema.String]),
+      ),
       region: Schema.optional(Schema.String),
       secretAccessKey: Schema.optional(SensitiveString),
+      clientEmail: Schema.optional(Schema.String),
+      privateKey: Schema.optional(SensitiveString),
+      bucketUrl: Schema.optional(Schema.String),
     }),
   ),
 }).pipe(
@@ -3729,9 +3737,14 @@ export interface SourceSuperSlurperConnectivityPrecheckRequest {
   /** Body param */
   bucket: string;
   /** Body param */
-  secret: { accessKeyId: string; secretAccessKey: string };
+  secret: {
+    accessKeyId?: string;
+    secretAccessKey?: string;
+    clientEmail?: string;
+    privateKey?: string;
+  };
   /** Body param */
-  vendor: "s3";
+  vendor: "s3" | "gcs" | "r2" | (string & {});
   /** Body param */
   endpoint?: string | null;
   /** Body param */
@@ -3740,6 +3753,8 @@ export interface SourceSuperSlurperConnectivityPrecheckRequest {
   pathPrefix?: string | null;
   /** Body param */
   region?: string | null;
+  /** Body param */
+  jurisdiction?: "default" | "eu" | "fedramp" | (string & {});
 }
 
 export const SourceSuperSlurperConnectivityPrecheckRequest =
@@ -3747,16 +3762,24 @@ export const SourceSuperSlurperConnectivityPrecheckRequest =
     accountId: Schema.String.pipe(T.HttpPath("account_id")),
     bucket: Schema.String,
     secret: Schema.Struct({
-      accessKeyId: SensitiveString,
-      secretAccessKey: SensitiveString,
+      accessKeyId: Schema.optional(SensitiveString),
+      secretAccessKey: Schema.optional(SensitiveString),
+      clientEmail: Schema.optional(Schema.String),
+      privateKey: Schema.optional(SensitiveString),
     }),
-    vendor: Schema.Literal("s3"),
+    vendor: Schema.Union([Schema.Literals(["s3", "gcs", "r2"]), Schema.String]),
     endpoint: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     keys: Schema.optional(
       Schema.Union([Schema.Array(Schema.String), Schema.Null]),
     ),
     pathPrefix: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     region: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    jurisdiction: Schema.optional(
+      Schema.Union([
+        Schema.Literals(["default", "eu", "fedramp"]),
+        Schema.String,
+      ]),
+    ),
   }).pipe(
     T.Http({
       method: "PUT",

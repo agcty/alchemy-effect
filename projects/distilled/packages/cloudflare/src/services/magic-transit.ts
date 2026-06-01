@@ -8613,7 +8613,7 @@ export interface CreatePcapRequest {
   /** Path param: Identifier. */
   accountId: string;
   /** Body param: The limit of packets contained in a packet capture. */
-  packetLimit: number;
+  packetLimit?: number;
   /** Body param: The system used to collect packet captures. */
   system: "magic-transit";
   /** Body param: The packet capture duration in seconds. */
@@ -8630,11 +8630,17 @@ export interface CreatePcapRequest {
   };
   /** Body param: The RFC 3339 offset timestamp from which to query backwards for packets. Must be within the last 24h. When this field is empty, defaults to time of request. */
   offsetTime?: string;
+  /** Body param: The name of the data center used for the packet capture. This can be a specific colo (ord02) or a multi-colo name (ORD). This field only applies to `full` packet captures. */
+  coloName?: string;
+  /** Body param: The full URI for the bucket. This field only applies to `full` packet captures. */
+  destinationConf?: string;
+  /** Body param: The maximum number of bytes to capture. This field only applies to `full` packet captures. */
+  byteLimit?: number;
 }
 
 export const CreatePcapRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
-  packetLimit: Schema.Number,
+  packetLimit: Schema.optional(Schema.Number),
   system: Schema.Literal("magic-transit"),
   timeLimit: Schema.Number,
   type: Schema.Union([Schema.Literals(["simple", "full"]), Schema.String]),
@@ -8656,6 +8662,9 @@ export const CreatePcapRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ),
   ),
   offsetTime: Schema.optional(Schema.String),
+  coloName: Schema.optional(Schema.String),
+  destinationConf: Schema.optional(Schema.String),
+  byteLimit: Schema.optional(Schema.Number),
 }).pipe(
   Schema.encodeKeys({
     packetLimit: "packet_limit",
@@ -8664,6 +8673,9 @@ export const CreatePcapRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     type: "type",
     filterV1: "filter_v1",
     offsetTime: "offset_time",
+    coloName: "colo_name",
+    destinationConf: "destination_conf",
+    byteLimit: "byte_limit",
   }),
   T.Http({ method: "POST", path: "/accounts/{account_id}/pcaps" }),
 ) as unknown as Schema.Schema<CreatePcapRequest>;

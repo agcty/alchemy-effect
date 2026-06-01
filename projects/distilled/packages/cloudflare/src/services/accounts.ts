@@ -1925,17 +1925,49 @@ export interface CreateMemberRequest {
   /** Body param: The contact email address of the user. */
   email: string;
   /** Body param: Array of roles associated with this member. */
-  roles: string[];
+  roles?: string[];
   /** Body param: Status of the member invitation. If not provided during creation, defaults to 'pending'. Changing from 'accepted' back to 'pending' will trigger a replacement of the member resource in Ter */
   status?: "accepted" | "pending" | (string & {});
+  /** Body param: Array of policies associated with this member. */
+  policies?: {
+    access: "allow" | "deny" | (string & {});
+    permissionGroups: { id: string }[];
+    resourceGroups: { id: string }[];
+  }[];
 }
 
 export const CreateMemberRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   email: Schema.String,
-  roles: Schema.Array(Schema.String),
+  roles: Schema.optional(Schema.Array(Schema.String)),
   status: Schema.optional(
     Schema.Union([Schema.Literals(["accepted", "pending"]), Schema.String]),
+  ),
+  policies: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        access: Schema.Union([
+          Schema.Literals(["allow", "deny"]),
+          Schema.String,
+        ]),
+        permissionGroups: Schema.Array(
+          Schema.Struct({
+            id: Schema.String,
+          }),
+        ),
+        resourceGroups: Schema.Array(
+          Schema.Struct({
+            id: Schema.String,
+          }),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          access: "access",
+          permissionGroups: "permission_groups",
+          resourceGroups: "resource_groups",
+        }),
+      ),
+    ),
   ),
 }).pipe(
   T.Http({ method: "POST", path: "/accounts/{account_id}/members" }),
@@ -2277,6 +2309,12 @@ export interface UpdateMemberRequest {
   accountId: string;
   /** Body param: Roles assigned to this member. */
   roles?: { id: string }[];
+  /** Body param: Array of policies associated with this member. */
+  policies?: {
+    access: "allow" | "deny" | (string & {});
+    permissionGroups: { id: string }[];
+    resourceGroups: { id: string }[];
+  }[];
 }
 
 export const UpdateMemberRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -2287,6 +2325,32 @@ export const UpdateMemberRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       Schema.Struct({
         id: Schema.String,
       }),
+    ),
+  ),
+  policies: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        access: Schema.Union([
+          Schema.Literals(["allow", "deny"]),
+          Schema.String,
+        ]),
+        permissionGroups: Schema.Array(
+          Schema.Struct({
+            id: Schema.String,
+          }),
+        ),
+        resourceGroups: Schema.Array(
+          Schema.Struct({
+            id: Schema.String,
+          }),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          access: "access",
+          permissionGroups: "permission_groups",
+          resourceGroups: "resource_groups",
+        }),
+      ),
     ),
   ),
 }).pipe(
