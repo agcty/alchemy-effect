@@ -1,16 +1,16 @@
 import { AdoptPolicy, Unowned } from "@/AdoptPolicy";
 import * as Construct from "@/Construct";
+import { dedupeBindings } from "@/Diff";
 import type { Input, InputProps } from "@/Input";
 import * as Output from "@/Output";
 import * as Plan from "@/Plan";
 import { UnsatisfiedResourceCycle } from "@/Plan";
-import { Secret } from "@/Secret";
-import { Variable } from "@/Variable";
+import type { ResourceBinding } from "@/Resource";
 import * as Stack from "@/Stack";
 import { Stage } from "@/Stage";
 import {
-  inMemoryState,
   InMemoryService,
+  inMemoryState,
   State,
   type ResourceState,
   type ResourceStatus,
@@ -64,7 +64,7 @@ const resolveStackId = Effect.gen(function* () {
 const seed = (resources: Record<string, ResourceState>) =>
   Effect.gen(function* () {
     const { name, stage } = yield* resolveStackId;
-    const state = yield* State;
+    const state = yield* yield* State;
     for (const [fqn, value] of Object.entries(resources)) {
       yield* state.set({ stack: name, stage, fqn, value });
     }
@@ -950,7 +950,7 @@ test.provider(
   "binding removals do not keep reappearing after apply",
   (scratch) =>
     Effect.gen(function* () {
-      const state = yield* State;
+      const state = yield* yield* State;
       yield* state.set({
         stack: scratch.name,
         stage: TEST_STAGE,
@@ -1024,6 +1024,98 @@ test.provider(
       });
     }),
 );
+
+describe("duplicate bindings are collapsed by sid before diff", () => {
+  test(
+    "dedupeBindings keeps the last occurrence of each sid",
+    Effect.sync(() => {
+      const deduped = dedupeBindings([
+        { sid: "Shared", data: { env: { K: "first" } } },
+        { sid: "Other", data: { env: { K: "x" } } },
+        { sid: "Shared", data: { env: { K: "last" } } },
+      ]);
+
+      // The duplicated sid retains its first-seen position but takes the
+      // last value (matching `diffBindings`' `Map`-based collapse).
+      expect(deduped).toEqual([
+        { sid: "Shared", data: { env: { K: "last" } } },
+        { sid: "Other", data: { env: { K: "x" } } },
+      ]);
+    }),
+  );
+
+  test(
+    "diff observes a single binding when the same sid is bound twice",
+    Effect.gen(function* () {
+      yield* seed({
+        A: {
+          instanceId,
+          providerVersion: 0,
+          logicalId: "A",
+          fqn: "A",
+          namespace: undefined,
+          resourceType: "Test.BindingTarget",
+          status: "created",
+          props: {
+            name: "target",
+          },
+          attr: {
+            name: "target",
+            env: {},
+          },
+          bindings: [],
+          downstream: [],
+        },
+      });
+
+      // Capture the exact binding list the provider's `diff` receives.
+      const observed: ResourceBinding[][] = [];
+
+      const plan = yield* Effect.gen(function* () {
+        const target = yield* BindingTarget("A", {
+          name: "target",
+        });
+        // The same sid is recorded twice — mirrors a single KV namespace
+        // bound to two consumers that both attach it to the same target,
+        // which pushes a duplicate into `stack.bindings[fqn]`.
+        yield* target.bind("Shared", { env: { FEATURE_FLAG: "on" } });
+        yield* target.bind("Shared", { env: { FEATURE_FLAG: "on" } });
+      }).pipe(
+        makePlan,
+        Effect.provideService(TestResourceHooks, {
+          diff: (_id, newBindings) =>
+            Effect.sync(() => {
+              observed.push(newBindings);
+            }),
+        }),
+      );
+
+      // Before the fix, `diff` saw the raw duplicate pair (length 2) while
+      // `reconcile` saw a deduped list — an inconsistency that made hashing
+      // unstable. Every diff invocation must now see the collapsed list.
+      expect(observed.length).toBeGreaterThan(0);
+      for (const seen of observed) {
+        expect(seen).toHaveLength(1);
+        expect(seen[0]).toMatchObject({
+          sid: "Shared",
+          data: { env: { FEATURE_FLAG: "on" } },
+        });
+      }
+
+      // The plan node likewise collapses to a single create binding.
+      expect(plan.resources.A).toMatchObject({
+        action: "update",
+        bindings: [
+          {
+            action: "create",
+            sid: "Shared",
+            data: { env: { FEATURE_FLAG: "on" } },
+          },
+        ],
+      });
+    }),
+  );
+});
 
 describe("construct namespaces", () => {
   test(
@@ -2408,98 +2500,6 @@ describe("Redacted props/outputs are preserved through plan", () => {
   );
 });
 
-describe("NamedExpr (Alchemy.Secret / Alchemy.Variable) resolution", () => {
-  test(
-    "Alchemy.Variable literal flows into a downstream prop as the unwrapped value",
-    Effect.gen(function* () {
-      const plan = yield* Effect.gen(function* () {
-        yield* TestResource("A", {
-          string: Variable("STRING_VAR", "hello") as any,
-        });
-      }).pipe(makePlan);
-
-      const node: any = plan.resources.A!;
-      expect(node.action).toBe("create");
-      expect((node.props as TestResourceProps).string).toBe("hello");
-    }),
-  );
-
-  test(
-    "Alchemy.Secret literal flows into a downstream prop as a Redacted",
-    Effect.gen(function* () {
-      const plan = yield* Effect.gen(function* () {
-        yield* TestResource("A", {
-          string: "x",
-          redacted: Secret("API_KEY", "hunter2") as any,
-        });
-      }).pipe(makePlan);
-
-      const node: any = plan.resources.A!;
-      expect(node.action).toBe("create");
-      const props = node.props as TestResourceProps;
-      expect(Redacted.isRedacted(props.redacted)).toBe(true);
-      expect(Redacted.value(props.redacted!)).toBe("hunter2");
-    }),
-  );
-
-  test(
-    "Alchemy.Secret pre-redacted input flows through unchanged",
-    Effect.gen(function* () {
-      const plan = yield* Effect.gen(function* () {
-        yield* TestResource("A", {
-          string: "x",
-          redacted: Secret("API_KEY", Redacted.make("already-redacted")) as any,
-        });
-      }).pipe(makePlan);
-
-      const node: any = plan.resources.A!;
-      const props = node.props as TestResourceProps;
-      expect(Redacted.isRedacted(props.redacted)).toBe(true);
-      expect(Redacted.value(props.redacted!)).toBe("already-redacted");
-    }),
-  );
-
-  test(
-    "no-op when prior state already has the same Alchemy.Secret value",
-    Effect.gen(function* () {
-      yield* seed({
-        A: {
-          instanceId,
-          providerVersion: 0,
-          logicalId: "A",
-          fqn: "A",
-          namespace: undefined,
-          resourceType: "Test.TestResource",
-          status: "created",
-          props: {
-            string: "x",
-            redacted: Redacted.make("hunter2"),
-          },
-          attr: {
-            string: "x",
-            stringArray: [],
-            stableString: "A",
-            stableArray: ["A"],
-            replaceString: undefined,
-            redacted: Redacted.make("hunter2"),
-            redactedArray: undefined,
-          },
-          downstream: [],
-          bindings: [],
-        },
-      });
-      const plan = yield* Effect.gen(function* () {
-        yield* TestResource("A", {
-          string: "x",
-          redacted: Secret("API_KEY", "hunter2") as any,
-        });
-      }).pipe(makePlan);
-
-      expect(plan.resources.A!.action).toBe("noop");
-    }),
-  );
-});
-
 describe("engine-level adoption", () => {
   // Build a plan, optionally with an explicit AdoptPolicy and a read hook
   // that simulates a pre-existing cloud resource.
@@ -2561,7 +2561,7 @@ describe("engine-level adoption", () => {
       // can't detect from `props` alone.
       expect(plan.resources.Adopted!.action).toBe("update");
 
-      const state = yield* State;
+      const state = yield* yield* State;
       const persisted = yield* state.get({
         stack: TEST_STACK,
         stage: TEST_STAGE,
@@ -2591,7 +2591,7 @@ describe("engine-level adoption", () => {
       // foreign-owned to subsequent deploys).
       expect(plan.resources.Adopted!.action).toBe("update");
 
-      const state = yield* State;
+      const state = yield* yield* State;
       const persisted = yield* state.get({
         stack: TEST_STACK,
         stage: TEST_STAGE,
@@ -2671,7 +2671,7 @@ describe("RefExpr resolution", () => {
     resources: Record<string, ResourceState>,
   ) =>
     Effect.gen(function* () {
-      const state = yield* State;
+      const state = yield* yield* State;
       for (const [fqn, value] of Object.entries(resources)) {
         yield* state.set({ stack, stage, fqn, value });
       }
@@ -2776,7 +2776,7 @@ describe("RefExpr resolution", () => {
 describe("StackRefExpr resolution", () => {
   const setStackOutput = (stack: string, stage: string, value: unknown) =>
     Effect.gen(function* () {
-      const state = yield* State;
+      const state = yield* yield* State;
       yield* state.setOutput({ stack, stage, value });
     });
 

@@ -3,9 +3,18 @@ import type * as cf from "@cloudflare/workers-types";
 import * as Cause from "effect/Cause";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Sink from "effect/Sink";
 import * as Stream from "effect/Stream";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import {
+  RpcClient,
+  RpcSerialization,
+  type Rpc,
+  type RpcGroup,
+} from "effect/unstable/rpc";
+import type * as RpcClientError from "effect/unstable/rpc/RpcClientError";
 import * as Socket from "effect/unstable/socket/Socket";
 import { isYieldableEffect } from "../../Util/effect.ts";
 import { fromCloudflareFetcher } from "../Fetcher.ts";
@@ -214,17 +223,46 @@ export const makeRpcStub = <Shape>(
         return target[prop];
       }
       return (...args: any[]) =>
-        Effect.gen(function* () {
-          const stub = isLazy
-            ? yield* stubSource as Effect.Effect<any>
-            : stubSource;
-          return yield* Effect.tryPromise({
-            try: () => (stub as any)[prop](...args),
-            catch: (cause) => new RpcCallError({ method: String(prop), cause }),
-          }).pipe(Effect.flatMap(decodeRpcResult));
-        });
+        asEffectOrStream(
+          Effect.gen(function* () {
+            const stub = isLazy
+              ? yield* stubSource as Effect.Effect<any>
+              : stubSource;
+            return yield* Effect.tryPromise({
+              try: () => (stub as any)[prop](...args),
+              catch: (cause) =>
+                new RpcCallError({ method: String(prop), cause }),
+            }).pipe(Effect.flatMap(decodeRpcResult));
+          }),
+        );
     },
   }) as Shape;
+};
+
+// Effect's internal Stream brand. `Stream.isStream` recognises a value by
+// this property and reads its `channel`. A `makeRpcStub` method can't know
+// synchronously whether the remote method returns a value or a `Stream`
+// (the call is async), yet its declared type mirrors the DO `Shape`
+// verbatim — value methods are typed `Effect<A>`, streaming methods `Stream<A>`.
+// We satisfy BOTH by handing back the call `Effect` augmented with the Stream
+// brand + channel, so the single return value can be `yield*`-ed / `.pipe`d as
+// an Effect (value methods, e.g. `stub.put(k, v).pipe(Effect.orDie)`) AND piped
+// through `Stream.*` combinators (streaming methods, e.g.
+// `stub.tick(n).pipe(Stream.map(...))`).
+const StreamTypeId = "~effect/Stream";
+
+const asEffectOrStream = (
+  call: Effect.Effect<unknown, unknown>,
+): Effect.Effect<unknown, unknown> => {
+  const streamForm = Stream.unwrap(
+    Effect.map(call, (value) =>
+      Stream.isStream(value) ? value : Stream.succeed(value),
+    ),
+  );
+  return Object.assign(call, {
+    [StreamTypeId]: streamForm[StreamTypeId],
+    channel: streamForm.channel,
+  });
 };
 
 export const toRpcStream = (stream: Stream.Stream<any, any, any>) =>
@@ -291,3 +329,44 @@ const appendStreamErrors = (s: Stream.Stream<string, unknown>) =>
       Stream.succeed(encodeStreamErrorMarker(cause)),
     ),
   );
+
+export const bindEffectRpc = <Rpcs extends Rpc.Any>(
+  namespace: { readonly getByName: (id: string) => { readonly fetch: any } },
+  group: RpcGroup.RpcGroup<Rpcs>,
+  options?: {
+    /**
+     * Override the rpc serialization layer. Defaults to NDJSON, which
+     * is required when any rpc in the group is a streaming rpc.
+     */
+    readonly serialization?: Layer.Layer<RpcSerialization.RpcSerialization>;
+  },
+): {
+  readonly getByName: (
+    id: string,
+  ) => Effect.Effect<
+    RpcClient.RpcClient<Rpcs, RpcClientError.RpcClientError>,
+    never,
+    Rpc.MiddlewareClient<Rpcs>
+  >;
+} => {
+  const serialization = options?.serialization ?? RpcSerialization.layerNdjson;
+
+  return {
+    // Wrap the cached `RpcClient` Effect in a chainable Proxy so callers
+    // can `yield* counter.getByName(id).method(args)` directly. The proxy
+    // records the `.method(args)` ops and replays them against the
+    // resolved client when the chain is yielded.
+    getByName: Effect.fnUntraced(function* (id: string) {
+      const httpClient = HttpClient.layerMergedContext(
+        Effect.sync(() => {
+          const stub = namespace.getByName(id);
+          return HttpClient.make((request) => stub.fetch(request));
+        }),
+      );
+      const protocol = RpcClient.layerProtocolHttp({
+        url: "http://alchemy-rpc/",
+      }).pipe(Layer.provide(serialization), Layer.provide(httpClient));
+      return yield* RpcClient.make(group).pipe(Effect.provide(protocol));
+    }) as any,
+  };
+};

@@ -32,7 +32,7 @@ test.provider("worker bindings emit Cloudflare RateLimit metadata", (stack) =>
       Effect.gen(function* () {
         return yield* Cloudflare.Worker("RateLimitedWorker", {
           main,
-          bindings: {
+          env: {
             SIGNUP_THROTTLE: Cloudflare.RateLimit({
               name: "IGNORED_BY_DIRECT_BINDING",
               namespaceId: 10_003,
