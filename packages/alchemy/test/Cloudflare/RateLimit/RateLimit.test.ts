@@ -1,116 +1,93 @@
 import * as Cloudflare from "@/Cloudflare";
-import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Test from "@/Test/Vitest";
-import * as workers from "@distilled.cloud/cloudflare/workers";
-import { expect } from "@effect/vitest";
+import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
-import * as pathe from "pathe";
+import { MinimumLogLevel } from "effect/References";
+import * as Schedule from "effect/Schedule";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import Stack from "./fixtures/stack.ts";
 
-const { test } = Test.make({ providers: Cloudflare.providers() });
-const main = pathe.resolve(import.meta.dirname, "fixtures/worker.ts");
+const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
+  providers: Cloudflare.providers(),
+});
 
-type Expect<T extends true> = T;
-type Extends<T, U> = T extends U ? true : false;
-type RateLimitEnv = Cloudflare.InferEnv<{
-  RATE_LIMIT: ReturnType<typeof Cloudflare.RateLimit>;
-}>;
-type RateLimitLimit = RateLimitEnv["RATE_LIMIT"]["limit"];
-type _RateLimitBindingAcceptsKey = Expect<
-  Extends<{ key: string }, Parameters<RateLimitLimit>[0]>
->;
-type _RateLimitBindingReturnsPromise = Expect<
-  Extends<ReturnType<RateLimitLimit>, Promise<unknown>>
->;
-
-test.provider("worker bindings emit Cloudflare RateLimit metadata", (stack) =>
-  Effect.gen(function* () {
-    const { accountId } = yield* CloudflareEnvironment;
-
-    yield* stack.destroy();
-
-    const worker = yield* stack.deploy(
-      Effect.gen(function* () {
-        return yield* Cloudflare.Worker("RateLimitedWorker", {
-          main,
-          env: {
-            SIGNUP_THROTTLE: Cloudflare.RateLimit({
-              name: "IGNORED_BY_DIRECT_BINDING",
-              namespaceId: 10_003,
-              simple: { limit: 60, period: 60 },
-            }),
-          },
-        });
-      }),
-    );
-
-    const settings = yield* workers.getScriptScriptAndVersionSetting({
-      accountId,
-      scriptName: worker.workerName,
-    });
-    expect(settings.bindings).toEqual(
-      expect.arrayContaining([
-        {
-          type: "ratelimit",
-          name: "SIGNUP_THROTTLE",
-          namespaceId: "10003",
-          simple: {
-            limit: 60,
-            period: 60,
-          },
-        },
-      ]),
-    );
-
-    yield* stack.destroy();
-  }),
+const logLevel = Effect.provideService(
+  MinimumLogLevel,
+  process.env.DEBUG ? "Debug" : "Info",
 );
 
-test.provider(
-  "init-phase binding emits Cloudflare RateLimit metadata",
-  (stack) =>
-    Effect.gen(function* () {
-      const { accountId } = yield* CloudflareEnvironment;
+const stack = beforeAll(deploy(Stack));
+afterAll.skipIf(!!process.env.NO_DESTROY)(destroy(Stack));
 
-      yield* stack.destroy();
+// The worker calls `rateLimit.limit({ key })` `n` times inside a single
+// request and returns the per-call `success` flags. Hitting the binding from
+// one isolate makes the throttling deterministic and avoids relying on edge
+// propagation between separate HTTP requests.
+const burst = Effect.fn(function* (url: string, key: string, n: number) {
+  const client = yield* HttpClient.HttpClient;
+  const res = yield* client
+    .get(`${url}/burst?key=${encodeURIComponent(key)}&n=${n}`)
+    .pipe(
+      Effect.flatMap((res) =>
+        res.status === 200
+          ? Effect.succeed(res)
+          : Effect.fail(new Error(`Worker not ready: ${res.status}`)),
+      ),
+      Effect.retry({ schedule: Schedule.exponential("500 millis"), times: 15 }),
+    );
+  return (yield* res.json) as { key: string; results: boolean[] };
+});
 
-      const worker = yield* stack.deploy(
-        Effect.gen(function* () {
-          const rateLimit = yield* Cloudflare.RateLimit({
-            name: "PUBLIC_SIGNUP_THROTTLE",
-            namespaceId: "10004",
-            simple: { limit: 1, period: 60 },
-          });
+const freshKey = () => `fresh-${Math.random().toString(36).slice(2)}`;
 
-          return yield* Cloudflare.Worker(
-            "RateLimitedWorker",
-            {
-              main,
-            },
-            Effect.gen(function* () {
-              yield* Cloudflare.RateLimit.bind(rateLimit);
-            }).pipe(Effect.provide(Cloudflare.RateLimitBindingLive)),
-          );
-        }),
-      );
+// Both worker styles bind the same RateLimit shape (`limit: 2`, `period: 10`)
+// and expose the identical `/burst` contract, so they share one behavioral
+// suite parameterized by which deployed URL to hit.
+const behaviorSuite = (label: string, getUrl: () => Effect.Effect<string>) =>
+  describe(label, () => {
+    test(
+      "throttles requests past the configured limit",
+      Effect.gen(function* () {
+        const url = yield* getUrl();
+        expect(url).toBeTypeOf("string");
 
-      const settings = yield* workers.getScriptScriptAndVersionSetting({
-        accountId,
-        scriptName: worker.workerName,
-      });
-      expect(settings.bindings).toEqual(
-        expect.arrayContaining([
-          {
-            type: "ratelimit",
-            name: "PUBLIC_SIGNUP_THROTTLE",
-            namespaceId: "10004",
-            simple: {
-              limit: 1,
-              period: 60,
-            },
-          },
-        ]),
-      );
+        // Limit is 2 over a 10s window. Cloudflare's limiter is best-effort
+        // (per-colo, approximate counting), so we don't assert an exact
+        // allowed count — only the observable contract: the first call is
+        // allowed, the burst is eventually throttled, and once the budget is
+        // exhausted later calls stay denied.
+        const n = 10;
+        const { results } = yield* burst(url, freshKey(), n);
 
-      yield* stack.destroy();
-    }),
+        expect(results).toHaveLength(n);
+        expect(results[0]).toBe(true);
+        expect(results.at(-1)).toBe(false);
+        // Some calls were allowed, some denied.
+        const allowed = results.filter(Boolean).length;
+        expect(allowed).toBeGreaterThan(0);
+        expect(allowed).toBeLessThan(n);
+      }).pipe(logLevel),
+      { timeout: 180_000 },
+    );
+
+    test(
+      "tracks each key independently",
+      Effect.gen(function* () {
+        const url = yield* getUrl();
+
+        // A distinct key gets its own fresh budget regardless of how much a
+        // previous key was throttled.
+        const fresh = yield* burst(url, freshKey(), 1);
+        expect(fresh.results).toEqual([true]);
+      }).pipe(logLevel),
+      { timeout: 180_000 },
+    );
+  });
+
+behaviorSuite("async worker (env binding)", () =>
+  stack.pipe(Effect.map((s) => s.asyncUrl)),
+);
+
+behaviorSuite("effect worker (RateLimitBindingLive)", () =>
+  stack.pipe(Effect.map((s) => s.effectUrl)),
 );
