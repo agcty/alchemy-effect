@@ -88,6 +88,6 @@ behaviorSuite("async worker (env binding)", () =>
   stack.pipe(Effect.map((s) => s.asyncUrl)),
 );
 
-behaviorSuite("effect worker (RateLimitBindingLive)", () =>
+behaviorSuite("effect worker (yield* RateLimit)", () =>
   stack.pipe(Effect.map((s) => s.effectUrl)),
 );

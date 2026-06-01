@@ -5,10 +5,10 @@ import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
 /**
  * Effect-native Worker fixture that exercises the real Cloudflare RateLimit
- * binding via `RateLimitBindingLive`. It declares a rate limit during the Init
- * phase, binds it with `Cloudflare.RateLimit.bind`, and exposes a `/burst`
- * route that calls `rateLimit.limit({ key })` `n` times against a single
- * isolate.
+ * binding via `RateLimitBindingLive`. Yielding `Cloudflare.RateLimit(...)`
+ * during the Init phase attaches the binding to this Worker and returns the
+ * runtime client in one step — no separate `.bind(...)` call. `/burst` then
+ * calls `throttle.limit({ key })` `n` times against a single isolate.
  *
  * Driving the limit inside one request makes throttling deterministic (no
  * reliance on edge propagation between requests): with `limit: 2` the first
@@ -21,13 +21,11 @@ export default class RateLimitEffectWorker extends Cloudflare.Worker<RateLimitEf
     main: import.meta.filename,
   },
   Effect.gen(function* () {
-    const rateLimit = yield* Cloudflare.RateLimit({
+    const throttle = yield* Cloudflare.RateLimit({
       name: "THROTTLE",
       namespaceId: 11_001,
       simple: { limit: 2, period: 10 },
     });
-
-    const throttle = yield* Cloudflare.RateLimit.bind(rateLimit);
 
     return {
       fetch: Effect.gen(function* () {
