@@ -1,3 +1,13 @@
+## v0.22.4
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Merge union-typed request params instead of taking first variant &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/distilled/issues/309 [<samp>(b321f)</samp>](https://github.com/alchemy-run/distilled/commit/b321fbe1)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.22.3...HEAD)
+
+---
+
 ## v0.22.3
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
