@@ -78,6 +78,21 @@ export const WorkerdLive = Layer.sync(Workerd, () => {
         });
       },
     );
+
+  const pipeStderr = (handle: NodeChildProcess.ChildProcess) => {
+    const onData = (data: Buffer) => {
+      process.stderr.write(data);
+    };
+    return Effect.acquireRelease(
+      Effect.sync(() => {
+        handle.stderr?.on("data", onData);
+      }),
+      () =>
+        Effect.sync(() => {
+          handle.stderr?.off("data", onData);
+        }),
+    );
+  };
   return Workerd.of({
     compatibilityDate: workerd.compatibilityDate,
     serve: Effect.fn("Workerd.serve")(
@@ -157,9 +172,7 @@ export const WorkerdLive = Layer.sync(Workerd, () => {
 
           return Effect.sync(removeListeners);
         });
-        yield* Effect.sync(() => {
-          handle.stderr?.pipe(process.stderr);
-        });
+        yield* pipeStderr(handle);
         const ports: WorkerdPorts = {};
         for (const message of controlMessages) {
           if (message.event === "listen") {
