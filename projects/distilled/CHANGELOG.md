@@ -1,3 +1,17 @@
+## v0.23.0
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **planetscale**: Support OAuth Bearer credentials &nbsp;-&nbsp; by **Michael (Pear)** in https://github.com/alchemy-run/distilled/issues/311 [<samp>(6e904)</samp>](https://github.com/alchemy-run/distilled/commit/6e90437e)
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **aws**: Strip "Message" suffix when deriving operation name &nbsp;-&nbsp; by **Zé Yuri** and **Claude Opus 4.7 (1M context)** in https://github.com/alchemy-run/distilled/issues/306 [<samp>(8efd0)</samp>](https://github.com/alchemy-run/distilled/commit/8efd0483)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.22.4...HEAD)
+
+---
+
 ## v0.22.4
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
