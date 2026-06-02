@@ -4,14 +4,8 @@ import { deepEqual, isResolved } from "../../Diff.ts";
 import { createPhysicalName } from "../../PhysicalName.ts";
 import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
-import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { Providers } from "../Providers.ts";
-import {
-  isZoneId,
-  resolveZoneId as resolveCloudflareZoneId,
-  type ZoneReference,
-} from "../Zone.ts";
-import { toRulesetAttributes } from "./attributes.ts";
+import type { Zone, ZoneAttributes } from "../Zone/index.ts";
 
 export type RulesetPhase = rulesets.CreateRulesetForZoneRequest["phase"];
 export type RulesetRule = NonNullable<
@@ -22,18 +16,15 @@ export type RulesetOutputRule = Omit<
   "lastUpdated" | "version"
 >;
 
-export type RulesetZone = ZoneReference;
-
-export type RulesetProps<Phase extends RulesetPhase = RulesetPhase> = {
+export type RulesetProps = {
   /**
-   * Zone to apply the ruleset to. Pass a zone ID string, a hostname in the
-   * zone, or any object with a `zoneId` attribute such as `Cloudflare.Zone`.
+   * Zone to apply the ruleset to. Pass a `Cloudflare.Zone`.
    */
-  zone: RulesetZone;
+  zone: Zone;
   /**
    * Ruleset phase entrypoint to own.
    */
-  phase: Phase;
+  phase: RulesetPhase;
   /**
    * Rules to apply to the phase entrypoint.
    */
@@ -49,17 +40,37 @@ export type RulesetProps<Phase extends RulesetPhase = RulesetPhase> = {
   description?: string;
 };
 
-export type Ruleset<Phase extends RulesetPhase = RulesetPhase> = Resource<
+export type RulesetKind =
+  | "managed"
+  | "custom"
+  | "root"
+  | "zone"
+  | (string & {});
+
+export type Ruleset = Resource<
   "Cloudflare.Ruleset",
-  RulesetProps<Phase>,
+  RulesetProps,
   {
+    /** The unique ID of the ruleset (Cloudflare `id`). */
     rulesetId: string;
+    /**
+     * Zone the ruleset phase entrypoint belongs to. Alchemy-flattened
+     * identifier — not part of Cloudflare's phase-entrypoint response.
+     */
     zoneId: string;
-    phase: Phase;
+    /** The kind of the ruleset. */
+    kind: RulesetKind;
+    /** The human-readable name of the ruleset. */
     name: string;
+    /** The phase of the ruleset. */
+    phase: RulesetPhase;
+    /** An informative description of the ruleset. */
     description: string | undefined;
+    /** The list of rules in the ruleset. */
     rules: RulesetOutputRule[];
+    /** The timestamp of when the ruleset was last modified. */
     lastUpdated: string;
+    /** The version of the ruleset. */
     version: string;
   },
   never,
@@ -75,6 +86,7 @@ export type Ruleset<Phase extends RulesetPhase = RulesetPhase> = Resource<
  * @section WAF Rules
  * @example Block probes in the custom firewall phase
  * ```typescript
+ * const zone = yield* Cloudflare.Zone("MyZone", { name: "example.com" });
  * const waf = yield* Cloudflare.Ruleset("WafRules", {
  *   zone,
  *   phase: "http_request_firewall_custom",
@@ -96,14 +108,21 @@ const isNotFoundError = (error: unknown): boolean =>
   (("status" in error && (error as { status: unknown }).status === 404) ||
     ("_tag" in error && (error as { _tag: unknown })._tag === "NotFound"));
 
-const zoneRef = (zone: RulesetZone): string =>
-  typeof zone === "string" ? zone : zone.zoneId;
+// A `Zone` prop is resolved to its attributes before a lifecycle op runs, so
+// `zone.zoneId` is normally a plain string even though the `Zone` resource
+// type statically exposes it as an `Output`. During `diff` (plan time) the
+// zone can still be unresolved — e.g. when it's being created in the same
+// deploy — in which case `zoneId` is not yet a string. Callers must treat a
+// non-string result as "not resolved yet".
+const zoneIdOf = (zone: Zone): string | undefined => {
+  const zoneId = (zone as unknown as Partial<ZoneAttributes>).zoneId;
+  return typeof zoneId === "string" ? zoneId : undefined;
+};
 
 export const RulesetProvider = () =>
   Provider.effect(
     Ruleset,
     Effect.gen(function* () {
-      const { accountId } = yield* CloudflareEnvironment;
       const getPhas = yield* rulesets.getPhasForZone;
       const putPhas = yield* rulesets.putPhasForZone;
 
@@ -112,45 +131,23 @@ export const RulesetProvider = () =>
           return name ?? (yield* createPhysicalName({ id }));
         });
 
-      const resolveZoneId = (zone: RulesetZone) =>
-        resolveCloudflareZoneId({
-          accountId,
-          zone,
-          hostname: typeof zone === "string" ? zone : (zone.name ?? ""),
-        });
-
       return {
         stables: ["zoneId", "phase"],
         diff: Effect.fn(function* ({ id, olds, news, output }) {
           if (!isResolved(news)) return undefined;
-          const desiredZone = zoneRef(news.zone);
-          const desiredZoneId =
-            typeof news.zone !== "string" || isZoneId(news.zone)
-              ? desiredZone
-              : undefined;
-          const oldZone = olds.zone ? zoneRef(olds.zone) : undefined;
-          const oldZoneId =
-            olds.zone && (typeof olds.zone !== "string" || isZoneId(olds.zone))
-              ? oldZone
-              : undefined;
+          const desiredZoneId = zoneIdOf(news.zone);
 
-          if (
-            output?.zoneId &&
-            desiredZoneId &&
-            desiredZoneId !== output.zoneId
-          ) {
-            return { action: "replace" } as const;
-          }
-          if (oldZoneId && desiredZoneId && oldZoneId !== desiredZoneId) {
-            return { action: "replace" } as const;
-          }
-          if (
-            olds.zone &&
-            typeof olds.zone === "string" &&
-            typeof news.zone === "string" &&
-            oldZone !== desiredZone
-          ) {
-            return { action: "replace" } as const;
+          // The desired zone id may still be an unresolved Output (e.g. the
+          // zone is being created in the same deploy). Only make a zone-change
+          // replacement decision once we have a concrete id.
+          if (desiredZoneId !== undefined) {
+            if (output?.zoneId && desiredZoneId !== output.zoneId) {
+              return { action: "replace" } as const;
+            }
+            const oldZoneId = olds.zone ? zoneIdOf(olds.zone) : undefined;
+            if (oldZoneId !== undefined && oldZoneId !== desiredZoneId) {
+              return { action: "replace" } as const;
+            }
           }
           if (olds.phase !== news.phase) {
             return { action: "replace" } as const;
@@ -168,7 +165,12 @@ export const RulesetProvider = () =>
           }
         }),
         reconcile: Effect.fn(function* ({ id, news, output }) {
-          const zoneId = output?.zoneId ?? (yield* resolveZoneId(news.zone));
+          const zoneId = output?.zoneId ?? zoneIdOf(news.zone);
+          if (zoneId === undefined) {
+            return yield* Effect.fail(
+              new Error("Cloudflare Ruleset: zone id is not resolved"),
+            );
+          }
           const name = yield* createRulesetName(id, news.name ?? output?.name);
           const ruleset = yield* putPhas({
             zoneId,
@@ -177,7 +179,7 @@ export const RulesetProvider = () =>
             description: news.description,
             rules: news.rules,
           });
-          return toRulesetAttributes<typeof news.phase>(zoneId, ruleset);
+          return toRulesetAttributes(zoneId, ruleset);
         }),
         delete: Effect.fn(function* ({ olds, output }) {
           yield* putPhas({
@@ -189,7 +191,8 @@ export const RulesetProvider = () =>
           }).pipe(Effect.catchIf(isNotFoundError, () => Effect.void));
         }),
         read: Effect.fn(function* ({ olds, output }) {
-          const zoneId = output?.zoneId ?? (yield* resolveZoneId(olds.zone));
+          const zoneId = output?.zoneId ?? zoneIdOf(olds.zone);
+          if (zoneId === undefined) return undefined;
           return yield* getPhas({
             zoneId,
             rulesetPhase: output?.phase ?? olds.phase,
@@ -201,3 +204,20 @@ export const RulesetProvider = () =>
       };
     }),
   );
+
+export const toRulesetAttributes = (
+  zoneId: string,
+  ruleset: rulesets.GetPhasResponse | rulesets.PutPhasResponse,
+): Ruleset["Attributes"] => ({
+  rulesetId: ruleset.id,
+  zoneId,
+  kind: ruleset.kind,
+  name: ruleset.name,
+  phase: ruleset.phase,
+  description: ruleset.description ?? undefined,
+  rules: (ruleset.rules ?? []).map(
+    ({ lastUpdated: _lastUpdated, version: _version, ...rule }) => rule,
+  ),
+  lastUpdated: ruleset.lastUpdated,
+  version: ruleset.version,
+});
