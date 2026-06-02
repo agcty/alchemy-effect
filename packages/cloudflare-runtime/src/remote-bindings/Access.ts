@@ -1,3 +1,4 @@
+import * as Cache from "effect/Cache";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -6,7 +7,6 @@ import * as Stream from "effect/Stream";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/unstable/process/ChildProcessSpawner";
 import { ConfigError, SystemError } from "../RuntimeError.shared.ts";
-import { cachedFunction } from "../internal/cached-function.ts";
 
 export class Access extends Context.Service<
   Access,
@@ -21,22 +21,22 @@ export const layer = Layer.effect(
   Access,
   Effect.gen(function* () {
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-    // Intentional: probe failures (timeout, DNS, network blip) are coerced
-    // to "domain does not use Access" so we don't pop a login prompt for
-    // every transient hiccup. This mirrors workers-sdk's behavior. The
-    // tradeoff is that a real outage on a genuinely Access-protected host
-    // can briefly look like a non-Access host until the cache clears.
-    const domainUsesAccess = yield* cachedFunction((domain: string) =>
-      Effect.promise((signal) => fetch(`https://${domain}`, { redirect: "manual", signal })).pipe(
-        Effect.map(
-          (response) =>
-            response.status === 302 &&
-            (response.headers.get("location")?.includes("cloudflareaccess.com") ?? false),
+    const usesAccessCache = yield* Cache.make({
+      // Intentional: probe failures (timeout, DNS, network blip) are coerced
+      // to "domain does not use Access" so we don't pop a login prompt for
+      // every transient hiccup. This mirrors workers-sdk's behavior.
+      lookup: (domain: string) =>
+        Effect.promise((signal) => fetch(`https://${domain}`, { redirect: "manual", signal })).pipe(
+          Effect.map(
+            (response) =>
+              response.status === 302 &&
+              (response.headers.get("location")?.includes("cloudflareaccess.com") ?? false),
+          ),
+          Effect.timeout(1000),
+          Effect.orElseSucceed(() => false),
         ),
-        Effect.timeout(1000),
-        Effect.catch(() => Effect.succeed(false)),
-      ),
-    );
+      capacity: Infinity,
+    });
     const login = (domain: string) =>
       ChildProcess.make("cloudflared", ["access", "login", domain]).pipe(
         spawner.spawn,
@@ -71,7 +71,8 @@ export const layer = Layer.effect(
 
     return Access.of({
       getAccessHeaders: Effect.fn(function* (domain) {
-        if (!(yield* domainUsesAccess(domain))) {
+        const domainUsesAccess = yield* Cache.get(usesAccessCache, domain);
+        if (!domainUsesAccess) {
           return {};
         }
         const clientId = yield* getEnv("CLOUDFLARE_ACCESS_CLIENT_ID");
