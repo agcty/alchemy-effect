@@ -1,3 +1,13 @@
+## v0.23.1
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Mark queryObservabilityTelemetry run.query fields optional &nbsp;-&nbsp; by **Michael K** in https://github.com/alchemy-run/distilled/issues/319 [<samp>(da535)</samp>](https://github.com/alchemy-run/distilled/commit/da5355b9)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.23.0...HEAD)
+
+---
+
 ## v0.23.0
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
