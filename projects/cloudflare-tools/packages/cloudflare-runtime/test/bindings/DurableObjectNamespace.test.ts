@@ -63,8 +63,11 @@ layer(localRuntimeLayer)("DurableObjectNamespace binding", (it) => {
     "works across instances via the dev registry",
     () =>
       Effect.gen(function* () {
+        // This owner name produced a negative hash, resulting in an unsafe variable name.
+        // This is a regression test for that.
+        const ownerName = "localcrossscriptdostack-hostworker-tes72imccp3xv3o4ibo";
         const owner = yield* startTestWorker({
-          name: "durable-object-binding-owner",
+          name: ownerName,
           compatibilityDate: "2026-03-10",
           compatibilityFlags: [],
           bindings: [
@@ -87,7 +90,7 @@ layer(localRuntimeLayer)("DurableObjectNamespace binding", (it) => {
             DurableObjectNamespace.local({
               binding: "COUNTER",
               className: "Counter",
-              scriptName: "durable-object-binding-owner",
+              scriptName: ownerName,
               uniqueKey: "test-cross-script-counter",
             }),
           ],

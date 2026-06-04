@@ -30,5 +30,8 @@ export const USER_WORKER_SERVICE_NAME = "user";
 export const getOutboundDoProxyClassName = (scriptName: string, className: string): string => {
   // Uses a hash of the script name and class name to ensure the class name is consistent and safe to use as a variable name.
   const hash = Hash.string(`${scriptName}-${className}`);
-  return `ExternalDOProxy_${hash}`;
+  // A hash can be a negative number, which is not safe to use in identifiers, so we convert it to positive and use a prefix to indicate the sign.
+  const abs = Math.abs(hash);
+  const prefix = hash < 0 ? 1 : 0;
+  return `ExternalDOProxy_${prefix}${abs}`;
 };
