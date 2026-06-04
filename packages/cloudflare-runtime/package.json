@@ -150,7 +150,7 @@
     "@sentry/utils": "8.9.2",
     "capnp-es": "0.0.14",
     "capnweb": "0.7.0",
-    "effect": "4.0.0-beta.66",
+    "effect": "4.0.0-beta.78",
     "heap-js": "2.7.1",
     "itty-time": "2.0.2",
     "mime": "4.1.0",
