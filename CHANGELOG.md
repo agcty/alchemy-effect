@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.10.6](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.6) (2026-06-04)
+
+### Bug Fixes
+
+- **runtime**: cross-script do binding fails with some script names - by @john-royal [(9897fa1)](https://github.com/alchemy-run/cloudflare-tools/commit/9897fa1c4cdde39ca67560802f0bd054c10399f0)
+
 ## [v0.10.5](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.5) (2026-06-04)
 
 _No significant changes_
