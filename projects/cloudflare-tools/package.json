@@ -33,7 +33,7 @@
       }
     },
     "catalog": {
-      "@alchemy.run/node-utils": "^0.0.4",
+      "@alchemy.run/node-utils": "^0.0.5",
       "@distilled.cloud/cloudflare": "^0.23.1",
       "@playwright/test": "^1.52.0",
       "rolldown": "^1.0.1",
