@@ -229,7 +229,7 @@
     },
   },
   "catalog": {
-    "@alchemy.run/node-utils": "^0.0.4",
+    "@alchemy.run/node-utils": "^0.0.5",
     "@distilled.cloud/cloudflare": "^0.23.1",
     "@playwright/test": "^1.52.0",
     "rolldown": "^1.0.1",
@@ -252,7 +252,7 @@
     },
   },
   "packages": {
-    "@alchemy.run/node-utils": ["@alchemy.run/node-utils@0.0.4", "", {}, "sha512-TiIhPXCTCi3tk0zmdYJJ14CNSesSfsJxXdIOP0HTSItQ1mZWLocrF7qCuEWKyW/IEFzp6kaiOf19aIA/mbCp1g=="],
+    "@alchemy.run/node-utils": ["@alchemy.run/node-utils@0.0.5", "", {}, "sha512-5agdhQxWBodxa5hDRyjnpx91RTU3g+qd5fxYB7uNDCaOzB0XC47UU/KHR6zf6jhz/NXf61gJS+vhYwn8NHeRoQ=="],
 
     "@alloc/quick-lru": ["@alloc/quick-lru@5.2.0", "", {}, "sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw=="],
 
