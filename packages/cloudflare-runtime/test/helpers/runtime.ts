@@ -60,6 +60,13 @@ export const localRuntimeLayer = Runtime.RuntimeLive.pipe(
   Layer.provideMerge(Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer)),
 );
 
+export interface TestWorker {
+  baseUrl: URL;
+  fetch: (path: string, init?: RequestInit) => Effect.Effect<Response>;
+  fetchText: (path: string, init?: RequestInit) => Effect.Effect<string>;
+  fetchJson: <T>(path: string, init?: RequestInit) => Effect.Effect<T>;
+}
+
 /**
  * Start a worker via the `Runtime` and return helpers bound to its base URL.
  *
@@ -78,7 +85,7 @@ export const startTestWorker = <B extends BindingHooks>(worker: RuntimeWorker<B>
       fetch(path, init).pipe(
         Effect.flatMap((res) => Effect.promise(() => res.json() as Promise<T>)),
       );
-    return { baseUrl, fetch, fetchText, fetchJson };
+    return { baseUrl, fetch, fetchText, fetchJson } satisfies TestWorker;
   });
 
 export const waitForRegistryEntry = Effect.fn(function* (

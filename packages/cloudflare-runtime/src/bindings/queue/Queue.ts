@@ -48,6 +48,17 @@ export const QueueLive = Layer.succeed(
 
       for (const consumer of consumers) {
         if (
+          consumer.maxBatchTimeout !== undefined &&
+          (consumer.maxBatchTimeout < 0 || consumer.maxBatchTimeout > 60)
+        ) {
+          return yield* new ConfigError({
+            subtag: "Queue",
+            message: `Invalid maxBatchTimeout for queue "${consumer.queueName}": must be between 0 and 60 seconds`,
+            hint: "Set `maxBatchTimeout` to a value between 0 and 60 (seconds).",
+            detail: { queueName: consumer.queueName, maxBatchTimeout: consumer.maxBatchTimeout },
+          });
+        }
+        if (
           consumer.deadLetterQueue !== undefined &&
           consumer.deadLetterQueue === consumer.queueName
         ) {
