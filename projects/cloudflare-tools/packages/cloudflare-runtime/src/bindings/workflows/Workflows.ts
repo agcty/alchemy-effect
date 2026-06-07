@@ -36,7 +36,7 @@ export const WorkflowsLive = Layer.effect(
     const path = yield* Path.Path;
     const storage = yield* Storage.Storage;
 
-    const createStorageService = Effect.fnUntraced(function* () {
+    const makeStorageService = Effect.gen(function* () {
       const storageDiskPath = "disk" in storage ? storage.disk?.path : undefined;
       if (!storageDiskPath) {
         return yield* new ConfigError({
@@ -71,6 +71,16 @@ export const WorkflowsLive = Layer.effect(
         const services: Array<WorkerdConfig.Service> = [];
         let hasWorkflows = false;
 
+        // Cache the shared storage service creation so that there's only one per worker.
+        // This prevents a race condition where two owned workflows would each observe
+        // `services.length === 0` and push two separate `workflows:storage` services,
+        // causing `workerd` to throw because of the duplicate service name.
+        const ensureStorageService = yield* Effect.cached(
+          makeStorageService.pipe(
+            Effect.tap((service) => Effect.sync(() => services.push(service))),
+          ),
+        );
+
         return {
           defer: Effect.gen(function* () {
             const extension: WorkerdConfig.Extension = {
@@ -100,9 +110,7 @@ export const WorkflowsLive = Layer.effect(
                   workflowName: workflow.workflowName,
                 });
               }
-              if (services.length === 0) {
-                services.push(yield* createStorageService());
-              }
+              yield* ensureStorageService;
               const engineService = {
                 name: `workflows:${workflow.workflowName}`,
                 worker: {
