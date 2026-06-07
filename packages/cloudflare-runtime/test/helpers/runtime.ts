@@ -1,10 +1,12 @@
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import type { Done } from "effect/Cause";
 import * as ConfigProvider from "effect/ConfigProvider";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Queue from "effect/Queue";
+import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as Globals from "../../src/globals/Globals.ts";
@@ -103,3 +105,24 @@ export const waitForRegistryEntry = Effect.fn(function* (
     }
   }
 }, Effect.scoped);
+
+export class PredicateFailed extends Data.TaggedError("PredicateFailed")<{
+  value: unknown;
+}> {}
+
+export const poll = <T>(
+  worker: TestWorker,
+  path: string,
+  predicate: (value: T) => boolean,
+  timeout: number = 10_000,
+) =>
+  worker.fetchJson<T>(path).pipe(
+    Effect.flatMap((value) =>
+      predicate(value) ? Effect.succeed(value) : Effect.fail(new PredicateFailed({ value: value })),
+    ),
+    Effect.retry({
+      while: (error) => error._tag === "PredicateFailed",
+      schedule: Schedule.spaced("50 millis"),
+      times: timeout / 50,
+    }),
+  );

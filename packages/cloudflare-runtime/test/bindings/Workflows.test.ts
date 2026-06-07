@@ -1,8 +1,10 @@
+import type { InstanceStatus } from "@cloudflare/workers-types/experimental";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { describe, expect, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
+import * as Schedule from "effect/Schedule";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as Workflows from "../../src/bindings/workflows/Workflows.ts";
 import * as Globals from "../../src/globals/Globals.ts";
@@ -12,7 +14,14 @@ import * as Paths from "../../src/internal/Paths.ts";
 import * as Runtime from "../../src/Runtime.ts";
 import * as RuntimeServices from "../../src/RuntimeServices.ts";
 import * as Workerd from "../../src/workerd/Workerd.ts";
-import { localRuntimeLayer, startTestWorker, waitForRegistryEntry } from "../helpers/runtime.ts";
+import type { TestWorker } from "../helpers/runtime.ts";
+import {
+  localRuntimeLayer,
+  poll,
+  PredicateFailed,
+  startTestWorker,
+  waitForRegistryEntry,
+} from "../helpers/runtime.ts";
 
 const WORKFLOW_SCRIPT = `
 import { WorkflowEntrypoint } from "cloudflare:workers";
@@ -33,51 +42,6 @@ export default {
 const COMPLETE_STATUS =
   '{"status":"complete","__LOCAL_DEV_STEP_OUTPUTS":["yes you are"],"output":"I\'m a output string"}';
 
-const persistenceRuntimeLayer = (directory: string) =>
-  Runtime.RuntimeLive.pipe(
-    Layer.provideMerge(RuntimeServices.layerLocalBindings()),
-    Layer.provide(Globals.GlobalsLive),
-    Layer.provideMerge(RuntimeServices.layerLoopback()),
-    Layer.provide(Storage.layerDisk(directory)),
-    Layer.provide(Internet.InternetLive),
-    Layer.provideMerge(RuntimeServices.layerRegistry()),
-    Layer.provide(Paths.PathsLive),
-    Layer.provide(Workerd.WorkerdLive),
-    Layer.provideMerge(Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer)),
-  );
-
-const runOnceAgainstStorage = (directory: string) =>
-  Effect.gen(function* () {
-    const { fetch } = yield* startTestWorker({
-      name: "workflows-persist-test",
-      compatibilityDate: "2024-11-20",
-      compatibilityFlags: [],
-      modules: [{ name: "main.js", type: "ESModule", content: WORKFLOW_SCRIPT }],
-      bindings: [
-        Workflows.local({
-          binding: "MY_WORKFLOW",
-          workflowName: "MY_WORKFLOW",
-          className: "MyWorkflow",
-        }),
-      ],
-    });
-
-    const res = yield* fetch("/");
-    yield* Effect.promise(() => res.text());
-
-    const deadline = Date.now() + 5000;
-    let text = "";
-    while (Date.now() < deadline) {
-      const r = yield* fetch("/");
-      text = yield* Effect.promise(() => r.text());
-      if (text === COMPLETE_STATUS) {
-        return text;
-      }
-      yield* Effect.sleep("100 millis");
-    }
-    return text;
-  }).pipe(Effect.provide(persistenceRuntimeLayer(directory)), Effect.scoped);
-
 describe("Workflows binding", () => {
   // NOTE: this test uses `describe`/`it.effect` (not `layer(...)`), so it picks
   // up the @effect/vitest default `TestEnv` (TestClock + TestConsole). That
@@ -90,17 +54,64 @@ describe("Workflows binding", () => {
         const fs = yield* FileSystem.FileSystem;
         const tmp = yield* fs.makeTempDirectoryScoped({ prefix: "workflows-persist-" });
 
-        const first = yield* runOnceAgainstStorage(tmp);
+        const rumtimeLayerTempDir = Runtime.RuntimeLive.pipe(
+          Layer.provideMerge(RuntimeServices.layerLocalBindings()),
+          Layer.provide(Globals.GlobalsLive),
+          Layer.provideMerge(RuntimeServices.layerLoopback()),
+          Layer.provide(Storage.layerDisk(tmp)),
+          Layer.provide(Internet.InternetLive),
+          Layer.provideMerge(RuntimeServices.layerRegistry()),
+          Layer.provide(Paths.PathsLive),
+          Layer.provide(Workerd.WorkerdLive),
+          Layer.provideMerge(Layer.mergeAll(NodeServices.layer, FetchHttpClient.layer)),
+        );
+
+        const runStorageExit = Effect.fn(
+          function* () {
+            const worker = yield* startTestWorker({
+              name: "workflows-persist-test",
+              compatibilityDate: "2024-11-20",
+              compatibilityFlags: [],
+              modules: [{ name: "main.js", type: "ESModule", content: WORKFLOW_SCRIPT }],
+              bindings: [
+                Workflows.local({
+                  binding: "MY_WORKFLOW",
+                  workflowName: "MY_WORKFLOW",
+                  className: "MyWorkflow",
+                }),
+              ],
+            });
+
+            const res = yield* worker.fetch("/");
+            expect(res.status).toBe(200);
+
+            return yield* worker.fetchText("/").pipe(
+              Effect.flatMap((text) =>
+                text === COMPLETE_STATUS
+                  ? Effect.succeed(text)
+                  : Effect.fail(new PredicateFailed({ value: text })),
+              ),
+              Effect.retry({
+                while: (error) => error._tag === "PredicateFailed",
+                schedule: Schedule.spaced("50 millis"),
+                times: 5000 / 50,
+              }),
+            );
+          },
+          (self) => self.pipe(Effect.provide(rumtimeLayerTempDir), Effect.scoped),
+        );
+
+        const first = yield* runStorageExit();
         expect(first).toBe(COMPLETE_STATUS);
 
         const persistDir = `${tmp}/workflows`;
         const names = yield* fs.readDirectory(persistDir);
         expect(names).toContain(encodeURIComponent("MY_WORKFLOW"));
 
-        const second = yield* runOnceAgainstStorage(tmp);
+        const second = yield* runStorageExit();
         expect(second).toBe(COMPLETE_STATUS);
       }).pipe(Effect.provide(NodeServices.layer)),
-    { timeout: 60_000 },
+    { timeout: 30_000 },
   );
 });
 
@@ -210,49 +221,6 @@ export default {
 };
 `;
 
-const waitForStatus = (
-  fetch: (path: string) => Effect.Effect<Response>,
-  id: string,
-  expected: string,
-  timeoutMs = 10_000,
-) =>
-  Effect.gen(function* () {
-    const deadline = Date.now() + timeoutMs;
-    let last: Record<string, unknown> = {};
-    while (Date.now() < deadline) {
-      const res = yield* fetch(`/status?id=${id}`);
-      last = (yield* Effect.promise(() => res.json())) as Record<string, unknown>;
-      if (last["status"] === expected) {
-        return last;
-      }
-      yield* Effect.sleep("100 millis");
-    }
-    return yield* Effect.die(
-      `Timed out waiting for status "${expected}" - last status: ${JSON.stringify(last)}`,
-    );
-  });
-
-const waitForStepOutput = (
-  fetch: (path: string) => Effect.Effect<Response>,
-  id: string,
-  expected: string,
-  timeoutMs = 10_000,
-) =>
-  Effect.gen(function* () {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const res = yield* fetch(`/status?id=${id}`);
-      const data = (yield* Effect.promise(() => res.json())) as {
-        __LOCAL_DEV_STEP_OUTPUTS?: ReadonlyArray<string>;
-      };
-      if (data.__LOCAL_DEV_STEP_OUTPUTS?.includes(expected)) {
-        return;
-      }
-      yield* Effect.sleep("100 millis");
-    }
-    throw new Error(`Timed out waiting for step output "${expected}"`);
-  });
-
 // `excludeTestServices: true` keeps the real wall-clock Clock. Without it,
 // `@effect/vitest` provides a TestClock and `Effect.sleep` would block (since
 // nothing advances the virtual clock). The workflow engine's `pause`/`restart`
@@ -263,32 +231,24 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Workflows binding lifec
     "pause and resume a running workflow",
     () =>
       Effect.gen(function* () {
-        const { fetch } = yield* startLifecycleWorker();
+        const worker = yield* startLifecycleWorker();
         const id = "pause-resume-test";
 
-        const createRes = yield* fetch(`/create?id=${id}`);
-        const createData = (yield* Effect.promise(() => createRes.json())) as {
-          id: string;
-        };
+        const createData = yield* worker.fetchJson<{ id: string }>(`/create?id=${id}`);
         expect(createData.id).toBe(id);
 
-        yield* waitForStepOutput(fetch, id, "step-1-done");
+        yield* pollStepOutput(worker, id, "step-1-done");
 
-        const pauseRes = yield* fetch(`/pause?id=${id}`);
-        const pauseData = (yield* Effect.promise(() => pauseRes.json())) as Record<string, unknown>;
+        const pauseData = yield* worker.fetchJson<InstanceStatus>(`/pause?id=${id}`);
         expect(pauseData).toHaveProperty("status");
 
-        yield* waitForStatus(fetch, id, "paused");
+        yield* pollStatus(worker, id, "paused");
 
-        const resumeRes = yield* fetch(`/resume?id=${id}`);
-        const resumeData = (yield* Effect.promise(() => resumeRes.json())) as Record<
-          string,
-          unknown
-        >;
+        const resumeData = yield* worker.fetchJson<InstanceStatus>(`/resume?id=${id}`);
         expect(resumeData).toHaveProperty("status");
 
-        const final = yield* waitForStatus(fetch, id, "complete");
-        expect(final["output"]).toBe("workflow-complete");
+        const final = yield* pollStatus(worker, id, "complete");
+        expect(final.output).toBe("workflow-complete");
       }),
     { timeout: 30_000 },
   );
@@ -297,22 +257,18 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Workflows binding lifec
     "terminate a running workflow",
     () =>
       Effect.gen(function* () {
-        const { fetch } = yield* startLifecycleWorker();
+        const worker = yield* startLifecycleWorker();
         const id = "terminate-test";
 
-        const createRes = yield* fetch(`/create?id=${id}`);
-        yield* Effect.promise(() => createRes.text());
+        const createRes = yield* worker.fetch(`/create?id=${id}`);
+        expect(createRes.status).toBe(200);
 
-        yield* waitForStepOutput(fetch, id, "step-1-done");
+        yield* pollStepOutput(worker, id, "step-1-done");
 
-        const terminateRes = yield* fetch(`/terminate?id=${id}`);
-        const terminateData = (yield* Effect.promise(() => terminateRes.json())) as Record<
-          string,
-          unknown
-        >;
+        const terminateData = yield* worker.fetchJson<InstanceStatus>(`/terminate?id=${id}`);
         expect(terminateData).toHaveProperty("status");
 
-        yield* waitForStatus(fetch, id, "terminated");
+        yield* pollStatus(worker, id, "terminated");
       }),
     { timeout: 30_000 },
   );
@@ -321,23 +277,18 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Workflows binding lifec
     "restart a running workflow",
     () =>
       Effect.gen(function* () {
-        const { fetch } = yield* startLifecycleWorker();
+        const worker = yield* startLifecycleWorker();
         const id = "restart-test";
 
-        const createRes = yield* fetch(`/create?id=${id}`);
-        yield* Effect.promise(() => createRes.text());
+        yield* worker.fetch(`/create?id=${id}`);
 
-        yield* waitForStepOutput(fetch, id, "step-1-done");
+        yield* pollStepOutput(worker, id, "step-1-done");
 
-        const restartRes = yield* fetch(`/restart?id=${id}`);
-        const restartData = (yield* Effect.promise(() => restartRes.json())) as Record<
-          string,
-          unknown
-        >;
+        const restartData = yield* worker.fetchJson<InstanceStatus>(`/restart?id=${id}`);
         expect(restartData).toHaveProperty("status");
 
-        const final = yield* waitForStatus(fetch, id, "complete");
-        expect(final["output"]).toBe("workflow-complete");
+        const final = yield* pollStatus(worker, id, "complete");
+        expect(final.output).toBe("workflow-complete");
       }),
     { timeout: 30_000 },
   );
@@ -352,7 +303,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Workflows binding lifec
     "a worker can own two workflows without duplicating workflows:storage",
     () =>
       Effect.gen(function* () {
-        const { fetch } = yield* startTestWorker({
+        const worker = yield* startTestWorker({
           name: "workflows-multi-test",
           compatibilityDate: "2026-03-09",
           compatibilityFlags: [],
@@ -371,14 +322,14 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Workflows binding lifec
           ],
         });
 
-        const createRes = yield* fetch("/create");
+        const createRes = yield* worker.fetch(`/create`);
         expect(createRes.status).toBe(200);
 
-        const alpha = yield* waitForStatus(fetch, "alpha", "complete");
-        expect(alpha["output"]).toBe("alpha-output");
+        const alpha = yield* pollStatus(worker, "alpha", "complete");
+        expect(alpha.output).toBe("alpha-output");
 
-        const beta = yield* waitForStatus(fetch, "beta", "complete");
-        expect(beta["output"]).toBe("beta-output");
+        const beta = yield* pollStatus(worker, "beta", "complete");
+        expect(beta.output).toBe("beta-output");
       }),
     { timeout: 30_000 },
   );
@@ -483,18 +434,23 @@ layer(localRuntimeLayer, { excludeTestServices: true })(
           const createRes = yield* consumer.fetch(`/create?id=${id}`);
           expect(createRes.status).toBe(200);
 
-          const deadline = Date.now() + 15_000;
-          let final: Record<string, unknown> = {};
-          while (Date.now() < deadline) {
-            const res = yield* consumer.fetch(`/status?id=${id}`);
-            final = (yield* Effect.promise(() => res.json())) as Record<string, unknown>;
-            if (final["status"] === "complete") break;
-            yield* Effect.sleep("100 millis");
-          }
-          expect(final["status"]).toBe("complete");
-          expect(final["output"]).toEqual({ ok: true, payload: "from-owner" });
+          const result = yield* pollStatus(consumer, id, "complete");
+          expect(result).toMatchObject({
+            status: "complete",
+            output: { ok: true, payload: "from-owner" },
+          });
         }),
-      { timeout: 60_000 },
+      { timeout: 30_000 },
     );
   },
 );
+
+const pollStatus = (worker: TestWorker, id: string, expected: InstanceStatus["status"]) =>
+  poll<InstanceStatus>(worker, `/status?id=${id}`, (json) => json.status === expected);
+
+const pollStepOutput = (worker: TestWorker, id: string, expected: string) =>
+  poll<{ __LOCAL_DEV_STEP_OUTPUTS?: ReadonlyArray<string> }>(
+    worker,
+    `/status?id=${id}`,
+    (json) => json.__LOCAL_DEV_STEP_OUTPUTS?.includes(expected) ?? false,
+  );

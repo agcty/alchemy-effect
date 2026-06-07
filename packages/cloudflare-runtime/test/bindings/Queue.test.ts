@@ -1,10 +1,15 @@
+import type { MessageBatchMetadata } from "@cloudflare/workers-types/experimental";
 import { assert, expect, layer } from "@effect/vitest";
-import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
-import * as Schedule from "effect/Schedule";
 import * as Queue from "../../src/bindings/queue/Queue.ts";
-import type { TestWorker } from "../helpers/runtime.ts";
-import { localRuntimeLayer, startTestWorker, waitForRegistryEntry } from "../helpers/runtime.ts";
+import {
+  localRuntimeLayer,
+  poll,
+  PredicateFailed,
+  startTestWorker,
+  waitForRegistryEntry,
+  type TestWorker,
+} from "../helpers/runtime.ts";
 
 // Combined producer + consumer worker. The `queue()` handler records every
 // delivered message into a module-global array, which the test reads back via
@@ -250,10 +255,6 @@ interface ReceivedMessage {
   attempts: number;
   body: unknown;
   at?: number;
-}
-
-interface SendMetadata {
-  metadata?: { metrics?: { backlogCount?: number; backlogBytes?: number } };
 }
 
 layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) => {
@@ -622,7 +623,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
 
       // First send populates the backlog; the second send observes it.
       yield* worker.fetch("/send", { method: "POST" });
-      const json = yield* worker.fetchJson<SendMetadata>("/send", { method: "POST" });
+      const json = yield* worker.fetchJson<MessageBatchMetadata>("/send", { method: "POST" });
       expect(json).toMatchObject({
         metadata: {
           metrics: {
@@ -646,7 +647,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
       });
 
       yield* worker.fetch("/sendBatch", { method: "POST" });
-      const json = yield* worker.fetchJson<SendMetadata>("/sendBatch", { method: "POST" });
+      const json = yield* worker.fetchJson<MessageBatchMetadata>("/sendBatch", { method: "POST" });
       expect(json).toMatchObject({
         metadata: {
           metrics: {
@@ -877,10 +878,6 @@ layer(localRuntimeLayer, {
   );
 });
 
-class PredicateFailed extends Data.TaggedError("PredicateFailed")<{
-  json: unknown;
-}> {}
-
 const pollMessages = (
   worker: TestWorker,
   predicate: (json: ReadonlyArray<ReceivedMessage>) => boolean,
@@ -892,20 +889,3 @@ const pollBatch = (
   predicate: (json: ReadonlyArray<ReadonlyArray<unknown>>) => boolean,
   timeout?: number,
 ) => poll(worker, "/batches", predicate, timeout);
-
-const poll = <T>(
-  worker: TestWorker,
-  path: string,
-  predicate: (json: T) => boolean,
-  timeout: number = 10_000,
-) =>
-  worker.fetchJson<T>(path).pipe(
-    Effect.flatMap((json) =>
-      predicate(json) ? Effect.succeed(json) : Effect.fail(new PredicateFailed({ json })),
-    ),
-    Effect.retry({
-      while: (error) => error._tag === "PredicateFailed",
-      schedule: Schedule.spaced("50 millis"),
-      times: timeout / 50,
-    }),
-  );
