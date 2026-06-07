@@ -341,7 +341,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "basic-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "basic-queue" })],
         queueConsumers: [{ queueName: "basic-queue", maxBatchTimeout: 0 }],
       });
 
@@ -373,7 +373,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "types-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "types-queue" })],
         queueConsumers: [{ queueName: "types-queue", maxBatchTimeout: 0 }],
       });
 
@@ -395,7 +395,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "retry-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "retry-queue" })],
         queueConsumers: [{ queueName: "retry-queue", maxBatchTimeout: 0, maxRetries: 2 }],
       });
 
@@ -419,7 +419,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: RETRY_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "retry-all-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "retry-all-queue" })],
         queueConsumers: [{ queueName: "retry-all-queue", maxBatchTimeout: 0, maxRetries: 2 }],
       });
 
@@ -441,7 +441,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: RETRY_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "retry-throw-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "retry-throw-queue" })],
         queueConsumers: [{ queueName: "retry-throw-queue", maxBatchTimeout: 0, maxRetries: 2 }],
       });
 
@@ -463,7 +463,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: RETRY_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "drop-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "drop-queue" })],
         queueConsumers: [{ queueName: "drop-queue", maxBatchTimeout: 0, maxRetries: 1 }],
       });
 
@@ -488,7 +488,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: ACK_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "ack-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "ack-queue" })],
         queueConsumers: [{ queueName: "ack-queue", maxBatchTimeout: 0, maxRetries: 2 }],
       });
 
@@ -527,7 +527,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: THROW_AFTER_ACK_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "ack-throw-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "ack-throw-queue" })],
         queueConsumers: [{ queueName: "ack-throw-queue", maxBatchTimeout: 0, maxRetries: 2 }],
       });
 
@@ -566,7 +566,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: RETRY_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "retry-delay-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "retry-delay-queue" })],
         queueConsumers: [
           { queueName: "retry-delay-queue", maxBatchTimeout: 0, maxRetries: 1, retryDelay: 1 },
         ],
@@ -594,7 +594,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "bad" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "bad" })],
         queueConsumers: [
           { queueName: "bad", maxBatchTimeout: 0, maxRetries: 0, deadLetterQueue: "dlq" },
           { queueName: "dlq", maxBatchTimeout: 0, maxRetries: 0 },
@@ -619,7 +619,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "bad" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "bad" })],
         queueConsumers: [
           { queueName: "bad", maxBatchTimeout: 0, maxRetries: 0, deadLetterQueue: "dlq" },
           // `dlq` dead-letters back to `bad`: a cycle that is allowed because the
@@ -650,7 +650,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "delay-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "delay-queue" })],
         queueConsumers: [{ queueName: "delay-queue", maxBatchTimeout: 0 }],
       });
 
@@ -684,7 +684,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
         bindings: [
-          Queue.binding({ binding: "QUEUE", queueName: "default-delay-queue", deliveryDelay: 1 }),
+          Queue.local({ binding: "QUEUE", queueName: "default-delay-queue", deliveryDelay: 1 }),
         ],
         queueConsumers: [{ queueName: "default-delay-queue", maxBatchTimeout: 0 }],
       });
@@ -714,7 +714,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "batch-delay-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "batch-delay-queue" })],
         queueConsumers: [{ queueName: "batch-delay-queue", maxBatchTimeout: 0 }],
       });
 
@@ -742,7 +742,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "batch-msg-delay-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "batch-msg-delay-queue" })],
         queueConsumers: [{ queueName: "batch-msg-delay-queue", maxBatchTimeout: 0 }],
       });
 
@@ -770,7 +770,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: ["experimental"],
         modules: [{ name: "main.js", type: "ESModule", content: METADATA_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "send-meta" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "send-meta" })],
         // High timeout so the first message stays in the backlog.
         queueConsumers: [{ queueName: "send-meta", maxBatchTimeout: 30 }],
       });
@@ -796,7 +796,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: ["experimental"],
         modules: [{ name: "main.js", type: "ESModule", content: METADATA_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "send-batch-meta" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "send-batch-meta" })],
         queueConsumers: [{ queueName: "send-batch-meta", maxBatchTimeout: 30 }],
       });
 
@@ -821,7 +821,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName })],
         queueConsumers: [{ queueName, maxBatchTimeout: 0 }],
       });
 
@@ -849,7 +849,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "size-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "size-queue" })],
         queueConsumers: [{ queueName: "size-queue", maxBatchTimeout: 0 }],
       });
 
@@ -875,7 +875,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: ["nodejs_compat"],
         modules: [{ name: "main.js", type: "ESModule", content: CLONE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "clone-queue" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "clone-queue" })],
         queueConsumers: [
           { queueName: "clone-queue", maxBatchSize: 100, maxBatchTimeout: 0, maxRetries: 0 },
         ],
@@ -899,7 +899,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: BATCH_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "full-batch" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "full-batch" })],
         // High timeout so a partial batch would *not* flush during the test;
         // only a full batch (size 3) should be delivered.
         queueConsumers: [{ queueName: "full-batch", maxBatchSize: 3, maxBatchTimeout: 30 }],
@@ -926,7 +926,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: BATCH_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "overflow-batch" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "overflow-batch" })],
         queueConsumers: [{ queueName: "overflow-batch", maxBatchSize: 5, maxBatchTimeout: 1 }],
       });
 
@@ -956,7 +956,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding validati
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "loop" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "loop" })],
         queueConsumers: [{ queueName: "loop", deadLetterQueue: "loop" }],
       }).pipe(Effect.flip);
       assert.equal(error._tag, "ConfigError");
@@ -971,7 +971,7 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding validati
         compatibilityDate: "2024-11-20",
         compatibilityFlags: [],
         modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-        bindings: [Queue.binding({ binding: "QUEUE", queueName: "bad-timeout" })],
+        bindings: [Queue.local({ binding: "QUEUE", queueName: "bad-timeout" })],
         queueConsumers: [{ queueName: "bad-timeout", maxBatchTimeout: 61 }],
       }).pipe(Effect.flip);
       assert.equal(error._tag, "ConfigError");
@@ -1006,7 +1006,7 @@ layer(localRuntimeLayer, {
           compatibilityDate: "2024-11-20",
           compatibilityFlags: [],
           modules: [{ name: "main.js", type: "ESModule", content: QUEUE_SCRIPT }],
-          bindings: [Queue.binding({ binding: "QUEUE", queueName: "cross-queue" })],
+          bindings: [Queue.local({ binding: "QUEUE", queueName: "cross-queue" })],
           queueConsumers: [{ queueName: "cross-queue", maxBatchTimeout: 0 }],
         });
 
@@ -1017,7 +1017,7 @@ layer(localRuntimeLayer, {
           compatibilityDate: "2024-11-20",
           compatibilityFlags: [],
           modules: [{ name: "main.js", type: "ESModule", content: CROSS_PRODUCER_SCRIPT }],
-          bindings: [Queue.binding({ binding: "QUEUE", queueName: "cross-queue" })],
+          bindings: [Queue.local({ binding: "QUEUE", queueName: "cross-queue" })],
         });
 
         yield* waitForRegistryEntry({ kind: "queue-consumer", queueName: "cross-queue" });

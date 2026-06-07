@@ -167,7 +167,7 @@ export interface QueueProducerProps {
  * - Otherwise the binding routes through the dev-registry proxy to the
  *   consuming instance (or accepts-and-drops if no consumer is running).
  */
-export const binding = (
+export const local = (
   props: QueueProducerProps,
 ): PluginContext.BindingHook<Queue | RegistryProxy> =>
   Plugin.use(Queue, (queues) =>
