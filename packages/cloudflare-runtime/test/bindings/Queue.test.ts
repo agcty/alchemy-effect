@@ -228,6 +228,76 @@ export default {
 };
 `;
 
+// Explicitly acks the message tagged "keep" and then retries the entire batch
+// (while attempts < 2). An explicit ack must take precedence over retryAll, so
+// "keep" should be delivered exactly once while "redo" is redelivered. Records
+// each delivery, read back via \`GET /received\`.
+const ACK_SCRIPT = `
+const received = (globalThis.__received ??= []);
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/sendBatch") {
+      const { messages } = await request.json();
+      await env.QUEUE.sendBatch(messages);
+      return new Response(null, { status: 204 });
+    }
+    if (url.pathname === "/received") {
+      return Response.json(received);
+    }
+    return new Response("not found", { status: 404 });
+  },
+  async queue(batch, env) {
+    for (const message of batch.messages) {
+      received.push({ id: message.id, tag: message.body.tag, attempts: message.attempts });
+    }
+    if ((batch.messages[0]?.attempts ?? 1) < 2) {
+      for (const message of batch.messages) {
+        if (message.body.tag === "keep") {
+          message.ack();
+        }
+      }
+      batch.retryAll();
+    }
+  },
+};
+`;
+
+// Explicitly acks the message tagged "keep" and then *throws* (while attempts <
+// 2). A thrown handler retries the batch, but explicitly acked messages must
+// still survive: "keep" is delivered once while "redo" is redelivered. Records
+// each delivery, read back via \`GET /received\`.
+const THROW_AFTER_ACK_SCRIPT = `
+const received = (globalThis.__received ??= []);
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/sendBatch") {
+      const { messages } = await request.json();
+      await env.QUEUE.sendBatch(messages);
+      return new Response(null, { status: 204 });
+    }
+    if (url.pathname === "/received") {
+      return Response.json(received);
+    }
+    return new Response("not found", { status: 404 });
+  },
+  async queue(batch, env) {
+    for (const message of batch.messages) {
+      received.push({ id: message.id, tag: message.body.tag, attempts: message.attempts });
+    }
+    if ((batch.messages[0]?.attempts ?? 1) < 2) {
+      for (const message of batch.messages) {
+        if (message.body.tag === "keep") {
+          message.ack();
+        }
+      }
+      throw new Error("intentional failure after ack");
+    }
+  },
+};
+`;
+
 // Producer/consumer worker that returns the value resolved by send()/sendBatch()
 // so tests can assert the backlog metadata. The consumer holds messages (high
 // batch timeout) so the backlog is observable.
@@ -255,6 +325,12 @@ interface ReceivedMessage {
   attempts: number;
   body: unknown;
   at?: number;
+}
+
+interface AckRecord {
+  id: string;
+  tag: string;
+  attempts: number;
 }
 
 layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) => {
@@ -402,6 +478,84 @@ layer(localRuntimeLayer, { excludeTestServices: true })("Queues binding", (it) =
       yield* Effect.sleep("500 millis");
       const received = yield* worker.fetchJson<ReadonlyArray<ReceivedMessage>>("/received");
       expect(received.map((message) => message.attempts).sort()).toEqual([1, 2]);
+    }),
+  );
+
+  it.effect("honors an explicit message.ack() over a batch retryAll()", () =>
+    Effect.gen(function* () {
+      const worker = yield* startTestWorker({
+        name: "queues-explicit-ack",
+        compatibilityDate: "2024-11-20",
+        compatibilityFlags: [],
+        modules: [{ name: "main.js", type: "ESModule", content: ACK_SCRIPT }],
+        bindings: [Queue.binding({ binding: "QUEUE", queueName: "ack-queue" })],
+        queueConsumers: [{ queueName: "ack-queue", maxBatchTimeout: 0, maxRetries: 2 }],
+      });
+
+      yield* worker.fetch("/sendBatch", {
+        method: "POST",
+        body: JSON.stringify({
+          binding: "QUEUE",
+          messages: [{ body: { tag: "keep" } }, { body: { tag: "redo" } }],
+        }),
+      });
+
+      // Wait until the un-acked message has been redelivered (attempt 2).
+      yield* poll<ReadonlyArray<AckRecord>>(worker, "/received", (r) =>
+        r.some((m) => m.tag === "redo" && m.attempts === 2),
+      );
+      // Give any (incorrect) redelivery of the acked message a chance to surface.
+      yield* Effect.sleep("300 millis");
+      const received = yield* worker.fetchJson<ReadonlyArray<AckRecord>>("/received");
+
+      // The explicitly acked message is delivered exactly once despite retryAll().
+      expect(received.filter((m) => m.tag === "keep").map((m) => m.attempts)).toEqual([1]);
+      // The un-acked message is retried as usual.
+      expect(
+        received
+          .filter((m) => m.tag === "redo")
+          .map((m) => m.attempts)
+          .sort(),
+      ).toEqual([1, 2]);
+    }),
+  );
+
+  it.effect("preserves an explicit message.ack() when the handler then throws", () =>
+    Effect.gen(function* () {
+      const worker = yield* startTestWorker({
+        name: "queues-ack-then-throw",
+        compatibilityDate: "2024-11-20",
+        compatibilityFlags: [],
+        modules: [{ name: "main.js", type: "ESModule", content: THROW_AFTER_ACK_SCRIPT }],
+        bindings: [Queue.binding({ binding: "QUEUE", queueName: "ack-throw-queue" })],
+        queueConsumers: [{ queueName: "ack-throw-queue", maxBatchTimeout: 0, maxRetries: 2 }],
+      });
+
+      yield* worker.fetch("/sendBatch", {
+        method: "POST",
+        body: JSON.stringify({
+          binding: "QUEUE",
+          messages: [{ body: { tag: "keep" } }, { body: { tag: "redo" } }],
+        }),
+      });
+
+      // Wait until the un-acked message has been redelivered (attempt 2).
+      yield* poll<ReadonlyArray<AckRecord>>(worker, "/received", (r) =>
+        r.some((m) => m.tag === "redo" && m.attempts === 2),
+      );
+      // Give any (incorrect) redelivery of the acked message a chance to surface.
+      yield* Effect.sleep("300 millis");
+      const received = yield* worker.fetchJson<ReadonlyArray<AckRecord>>("/received");
+
+      // The acked message survives the thrown handler: delivered exactly once.
+      expect(received.filter((m) => m.tag === "keep").map((m) => m.attempts)).toEqual([1]);
+      // The un-acked message is retried by the exception.
+      expect(
+        received
+          .filter((m) => m.tag === "redo")
+          .map((m) => m.attempts)
+          .sort(),
+      ).toEqual([1, 2]);
     }),
   );
 

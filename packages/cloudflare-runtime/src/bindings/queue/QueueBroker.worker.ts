@@ -258,11 +258,17 @@ export class QueueBroker extends DurableObject<BrokerEnv> {
     const retryMessages = new Map(
       response.retryMessages?.map((message) => [message.msgId, message.delaySeconds] as const),
     );
+    // Explicitly acked messages take precedence over a batch-wide retry (from
+    // `batch.retryAll()` or a thrown handler): they have already succeeded and
+    // must not be redelivered.
+    const explicitAcks = new Set(response.explicitAcks ?? []);
     const globalDelay = response.retryBatch.delaySeconds ?? consumer.retryDelay ?? 0;
 
     const toDeadLetterQueue: Array<QueueMessage> = [];
     for (const message of batch) {
-      if (!retryAll && !retryMessages.has(message.id)) {
+      const shouldRetry =
+        retryMessages.has(message.id) || (retryAll && !explicitAcks.has(message.id));
+      if (!shouldRetry) {
         continue;
       }
       message.failedAttempts++;
