@@ -196,6 +196,13 @@ export interface GeneratorConfig {
   defaultErrorStatuses?: Set<string>;
   /** Whether to skip deprecated operations (default: true) */
   skipDeprecated?: boolean;
+  /**
+   * Default `api-version` for versioned APIs (e.g. Azure ARM). When set, the
+   * generator bakes `apiVersion` into each operation's `T.Http` trait (so the
+   * client injects `?api-version=<value>` automatically) and omits the
+   * `api-version` query parameter from the generated input schema.
+   */
+  apiVersion?: string;
 }
 
 // ============================================================================
@@ -695,16 +702,28 @@ function generateInputSchemaSwagger(
   parameters: Parameter2[],
   spec: Swagger2Spec,
   ctx?: SchemaGenerationContext,
+  apiVersion?: string,
 ): { inputSchemaCode: string; inputSchemaName: string } {
   const inputSchemaName = `${toPascalCase(operationId)}Input`;
   const pathParams = parameters.filter((p) => p.in === "path");
-  const queryParams = parameters.filter((p) => p.in === "query");
+  // When the api-version is baked into the Http trait, drop it as an input
+  // field — the client injects it automatically.
+  const queryParams = parameters.filter(
+    (p) => p.in === "query" && !(apiVersion && p.name === "api-version"),
+  );
   const bodyParam = parameters.find((p) => p.in === "body");
 
   const fields: string[] = [];
+  // Track emitted field names so later groups (query, body) don't redeclare a
+  // name already taken by an earlier group. Path params win — without this, a
+  // body field sharing a path param's name (e.g. `billingAccountId`) would be
+  // emitted second and clobber the `T.PathParam()` binding.
+  const usedNames = new Set<string>();
 
   // Path parameters
   for (const param of pathParams) {
+    if (usedNames.has(param.name)) continue;
+    usedNames.add(param.name);
     const baseSchema = param.enum
       ? renderEnumLiterals(param.enum, param.type)
       : param.type === "integer"
@@ -715,6 +734,8 @@ function generateInputSchemaSwagger(
 
   // Query parameters
   for (const param of queryParams) {
+    if (usedNames.has(param.name)) continue;
+    usedNames.add(param.name);
     let schema = param.enum
       ? renderEnumLiterals(param.enum, param.type)
       : param.type === "integer" || param.type === "number"
@@ -731,10 +752,36 @@ function generateInputSchemaSwagger(
 
   // Body parameters
   if (bodyParam?.schema) {
-    const bodySchema = bodyParam.schema;
+    let bodySchema = bodyParam.schema;
+    // Resolve a top-level `$ref` body (e.g. `{ $ref: "#/definitions/ResourceGroup" }`).
+    // Without this, `bodySchema.properties` is undefined and the request body is
+    // emitted empty — breaking create/update operations. Mirrors the OAS3 emitter.
+    if (bodySchema.$ref) {
+      bodySchema = resolveRef(spec as any, bodySchema.$ref) as typeof bodySchema;
+    }
+    // Flatten `allOf` so inherited properties surface as body fields.
+    if (bodySchema.allOf && bodySchema.allOf.length > 0) {
+      const mergedProps: Record<string, any> = { ...(bodySchema.properties ?? {}) };
+      const mergedRequired: string[] = [...(bodySchema.required ?? [])];
+      for (const subSchema of bodySchema.allOf) {
+        const resolvedSub = subSchema.$ref
+          ? (resolveRef(spec as any, subSchema.$ref) as any)
+          : subSchema;
+        if (resolvedSub.properties) Object.assign(mergedProps, resolvedSub.properties);
+        if (resolvedSub.required) mergedRequired.push(...resolvedSub.required);
+      }
+      bodySchema = {
+        ...bodySchema,
+        type: "object",
+        properties: mergedProps,
+        required: [...new Set(mergedRequired)],
+      } as typeof bodySchema;
+    }
     if (bodySchema.properties) {
       const required = new Set(bodySchema.required || []);
       for (const [key, value] of Object.entries(bodySchema.properties)) {
+        if (usedNames.has(key)) continue;
+        usedNames.add(key);
         // Auto-detect sensitive fields by name pattern
         const bType = getBaseType(value);
         const isSensitiveByName =
@@ -755,10 +802,17 @@ function generateInputSchemaSwagger(
     }
   }
 
+  const swaggerHttpTraitParts = [
+    `method: "${method.toUpperCase()}"`,
+    `path: "${pathTemplate}"`,
+  ];
+  if (apiVersion) {
+    swaggerHttpTraitParts.push(`apiVersion: "${apiVersion}"`);
+  }
   const inputSchemaCode =
     annotatePureExportConst(`export const ${inputSchemaName} = Schema.Struct({
 ${fields.join("\n")}
-}).pipe(T.Http({ method: "${method.toUpperCase()}", path: "${pathTemplate}" }));`) +
+}).pipe(T.Http({ ${swaggerHttpTraitParts.join(", ")} }));`) +
     `
 export type ${inputSchemaName} = typeof ${inputSchemaName}.Type;`;
 
@@ -808,6 +862,7 @@ function generateInputSchema3(
   spec: OpenAPI3Spec,
   ctx?: SchemaGenerationContext,
   noFollowRedirect: boolean = false,
+  apiVersion?: string,
 ): { inputSchemaCode: string; inputSchemaName: string } {
   // Resolve top-level $ref (e.g. #/components/requestBodies/Foo).
   const requestBody = requestBodyParam?.$ref
@@ -815,7 +870,11 @@ function generateInputSchema3(
     : requestBodyParam;
   const inputSchemaName = `${toPascalCase(operationId)}Input`;
   const pathParams = parameters.filter((p) => p.in === "path");
-  const queryParams = parameters.filter((p) => p.in === "query");
+  // When the api-version is baked into the Http trait, drop it as an input
+  // field — the client injects it automatically.
+  const queryParams = parameters.filter(
+    (p) => p.in === "query" && !(apiVersion && p.name === "api-version"),
+  );
 
   const fields: string[] = [];
   const usedNames = new Set<string>();
@@ -929,6 +988,9 @@ function generateInputSchema3(
   const httpTraitParts = [`method: "${method.toUpperCase()}"`, `path: "${pathTemplate}"`];
   if (bodyContentType) {
     httpTraitParts.push(`contentType: "${bodyContentType}"`);
+  }
+  if (apiVersion) {
+    httpTraitParts.push(`apiVersion: "${apiVersion}"`);
   }
 
   // If the operation is marked as not following redirects (via the
@@ -1246,6 +1308,7 @@ export function generateFromOpenAPI(config: GeneratorConfig): void {
               parameters,
               swagger,
               sensitiveCtx,
+              config.apiVersion,
             );
 
           const responseSchema = getResponseSchema(
@@ -1388,6 +1451,7 @@ export function generateFromOpenAPI(config: GeneratorConfig): void {
             oas,
             sensitiveCtx,
             noFollowRedirect,
+            config.apiVersion,
           );
 
           const responseSchema = getResponseSchema(
