@@ -1,3 +1,14 @@
+## v0.24.0
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **azure**: Make generated requests valid (api-version + $ref bodies) &nbsp;-&nbsp; by **Joël Kuijper** in https://github.com/alchemy-run/distilled/issues/324 [<samp>(3b321)</samp>](https://github.com/alchemy-run/distilled/commit/3b3219f5)
+- **core**: Make all Credentials lazy &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/distilled/issues/325 [<samp>(22a18)</samp>](https://github.com/alchemy-run/distilled/commit/22a18bfe)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.23.1...HEAD)
+
+---
+
 ## v0.23.1
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
