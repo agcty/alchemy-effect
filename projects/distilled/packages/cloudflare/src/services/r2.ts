@@ -1371,7 +1371,7 @@ export const UpdateBucketDomainCustomResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateBucketDomainCustomResponse>;
 
-export type UpdateBucketDomainCustomError = DefaultErrors;
+export type UpdateBucketDomainCustomError = DefaultErrors | NoSuchBucket;
 
 export const updateBucketDomainCustom: API.OperationMethod<
   UpdateBucketDomainCustomRequest,
@@ -1381,7 +1381,7 @@ export const updateBucketDomainCustom: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateBucketDomainCustomRequest,
   output: UpdateBucketDomainCustomResponse,
-  errors: [],
+  errors: [NoSuchBucket],
 }));
 
 export interface DeleteBucketDomainCustomRequest {

@@ -930,6 +930,9 @@ paths:
                 required:
                   - domain
       x-distilled-response-path: result
+      x-distilled-errors:
+        NoSuchBucket:
+          - code: 10006
     delete:
       operationId: deleteBucketDomainCustom
       description: "Remove custom domain registration from an existing R2
