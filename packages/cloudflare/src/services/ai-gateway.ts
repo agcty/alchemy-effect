@@ -3714,18 +3714,18 @@ export const GetBillingTopupConfigRequest =
 
 export interface GetBillingTopupConfigResponse {
   amount: number | null;
-  disabledReason: string | null;
-  error: string | null;
-  lastFailedAt: number | null;
+  disabledReason?: string | null;
+  error?: string | null;
+  lastFailedAt?: number | null;
   threshold: number | null;
 }
 
 export const GetBillingTopupConfigResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     amount: Schema.Union([Schema.Number, Schema.Null]),
-    disabledReason: Schema.Union([Schema.String, Schema.Null]),
-    error: Schema.Union([Schema.String, Schema.Null]),
-    lastFailedAt: Schema.Union([Schema.Number, Schema.Null]),
+    disabledReason: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    error: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    lastFailedAt: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     threshold: Schema.Union([Schema.Number, Schema.Null]),
   }).pipe(
     T.ResponsePath("result"),
