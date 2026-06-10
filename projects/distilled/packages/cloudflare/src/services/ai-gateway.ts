@@ -3373,9 +3373,9 @@ export interface CreditBalanceBillingResponse {
   paymentMethod: { brand?: string | null; last4?: string | null } | null;
   topupConfig: {
     amount: number | null;
-    disabledReason: string | null;
-    error: string | null;
-    lastFailedAt: number | null;
+    disabledReason?: string | null;
+    error?: string | null;
+    lastFailedAt?: number | null;
     threshold: number | null;
   };
   firstTopupSuccess?: boolean | null;
@@ -3394,9 +3394,11 @@ export const CreditBalanceBillingResponse =
     ]),
     topupConfig: Schema.Struct({
       amount: Schema.Union([Schema.Number, Schema.Null]),
-      disabledReason: Schema.Union([Schema.String, Schema.Null]),
-      error: Schema.Union([Schema.String, Schema.Null]),
-      lastFailedAt: Schema.Union([Schema.Number, Schema.Null]),
+      disabledReason: Schema.optional(
+        Schema.Union([Schema.String, Schema.Null]),
+      ),
+      error: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      lastFailedAt: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
       threshold: Schema.Union([Schema.Number, Schema.Null]),
     }),
     firstTopupSuccess: Schema.optional(
