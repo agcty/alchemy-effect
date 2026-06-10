@@ -90,6 +90,11 @@ export interface ContainerApplicationProps extends PlatformProps {
   /**
    * Main entrypoint for the container program. This file is bundled and
    * added to the Docker image as the container's entrypoint.
+   *
+   * Optional when {@link dockerfile} is provided: image-only containers
+   * use the Dockerfile verbatim and run its own `ENTRYPOINT`/`CMD` —
+   * e.g. prebuilt service images like `cloudflare/sandbox`. The
+   * {@link entrypoint} and {@link command} overrides remain available.
    */
   main?: string;
   /**
@@ -136,8 +141,10 @@ export interface ContainerApplicationProps extends PlatformProps {
   name?: string;
   /**
    * Inline Dockerfile used as the base for building the container image.
-   * Alchemy appends statements to copy the bundled program and set the
-   * entrypoint. If omitted, a default base image matching the runtime is used.
+   * When {@link main} is set, Alchemy appends statements to copy the bundled
+   * program and set the entrypoint; if omitted, a default base image matching
+   * the runtime is used. When {@link main} is omitted, the Dockerfile is used
+   * verbatim and its own `ENTRYPOINT`/`CMD` run.
    */
   dockerfile?: string;
   /**
@@ -419,31 +426,36 @@ export const ContainerProvider = () =>
         props: ContainerApplicationProps,
       ) {
         const main = props.main;
-        if (!main) {
+        if (!main && !props.dockerfile) {
           return yield* Effect.fail(
-            new Error("Container requires a `main` entrypoint."),
+            new Error(
+              "Container requires a `main` entrypoint or a `dockerfile`.",
+            ),
           );
         }
         const { accountId } = yield* yield* CloudflareEnvironment;
 
         const runtime = props.runtime ?? "bun";
-        const { files, hash: bundleHash } = yield* bundleProgram({
-          id,
-          main,
-          runtime,
-          handler: props.handler,
-          isExternal: props.isExternal,
-          external: props.external,
-        });
+        const bundle = main
+          ? yield* bundleProgram({
+              id,
+              main,
+              runtime,
+              handler: props.handler,
+              isExternal: props.isExternal,
+              external: props.external,
+            })
+          : undefined;
 
         const finalDockerfile = buildFinalDockerfile(
           props.dockerfile,
           runtime,
           props.external,
           props.autoInstallExternals,
+          main !== undefined,
         );
         const imageHash = (yield* sha256Object({
-          bundleHash,
+          bundleHash: bundle?.hash,
           dockerfile: finalDockerfile,
         })).slice(0, 16);
 
@@ -452,7 +464,7 @@ export const ContainerProvider = () =>
         const repositoryName = name.toLowerCase();
         const imageRef = `${registryId}/${accountId}/${repositoryName}:${imageHash}`;
 
-        return { files, imageRef, imageHash };
+        return { files: bundle?.files ?? [], imageRef, imageHash };
       });
 
       const bundleProgram = Effect.fnUntraced(function* ({
@@ -601,10 +613,16 @@ await Effect.runPromise(serverEffect).catch((err) => {
         runtime: "bun" | "node",
         external: string[] = [],
         autoInstallExternals = true,
+        hasProgram = true,
       ): string => {
         const base =
           userDockerfile?.trim() ??
           (runtime === "bun" ? "FROM oven/bun:1" : "FROM node:22-slim");
+        if (!hasProgram) {
+          // Image-only container (no `main`): the user Dockerfile is the
+          // whole image; its own ENTRYPOINT/CMD run.
+          return `${base}\n`;
+        }
         const runtimeBin = runtime === "bun" ? "bun" : "node";
         const installCmd = runtime === "bun" ? "bun add" : "npm install";
         const installStep =
@@ -655,6 +673,7 @@ await Effect.runPromise(serverEffect).catch((err) => {
           runtime,
           props.external,
           props.autoInstallExternals,
+          props.main !== undefined,
         );
         yield* materializeDockerfile(finalDockerfile, contextDir);
         yield* writeContextFiles(
