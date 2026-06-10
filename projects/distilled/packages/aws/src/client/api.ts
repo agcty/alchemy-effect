@@ -107,11 +107,13 @@ export const make = <Op extends Operation<any, any, any>>(
     let resolvedRequest = request;
     let signingRegion = region; // Default to context region
     let signingServiceName = serviceName; // Default to service name from sigv4 trait
-    const customEndpoint = yield* Effect.serviceOption(Endpoint.Endpoint);
+    const customEndpoint = yield* yield* Effect.serviceOption(
+      Endpoint.Endpoint,
+    ).pipe(Effect.map(Option.getOrElse(() => Effect.undefined)));
 
-    if (Option.isSome(customEndpoint)) {
+    if (customEndpoint) {
       // User provided a custom endpoint - use it directly
-      endpoint = yield* customEndpoint.value;
+      endpoint = customEndpoint;
     } else if (rulesResolver) {
       // Use the rules resolver - it handles endpoint resolution AND path adjustment
       const resolved = yield* rulesResolver({

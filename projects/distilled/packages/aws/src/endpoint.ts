@@ -3,5 +3,5 @@ import * as Effect from "effect/Effect";
 
 export class Endpoint extends Context.Service<
   Endpoint,
-  Effect.Effect<string>
+  Effect.Effect<string | undefined>
 >()("AWS::Endpoint") {}
