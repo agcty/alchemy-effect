@@ -1,3 +1,13 @@
+## v0.24.2
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **aws**: Make Endpoint lazy &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/distilled/issues/327 [<samp>(92885)</samp>](https://github.com/alchemy-run/distilled/commit/9288558b)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.24.1...HEAD)
+
+---
+
 ## v0.24.1
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
