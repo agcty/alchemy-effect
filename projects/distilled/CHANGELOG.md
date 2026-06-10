@@ -1,3 +1,13 @@
+## v0.24.7
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Patch ai gateway creditBalanceBilling topupConfig &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(1e84a)</samp>](https://github.com/alchemy-run/distilled/commit/1e84a9f3)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.24.6...HEAD)
+
+---
+
 ## v0.24.6
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
