@@ -2650,9 +2650,6 @@ paths:
                     nullable: true
                 required:
                   - amount
-                  - disabledReason
-                  - error
-                  - lastFailedAt
                   - threshold
       x-distilled-response-path: result
     post:
