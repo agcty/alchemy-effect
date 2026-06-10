@@ -1,3 +1,13 @@
+## v0.24.4
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **aws**: Support Effect<undefined> for Endpoint &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(d5262)</samp>](https://github.com/alchemy-run/distilled/commit/d5262140)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.24.3...HEAD)
+
+---
+
 ## v0.24.3
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
