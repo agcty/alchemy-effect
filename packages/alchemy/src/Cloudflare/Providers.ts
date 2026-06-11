@@ -193,6 +193,7 @@ export const providers = () =>
     Layer.provideMerge(
       Layer.mergeAll(
         Build.CommandProvider(),
+        Build.ExecProvider(),
         KeyPairProvider(),
         RandomProvider(),
       ),
