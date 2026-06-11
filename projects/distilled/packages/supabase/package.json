@@ -1,5 +1,6 @@
 {
   "name": "@distilled.cloud/supabase",
+  "license": "Apache-2.0",
   "version": "0.24.9",
   "repository": {
     "type": "git",
