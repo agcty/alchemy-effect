@@ -55,6 +55,14 @@ export interface StaticSiteProps<Bindings extends WorkerBindingProps = {}>
      */
     cwd?: string;
     /**
+     * Extra environment variables for {@link command}, on top of the
+     * inherited `process.env`. `Redacted` values stay out of logs and state
+     * snapshots, so secrets (e.g. `WRANGLER_HYPERDRIVE_LOCAL_CONNECTION_STRING_*`
+     * overrides pointing the local dev server at a real database branch)
+     * belong here rather than interpolated into {@link command}.
+     */
+    env?: Record<string, string | Redacted.Redacted<string>>;
+    /**
      * Override for the `url` output if alchemy fails to detect it from the stdout of the dev command
      */
     url?: string;
@@ -226,6 +234,7 @@ const makeStaticSite = <
             cwd:
               resolved.dev!.cwd ??
               (typeof resolved.cwd === "string" ? resolved.cwd : undefined),
+            env: resolved.dev!.env,
           }).pipe(
             Effect.map((d) =>
               Output.map(d.url, (url) => url ?? resolved.dev?.url ?? false),
