@@ -6,9 +6,11 @@ import type * as Path from "effect/Path";
 import * as Stream from "effect/Stream";
 import { fileURLToPath } from "node:url";
 import path from "pathe";
+import picomatch from "picomatch";
 import type * as rolldown from "rolldown";
 import * as Bundle from "../../Bundle/Bundle.ts";
 import { findCwdForBundle } from "../../Bundle/TempRoot.ts";
+import { sha256, sha256Object } from "../../Util/sha256.ts";
 import {
   isDurableObjectExport,
   type DurableObjectExport,
@@ -191,3 +193,145 @@ ${[
 ].join("\n")}
 `;
 };
+
+/**
+ * A rule selecting additional module files to upload alongside the entry
+ * of a prebuilt Worker (`bundle: false`). Globs are matched against
+ * POSIX-style paths relative to the directory containing the Worker's
+ * entry module, mirroring Wrangler's `rules` configuration.
+ */
+export interface ModuleRule {
+  readonly globs: readonly string[];
+}
+
+/**
+ * The default {@link ModuleRule | module rules} applied when
+ * `bundle: false` is set without explicit rules — the same set Wrangler
+ * applies to `no_bundle` Workers: ESModule (`**\/*.js`, `**\/*.mjs`),
+ * CompiledWasm (`**\/*.wasm`), Text (`**\/*.txt`, `**\/*.html`,
+ * `**\/*.sql`), and Data (`**\/*.bin`). Source maps (`.js.map`) are
+ * deliberately not uploaded.
+ */
+export const defaultModuleRules: ModuleRule[] = [
+  { globs: ["**/*.js", "**/*.mjs"] },
+  { globs: ["**/*.wasm"] },
+  { globs: ["**/*.txt", "**/*.html", "**/*.sql"] },
+  { globs: ["**/*.bin"] },
+];
+
+export interface PrebuiltWorkerBundleOptions {
+  /**
+   * Path (or `file://` URL) to the prebuilt, runtime-ready entry module.
+   */
+  main: string;
+  /**
+   * Module rules selecting additional files to upload alongside the
+   * entry. Defaults to {@link defaultModuleRules}.
+   */
+  rules?: readonly ModuleRule[] | undefined;
+}
+
+/**
+ * Read a prebuilt Worker bundle from disk without bundling.
+ *
+ * The entry's directory is walked recursively and every file matching the
+ * rule globs is uploaded byte-for-byte as an additional module, named by
+ * its POSIX path relative to that directory — the same contract as
+ * Wrangler's `find_additional_modules` and Alchemy v1's `noBundle`. The
+ * entry file is always first and never duplicated as an additional
+ * module.
+ */
+export const readPrebuiltWorkerBundle = Effect.fnUntraced(function* (
+  options: PrebuiltWorkerBundleOptions,
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const realMain = yield* Effect.sync(() => {
+    try {
+      return fileURLToPath(options.main);
+    } catch {
+      return options.main;
+    }
+  }).pipe(
+    // Resolve without following symlinks (Alchemy v1 parity): the module
+    // walk happens in the directory the user pointed at, not the entry's
+    // canonical location.
+    Effect.map((p) => path.resolve(p)),
+  );
+  yield* fs.stat(realMain).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Bundle.BundleError({
+          message: `Failed to read prebuilt worker entry: ${options.main}`,
+          cause,
+        }),
+    ),
+  );
+  const root = path.dirname(realMain);
+  const entryName = path.basename(realMain);
+  const isMatch = picomatch(
+    (options.rules ?? defaultModuleRules).flatMap((rule) => rule.globs),
+    // Wrangler's glob matching does not special-case dotfiles, and
+    // prebuilt output dirs commonly contain hidden directories.
+    { dot: true },
+  );
+
+  const readModuleFile = Effect.fnUntraced(function* (name: string) {
+    const file = path.join(root, name);
+    const content = yield* fs.readFile(file).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Bundle.BundleError({
+            message: `Failed to read prebuilt worker bundle module: ${file}`,
+            cause,
+          }),
+      ),
+    );
+    const hash = yield* sha256(content);
+    return { path: name, content, hash } satisfies Bundle.BundleFile;
+  });
+
+  const entries = yield* fs.readDirectory(root, { recursive: true }).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Bundle.BundleError({
+          message: `Failed to read prebuilt worker bundle directory: ${root}`,
+          cause,
+        }),
+    ),
+  );
+  // Module names always use `/`, also required to match globs on Windows.
+  const candidates = entries
+    .map((entry) => entry.replaceAll("\\", "/"))
+    .filter((name) => name !== entryName && isMatch(name))
+    .sort((a, b) => a.localeCompare(b));
+  const additionalNames = yield* Effect.forEach(
+    candidates,
+    (name) =>
+      fs.stat(path.join(root, name)).pipe(
+        Effect.map((stat) => (stat.type === "File" ? name : undefined)),
+        Effect.mapError(
+          (cause) =>
+            new Bundle.BundleError({
+              message: `Failed to stat prebuilt worker bundle module: ${path.join(root, name)}`,
+              cause,
+            }),
+        ),
+      ),
+    { concurrency: 16 },
+  ).pipe(Effect.map((names) => names.filter((name) => name !== undefined)));
+
+  const entryFile = yield* readModuleFile(entryName);
+  const additionalFiles = yield* Effect.forEach(
+    additionalNames,
+    readModuleFile,
+    { concurrency: 16 },
+  );
+  const files: [Bundle.BundleFile, ...Bundle.BundleFile[]] = [
+    entryFile,
+    ...additionalFiles,
+  ];
+  const hash = yield* sha256Object(
+    files.map((file) => ({ path: file.path, hash: file.hash })),
+  );
+  return { files, hash } satisfies Bundle.BundleOutput;
+});
