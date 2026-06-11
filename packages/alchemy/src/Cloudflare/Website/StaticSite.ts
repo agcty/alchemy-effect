@@ -56,7 +56,9 @@ export interface StaticSiteProps<Bindings extends WorkerBindingProps = {}>
     cwd?: string;
     /**
      * Extra environment variables for {@link command}, on top of the
-     * inherited `process.env`. `Redacted` values stay out of logs and state
+     * inherited `process.env` and the top-level `env` (string and `Redacted`
+     * worker env values flow to the dev process automatically; entries here
+     * take precedence). `Redacted` values stay out of logs and state
      * snapshots, so secrets (e.g. `WRANGLER_HYPERDRIVE_LOCAL_CONNECTION_STRING_*`
      * overrides pointing the local dev server at a real database branch)
      * belong here rather than interpolated into {@link command}.
@@ -225,6 +227,20 @@ const makeStaticSite = <
       const resolved = yield* props;
       const useDevServer = isDevPhase && resolved.dev !== undefined;
 
+      // The dev command stands in for the deployed worker, so the top-level
+      // `env` flows to its process too, with `dev.env` as overrides. Only
+      // process-env material crosses: strings and `Redacted` values. Binding
+      // objects aren't environment variables, and deferred values (`Config`,
+      // resource references) cannot be safely forced at construction time.
+      const inheritedDevEnv =
+        useDevServer && resolved.env
+          ? Object.fromEntries(
+              Object.entries(resolved.env).flatMap(([k, v]) =>
+                typeof v === "string" || Redacted.isRedacted(v) ? [[k, v]] : [],
+              ),
+            )
+          : undefined;
+
       // In dev mode with a dev.command, declare a DevCommand resource so
       // the sidecar owns the process lifecycle (survives user-code HMR),
       // skip the build, and tell Worker not to start a local instance.
@@ -234,7 +250,10 @@ const makeStaticSite = <
             cwd:
               resolved.dev!.cwd ??
               (typeof resolved.cwd === "string" ? resolved.cwd : undefined),
-            env: resolved.dev!.env,
+            env:
+              inheritedDevEnv || resolved.dev!.env
+                ? { ...inheritedDevEnv, ...resolved.dev!.env }
+                : undefined,
           }).pipe(
             Effect.map((d) =>
               Output.map(d.url, (url) => url ?? resolved.dev?.url ?? false),
