@@ -21,7 +21,11 @@ import type { InputProps } from "../../Input.ts";
 import * as ProviderLayer from "../../Local/ProviderLayer.ts";
 import { Platform, type Main, type PlatformProps } from "../../Platform.ts";
 import * as Provider from "../../Provider.ts";
-import { Resource, type ResourceBinding } from "../../Resource.ts";
+import {
+  isResourceEffect,
+  Resource,
+  type ResourceBinding,
+} from "../../Resource.ts";
 import { Stack } from "../../Stack.ts";
 import { CloudflareEnvironment } from "../CloudflareEnvironment.ts";
 import type { HyperdriveDevOrigin } from "../Hyperdrive/Hyperdrive.ts";
@@ -1182,7 +1186,10 @@ export const LiveWorkerProvider = () =>
                       : Redacted.isRedacted(value) &&
                           typeof Redacted.value(value) === "string"
                         ? Redacted.value(value)
-                        : Effect.isEffect(value)
+                        : // Resource references are opaque handles, not env
+                          // var values — running one here would register a
+                          // resource outside the construction phase.
+                          Effect.isEffect(value) && !isResourceEffect(value)
                           ? yield* value as Effect.Effect<any>
                           : undefined,
                   ];
