@@ -4,13 +4,13 @@ import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
 import type * as Path from "effect/Path";
 import * as Stream from "effect/Stream";
+import fg from "fast-glob";
 import { fileURLToPath } from "node:url";
 import path from "pathe";
-import picomatch from "picomatch";
 import type * as rolldown from "rolldown";
 import * as Bundle from "../../Bundle/Bundle.ts";
 import { findCwdForBundle } from "../../Bundle/TempRoot.ts";
-import { sha256, sha256Object } from "../../Util/sha256.ts";
+import { sha256 } from "../../Util/sha256.ts";
 import {
   isDurableObjectExport,
   type DurableObjectExport,
@@ -245,7 +245,8 @@ export const readPrebuiltWorkerBundle = Effect.fnUntraced(function* (
   options: PrebuiltWorkerBundleOptions,
 ) {
   const fs = yield* FileSystem.FileSystem;
-  const realMain = yield* Effect.sync(() => {
+
+  const main = yield* Effect.sync(() => {
     try {
       return fileURLToPath(options.main);
     } catch {
@@ -257,23 +258,8 @@ export const readPrebuiltWorkerBundle = Effect.fnUntraced(function* (
     // canonical location.
     Effect.map((p) => path.resolve(p)),
   );
-  yield* fs.stat(realMain).pipe(
-    Effect.mapError(
-      (cause) =>
-        new Bundle.BundleError({
-          message: `Failed to read prebuilt worker entry: ${options.main}`,
-          cause,
-        }),
-    ),
-  );
-  const root = path.dirname(realMain);
-  const entryName = path.basename(realMain);
-  const isMatch = picomatch(
-    (options.rules ?? defaultModuleRules).flatMap((rule) => rule.globs),
-    // Wrangler's glob matching does not special-case dotfiles, and
-    // prebuilt output dirs commonly contain hidden directories.
-    { dot: true },
-  );
+  const root = path.dirname(main);
+  const entryName = path.basename(main);
 
   const readModuleFile = Effect.fnUntraced(function* (name: string) {
     const file = path.join(root, name);
@@ -281,7 +267,7 @@ export const readPrebuiltWorkerBundle = Effect.fnUntraced(function* (
       Effect.mapError(
         (cause) =>
           new Bundle.BundleError({
-            message: `Failed to read prebuilt worker bundle module: ${file}`,
+            message: `Failed to read prebuilt worker bundle module "${file}"`,
             cause,
           }),
       ),
@@ -290,48 +276,41 @@ export const readPrebuiltWorkerBundle = Effect.fnUntraced(function* (
     return { path: name, content, hash } satisfies Bundle.BundleFile;
   });
 
-  const entries = yield* fs.readDirectory(root, { recursive: true }).pipe(
-    Effect.mapError(
-      (cause) =>
-        new Bundle.BundleError({
-          message: `Failed to read prebuilt worker bundle directory: ${root}`,
-          cause,
-        }),
-    ),
-  );
-  // Module names always use `/`, also required to match globs on Windows.
-  const candidates = entries
-    .map((entry) => entry.replaceAll("\\", "/"))
-    .filter((name) => name !== entryName && isMatch(name))
-    .sort((a, b) => a.localeCompare(b));
-  const additionalNames = yield* Effect.forEach(
-    candidates,
-    (name) =>
-      fs.stat(path.join(root, name)).pipe(
-        Effect.map((stat) => (stat.type === "File" ? name : undefined)),
-        Effect.mapError(
-          (cause) =>
-            new Bundle.BundleError({
-              message: `Failed to stat prebuilt worker bundle module: ${path.join(root, name)}`,
-              cause,
-            }),
+  return yield* readModuleFile(entryName).pipe(
+    Effect.zipWith(
+      Effect.tryPromise({
+        try: () =>
+          fg.glob(
+            (options.rules ?? defaultModuleRules).flatMap((rule) => rule.globs),
+            {
+              cwd: root,
+              onlyFiles: true,
+              dot: true,
+            },
+          ),
+        catch: (error) =>
+          new Bundle.BundleError({
+            message: `Failed to read additional modules in directory "${root}"`,
+            cause: error,
+          }),
+      }).pipe(
+        Effect.map((names) =>
+          names
+            .map((name) => name.replaceAll("\\", "/"))
+            .filter((name) => name !== entryName)
+            .sort(),
+        ),
+        Effect.flatMap(
+          Effect.forEach(readModuleFile, { concurrency: "unbounded" }),
         ),
       ),
-    { concurrency: 16 },
-  ).pipe(Effect.map((names) => names.filter((name) => name !== undefined)));
-
-  const entryFile = yield* readModuleFile(entryName);
-  const additionalFiles = yield* Effect.forEach(
-    additionalNames,
-    readModuleFile,
-    { concurrency: 16 },
+      (entryModule, additionalModules) =>
+        [entryModule, ...additionalModules] as [
+          Bundle.BundleFile,
+          ...Bundle.BundleFile[],
+        ],
+      { concurrent: true },
+    ),
+    Effect.flatMap(Bundle.bundleOutputFromFiles),
   );
-  const files: [Bundle.BundleFile, ...Bundle.BundleFile[]] = [
-    entryFile,
-    ...additionalFiles,
-  ];
-  const hash = yield* sha256Object(
-    files.map((file) => ({ path: file.path, hash: file.hash })),
-  );
-  return { files, hash } satisfies Bundle.BundleOutput;
 });
