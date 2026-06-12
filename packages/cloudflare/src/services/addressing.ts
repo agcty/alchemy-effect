@@ -3744,7 +3744,7 @@ export interface GetRegionalHostnameResponse {
   /** Identifying key for the region */
   regionKey: string;
   /** Configure which routing method to use for the regional hostname */
-  routing?: string | null;
+  routing: string;
 }
 
 export const GetRegionalHostnameResponse =
@@ -3752,7 +3752,7 @@ export const GetRegionalHostnameResponse =
     createdOn: Schema.String,
     hostname: Schema.String,
     regionKey: Schema.String,
-    routing: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    routing: Schema.String,
   })
     .pipe(
       Schema.encodeKeys({
@@ -3803,7 +3803,7 @@ export interface ListRegionalHostnamesResponse {
     createdOn: string;
     hostname: string;
     regionKey: string;
-    routing?: string | null;
+    routing: string;
   }[];
 }
 
@@ -3814,7 +3814,7 @@ export const ListRegionalHostnamesResponse =
         createdOn: Schema.String,
         hostname: Schema.String,
         regionKey: Schema.String,
-        routing: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        routing: Schema.String,
       }).pipe(
         Schema.encodeKeys({
           createdOn: "created_on",
@@ -3880,7 +3880,7 @@ export interface CreateRegionalHostnameResponse {
   /** Identifying key for the region */
   regionKey: string;
   /** Configure which routing method to use for the regional hostname */
-  routing?: string | null;
+  routing: string;
 }
 
 export const CreateRegionalHostnameResponse =
@@ -3888,7 +3888,7 @@ export const CreateRegionalHostnameResponse =
     createdOn: Schema.String,
     hostname: Schema.String,
     regionKey: Schema.String,
-    routing: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    routing: Schema.String,
   })
     .pipe(
       Schema.encodeKeys({
@@ -3948,7 +3948,7 @@ export interface PatchRegionalHostnameResponse {
   /** Identifying key for the region */
   regionKey: string;
   /** Configure which routing method to use for the regional hostname */
-  routing?: string | null;
+  routing: string;
 }
 
 export const PatchRegionalHostnameResponse =
@@ -3956,7 +3956,7 @@ export const PatchRegionalHostnameResponse =
     createdOn: Schema.String,
     hostname: Schema.String,
     regionKey: Schema.String,
-    routing: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    routing: Schema.String,
   })
     .pipe(
       Schema.encodeKeys({

@@ -38522,7 +38522,11 @@ export interface TimeseriesGroupsAiBotRequest {
   /** Array of names used to label the series in the response. */
   name?: string[];
   /** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). */
-  normalization?: "PERCENTAGE" | "MIN0_MAX" | (string & {});
+  normalization?:
+    | "PERCENTAGE"
+    | "MIN0_MAX"
+    | "PERCENTAGE_CHANGE"
+    | (string & {});
   /** Filters results by HTTP response status code (e.g. 200, 403, 404). Only [IANA-registered codes](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) are accepted. */
   responseStatus?: string[];
   /** Filters results by HTTP response status code category. */
@@ -38586,7 +38590,7 @@ export const TimeseriesGroupsAiBotRequest =
     name: Schema.optional(Schema.Array(Schema.String)),
     normalization: Schema.optional(
       Schema.Union([
-        Schema.Literals(["PERCENTAGE", "MIN0_MAX"]),
+        Schema.Literals(["PERCENTAGE", "MIN0_MAX", "PERCENTAGE_CHANGE"]),
         Schema.String,
       ]),
     ),
@@ -38850,7 +38854,11 @@ export interface TimeseriesGroupsAiTimeseriesGroupRequest {
   /** Array of names used to label the series in the response. */
   name?: string[];
   /** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). */
-  normalization?: "PERCENTAGE" | "MIN0_MAX" | (string & {});
+  normalization?:
+    | "PERCENTAGE"
+    | "MIN0_MAX"
+    | "PERCENTAGE_CHANGE"
+    | (string & {});
   /** Filters results by HTTP response status code (e.g. 200, 403, 404). Only [IANA-registered codes](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) are accepted. */
   responseStatus?: string[];
   /** Filters results by HTTP response status code category. */
@@ -38914,7 +38922,7 @@ export const TimeseriesGroupsAiTimeseriesGroupRequest =
     name: Schema.optional(Schema.Array(Schema.String)),
     normalization: Schema.optional(
       Schema.Union([
-        Schema.Literals(["PERCENTAGE", "MIN0_MAX"]),
+        Schema.Literals(["PERCENTAGE", "MIN0_MAX", "PERCENTAGE_CHANGE"]),
         Schema.String,
       ]),
     ),
@@ -39459,6 +39467,12 @@ export interface TimeseriesGroupsBotWebCrawlerRequest {
   limitPerGroup?: number;
   /** Array of names used to label the series in the response. */
   name?: string[];
+  /** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). */
+  normalization?:
+    | "PERCENTAGE"
+    | "MIN0_MAX"
+    | "PERCENTAGE_CHANGE"
+    | (string & {});
   /** Filters results by HTTP response status code (e.g. 200, 403, 404). Only [IANA-registered codes](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) are accepted. */
   responseStatus?: string[];
   /** Filters results by HTTP response status code category. */
@@ -39498,6 +39512,12 @@ export const TimeseriesGroupsBotWebCrawlerRequest =
     industry: Schema.optional(Schema.Array(Schema.String)),
     limitPerGroup: Schema.optional(Schema.Number),
     name: Schema.optional(Schema.Array(Schema.String)),
+    normalization: Schema.optional(
+      Schema.Union([
+        Schema.Literals(["PERCENTAGE", "MIN0_MAX", "PERCENTAGE_CHANGE"]),
+        Schema.String,
+      ]),
+    ),
     responseStatus: Schema.optional(Schema.Array(Schema.String)),
     responseStatusCategory: Schema.optional(
       Schema.Array(
@@ -40178,7 +40198,11 @@ export interface TimeseriesGroupsNetflowRequest {
   /** Array of names used to label the series in the response. */
   name?: string[];
   /** Normalization method applied to the results. Refer to [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/). */
-  normalization?: "PERCENTAGE" | "MIN0_MAX" | (string & {});
+  normalization?:
+    | "PERCENTAGE"
+    | "MIN0_MAX"
+    | "PERCENTAGE_CHANGE"
+    | (string & {});
   /** Filters the results by network traffic product types. */
   product?: ("HTTP" | "ALL" | (string & {}))[];
 }
@@ -40203,7 +40227,7 @@ export const TimeseriesGroupsNetflowRequest =
     name: Schema.optional(Schema.Array(Schema.String)),
     normalization: Schema.optional(
       Schema.Union([
-        Schema.Literals(["PERCENTAGE", "MIN0_MAX"]),
+        Schema.Literals(["PERCENTAGE", "MIN0_MAX", "PERCENTAGE_CHANGE"]),
         Schema.String,
       ]),
     ),

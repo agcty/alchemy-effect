@@ -368,6 +368,8 @@ export type PaygoUsageResponse = {
   pricingQuantity: number;
   serviceName: string;
   serviceFamilyName?: string | null;
+  zoneId?: string | null;
+  zoneName?: string | null;
 }[];
 
 export const PaygoUsageResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Array(
@@ -386,6 +388,8 @@ export const PaygoUsageResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Array(
     serviceFamilyName: Schema.optional(
       Schema.Union([Schema.String, Schema.Null]),
     ),
+    zoneId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    zoneName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   }).pipe(
     Schema.encodeKeys({
       billingCurrency: "BillingCurrency",
@@ -400,6 +404,8 @@ export const PaygoUsageResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Array(
       pricingQuantity: "PricingQuantity",
       serviceName: "ServiceName",
       serviceFamilyName: "ServiceFamilyName",
+      zoneId: "ZoneId",
+      zoneName: "ZoneName",
     }),
   ),
 ).pipe(

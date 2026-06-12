@@ -45,8 +45,6 @@ export interface SendEmailSendingRequest {
   from: string | { address: string; name: string };
   /** Body param: Email subject line. */
   subject: string;
-  /** Body param: Recipient(s). A single email string or an array of email strings. */
-  to: string | string[];
   /** Body param: File attachments and inline images. */
   attachments?: (
     | {
@@ -75,6 +73,8 @@ export interface SendEmailSendingRequest {
   replyTo?: string | { address: string; name: string };
   /** Body param: Plain text body of the email. At least one of text or html must be provided (non-empty). */
   text?: string;
+  /** Body param: Recipient(s). Optional if cc or bcc is provided. A single email string or an array of email strings. */
+  to?: string | string[];
 }
 
 export const SendEmailSendingRequest =
@@ -88,7 +88,6 @@ export const SendEmailSendingRequest =
       Schema.String,
     ]),
     subject: Schema.String,
-    to: Schema.Union([Schema.String, Schema.Array(Schema.String)]),
     attachments: Schema.optional(
       Schema.Array(
         Schema.Union([
@@ -134,11 +133,13 @@ export const SendEmailSendingRequest =
       ]),
     ),
     text: Schema.optional(Schema.String),
+    to: Schema.optional(
+      Schema.Union([Schema.String, Schema.Array(Schema.String)]),
+    ),
   }).pipe(
     Schema.encodeKeys({
       from: "from",
       subject: "subject",
-      to: "to",
       attachments: "attachments",
       bcc: "bcc",
       cc: "cc",
@@ -146,6 +147,7 @@ export const SendEmailSendingRequest =
       html: "html",
       replyTo: "reply_to",
       text: "text",
+      to: "to",
     }),
     T.Http({
       method: "POST",
@@ -156,6 +158,8 @@ export const SendEmailSendingRequest =
 export interface SendEmailSendingResponse {
   /** Email addresses to which the message was delivered immediately. */
   delivered: string[];
+  /** Message ID of the sent email. */
+  messageId: string;
   /** Email addresses that permanently bounced. */
   permanentBounces: string[];
   /** Email addresses for which delivery was queued for later. */
@@ -165,12 +169,14 @@ export interface SendEmailSendingResponse {
 export const SendEmailSendingResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     delivered: Schema.Array(Schema.String),
+    messageId: Schema.String,
     permanentBounces: Schema.Array(Schema.String),
     queued: Schema.Array(Schema.String),
   })
     .pipe(
       Schema.encodeKeys({
         delivered: "delivered",
+        messageId: "message_id",
         permanentBounces: "permanent_bounces",
         queued: "queued",
       }),
@@ -228,6 +234,8 @@ export const SendRawEmailSendingRequest =
 export interface SendRawEmailSendingResponse {
   /** Email addresses to which the message was delivered immediately. */
   delivered: string[];
+  /** Message ID of the sent email. */
+  messageId: string;
   /** Email addresses that permanently bounced. */
   permanentBounces: string[];
   /** Email addresses for which delivery was queued for later. */
@@ -237,12 +245,14 @@ export interface SendRawEmailSendingResponse {
 export const SendRawEmailSendingResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     delivered: Schema.Array(Schema.String),
+    messageId: Schema.String,
     permanentBounces: Schema.Array(Schema.String),
     queued: Schema.Array(Schema.String),
   })
     .pipe(
       Schema.encodeKeys({
         delivered: "delivered",
+        messageId: "message_id",
         permanentBounces: "permanent_bounces",
         queued: "queued",
       }),

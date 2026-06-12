@@ -18,12 +18,13 @@ import { type DefaultErrors } from "../errors.ts";
 
 export interface GetRegionRequest {
   regionId: string;
-  accountId: number;
+  /** Identifier of a Cloudflare account. */
+  accountId: string;
 }
 
 export const GetRegionRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   regionId: Schema.String.pipe(T.HttpPath("regionId")),
-  accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+  accountId: Schema.String.pipe(T.HttpPath("account_id")),
 }).pipe(
   T.Http({
     method: "GET",
@@ -79,8 +80,8 @@ export const getRegion: API.OperationMethod<
 }));
 
 export interface ListRegionsRequest {
-  /** Path param */
-  accountId: number;
+  /** Path param: Identifier of a Cloudflare account. */
+  accountId: string;
   perPage?: number;
   cursor?: string;
   /** Query param: Filter regions by type. Omit to return all regions. */
@@ -88,7 +89,7 @@ export interface ListRegionsRequest {
 }
 
 export const ListRegionsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-  accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+  accountId: Schema.String.pipe(T.HttpPath("account_id")),
   perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
   cursor: Schema.optional(Schema.String).pipe(T.HttpQuery("cursor")),
   type: Schema.optional(
@@ -183,13 +184,14 @@ export const listRegions: API.PaginatedOperationMethod<
 
 export interface GetRegionalServicePrefixBindingRequest {
   bindingId: string;
-  accountId: number;
+  /** Identifier of a Cloudflare account. */
+  accountId: string;
 }
 
 export const GetRegionalServicePrefixBindingRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     bindingId: Schema.String.pipe(T.HttpPath("bindingId")),
-    accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
   }).pipe(
     T.Http({
       method: "GET",
@@ -241,15 +243,15 @@ export const getRegionalServicePrefixBinding: API.OperationMethod<
 }));
 
 export interface ListRegionalServicePrefixBindingsRequest {
-  /** Path param */
-  accountId: number;
+  /** Path param: Identifier of a Cloudflare account. */
+  accountId: string;
   perPage?: number;
   cursor?: string;
 }
 
 export const ListRegionalServicePrefixBindingsRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
     perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
     cursor: Schema.optional(Schema.String).pipe(T.HttpQuery("cursor")),
   }).pipe(
@@ -326,8 +328,8 @@ export const listRegionalServicePrefixBindings: API.PaginatedOperationMethod<
 }));
 
 export interface CreateRegionalServicePrefixBindingRequest {
-  /** Path param */
-  accountId: number;
+  /** Path param: Identifier of a Cloudflare account. */
+  accountId: string;
   /** Body param: IP prefix in CIDR notation to bind. */
   cidr: string;
   /** Body param: The ID of the parent IP prefix that contains the CIDR. */
@@ -338,7 +340,7 @@ export interface CreateRegionalServicePrefixBindingRequest {
 
 export const CreateRegionalServicePrefixBindingRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
     cidr: Schema.String,
     prefixId: Schema.String,
     regionKey: Schema.String,
@@ -399,8 +401,8 @@ export const createRegionalServicePrefixBinding: API.OperationMethod<
 
 export interface PatchRegionalServicePrefixBindingRequest {
   bindingId: string;
-  /** Path param */
-  accountId: number;
+  /** Path param: Identifier of a Cloudflare account. */
+  accountId: string;
   /** Body param: New region key to assign (e.g., "us", "eu", "cfcanary"). */
   regionKey: string;
 }
@@ -408,7 +410,7 @@ export interface PatchRegionalServicePrefixBindingRequest {
 export const PatchRegionalServicePrefixBindingRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     bindingId: Schema.String.pipe(T.HttpPath("bindingId")),
-    accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
     regionKey: Schema.String,
   }).pipe(
     Schema.encodeKeys({ regionKey: "region_key" }),
@@ -463,13 +465,14 @@ export const patchRegionalServicePrefixBinding: API.OperationMethod<
 
 export interface DeleteRegionalServicePrefixBindingRequest {
   bindingId: string;
-  accountId: number;
+  /** Identifier of a Cloudflare account. */
+  accountId: string;
 }
 
 export const DeleteRegionalServicePrefixBindingRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     bindingId: Schema.String.pipe(T.HttpPath("bindingId")),
-    accountId: Schema.Number.pipe(T.HttpPath("account_id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
   }).pipe(
     T.Http({
       method: "DELETE",

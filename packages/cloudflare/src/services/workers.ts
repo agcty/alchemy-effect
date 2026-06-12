@@ -6873,6 +6873,1760 @@ export const createObservabilityQuery: API.OperationMethod<
 }));
 
 // =============================================================================
+// ObservabilitySharedQuery
+// =============================================================================
+
+export interface GetObservabilitySharedQueryRequest {
+  id: string;
+  /** Path param: Your Cloudflare account ID. */
+  accountId: string;
+  /** Query param: Select the view of the query result to return, defaults to events. */
+  view?: "events" | "invocations" | "calculations" | (string & {});
+}
+
+export const GetObservabilitySharedQueryRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String.pipe(T.HttpPath("id")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    view: Schema.optional(
+      Schema.Union([
+        Schema.Literals(["events", "invocations", "calculations"]),
+        Schema.String,
+      ]),
+    ).pipe(T.HttpQuery("view")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/workers/observability/shared/query/{id}",
+    }),
+  ) as unknown as Schema.Schema<GetObservabilitySharedQueryRequest>;
+
+export interface GetObservabilitySharedQueryResponse {
+  /** Represents a single execution of a query against Workers Observability data, including the query definition, execution status, and performance statistics. */
+  run: {
+    id: string;
+    accountId: string;
+    dry: boolean;
+    granularity: number;
+    query: {
+      id: string;
+      adhoc: boolean;
+      created: string;
+      createdBy: string;
+      description: string | null;
+      name: string;
+      parameters: {
+        calculations?:
+          | {
+              operator:
+                | "uniq"
+                | "count"
+                | "max"
+                | "min"
+                | "sum"
+                | "avg"
+                | "median"
+                | "p001"
+                | "p01"
+                | "p05"
+                | "p10"
+                | "p25"
+                | "p75"
+                | "p90"
+                | "p95"
+                | "p99"
+                | "p999"
+                | "stddev"
+                | "variance"
+                | "COUNT_DISTINCT"
+                | "COUNT"
+                | "MAX"
+                | "MIN"
+                | "SUM"
+                | "AVG"
+                | "MEDIAN"
+                | "P001"
+                | "P01"
+                | "P05"
+                | "P10"
+                | "P25"
+                | "P75"
+                | "P90"
+                | "P95"
+                | "P99"
+                | "P999"
+                | "STDDEV"
+                | "VARIANCE"
+                | (string & {});
+              alias?: string | null;
+              key?: string | null;
+              keyType?: "string" | "number" | "boolean" | (string & {}) | null;
+            }[]
+          | null;
+        datasets?: string[] | null;
+        filterCombination?: "and" | "or" | "AND" | "OR" | (string & {}) | null;
+        filters?:
+          | (
+              | {
+                  filterCombination:
+                    | "and"
+                    | "or"
+                    | "AND"
+                    | "OR"
+                    | (string & {});
+                  filters: unknown[];
+                  kind: "group";
+                }
+              | {
+                  key: string;
+                  operation:
+                    | "includes"
+                    | "not_includes"
+                    | "starts_with"
+                    | "ends_with"
+                    | "regex"
+                    | "exists"
+                    | "is_null"
+                    | "in"
+                    | "not_in"
+                    | "eq"
+                    | "neq"
+                    | "gt"
+                    | "gte"
+                    | "lt"
+                    | "lte"
+                    | "="
+                    | "!="
+                    | ">"
+                    | ">="
+                    | "<"
+                    | "<="
+                    | "INCLUDES"
+                    | "DOES_NOT_INCLUDE"
+                    | "MATCH_REGEX"
+                    | "EXISTS"
+                    | "DOES_NOT_EXIST"
+                    | "IN"
+                    | "NOT_IN"
+                    | "STARTS_WITH"
+                    | "ENDS_WITH"
+                    | (string & {});
+                  type: "string" | "number" | "boolean" | (string & {});
+                  kind?: "filter" | null;
+                  value?: string | number | boolean | null;
+                }
+            )[]
+          | null;
+        groupBys?:
+          | {
+              type: "string" | "number" | "boolean" | (string & {});
+              value: string;
+            }[]
+          | null;
+        havings?:
+          | {
+              key: string;
+              operation:
+                | "eq"
+                | "neq"
+                | "gt"
+                | "gte"
+                | "lt"
+                | "lte"
+                | (string & {});
+              value: number;
+            }[]
+          | null;
+        limit?: number | null;
+        needle?: {
+          value: unknown;
+          isRegex?: boolean | null;
+          matchCase?: boolean | null;
+        } | null;
+        orderBy?: {
+          value: string;
+          order?: "asc" | "desc" | (string & {}) | null;
+        } | null;
+      };
+      updated: string;
+      updatedBy: string;
+    };
+    status: "STARTED" | "COMPLETED" | (string & {});
+    timeframe: { from: number; to: number };
+    userId: string;
+    created?: string | null;
+    statistics?: {
+      bytesRead: number;
+      elapsed: number;
+      rowsRead: number;
+      abrLevel?: number | null;
+    } | null;
+    updated?: string | null;
+  };
+  /** Query performance statistics from the database. Includes execution time, rows scanned, and bytes read. Does not include network latency. */
+  statistics: {
+    bytesRead: number;
+    elapsed: number;
+    rowsRead: number;
+    abrLevel?: number | null;
+  };
+  /** Durable Object agent summaries. Present when the query view is 'agents'. Each entry represents an agent with its event counts and status. */
+  agents?:
+    | {
+        agentClass: string;
+        eventTypeCounts: Record<string, unknown>;
+        firstEventMs: number;
+        hasErrors: boolean;
+        lastEventMs: number;
+        namespace: string;
+        service: string;
+        totalEvents: number;
+      }[]
+    | null;
+  /** Aggregated calculation results. Present when the query view is 'calculations'. Contains computed metrics (count, avg, p99, etc.) with optional group-by breakdowns and time-series data. */
+  calculations?:
+    | {
+        aggregates: {
+          count: number;
+          interval: number;
+          sampleInterval: number;
+          value: number;
+          groups?: { key: string; value: string | number | boolean }[] | null;
+        }[];
+        calculation: string;
+        series: {
+          data: {
+            count: number;
+            interval: number;
+            sampleInterval: number;
+            value: number;
+            firstSeen?: string | null;
+            groups?: { key: string; value: string | number | boolean }[] | null;
+            lastSeen?: string | null;
+          }[];
+          time: string;
+        }[];
+        alias?: string | null;
+      }[]
+    | null;
+  /** Comparison calculation results from the previous time period. Present when the compare option is enabled. Same structure as calculations. */
+  compare?:
+    | {
+        aggregates: {
+          count: number;
+          interval: number;
+          sampleInterval: number;
+          value: number;
+          groups?: { key: string; value: string | number | boolean }[] | null;
+        }[];
+        calculation: string;
+        series: {
+          data: {
+            count: number;
+            interval: number;
+            sampleInterval: number;
+            value: number;
+            firstSeen?: string | null;
+            groups?: { key: string; value: string | number | boolean }[] | null;
+            lastSeen?: string | null;
+          }[];
+          time: string;
+        }[];
+        alias?: string | null;
+      }[]
+    | null;
+  /** Individual event results. Present when the query view is 'events'. Contains the matching log lines and their metadata. */
+  events?: {
+    count?: number | null;
+    events?:
+      | {
+          $metadata: {
+            id: string;
+            account?: string | null;
+            cloudService?: string | null;
+            coldStart?: number | null;
+            cost?: number | null;
+            duration?: number | null;
+            endTime?: number | null;
+            error?: string | null;
+            errorTemplate?: string | null;
+            fingerprint?: string | null;
+            level?: string | null;
+            message?: string | null;
+            messageTemplate?: string | null;
+            metricName?: string | null;
+            origin?: string | null;
+            parentSpanId?: string | null;
+            provider?: string | null;
+            region?: string | null;
+            requestId?: string | null;
+            service?: string | null;
+            spanId?: string | null;
+            spanName?: string | null;
+            stackId?: string | null;
+            startTime?: number | null;
+            statusCode?: number | null;
+            traceDuration?: number | null;
+            traceId?: string | null;
+            transactionName?: string | null;
+            trigger?: string | null;
+            type?: string | null;
+            url?: string | null;
+          };
+          dataset: string;
+          source: string | Record<string, unknown>;
+          timestamp: number;
+          $containers?: Record<string, unknown> | null;
+          $workers?:
+            | {
+                eventType:
+                  | "fetch"
+                  | "scheduled"
+                  | "alarm"
+                  | "cron"
+                  | "queue"
+                  | "email"
+                  | "tail"
+                  | "rpc"
+                  | "websocket"
+                  | "workflow"
+                  | "unknown"
+                  | (string & {});
+                requestId: string;
+                scriptName: string;
+                durableObjectId?: string | null;
+                entrypoint?: string | null;
+                event?: Record<string, unknown> | null;
+                executionModel?:
+                  | "durableObject"
+                  | "stateless"
+                  | (string & {})
+                  | null;
+                outcome?: string | null;
+                preview?: {
+                  id?: string | null;
+                  name?: string | null;
+                  slug?: string | null;
+                } | null;
+                scriptVersion?: {
+                  id?: string | null;
+                  message?: string | null;
+                  tag?: string | null;
+                } | null;
+                spanId?: string | null;
+                traceId?: string | null;
+                truncated?: boolean | null;
+              }
+            | {
+                cpuTimeMs: number;
+                eventType:
+                  | "fetch"
+                  | "scheduled"
+                  | "alarm"
+                  | "cron"
+                  | "queue"
+                  | "email"
+                  | "tail"
+                  | "rpc"
+                  | "websocket"
+                  | "workflow"
+                  | "unknown"
+                  | (string & {});
+                outcome: string;
+                requestId: string;
+                scriptName: string;
+                wallTimeMs: number;
+                diagnosticsChannelEvents?:
+                  | { channel: string; message: string; timestamp: number }[]
+                  | null;
+                dispatchNamespace?: string | null;
+                durableObjectId?: string | null;
+                entrypoint?: string | null;
+                event?: Record<string, unknown> | null;
+                executionModel?:
+                  | "durableObject"
+                  | "stateless"
+                  | (string & {})
+                  | null;
+                preview?: {
+                  id?: string | null;
+                  name?: string | null;
+                  slug?: string | null;
+                } | null;
+                scriptVersion?: {
+                  id?: string | null;
+                  message?: string | null;
+                  tag?: string | null;
+                } | null;
+                spanId?: string | null;
+                traceId?: string | null;
+                truncated?: boolean | null;
+              }
+            | null;
+        }[]
+      | null;
+    fields?: { key: string; type: string }[] | null;
+    series?:
+      | {
+          data: {
+            aggregates: {
+              count: number;
+              interval: number;
+              firstSeen?: string | null;
+              lastSeen?: string | null;
+              bin?: unknown | null;
+            };
+            count: number;
+            interval: number;
+            sampleInterval: number;
+            errors?: number | null;
+            groups?: Record<string, unknown> | null;
+          }[];
+          time: string;
+        }[]
+      | null;
+  } | null;
+  /** Events grouped by invocation (request ID). Present when the query view is 'invocations'. Each key is a request ID mapping to all events from that invocation. */
+  invocations?: Record<string, unknown> | null;
+  /** Trace summaries matching the query. Present when the query view is 'traces'. Each entry represents a distributed trace with its spans, duration, and services involved. */
+  traces?:
+    | {
+        rootSpanName: string;
+        rootTransactionName: string;
+        service: string[];
+        spans: number;
+        traceDurationMs: number;
+        traceEndMs: number;
+        traceId: string;
+        traceStartMs: number;
+        errors?: string[] | null;
+      }[]
+    | null;
+}
+
+export const GetObservabilitySharedQueryResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    run: Schema.Struct({
+      id: Schema.String,
+      accountId: Schema.String,
+      dry: Schema.Boolean,
+      granularity: Schema.Number,
+      query: Schema.Struct({
+        id: Schema.String,
+        adhoc: Schema.Boolean,
+        created: Schema.String,
+        createdBy: Schema.String,
+        description: Schema.Union([Schema.String, Schema.Null]),
+        name: Schema.String,
+        parameters: Schema.Struct({
+          calculations: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  operator: Schema.Union([
+                    Schema.Literals([
+                      "uniq",
+                      "count",
+                      "max",
+                      "min",
+                      "sum",
+                      "avg",
+                      "median",
+                      "p001",
+                      "p01",
+                      "p05",
+                      "p10",
+                      "p25",
+                      "p75",
+                      "p90",
+                      "p95",
+                      "p99",
+                      "p999",
+                      "stddev",
+                      "variance",
+                      "COUNT_DISTINCT",
+                      "COUNT",
+                      "MAX",
+                      "MIN",
+                      "SUM",
+                      "AVG",
+                      "MEDIAN",
+                      "P001",
+                      "P01",
+                      "P05",
+                      "P10",
+                      "P25",
+                      "P75",
+                      "P90",
+                      "P95",
+                      "P99",
+                      "P999",
+                      "STDDEV",
+                      "VARIANCE",
+                    ]),
+                    Schema.String,
+                  ]),
+                  alias: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  key: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  keyType: Schema.optional(
+                    Schema.Union([
+                      Schema.Union([
+                        Schema.Literals(["string", "number", "boolean"]),
+                        Schema.String,
+                      ]),
+                      Schema.Null,
+                    ]),
+                  ),
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          datasets: Schema.optional(
+            Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+          ),
+          filterCombination: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Literals(["and", "or", "AND", "OR"]),
+                Schema.String,
+              ]),
+              Schema.Null,
+            ]),
+          ),
+          filters: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Union([
+                  Schema.Struct({
+                    filterCombination: Schema.Union([
+                      Schema.Literals(["and", "or", "AND", "OR"]),
+                      Schema.String,
+                    ]),
+                    filters: Schema.Array(Schema.Unknown),
+                    kind: Schema.Literal("group"),
+                  }),
+                  Schema.Struct({
+                    key: Schema.String,
+                    operation: Schema.Union([
+                      Schema.Literals([
+                        "includes",
+                        "not_includes",
+                        "starts_with",
+                        "ends_with",
+                        "regex",
+                        "exists",
+                        "is_null",
+                        "in",
+                        "not_in",
+                        "eq",
+                        "neq",
+                        "gt",
+                        "gte",
+                        "lt",
+                        "lte",
+                        "=",
+                        "!=",
+                        ">",
+                        ">=",
+                        "<",
+                        "<=",
+                        "INCLUDES",
+                        "DOES_NOT_INCLUDE",
+                        "MATCH_REGEX",
+                        "EXISTS",
+                        "DOES_NOT_EXIST",
+                        "IN",
+                        "NOT_IN",
+                        "STARTS_WITH",
+                        "ENDS_WITH",
+                      ]),
+                      Schema.String,
+                    ]),
+                    type: Schema.Union([
+                      Schema.Literals(["string", "number", "boolean"]),
+                      Schema.String,
+                    ]),
+                    kind: Schema.optional(
+                      Schema.Union([Schema.Literal("filter"), Schema.Null]),
+                    ),
+                    value: Schema.optional(
+                      Schema.Union([
+                        Schema.Union([
+                          Schema.String,
+                          Schema.Number,
+                          Schema.Boolean,
+                        ]),
+                        Schema.Null,
+                      ]),
+                    ),
+                  }),
+                ]),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          groupBys: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  type: Schema.Union([
+                    Schema.Literals(["string", "number", "boolean"]),
+                    Schema.String,
+                  ]),
+                  value: Schema.String,
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          havings: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  key: Schema.String,
+                  operation: Schema.Union([
+                    Schema.Literals(["eq", "neq", "gt", "gte", "lt", "lte"]),
+                    Schema.String,
+                  ]),
+                  value: Schema.Number,
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          limit: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          needle: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                value: Schema.Unknown,
+                isRegex: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                matchCase: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+              }),
+              Schema.Null,
+            ]),
+          ),
+          orderBy: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                value: Schema.String,
+                order: Schema.optional(
+                  Schema.Union([
+                    Schema.Union([
+                      Schema.Literals(["asc", "desc"]),
+                      Schema.String,
+                    ]),
+                    Schema.Null,
+                  ]),
+                ),
+              }),
+              Schema.Null,
+            ]),
+          ),
+        }),
+        updated: Schema.String,
+        updatedBy: Schema.String,
+      }),
+      status: Schema.Union([
+        Schema.Literals(["STARTED", "COMPLETED"]),
+        Schema.String,
+      ]),
+      timeframe: Schema.Struct({
+        from: Schema.Number,
+        to: Schema.Number,
+      }),
+      userId: Schema.String,
+      created: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      statistics: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            bytesRead: Schema.Number,
+            elapsed: Schema.Number,
+            rowsRead: Schema.Number,
+            abrLevel: Schema.optional(
+              Schema.Union([Schema.Number, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              bytesRead: "bytes_read",
+              elapsed: "elapsed",
+              rowsRead: "rows_read",
+              abrLevel: "abr_level",
+            }),
+          ),
+          Schema.Null,
+        ]),
+      ),
+      updated: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    }),
+    statistics: Schema.Struct({
+      bytesRead: Schema.Number,
+      elapsed: Schema.Number,
+      rowsRead: Schema.Number,
+      abrLevel: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    }).pipe(
+      Schema.encodeKeys({
+        bytesRead: "bytes_read",
+        elapsed: "elapsed",
+        rowsRead: "rows_read",
+        abrLevel: "abr_level",
+      }),
+    ),
+    agents: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            agentClass: Schema.String,
+            eventTypeCounts: Schema.Record(Schema.String, Schema.Unknown),
+            firstEventMs: Schema.Number,
+            hasErrors: Schema.Boolean,
+            lastEventMs: Schema.Number,
+            namespace: Schema.String,
+            service: Schema.String,
+            totalEvents: Schema.Number,
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    calculations: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            aggregates: Schema.Array(
+              Schema.Struct({
+                count: Schema.Number,
+                interval: Schema.Number,
+                sampleInterval: Schema.Number,
+                value: Schema.Number,
+                groups: Schema.optional(
+                  Schema.Union([
+                    Schema.Array(
+                      Schema.Struct({
+                        key: Schema.String,
+                        value: Schema.Union([
+                          Schema.String,
+                          Schema.Number,
+                          Schema.Boolean,
+                        ]),
+                      }),
+                    ),
+                    Schema.Null,
+                  ]),
+                ),
+              }),
+            ),
+            calculation: Schema.String,
+            series: Schema.Array(
+              Schema.Struct({
+                data: Schema.Array(
+                  Schema.Struct({
+                    count: Schema.Number,
+                    interval: Schema.Number,
+                    sampleInterval: Schema.Number,
+                    value: Schema.Number,
+                    firstSeen: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    groups: Schema.optional(
+                      Schema.Union([
+                        Schema.Array(
+                          Schema.Struct({
+                            key: Schema.String,
+                            value: Schema.Union([
+                              Schema.String,
+                              Schema.Number,
+                              Schema.Boolean,
+                            ]),
+                          }),
+                        ),
+                        Schema.Null,
+                      ]),
+                    ),
+                    lastSeen: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                  }),
+                ),
+                time: Schema.String,
+              }),
+            ),
+            alias: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    compare: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            aggregates: Schema.Array(
+              Schema.Struct({
+                count: Schema.Number,
+                interval: Schema.Number,
+                sampleInterval: Schema.Number,
+                value: Schema.Number,
+                groups: Schema.optional(
+                  Schema.Union([
+                    Schema.Array(
+                      Schema.Struct({
+                        key: Schema.String,
+                        value: Schema.Union([
+                          Schema.String,
+                          Schema.Number,
+                          Schema.Boolean,
+                        ]),
+                      }),
+                    ),
+                    Schema.Null,
+                  ]),
+                ),
+              }),
+            ),
+            calculation: Schema.String,
+            series: Schema.Array(
+              Schema.Struct({
+                data: Schema.Array(
+                  Schema.Struct({
+                    count: Schema.Number,
+                    interval: Schema.Number,
+                    sampleInterval: Schema.Number,
+                    value: Schema.Number,
+                    firstSeen: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    groups: Schema.optional(
+                      Schema.Union([
+                        Schema.Array(
+                          Schema.Struct({
+                            key: Schema.String,
+                            value: Schema.Union([
+                              Schema.String,
+                              Schema.Number,
+                              Schema.Boolean,
+                            ]),
+                          }),
+                        ),
+                        Schema.Null,
+                      ]),
+                    ),
+                    lastSeen: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                  }),
+                ),
+                time: Schema.String,
+              }),
+            ),
+            alias: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    events: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          events: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  $metadata: Schema.Struct({
+                    id: Schema.String,
+                    account: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    cloudService: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    coldStart: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    cost: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    duration: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    endTime: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    error: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    errorTemplate: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    fingerprint: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    level: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    message: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    messageTemplate: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    metricName: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    origin: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    parentSpanId: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    provider: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    region: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    requestId: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    service: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    spanId: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    spanName: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    stackId: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    startTime: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    statusCode: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    traceDuration: Schema.optional(
+                      Schema.Union([Schema.Number, Schema.Null]),
+                    ),
+                    traceId: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    transactionName: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    trigger: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    type: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                    url: Schema.optional(
+                      Schema.Union([Schema.String, Schema.Null]),
+                    ),
+                  }),
+                  dataset: Schema.String,
+                  source: Schema.Union([
+                    Schema.String,
+                    Schema.Record(Schema.String, Schema.Unknown),
+                  ]),
+                  timestamp: Schema.Number,
+                  $containers: Schema.optional(
+                    Schema.Union([
+                      Schema.Record(Schema.String, Schema.Unknown),
+                      Schema.Null,
+                    ]),
+                  ),
+                  $workers: Schema.optional(
+                    Schema.Union([
+                      Schema.Union([
+                        Schema.Struct({
+                          cpuTimeMs: Schema.Number,
+                          eventType: Schema.Union([
+                            Schema.Literals([
+                              "fetch",
+                              "scheduled",
+                              "alarm",
+                              "cron",
+                              "queue",
+                              "email",
+                              "tail",
+                              "rpc",
+                              "websocket",
+                              "workflow",
+                              "unknown",
+                            ]),
+                            Schema.String,
+                          ]),
+                          outcome: Schema.String,
+                          requestId: Schema.String,
+                          scriptName: Schema.String,
+                          wallTimeMs: Schema.Number,
+                          diagnosticsChannelEvents: Schema.optional(
+                            Schema.Union([
+                              Schema.Array(
+                                Schema.Struct({
+                                  channel: Schema.String,
+                                  message: Schema.String,
+                                  timestamp: Schema.Number,
+                                }),
+                              ),
+                              Schema.Null,
+                            ]),
+                          ),
+                          dispatchNamespace: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          durableObjectId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          entrypoint: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          event: Schema.optional(
+                            Schema.Union([
+                              Schema.Record(Schema.String, Schema.Unknown),
+                              Schema.Null,
+                            ]),
+                          ),
+                          executionModel: Schema.optional(
+                            Schema.Union([
+                              Schema.Union([
+                                Schema.Literals(["durableObject", "stateless"]),
+                                Schema.String,
+                              ]),
+                              Schema.Null,
+                            ]),
+                          ),
+                          preview: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                id: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                name: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                slug: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          scriptVersion: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                id: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                message: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                tag: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          spanId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          traceId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          truncated: Schema.optional(
+                            Schema.Union([Schema.Boolean, Schema.Null]),
+                          ),
+                        }),
+                        Schema.Struct({
+                          eventType: Schema.Union([
+                            Schema.Literals([
+                              "fetch",
+                              "scheduled",
+                              "alarm",
+                              "cron",
+                              "queue",
+                              "email",
+                              "tail",
+                              "rpc",
+                              "websocket",
+                              "workflow",
+                              "unknown",
+                            ]),
+                            Schema.String,
+                          ]),
+                          requestId: Schema.String,
+                          scriptName: Schema.String,
+                          durableObjectId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          entrypoint: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          event: Schema.optional(
+                            Schema.Union([
+                              Schema.Record(Schema.String, Schema.Unknown),
+                              Schema.Null,
+                            ]),
+                          ),
+                          executionModel: Schema.optional(
+                            Schema.Union([
+                              Schema.Union([
+                                Schema.Literals(["durableObject", "stateless"]),
+                                Schema.String,
+                              ]),
+                              Schema.Null,
+                            ]),
+                          ),
+                          outcome: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          preview: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                id: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                name: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                slug: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          scriptVersion: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                id: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                message: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                tag: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          spanId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          traceId: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                          truncated: Schema.optional(
+                            Schema.Union([Schema.Boolean, Schema.Null]),
+                          ),
+                        }),
+                      ]),
+                      Schema.Null,
+                    ]),
+                  ),
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          fields: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  key: Schema.String,
+                  type: Schema.String,
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          series: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  data: Schema.Array(
+                    Schema.Struct({
+                      aggregates: Schema.Struct({
+                        count: Schema.Number,
+                        interval: Schema.Number,
+                        firstSeen: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                        lastSeen: Schema.optional(
+                          Schema.Union([Schema.String, Schema.Null]),
+                        ),
+                        bin: Schema.optional(
+                          Schema.Union([Schema.Unknown, Schema.Null]),
+                        ),
+                      }).pipe(
+                        Schema.encodeKeys({
+                          count: "_count",
+                          interval: "_interval",
+                          firstSeen: "_firstSeen",
+                          lastSeen: "_lastSeen",
+                          bin: "bin",
+                        }),
+                      ),
+                      count: Schema.Number,
+                      interval: Schema.Number,
+                      sampleInterval: Schema.Number,
+                      errors: Schema.optional(
+                        Schema.Union([Schema.Number, Schema.Null]),
+                      ),
+                      groups: Schema.optional(
+                        Schema.Union([
+                          Schema.Record(Schema.String, Schema.Unknown),
+                          Schema.Null,
+                        ]),
+                      ),
+                    }),
+                  ),
+                  time: Schema.String,
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    invocations: Schema.optional(
+      Schema.Union([Schema.Record(Schema.String, Schema.Unknown), Schema.Null]),
+    ),
+    traces: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            rootSpanName: Schema.String,
+            rootTransactionName: Schema.String,
+            service: Schema.Array(Schema.String),
+            spans: Schema.Number,
+            traceDurationMs: Schema.Number,
+            traceEndMs: Schema.Number,
+            traceId: Schema.String,
+            traceStartMs: Schema.Number,
+            errors: Schema.optional(
+              Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+            ),
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<GetObservabilitySharedQueryResponse>;
+
+export type GetObservabilitySharedQueryError = DefaultErrors;
+
+export const getObservabilitySharedQuery: API.OperationMethod<
+  GetObservabilitySharedQueryRequest,
+  GetObservabilitySharedQueryResponse,
+  GetObservabilitySharedQueryError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetObservabilitySharedQueryRequest,
+  output: GetObservabilitySharedQueryResponse,
+  errors: [],
+}));
+
+export interface CreateObservabilitySharedQueryRequest {
+  /** Path param: Your Cloudflare account ID. */
+  accountId: string;
+  /** Body param: Identifier for the query. When parameters are omitted, this ID is used to load a previously saved query's parameters. When providing parameters inline, pass any identifier (e.g. an ad-hoc  */
+  queryId: string;
+  /** Body param: Timeframe for the query using Unix timestamps in milliseconds. Narrower timeframes produce faster responses and more specific results. */
+  timeframe: { from: number; to: number };
+  /** Body param: When true, includes time-series data in the response. */
+  chart?: boolean;
+  /** Body param: When true, includes a comparison dataset from the previous time period of equal length. */
+  compare?: boolean;
+  /** Body param: When true, executes the query without persisting the results. Useful for validation or previewing. */
+  dry?: boolean;
+  /** Body param: Number of time-series buckets. Only used when view is 'calculations'. Omit to let the system auto-detect an appropriate granularity. */
+  granularity?: number;
+  /** Body param: When true, omits time-series data from the response and returns only aggregated values. Reduces response size when series are not needed. */
+  ignoreSeries?: boolean;
+  /** Body param: Maximum number of events to return when view is 'events'. Also controls the number of group-by rows when view is 'calculations'. */
+  limit?: number;
+  /** Body param: Cursor for pagination in event, trace, and invocation views. Pass the $metadata.id of the last returned item to fetch the next page. */
+  offset?: string;
+  /** Body param: Numeric offset for paginating grouped/pattern results (top-N lists). Use together with limit. Not used by cursor-based pagination. */
+  offsetBy?: number;
+  /** Body param: Pagination direction: 'next' for forward, 'prev' for backward. */
+  offsetDirection?: string;
+  /** Body param: Query parameters defining what data to retrieve — filters, calculations, group-bys, and ordering. In practice this should always be provided for ad-hoc queries. Only omit when executing a  */
+  parameters?: {
+    calculations?: {
+      operator:
+        | "uniq"
+        | "count"
+        | "max"
+        | "min"
+        | "sum"
+        | "avg"
+        | "median"
+        | "p001"
+        | "p01"
+        | "p05"
+        | "p10"
+        | "p25"
+        | "p75"
+        | "p90"
+        | "p95"
+        | "p99"
+        | "p999"
+        | "stddev"
+        | "variance"
+        | "COUNT_DISTINCT"
+        | "COUNT"
+        | "MAX"
+        | "MIN"
+        | "SUM"
+        | "AVG"
+        | "MEDIAN"
+        | "P001"
+        | "P01"
+        | "P05"
+        | "P10"
+        | "P25"
+        | "P75"
+        | "P90"
+        | "P95"
+        | "P99"
+        | "P999"
+        | "STDDEV"
+        | "VARIANCE"
+        | (string & {});
+      alias?: string;
+      key?: string;
+      keyType?: "string" | "number" | "boolean" | (string & {});
+    }[];
+    datasets?: string[];
+    filterCombination?: "and" | "or" | "AND" | "OR" | (string & {});
+    filters?: (
+      | {
+          filterCombination: "and" | "or" | "AND" | "OR" | (string & {});
+          filters: (
+            | {
+                filterCombination: "and" | "or" | "AND" | "OR" | (string & {});
+                filters: unknown[];
+                kind: "group";
+              }
+            | {
+                key: string;
+                operation:
+                  | "includes"
+                  | "not_includes"
+                  | "starts_with"
+                  | "ends_with"
+                  | "regex"
+                  | "exists"
+                  | "is_null"
+                  | "in"
+                  | "not_in"
+                  | "eq"
+                  | "neq"
+                  | "gt"
+                  | "gte"
+                  | "lt"
+                  | "lte"
+                  | "="
+                  | "!="
+                  | ">"
+                  | ">="
+                  | "<"
+                  | "<="
+                  | "INCLUDES"
+                  | "DOES_NOT_INCLUDE"
+                  | "MATCH_REGEX"
+                  | "EXISTS"
+                  | "DOES_NOT_EXIST"
+                  | "IN"
+                  | "NOT_IN"
+                  | "STARTS_WITH"
+                  | "ENDS_WITH"
+                  | (string & {});
+                type: "string" | "number" | "boolean" | (string & {});
+                kind?: "filter";
+                value?: string | number | boolean;
+              }
+          )[];
+          kind: "group";
+        }
+      | {
+          key: string;
+          operation:
+            | "includes"
+            | "not_includes"
+            | "starts_with"
+            | "ends_with"
+            | "regex"
+            | "exists"
+            | "is_null"
+            | "in"
+            | "not_in"
+            | "eq"
+            | "neq"
+            | "gt"
+            | "gte"
+            | "lt"
+            | "lte"
+            | "="
+            | "!="
+            | ">"
+            | ">="
+            | "<"
+            | "<="
+            | "INCLUDES"
+            | "DOES_NOT_INCLUDE"
+            | "MATCH_REGEX"
+            | "EXISTS"
+            | "DOES_NOT_EXIST"
+            | "IN"
+            | "NOT_IN"
+            | "STARTS_WITH"
+            | "ENDS_WITH"
+            | (string & {});
+          type: "string" | "number" | "boolean" | (string & {});
+          kind?: "filter";
+          value?: string | number | boolean;
+        }
+    )[];
+    groupBys?: {
+      type: "string" | "number" | "boolean" | (string & {});
+      value: string;
+    }[];
+    havings?: {
+      key: string;
+      operation: "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | (string & {});
+      value: number;
+    }[];
+    limit?: number;
+    needle?: {
+      value: string | number | boolean;
+      isRegex?: boolean;
+      matchCase?: boolean;
+    };
+    orderBy?: { value: string; order?: "asc" | "desc" | (string & {}) };
+  };
+  /** Body param: Controls the shape of the response. 'events': individual log lines matching the query. 'calculations': aggregated metrics (count, avg, p99, etc.) with optional group-by breakdowns and time */
+  view?:
+    | "traces"
+    | "events"
+    | "calculations"
+    | "invocations"
+    | "requests"
+    | "agents"
+    | (string & {});
+}
+
+export const CreateObservabilitySharedQueryRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    queryId: Schema.String,
+    timeframe: Schema.Struct({
+      from: Schema.Number,
+      to: Schema.Number,
+    }),
+    chart: Schema.optional(Schema.Boolean),
+    compare: Schema.optional(Schema.Boolean),
+    dry: Schema.optional(Schema.Boolean),
+    granularity: Schema.optional(Schema.Number),
+    ignoreSeries: Schema.optional(Schema.Boolean),
+    limit: Schema.optional(Schema.Number),
+    offset: Schema.optional(Schema.String),
+    offsetBy: Schema.optional(Schema.Number),
+    offsetDirection: Schema.optional(Schema.String),
+    parameters: Schema.optional(
+      Schema.Struct({
+        calculations: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              operator: Schema.Union([
+                Schema.Literals([
+                  "uniq",
+                  "count",
+                  "max",
+                  "min",
+                  "sum",
+                  "avg",
+                  "median",
+                  "p001",
+                  "p01",
+                  "p05",
+                  "p10",
+                  "p25",
+                  "p75",
+                  "p90",
+                  "p95",
+                  "p99",
+                  "p999",
+                  "stddev",
+                  "variance",
+                  "COUNT_DISTINCT",
+                  "COUNT",
+                  "MAX",
+                  "MIN",
+                  "SUM",
+                  "AVG",
+                  "MEDIAN",
+                  "P001",
+                  "P01",
+                  "P05",
+                  "P10",
+                  "P25",
+                  "P75",
+                  "P90",
+                  "P95",
+                  "P99",
+                  "P999",
+                  "STDDEV",
+                  "VARIANCE",
+                ]),
+                Schema.String,
+              ]),
+              alias: Schema.optional(Schema.String),
+              key: Schema.optional(Schema.String),
+              keyType: Schema.optional(
+                Schema.Union([
+                  Schema.Literals(["string", "number", "boolean"]),
+                  Schema.String,
+                ]),
+              ),
+            }),
+          ),
+        ),
+        datasets: Schema.optional(Schema.Array(Schema.String)),
+        filterCombination: Schema.optional(
+          Schema.Union([
+            Schema.Literals(["and", "or", "AND", "OR"]),
+            Schema.String,
+          ]),
+        ),
+        filters: Schema.optional(
+          Schema.Array(
+            Schema.Union([
+              Schema.Struct({
+                filterCombination: Schema.Union([
+                  Schema.Literals(["and", "or", "AND", "OR"]),
+                  Schema.String,
+                ]),
+                filters: Schema.Array(
+                  Schema.Union([
+                    Schema.Struct({
+                      filterCombination: Schema.Union([
+                        Schema.Literals(["and", "or", "AND", "OR"]),
+                        Schema.String,
+                      ]),
+                      filters: Schema.Array(Schema.Unknown),
+                      kind: Schema.Literal("group"),
+                    }),
+                    Schema.Struct({
+                      key: Schema.String,
+                      operation: Schema.Union([
+                        Schema.Literals([
+                          "includes",
+                          "not_includes",
+                          "starts_with",
+                          "ends_with",
+                          "regex",
+                          "exists",
+                          "is_null",
+                          "in",
+                          "not_in",
+                          "eq",
+                          "neq",
+                          "gt",
+                          "gte",
+                          "lt",
+                          "lte",
+                          "=",
+                          "!=",
+                          ">",
+                          ">=",
+                          "<",
+                          "<=",
+                          "INCLUDES",
+                          "DOES_NOT_INCLUDE",
+                          "MATCH_REGEX",
+                          "EXISTS",
+                          "DOES_NOT_EXIST",
+                          "IN",
+                          "NOT_IN",
+                          "STARTS_WITH",
+                          "ENDS_WITH",
+                        ]),
+                        Schema.String,
+                      ]),
+                      type: Schema.Union([
+                        Schema.Literals(["string", "number", "boolean"]),
+                        Schema.String,
+                      ]),
+                      kind: Schema.optional(Schema.Literal("filter")),
+                      value: Schema.optional(
+                        Schema.Union([
+                          Schema.String,
+                          Schema.Number,
+                          Schema.Boolean,
+                        ]),
+                      ),
+                    }),
+                  ]),
+                ),
+                kind: Schema.Literal("group"),
+              }),
+              Schema.Struct({
+                key: Schema.String,
+                operation: Schema.Union([
+                  Schema.Literals([
+                    "includes",
+                    "not_includes",
+                    "starts_with",
+                    "ends_with",
+                    "regex",
+                    "exists",
+                    "is_null",
+                    "in",
+                    "not_in",
+                    "eq",
+                    "neq",
+                    "gt",
+                    "gte",
+                    "lt",
+                    "lte",
+                    "=",
+                    "!=",
+                    ">",
+                    ">=",
+                    "<",
+                    "<=",
+                    "INCLUDES",
+                    "DOES_NOT_INCLUDE",
+                    "MATCH_REGEX",
+                    "EXISTS",
+                    "DOES_NOT_EXIST",
+                    "IN",
+                    "NOT_IN",
+                    "STARTS_WITH",
+                    "ENDS_WITH",
+                  ]),
+                  Schema.String,
+                ]),
+                type: Schema.Union([
+                  Schema.Literals(["string", "number", "boolean"]),
+                  Schema.String,
+                ]),
+                kind: Schema.optional(Schema.Literal("filter")),
+                value: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Number, Schema.Boolean]),
+                ),
+              }),
+            ]),
+          ),
+        ),
+        groupBys: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              type: Schema.Union([
+                Schema.Literals(["string", "number", "boolean"]),
+                Schema.String,
+              ]),
+              value: Schema.String,
+            }),
+          ),
+        ),
+        havings: Schema.optional(
+          Schema.Array(
+            Schema.Struct({
+              key: Schema.String,
+              operation: Schema.Union([
+                Schema.Literals(["eq", "neq", "gt", "gte", "lt", "lte"]),
+                Schema.String,
+              ]),
+              value: Schema.Number,
+            }),
+          ),
+        ),
+        limit: Schema.optional(Schema.Number),
+        needle: Schema.optional(
+          Schema.Struct({
+            value: Schema.Union([Schema.String, Schema.Number, Schema.Boolean]),
+            isRegex: Schema.optional(Schema.Boolean),
+            matchCase: Schema.optional(Schema.Boolean),
+          }),
+        ),
+        orderBy: Schema.optional(
+          Schema.Struct({
+            value: Schema.String,
+            order: Schema.optional(
+              Schema.Union([Schema.Literals(["asc", "desc"]), Schema.String]),
+            ),
+          }),
+        ),
+      }),
+    ),
+    view: Schema.optional(
+      Schema.Union([
+        Schema.Literals([
+          "traces",
+          "events",
+          "calculations",
+          "invocations",
+          "requests",
+          "agents",
+        ]),
+        Schema.String,
+      ]),
+    ),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/workers/observability/shared/query",
+    }),
+  ) as unknown as Schema.Schema<CreateObservabilitySharedQueryRequest>;
+
+export interface CreateObservabilitySharedQueryResponse {
+  /** Specify the ID of the shared query. */
+  id: string;
+}
+
+export const CreateObservabilitySharedQueryResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<CreateObservabilitySharedQueryResponse>;
+
+export type CreateObservabilitySharedQueryError = DefaultErrors;
+
+export const createObservabilitySharedQuery: API.OperationMethod<
+  CreateObservabilitySharedQueryRequest,
+  CreateObservabilitySharedQueryResponse,
+  CreateObservabilitySharedQueryError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateObservabilitySharedQueryRequest,
+  output: CreateObservabilitySharedQueryResponse,
+  errors: [],
+}));
+
+// =============================================================================
 // ObservabilityTelemetry
 // =============================================================================
 
@@ -21049,6 +22803,314 @@ export const createSubdomainEdgePreviewSession: API.OperationMethod<
   input: CreateSubdomainEdgePreviewSessionRequest,
   output: CreateSubdomainEdgePreviewSessionResponse,
   errors: [InvalidRoute],
+}));
+
+// =============================================================================
+// TailHeartbeatObservabilityTelemetry
+// =============================================================================
+
+export interface LiveTailHeartbeatObservabilityTelemetryRequest {
+  /** Path param: Your Cloudflare account ID. */
+  accountId: string;
+  /** Body param */
+  scriptId?: string;
+}
+
+export const LiveTailHeartbeatObservabilityTelemetryRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    scriptId: Schema.optional(Schema.String),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/workers/observability/telemetry/live-tail/heartbeat",
+    }),
+  ) as unknown as Schema.Schema<LiveTailHeartbeatObservabilityTelemetryRequest>;
+
+export type LiveTailHeartbeatObservabilityTelemetryResponse = unknown;
+
+export const LiveTailHeartbeatObservabilityTelemetryResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown.pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<LiveTailHeartbeatObservabilityTelemetryResponse>;
+
+export type LiveTailHeartbeatObservabilityTelemetryError = DefaultErrors;
+
+export const liveTailHeartbeatObservabilityTelemetry: API.OperationMethod<
+  LiveTailHeartbeatObservabilityTelemetryRequest,
+  LiveTailHeartbeatObservabilityTelemetryResponse,
+  LiveTailHeartbeatObservabilityTelemetryError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: LiveTailHeartbeatObservabilityTelemetryRequest,
+  output: LiveTailHeartbeatObservabilityTelemetryResponse,
+  errors: [],
+}));
+
+// =============================================================================
+// TailObservabilityTelemetry
+// =============================================================================
+
+export interface LiveTailObservabilityTelemetryRequest {
+  /** Path param: Your Cloudflare account ID. */
+  accountId: string;
+  /** Body param: Set a flag to describe how to combine the filters on the query. */
+  filterCombination?: "and" | "or" | "AND" | "OR" | (string & {});
+  /** Body param: Apply filters to the query. Supports nested groups via kind: 'group'. */
+  filters?: (
+    | {
+        filterCombination: "and" | "or" | "AND" | "OR" | (string & {});
+        filters: (
+          | {
+              filterCombination: "and" | "or" | "AND" | "OR" | (string & {});
+              filters: unknown[];
+              kind: "group";
+            }
+          | {
+              key: string;
+              operation:
+                | "includes"
+                | "not_includes"
+                | "starts_with"
+                | "ends_with"
+                | "regex"
+                | "exists"
+                | "is_null"
+                | "in"
+                | "not_in"
+                | "eq"
+                | "neq"
+                | "gt"
+                | "gte"
+                | "lt"
+                | "lte"
+                | "="
+                | "!="
+                | ">"
+                | ">="
+                | "<"
+                | "<="
+                | "INCLUDES"
+                | "DOES_NOT_INCLUDE"
+                | "MATCH_REGEX"
+                | "EXISTS"
+                | "DOES_NOT_EXIST"
+                | "IN"
+                | "NOT_IN"
+                | "STARTS_WITH"
+                | "ENDS_WITH"
+                | (string & {});
+              type: "string" | "number" | "boolean" | (string & {});
+              kind?: "filter";
+              value?: string | number | boolean;
+            }
+        )[];
+        kind: "group";
+      }
+    | {
+        key: string;
+        operation:
+          | "includes"
+          | "not_includes"
+          | "starts_with"
+          | "ends_with"
+          | "regex"
+          | "exists"
+          | "is_null"
+          | "in"
+          | "not_in"
+          | "eq"
+          | "neq"
+          | "gt"
+          | "gte"
+          | "lt"
+          | "lte"
+          | "="
+          | "!="
+          | ">"
+          | ">="
+          | "<"
+          | "<="
+          | "INCLUDES"
+          | "DOES_NOT_INCLUDE"
+          | "MATCH_REGEX"
+          | "EXISTS"
+          | "DOES_NOT_EXIST"
+          | "IN"
+          | "NOT_IN"
+          | "STARTS_WITH"
+          | "ENDS_WITH"
+          | (string & {});
+        type: "string" | "number" | "boolean" | (string & {});
+        kind?: "filter";
+        value?: string | number | boolean;
+      }
+  )[];
+  /** Body param */
+  scriptId?: string;
+}
+
+export const LiveTailObservabilityTelemetryRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    filterCombination: Schema.optional(
+      Schema.Union([
+        Schema.Literals(["and", "or", "AND", "OR"]),
+        Schema.String,
+      ]),
+    ),
+    filters: Schema.optional(
+      Schema.Array(
+        Schema.Union([
+          Schema.Struct({
+            filterCombination: Schema.Union([
+              Schema.Literals(["and", "or", "AND", "OR"]),
+              Schema.String,
+            ]),
+            filters: Schema.Array(
+              Schema.Union([
+                Schema.Struct({
+                  filterCombination: Schema.Union([
+                    Schema.Literals(["and", "or", "AND", "OR"]),
+                    Schema.String,
+                  ]),
+                  filters: Schema.Array(Schema.Unknown),
+                  kind: Schema.Literal("group"),
+                }),
+                Schema.Struct({
+                  key: Schema.String,
+                  operation: Schema.Union([
+                    Schema.Literals([
+                      "includes",
+                      "not_includes",
+                      "starts_with",
+                      "ends_with",
+                      "regex",
+                      "exists",
+                      "is_null",
+                      "in",
+                      "not_in",
+                      "eq",
+                      "neq",
+                      "gt",
+                      "gte",
+                      "lt",
+                      "lte",
+                      "=",
+                      "!=",
+                      ">",
+                      ">=",
+                      "<",
+                      "<=",
+                      "INCLUDES",
+                      "DOES_NOT_INCLUDE",
+                      "MATCH_REGEX",
+                      "EXISTS",
+                      "DOES_NOT_EXIST",
+                      "IN",
+                      "NOT_IN",
+                      "STARTS_WITH",
+                      "ENDS_WITH",
+                    ]),
+                    Schema.String,
+                  ]),
+                  type: Schema.Union([
+                    Schema.Literals(["string", "number", "boolean"]),
+                    Schema.String,
+                  ]),
+                  kind: Schema.optional(Schema.Literal("filter")),
+                  value: Schema.optional(
+                    Schema.Union([
+                      Schema.String,
+                      Schema.Number,
+                      Schema.Boolean,
+                    ]),
+                  ),
+                }),
+              ]),
+            ),
+            kind: Schema.Literal("group"),
+          }),
+          Schema.Struct({
+            key: Schema.String,
+            operation: Schema.Union([
+              Schema.Literals([
+                "includes",
+                "not_includes",
+                "starts_with",
+                "ends_with",
+                "regex",
+                "exists",
+                "is_null",
+                "in",
+                "not_in",
+                "eq",
+                "neq",
+                "gt",
+                "gte",
+                "lt",
+                "lte",
+                "=",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<=",
+                "INCLUDES",
+                "DOES_NOT_INCLUDE",
+                "MATCH_REGEX",
+                "EXISTS",
+                "DOES_NOT_EXIST",
+                "IN",
+                "NOT_IN",
+                "STARTS_WITH",
+                "ENDS_WITH",
+              ]),
+              Schema.String,
+            ]),
+            type: Schema.Union([
+              Schema.Literals(["string", "number", "boolean"]),
+              Schema.String,
+            ]),
+            kind: Schema.optional(Schema.Literal("filter")),
+            value: Schema.optional(
+              Schema.Union([Schema.String, Schema.Number, Schema.Boolean]),
+            ),
+          }),
+        ]),
+      ),
+    ),
+    scriptId: Schema.optional(Schema.String),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/workers/observability/telemetry/live-tail",
+    }),
+  ) as unknown as Schema.Schema<LiveTailObservabilityTelemetryRequest>;
+
+export interface LiveTailObservabilityTelemetryResponse {
+  /** WebSocket URL clients connect to in order to stream live tail events. */
+  wsUrl: string;
+}
+
+export const LiveTailObservabilityTelemetryResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    wsUrl: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<LiveTailObservabilityTelemetryResponse>;
+
+export type LiveTailObservabilityTelemetryError = DefaultErrors;
+
+export const liveTailObservabilityTelemetry: API.OperationMethod<
+  LiveTailObservabilityTelemetryRequest,
+  LiveTailObservabilityTelemetryResponse,
+  LiveTailObservabilityTelemetryError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: LiveTailObservabilityTelemetryRequest,
+  output: LiveTailObservabilityTelemetryResponse,
+  errors: [],
 }));
 
 // =============================================================================

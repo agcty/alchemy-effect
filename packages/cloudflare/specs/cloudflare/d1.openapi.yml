@@ -249,9 +249,28 @@ paths:
         - name: account_id
           in: path
           required: true
-          description: Account identifier tag.
+          description: "Path param: Account identifier tag."
           schema:
             type: string
+        - name: fields
+          in: query
+          required: false
+          description: "Query param: Comma-separated list of fields to include in the
+            response. When omitted, all fields are returned."
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - uuid
+                - name
+                - created_at
+                - version
+                - jurisdiction
+                - num_tables
+                - file_size
+                - running_in_region
+                - read_replication
       responses:
         "200":
           description: Success

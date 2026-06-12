@@ -97,7 +97,7 @@ paths:
           schema:
             type: string
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -133,9 +133,6 @@ paths:
                       - id
                       - enabled
                   description: "Body param: The list of Managed Response Transforms."
-              required:
-                - managed_request_headers
-                - managed_response_headers
       responses:
         "200":
           description: Success

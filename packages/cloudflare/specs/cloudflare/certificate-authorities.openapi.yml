@@ -9,7 +9,7 @@ paths:
   /zones/{zone_id}/certificate_authorities/hostname_associations:
     get:
       operationId: getHostnameAssociation
-      description: List Hostname Associations
+      description: List Hostname Associations.
       parameters:
         - name: zone_id
           in: path
@@ -44,7 +44,7 @@ paths:
           - status: 403
     put:
       operationId: putHostnameAssociation
-      description: Replace Hostname Associations
+      description: Replace Hostname Associations.
       parameters:
         - name: zone_id
           in: path

@@ -3777,7 +3777,7 @@ export interface SourceSuperSlurperConnectivityPrecheckRequest {
   };
   /** Body param */
   vendor: "s3" | "gcs" | "r2" | (string & {});
-  /** Body param */
+  /** Body param: Custom S3-compatible endpoint that must use https://. */
   endpoint?: string | null;
   /** Body param */
   keys?: string[] | null;

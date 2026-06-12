@@ -1958,6 +1958,71 @@ paths:
                             description: Configured Cloudflared tunnel
                         required:
                           - k
+                      - type: object
+                        properties:
+                          k:
+                            type: string
+                            enum:
+                              - RekeyInstallBoth
+                            description: Installed initial inbound and outbound keys
+                          tunnel_id:
+                            type: string
+                            description: Tunnel identifier
+                        required:
+                          - k
+                          - tunnel_id
+                      - type: object
+                        properties:
+                          k:
+                            type: string
+                            enum:
+                              - RekeyStart
+                            description: Installed new inbound key, kept old outbound
+                          tunnel_id:
+                            type: string
+                            description: Tunnel identifier
+                        required:
+                          - k
+                          - tunnel_id
+                      - type: object
+                        properties:
+                          k:
+                            type: string
+                            enum:
+                              - RekeyAdvance
+                            description: Confirmed traffic on new inbound key, swapped outbound to new
+                          tunnel_id:
+                            type: string
+                            description: Tunnel identifier
+                        required:
+                          - k
+                          - tunnel_id
+                      - type: object
+                        properties:
+                          k:
+                            type: string
+                            enum:
+                              - RekeyComplete
+                            description: Deleted old keys
+                          tunnel_id:
+                            type: string
+                            description: Tunnel identifier
+                        required:
+                          - k
+                          - tunnel_id
+                      - type: object
+                        properties:
+                          k:
+                            type: string
+                            enum:
+                              - RekeyReset
+                            description: Deleted all keys after receiving an unexpected key
+                          tunnel_id:
+                            type: string
+                            description: Tunnel identifier
+                        required:
+                          - k
+                          - tunnel_id
                   n:
                     type: number
                     description: Sequence number, used to order events with the same timestamp
@@ -2242,6 +2307,71 @@ paths:
                                   description: Configured Cloudflared tunnel
                               required:
                                 - k
+                            - type: object
+                              properties:
+                                k:
+                                  type: string
+                                  enum:
+                                    - RekeyInstallBoth
+                                  description: Installed initial inbound and outbound keys
+                                tunnel_id:
+                                  type: string
+                                  description: Tunnel identifier
+                              required:
+                                - k
+                                - tunnel_id
+                            - type: object
+                              properties:
+                                k:
+                                  type: string
+                                  enum:
+                                    - RekeyStart
+                                  description: Installed new inbound key, kept old outbound
+                                tunnel_id:
+                                  type: string
+                                  description: Tunnel identifier
+                              required:
+                                - k
+                                - tunnel_id
+                            - type: object
+                              properties:
+                                k:
+                                  type: string
+                                  enum:
+                                    - RekeyAdvance
+                                  description: Confirmed traffic on new inbound key, swapped outbound to new
+                                tunnel_id:
+                                  type: string
+                                  description: Tunnel identifier
+                              required:
+                                - k
+                                - tunnel_id
+                            - type: object
+                              properties:
+                                k:
+                                  type: string
+                                  enum:
+                                    - RekeyComplete
+                                  description: Deleted old keys
+                                tunnel_id:
+                                  type: string
+                                  description: Tunnel identifier
+                              required:
+                                - k
+                                - tunnel_id
+                            - type: object
+                              properties:
+                                k:
+                                  type: string
+                                  enum:
+                                    - RekeyReset
+                                  description: Deleted all keys after receiving an unexpected key
+                                tunnel_id:
+                                  type: string
+                                  description: Tunnel identifier
+                              required:
+                                - k
+                                - tunnel_id
                         n:
                           type: number
                           description: Sequence number, used to order events with the same timestamp
@@ -4107,12 +4237,13 @@ paths:
   /accounts/{account_id}/magic/ipsec_tunnels/{ipsecTunnelId}/psk_generate:
     post:
       operationId: pskGenerateIpsecTunnel
-      description: "Generates a Pre Shared Key for a specific IPsec tunnel used in the
+      description: "Generates a Pre-Shared Key for a specific IPsec tunnel used in the
         IKE session. Use `?validate_only=true` as an optional query parameter to
         only run validation without persisting changes. After a PSK is
         generated, the PSK is immediately persisted to Cloudflare's edge and
-        cannot be retrieved later. Note the PSK in a safe place.  @example ```ts
-        const response = await client.magicTransit.ipsecTunnels.pskGenerate(
+        cannot be retrieved later. Store the PSK in a safe place.  @example
+        ```ts const response = await
+        client.magicTransit.ipsecTunnels.pskGenerate(
         '023e105f4ecef8ad9ca31a8372d0c353', { account_id:
         '023e105f4ecef8ad9ca31a8372d0c353', body: {}, }, ); ```"
       parameters:

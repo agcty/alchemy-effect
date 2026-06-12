@@ -418,6 +418,16 @@ paths:
                     ServiceFamilyName:
                       type: string
                       description: Identifies the product family for the Cloudflare service.
+                    ZoneId:
+                      oneOf:
+                        - type: string
+                      nullable: true
+                      description: The identifier for the Cloudflare zone (zone tag).
+                    ZoneName:
+                      oneOf:
+                        - type: string
+                      nullable: true
+                      description: The display name of the Cloudflare zone.
                   required:
                     - BillingCurrency
                     - BillingPeriodStart

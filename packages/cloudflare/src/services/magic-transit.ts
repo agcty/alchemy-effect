@@ -2205,7 +2205,12 @@ export interface GetConnectorEventResponse {
     | { k: "FinishUpgradeSuccess" }
     | { k: "FinishUpgradeFailure" }
     | { k: "Reconcile" }
-    | { k: "ConfigureCloudflaredTunnel" };
+    | { k: "ConfigureCloudflaredTunnel" }
+    | { k: "RekeyInstallBoth"; tunnelId: string }
+    | { k: "RekeyStart"; tunnelId: string }
+    | { k: "RekeyAdvance"; tunnelId: string }
+    | { k: "RekeyComplete"; tunnelId: string }
+    | { k: "RekeyReset"; tunnelId: string };
   /** Sequence number, used to order events with the same timestamp */
   n: number;
   /** Time the Event was recorded (seconds since the Unix epoch) */
@@ -2221,6 +2226,26 @@ export const GetConnectorEventResponse =
         k: Schema.Literal("StartUpgrade"),
         url: Schema.String,
       }),
+      Schema.Struct({
+        k: Schema.Literal("RekeyInstallBoth"),
+        tunnelId: Schema.String,
+      }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+      Schema.Struct({
+        k: Schema.Literal("RekeyStart"),
+        tunnelId: Schema.String,
+      }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+      Schema.Struct({
+        k: Schema.Literal("RekeyAdvance"),
+        tunnelId: Schema.String,
+      }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+      Schema.Struct({
+        k: Schema.Literal("RekeyComplete"),
+        tunnelId: Schema.String,
+      }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+      Schema.Struct({
+        k: Schema.Literal("RekeyReset"),
+        tunnelId: Schema.String,
+      }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
       Schema.Struct({
         k: Schema.Literal("Init"),
       }),
@@ -2394,7 +2419,12 @@ export interface ListConnectorEventLatestsResponse {
       | { k: "FinishUpgradeSuccess" }
       | { k: "FinishUpgradeFailure" }
       | { k: "Reconcile" }
-      | { k: "ConfigureCloudflaredTunnel" };
+      | { k: "ConfigureCloudflaredTunnel" }
+      | { k: "RekeyInstallBoth"; tunnelId: string }
+      | { k: "RekeyStart"; tunnelId: string }
+      | { k: "RekeyAdvance"; tunnelId: string }
+      | { k: "RekeyComplete"; tunnelId: string }
+      | { k: "RekeyReset"; tunnelId: string };
     n: number;
     t: number;
     v?: string | null;
@@ -2411,6 +2441,26 @@ export const ListConnectorEventLatestsResponse =
             k: Schema.Literal("StartUpgrade"),
             url: Schema.String,
           }),
+          Schema.Struct({
+            k: Schema.Literal("RekeyInstallBoth"),
+            tunnelId: Schema.String,
+          }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+          Schema.Struct({
+            k: Schema.Literal("RekeyStart"),
+            tunnelId: Schema.String,
+          }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+          Schema.Struct({
+            k: Schema.Literal("RekeyAdvance"),
+            tunnelId: Schema.String,
+          }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+          Schema.Struct({
+            k: Schema.Literal("RekeyComplete"),
+            tunnelId: Schema.String,
+          }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
+          Schema.Struct({
+            k: Schema.Literal("RekeyReset"),
+            tunnelId: Schema.String,
+          }).pipe(Schema.encodeKeys({ k: "k", tunnelId: "tunnel_id" })),
           Schema.Struct({
             k: Schema.Literal("Init"),
           }),

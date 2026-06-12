@@ -1672,9 +1672,15 @@ paths:
     put:
       operationId: putIndicatorFeedSnapshot
       description: "Revises the raw data entries in a custom threat indicator
-        feed.  @example ```ts const snapshot = await
-        client.intel.indicatorFeeds.snapshots.update(12, { account_id:
-        '023e105f4ecef8ad9ca31a8372d0c353', }); ```"
+        feed.  Accepts both plain and gzipped STIX2/CRDF bodies. Gzip is
+        detected by RFC 1952 magic bytes (`0x1f 0x8b`) and/or a `.gz` filename
+        suffix (case-insensitive) — either signal alone is sufficient to trigger
+        the gzip path; if the body is not valid gzip, the upload fails fast.
+        Customers are encouraged to gzip larger uploads — the api-gateway 500 MB
+        body cap applies to the on-the-wire (compressed) size, so gzip lets a
+        single upload carry several GiB of decompressed STIX.  @example ```ts
+        const snapshot = await client.intel.indicatorFeeds.snapshots.update(12,
+        { account_id: '023e105f4ecef8ad9ca31a8372d0c353', }); ```"
       parameters:
         - name: feedId
           in: path
@@ -1696,7 +1702,9 @@ paths:
               properties:
                 source:
                   type: string
-                  description: "Body param: The file to upload"
+                  description: "Body param: The file to upload. Either a plain STIX2/CRDF body or
+                    a gzipped one (recognised by `0x1f 0x8b` magic bytes or a
+                    `.gz` filename suffix)."
       responses:
         "200":
           description: Success
@@ -1936,7 +1944,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: number
+                    type: string
                     description: The unique identifier for the sinkhole.
                   account_tag:
                     type: string

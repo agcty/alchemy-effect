@@ -29500,6 +29500,119 @@ export const scanTriggerRecord: API.OperationMethod<
 }));
 
 // =============================================================================
+// UsageAccount
+// =============================================================================
+
+export interface GetUsageAccountRequest {
+  /** Identifier. */
+  accountId: string;
+}
+
+export const GetUsageAccountRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  },
+).pipe(
+  T.Http({ method: "GET", path: "/accounts/{account_id}/dns_records/usage" }),
+) as unknown as Schema.Schema<GetUsageAccountRequest>;
+
+export interface GetUsageAccountResponse {
+  /** Maximum number of DNS records allowed across all public zones in the account. Null if using zone-level quota. */
+  recordQuota: number | null;
+  /** Current number of DNS records across all public zones in the account. */
+  recordUsage: number;
+  /** Maximum number of DNS records allowed across all internal zones in the account. Only present if internal DNS is enabled. */
+  internalRecordQuota?: number | null;
+  /** Current number of DNS records across all internal zones in the account. Only present if internal DNS is enabled. */
+  internalRecordUsage?: number | null;
+}
+
+export const GetUsageAccountResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    recordQuota: Schema.Union([Schema.Number, Schema.Null]),
+    recordUsage: Schema.Number,
+    internalRecordQuota: Schema.optional(
+      Schema.Union([Schema.Number, Schema.Null]),
+    ),
+    internalRecordUsage: Schema.optional(
+      Schema.Union([Schema.Number, Schema.Null]),
+    ),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        recordQuota: "record_quota",
+        recordUsage: "record_usage",
+        internalRecordQuota: "internal_record_quota",
+        internalRecordUsage: "internal_record_usage",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetUsageAccountResponse>;
+
+export type GetUsageAccountError = DefaultErrors;
+
+export const getUsageAccount: API.OperationMethod<
+  GetUsageAccountRequest,
+  GetUsageAccountResponse,
+  GetUsageAccountError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetUsageAccountRequest,
+  output: GetUsageAccountResponse,
+  errors: [],
+}));
+
+// =============================================================================
+// UsageZone
+// =============================================================================
+
+export interface GetUsageZoneRequest {
+  /** Identifier. */
+  zoneId: string;
+}
+
+export const GetUsageZoneRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+}).pipe(
+  T.Http({ method: "GET", path: "/zones/{zone_id}/dns_records/usage" }),
+) as unknown as Schema.Schema<GetUsageZoneRequest>;
+
+export interface GetUsageZoneResponse {
+  /** Maximum number of DNS records allowed for the zone. Null if using account-level quota. */
+  recordQuota: number | null;
+  /** Current number of DNS records in the zone. */
+  recordUsage: number;
+}
+
+export const GetUsageZoneResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  recordQuota: Schema.Union([Schema.Number, Schema.Null]),
+  recordUsage: Schema.Number,
+})
+  .pipe(
+    Schema.encodeKeys({
+      recordQuota: "record_quota",
+      recordUsage: "record_usage",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<GetUsageZoneResponse>;
+
+export type GetUsageZoneError = DefaultErrors;
+
+export const getUsageZone: API.OperationMethod<
+  GetUsageZoneRequest,
+  GetUsageZoneResponse,
+  GetUsageZoneError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetUsageZoneRequest,
+  output: GetUsageZoneResponse,
+  errors: [],
+}));
+
+// =============================================================================
 // ZoneTransferAcl
 // =============================================================================
 

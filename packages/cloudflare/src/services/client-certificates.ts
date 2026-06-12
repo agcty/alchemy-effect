@@ -63,37 +63,37 @@ export const GetClientCertificateRequest =
 export interface GetClientCertificateResponse {
   /** Identifier. */
   id?: string | null;
-  /** The Client Certificate PEM */
+  /** The Client Certificate PEM. */
   certificate?: string | null;
-  /** Certificate Authority used to issue the Client Certificate */
+  /** Certificate Authority used to issue the Client Certificate. */
   certificateAuthority?: { id?: string | null; name?: string | null } | null;
-  /** Common Name of the Client Certificate */
+  /** Common Name of the Client Certificate. */
   commonName?: string | null;
-  /** Country, provided by the CSR */
+  /** Country, provided by the CSR. */
   country?: string | null;
   /** The Certificate Signing Request (CSR). Must be newline-encoded. */
   csr?: string | null;
-  /** Date that the Client Certificate expires */
+  /** Date that the Client Certificate expires. */
   expiresOn?: string | null;
-  /** Unique identifier of the Client Certificate */
+  /** Unique identifier of the Client Certificate. */
   fingerprintSha256?: string | null;
-  /** Date that the Client Certificate was issued by the Certificate Authority */
+  /** Date that the Client Certificate was issued by the Certificate Authority. */
   issuedOn?: string | null;
-  /** Location, provided by the CSR */
+  /** Location, provided by the CSR. */
   location?: string | null;
-  /** Organization, provided by the CSR */
+  /** Organization, provided by the CSR. */
   organization?: string | null;
-  /** Organizational Unit, provided by the CSR */
+  /** Organizational Unit, provided by the CSR. */
   organizationalUnit?: string | null;
   /** The serial number on the created Client Certificate. */
   serialNumber?: string | null;
   /** The type of hash used for the Client Certificate.. */
   signature?: string | null;
-  /** Subject Key Identifier */
+  /** Subject Key Identifier. */
   ski?: string | null;
-  /** State, provided by the CSR */
+  /** State, provided by the CSR. */
   state?: string | null;
-  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions */
+  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions. */
   status?:
     | "active"
     | "pending_reactivation"
@@ -101,7 +101,7 @@ export interface GetClientCertificateResponse {
     | "revoked"
     | (string & {})
     | null;
-  /** The number of days the Client Certificate will be valid after the issued_on date */
+  /** The number of days the Client Certificate will be valid after the issued_on date. */
   validityDays?: number | null;
 }
 
@@ -200,7 +200,7 @@ export interface ListClientCertificatesRequest {
   perPage?: number;
   /** Query param: Limit to the number of records returned. */
   limit?: number;
-  /** Query param: Offset the results */
+  /** Query param: Offset the results. */
   offset?: number;
   /** Query param: Client Certitifcate Status to filter results by. */
   status?:
@@ -397,7 +397,7 @@ export interface CreateClientCertificateRequest {
   zoneId: string;
   /** Body param: The Certificate Signing Request (CSR). Must be newline-encoded. */
   csr: string;
-  /** Body param: The number of days the Client Certificate will be valid after the issued_on date */
+  /** Body param: The number of days the Client Certificate will be valid after the issued_on date. */
   validityDays: number;
 }
 
@@ -414,37 +414,37 @@ export const CreateClientCertificateRequest =
 export interface CreateClientCertificateResponse {
   /** Identifier. */
   id?: string | null;
-  /** The Client Certificate PEM */
+  /** The Client Certificate PEM. */
   certificate?: string | null;
-  /** Certificate Authority used to issue the Client Certificate */
+  /** Certificate Authority used to issue the Client Certificate. */
   certificateAuthority?: { id?: string | null; name?: string | null } | null;
-  /** Common Name of the Client Certificate */
+  /** Common Name of the Client Certificate. */
   commonName?: string | null;
-  /** Country, provided by the CSR */
+  /** Country, provided by the CSR. */
   country?: string | null;
   /** The Certificate Signing Request (CSR). Must be newline-encoded. */
   csr?: string | null;
-  /** Date that the Client Certificate expires */
+  /** Date that the Client Certificate expires. */
   expiresOn?: string | null;
-  /** Unique identifier of the Client Certificate */
+  /** Unique identifier of the Client Certificate. */
   fingerprintSha256?: string | null;
-  /** Date that the Client Certificate was issued by the Certificate Authority */
+  /** Date that the Client Certificate was issued by the Certificate Authority. */
   issuedOn?: string | null;
-  /** Location, provided by the CSR */
+  /** Location, provided by the CSR. */
   location?: string | null;
-  /** Organization, provided by the CSR */
+  /** Organization, provided by the CSR. */
   organization?: string | null;
-  /** Organizational Unit, provided by the CSR */
+  /** Organizational Unit, provided by the CSR. */
   organizationalUnit?: string | null;
   /** The serial number on the created Client Certificate. */
   serialNumber?: string | null;
   /** The type of hash used for the Client Certificate.. */
   signature?: string | null;
-  /** Subject Key Identifier */
+  /** Subject Key Identifier. */
   ski?: string | null;
-  /** State, provided by the CSR */
+  /** State, provided by the CSR. */
   state?: string | null;
-  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions */
+  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions. */
   status?:
     | "active"
     | "pending_reactivation"
@@ -452,7 +452,7 @@ export interface CreateClientCertificateResponse {
     | "revoked"
     | (string & {})
     | null;
-  /** The number of days the Client Certificate will be valid after the issued_on date */
+  /** The number of days the Client Certificate will be valid after the issued_on date. */
   validityDays?: number | null;
 }
 
@@ -564,37 +564,37 @@ export const PatchClientCertificateRequest =
 export interface PatchClientCertificateResponse {
   /** Identifier. */
   id?: string | null;
-  /** The Client Certificate PEM */
+  /** The Client Certificate PEM. */
   certificate?: string | null;
-  /** Certificate Authority used to issue the Client Certificate */
+  /** Certificate Authority used to issue the Client Certificate. */
   certificateAuthority?: { id?: string | null; name?: string | null } | null;
-  /** Common Name of the Client Certificate */
+  /** Common Name of the Client Certificate. */
   commonName?: string | null;
-  /** Country, provided by the CSR */
+  /** Country, provided by the CSR. */
   country?: string | null;
   /** The Certificate Signing Request (CSR). Must be newline-encoded. */
   csr?: string | null;
-  /** Date that the Client Certificate expires */
+  /** Date that the Client Certificate expires. */
   expiresOn?: string | null;
-  /** Unique identifier of the Client Certificate */
+  /** Unique identifier of the Client Certificate. */
   fingerprintSha256?: string | null;
-  /** Date that the Client Certificate was issued by the Certificate Authority */
+  /** Date that the Client Certificate was issued by the Certificate Authority. */
   issuedOn?: string | null;
-  /** Location, provided by the CSR */
+  /** Location, provided by the CSR. */
   location?: string | null;
-  /** Organization, provided by the CSR */
+  /** Organization, provided by the CSR. */
   organization?: string | null;
-  /** Organizational Unit, provided by the CSR */
+  /** Organizational Unit, provided by the CSR. */
   organizationalUnit?: string | null;
   /** The serial number on the created Client Certificate. */
   serialNumber?: string | null;
   /** The type of hash used for the Client Certificate.. */
   signature?: string | null;
-  /** Subject Key Identifier */
+  /** Subject Key Identifier. */
   ski?: string | null;
-  /** State, provided by the CSR */
+  /** State, provided by the CSR. */
   state?: string | null;
-  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions */
+  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions. */
   status?:
     | "active"
     | "pending_reactivation"
@@ -602,7 +602,7 @@ export interface PatchClientCertificateResponse {
     | "revoked"
     | (string & {})
     | null;
-  /** The number of days the Client Certificate will be valid after the issued_on date */
+  /** The number of days the Client Certificate will be valid after the issued_on date. */
   validityDays?: number | null;
 }
 
@@ -714,37 +714,37 @@ export const DeleteClientCertificateRequest =
 export interface DeleteClientCertificateResponse {
   /** Identifier. */
   id?: string | null;
-  /** The Client Certificate PEM */
+  /** The Client Certificate PEM. */
   certificate?: string | null;
-  /** Certificate Authority used to issue the Client Certificate */
+  /** Certificate Authority used to issue the Client Certificate. */
   certificateAuthority?: { id?: string | null; name?: string | null } | null;
-  /** Common Name of the Client Certificate */
+  /** Common Name of the Client Certificate. */
   commonName?: string | null;
-  /** Country, provided by the CSR */
+  /** Country, provided by the CSR. */
   country?: string | null;
   /** The Certificate Signing Request (CSR). Must be newline-encoded. */
   csr?: string | null;
-  /** Date that the Client Certificate expires */
+  /** Date that the Client Certificate expires. */
   expiresOn?: string | null;
-  /** Unique identifier of the Client Certificate */
+  /** Unique identifier of the Client Certificate. */
   fingerprintSha256?: string | null;
-  /** Date that the Client Certificate was issued by the Certificate Authority */
+  /** Date that the Client Certificate was issued by the Certificate Authority. */
   issuedOn?: string | null;
-  /** Location, provided by the CSR */
+  /** Location, provided by the CSR. */
   location?: string | null;
-  /** Organization, provided by the CSR */
+  /** Organization, provided by the CSR. */
   organization?: string | null;
-  /** Organizational Unit, provided by the CSR */
+  /** Organizational Unit, provided by the CSR. */
   organizationalUnit?: string | null;
   /** The serial number on the created Client Certificate. */
   serialNumber?: string | null;
   /** The type of hash used for the Client Certificate.. */
   signature?: string | null;
-  /** Subject Key Identifier */
+  /** Subject Key Identifier. */
   ski?: string | null;
-  /** State, provided by the CSR */
+  /** State, provided by the CSR. */
   state?: string | null;
-  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions */
+  /** Client Certificates may be active or revoked, and the pending_reactivation or pending_revocation represent in-progress asynchronous transitions. */
   status?:
     | "active"
     | "pending_reactivation"
@@ -752,7 +752,7 @@ export interface DeleteClientCertificateResponse {
     | "revoked"
     | (string & {})
     | null;
-  /** The number of days the Client Certificate will be valid after the issued_on date */
+  /** The number of days the Client Certificate will be valid after the issued_on date. */
   validityDays?: number | null;
 }
 

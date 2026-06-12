@@ -146,7 +146,7 @@ paths:
                           - google
                           - lets_encrypt
                           - ssl_com
-                        description: The Certificate Authority that will issue the certificate
+                        description: The Certificate Authority that will issue the certificate.
                       custom_certificate:
                         type: string
                         description: If a custom uploaded certificate is used.
@@ -513,7 +513,7 @@ paths:
                           - google
                           - lets_encrypt
                           - ssl_com
-                        description: The Certificate Authority that will issue the certificate
+                        description: The Certificate Authority that will issue the certificate.
                       custom_certificate:
                         type: string
                         description: If a custom uploaded certificate is used.
@@ -809,12 +809,12 @@ paths:
                         - google
                         - lets_encrypt
                         - ssl_com
-                      description: The Certificate Authority that will issue the certificate
+                      description: The Certificate Authority that will issue the certificate.
                     cloudflare_branding:
                       type: boolean
                       description: Whether or not to add Cloudflare Branding for the order. This will
                         add a subdomain of sni.cloudflaressl.com as the Common
-                        Name if set to true
+                        Name if set to true.
                     custom_cert_bundle:
                       type: array
                       items:
@@ -829,7 +829,7 @@ paths:
                         required:
                           - custom_certificate
                           - custom_key
-                      description: Array of custom certificate and key pairs (1 or 2 pairs allowed)
+                      description: Array of custom certificate and key pairs (1 or 2 pairs allowed).
                     custom_certificate:
                       type: string
                       description: If a custom uploaded certificate is used.
@@ -979,7 +979,7 @@ paths:
                           - google
                           - lets_encrypt
                           - ssl_com
-                        description: The Certificate Authority that will issue the certificate
+                        description: The Certificate Authority that will issue the certificate.
                       custom_certificate:
                         type: string
                         description: If a custom uploaded certificate is used.
@@ -1473,7 +1473,7 @@ paths:
                           - google
                           - lets_encrypt
                           - ssl_com
-                        description: The Certificate Authority that will issue the certificate
+                        description: The Certificate Authority that will issue the certificate.
                       custom_certificate:
                         type: string
                         description: If a custom uploaded certificate is used.
@@ -1756,12 +1756,12 @@ paths:
                         - google
                         - lets_encrypt
                         - ssl_com
-                      description: The Certificate Authority that will issue the certificate
+                      description: The Certificate Authority that will issue the certificate.
                     cloudflare_branding:
                       type: boolean
                       description: Whether or not to add Cloudflare Branding for the order. This will
                         add a subdomain of sni.cloudflaressl.com as the Common
-                        Name if set to true
+                        Name if set to true.
                     custom_cert_bundle:
                       type: array
                       items:
@@ -1776,7 +1776,7 @@ paths:
                         required:
                           - custom_certificate
                           - custom_key
-                      description: Array of custom certificate and key pairs (1 or 2 pairs allowed)
+                      description: Array of custom certificate and key pairs (1 or 2 pairs allowed).
                     custom_certificate:
                       type: string
                       description: If a custom uploaded certificate is used.
@@ -1928,7 +1928,7 @@ paths:
                           - google
                           - lets_encrypt
                           - ssl_com
-                        description: The Certificate Authority that will issue the certificate
+                        description: The Certificate Authority that will issue the certificate.
                       custom_certificate:
                         type: string
                         description: If a custom uploaded certificate is used.

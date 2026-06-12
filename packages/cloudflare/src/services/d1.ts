@@ -239,13 +239,44 @@ export const listDatabases: API.PaginatedOperationMethod<
 
 export interface GetDatabaseRequest {
   databaseId: string;
-  /** Account identifier tag. */
+  /** Path param: Account identifier tag. */
   accountId: string;
+  /** Query param: Comma-separated list of fields to include in the response. When omitted, all fields are returned. */
+  fields?: (
+    | "uuid"
+    | "name"
+    | "created_at"
+    | "version"
+    | "jurisdiction"
+    | "num_tables"
+    | "file_size"
+    | "running_in_region"
+    | "read_replication"
+    | (string & {})
+  )[];
 }
 
 export const GetDatabaseRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   databaseId: Schema.String.pipe(T.HttpPath("databaseId")),
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  fields: Schema.optional(
+    Schema.Array(
+      Schema.Union([
+        Schema.Literals([
+          "uuid",
+          "name",
+          "created_at",
+          "version",
+          "jurisdiction",
+          "num_tables",
+          "file_size",
+          "running_in_region",
+          "read_replication",
+        ]),
+        Schema.String,
+      ]),
+    ),
+  ).pipe(T.HttpQuery("fields")),
 }).pipe(
   T.Http({
     method: "GET",

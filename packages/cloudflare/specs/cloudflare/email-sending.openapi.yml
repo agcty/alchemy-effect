@@ -11,8 +11,7 @@ paths:
       operationId: sendEmailSending
       description: "Send an email  @example ```ts const response = await
         client.emailSending.send({ account_id: 'account_id', from:
-        'sender@example.com', subject: 'Monthly Report', to:
-        ['recipient@example.com'], }); ```"
+        'sender@example.com', subject: 'Monthly Report', }); ```"
       parameters:
         - name: account_id
           in: path
@@ -46,14 +45,6 @@ paths:
                 subject:
                   type: string
                   description: "Body param: Email subject line."
-                to:
-                  oneOf:
-                    - type: string
-                    - type: array
-                      items:
-                        type: string
-                  description: "Body param: Recipient(s). A single email string or an array of
-                    email strings."
                 attachments:
                   type: array
                   items:
@@ -152,10 +143,17 @@ paths:
                   type: string
                   description: "Body param: Plain text body of the email. At least one of text or
                     html must be provided (non-empty)."
+                to:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                  description: "Body param: Recipient(s). Optional if cc or bcc is provided. A
+                    single email string or an array of email strings."
               required:
                 - from
                 - subject
-                - to
       responses:
         "200":
           description: Success
@@ -169,6 +167,9 @@ paths:
                     items:
                       type: string
                     description: Email addresses to which the message was delivered immediately.
+                  message_id:
+                    type: string
+                    description: Message ID of the sent email.
                   permanent_bounces:
                     type: array
                     items:
@@ -181,6 +182,7 @@ paths:
                     description: Email addresses for which delivery was queued for later.
                 required:
                   - delivered
+                  - message_id
                   - permanent_bounces
                   - queued
       x-distilled-response-path: result
@@ -240,6 +242,9 @@ paths:
                     items:
                       type: string
                     description: Email addresses to which the message was delivered immediately.
+                  message_id:
+                    type: string
+                    description: Message ID of the sent email.
                   permanent_bounces:
                     type: array
                     items:
@@ -252,6 +257,7 @@ paths:
                     description: Email addresses for which delivery was queued for later.
                 required:
                   - delivered
+                  - message_id
                   - permanent_bounces
                   - queued
       x-distilled-response-path: result

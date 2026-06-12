@@ -3633,7 +3633,8 @@ paths:
         loading with `gotoOptions` and `waitFor ` options. Customize screenshots
         with `viewport`, `fullPage`, `clip` and others.  @example ```ts const
         snapshot = await client.browserRendering.snapshot.create({ account_id:
-        'account_id', html: '<h1>Hello World!</h1>', }); ```"
+        'account_id', html: '<h1>Hello World!</h1>', formats: ['content',
+        'screenshot'], }); ```"
       parameters:
         - name: account_id
           in: path
@@ -3791,6 +3792,16 @@ paths:
                     [options](https://pptr.dev/api/puppeteer.page.setcookie)."
                 emulateMediaType:
                   type: string
+                  description: Body param
+                formats:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - content
+                      - screenshot
+                      - markdown
+                      - accessibilityTree
                   description: Body param
                 gotoOptions:
                   type: object
@@ -3960,13 +3971,82 @@ paths:
               schema:
                 type: object
                 properties:
+                  accessibilityTree:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                      autocomplete:
+                        type: string
+                      checked:
+                        oneOf:
+                          - type: boolean
+                          - type: string
+                            enum:
+                              - mixed
+                      children:
+                        type: array
+                        items: {}
+                      description:
+                        type: string
+                      disabled:
+                        type: boolean
+                      expanded:
+                        type: boolean
+                      focused:
+                        type: boolean
+                      haspopup:
+                        type: string
+                      invalid:
+                        type: string
+                      keyshortcuts:
+                        type: string
+                      level:
+                        type: number
+                      modal:
+                        type: boolean
+                      multiline:
+                        type: boolean
+                      multiselectable:
+                        type: boolean
+                      name:
+                        type: string
+                      orientation:
+                        type: string
+                      pressed:
+                        oneOf:
+                          - type: boolean
+                          - type: string
+                            enum:
+                              - mixed
+                      readonly:
+                        type: boolean
+                      required:
+                        type: boolean
+                      roledescription:
+                        type: string
+                      selected:
+                        type: boolean
+                      value:
+                        oneOf:
+                          - type: string
+                          - type: number
+                      valuemax:
+                        type: number
+                      valuemin:
+                        type: number
+                      valuetext:
+                        type: string
+                    required:
+                      - role
+                    description: Accessibility tree node
                   content:
                     type: string
                     description: HTML content.
+                  markdown:
+                    type: string
+                    description: Markdown content.
                   screenshot:
                     type: string
                     description: Base64 encoded image.
-                required:
-                  - content
-                  - screenshot
       x-distilled-response-path: result

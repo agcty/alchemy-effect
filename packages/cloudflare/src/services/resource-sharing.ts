@@ -309,10 +309,12 @@ export interface CreateRecipientRequest {
   shareId: string;
   /** Path param: Account identifier. */
   pathAccountId: string;
-  /** Body param: Account identifier. */
+  /** @deprecated This field has been renamed to `recipient_account_id`. Both names are accepted during the deprecation period. */
   bodyAccountId?: string;
   /** Body param: Organization identifier. */
   organizationId?: string;
+  /** Body param: The account that will receive the share. */
+  recipientAccountId?: string;
 }
 
 export const CreateRecipientRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -321,11 +323,13 @@ export const CreateRecipientRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     pathAccountId: Schema.String.pipe(T.HttpPath("path_account_id")),
     bodyAccountId: Schema.optional(Schema.String),
     organizationId: Schema.optional(Schema.String),
+    recipientAccountId: Schema.optional(Schema.String),
   },
 ).pipe(
   Schema.encodeKeys({
     bodyAccountId: "body_account_id",
     organizationId: "organization_id",
+    recipientAccountId: "recipient_account_id",
   }),
   T.Http({
     method: "POST",
@@ -540,19 +544,19 @@ export const deleteRecipient: API.OperationMethod<
 
 export interface GetResourceRequest {
   shareId: string;
-  resourceId: string;
+  shareResourceId: string;
   /** Account identifier. */
   accountId: string;
 }
 
 export const GetResourceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   shareId: Schema.String.pipe(T.HttpPath("shareId")),
-  resourceId: Schema.String.pipe(T.HttpPath("resourceId")),
+  shareResourceId: Schema.String.pipe(T.HttpPath("shareResourceId")),
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
 }).pipe(
   T.Http({
     method: "GET",
-    path: "/accounts/{account_id}/shares/{shareId}/resources/{resourceId}",
+    path: "/accounts/{account_id}/shares/{shareId}/resources/{shareResourceId}",
   }),
 ) as unknown as Schema.Schema<GetResourceRequest>;
 
@@ -936,7 +940,7 @@ export const createResource: API.OperationMethod<
 
 export interface UpdateResourceRequest {
   shareId: string;
-  resourceId: string;
+  shareResourceId: string;
   /** Path param: Account identifier. */
   accountId: string;
   /** Body param: Resource Metadata. */
@@ -945,13 +949,13 @@ export interface UpdateResourceRequest {
 
 export const UpdateResourceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   shareId: Schema.String.pipe(T.HttpPath("shareId")),
-  resourceId: Schema.String.pipe(T.HttpPath("resourceId")),
+  shareResourceId: Schema.String.pipe(T.HttpPath("shareResourceId")),
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   meta: Schema.Unknown,
 }).pipe(
   T.Http({
     method: "PUT",
-    path: "/accounts/{account_id}/shares/{shareId}/resources/{resourceId}",
+    path: "/accounts/{account_id}/shares/{shareId}/resources/{shareResourceId}",
   }),
 ) as unknown as Schema.Schema<UpdateResourceRequest>;
 
@@ -1044,19 +1048,19 @@ export const updateResource: API.OperationMethod<
 
 export interface DeleteResourceRequest {
   shareId: string;
-  resourceId: string;
+  shareResourceId: string;
   /** Account identifier. */
   accountId: string;
 }
 
 export const DeleteResourceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   shareId: Schema.String.pipe(T.HttpPath("shareId")),
-  resourceId: Schema.String.pipe(T.HttpPath("resourceId")),
+  shareResourceId: Schema.String.pipe(T.HttpPath("shareResourceId")),
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
 }).pipe(
   T.Http({
     method: "DELETE",
-    path: "/accounts/{account_id}/shares/{shareId}/resources/{resourceId}",
+    path: "/accounts/{account_id}/shares/{shareId}/resources/{shareResourceId}",
   }),
 ) as unknown as Schema.Schema<DeleteResourceRequest>;
 
@@ -1622,7 +1626,11 @@ export interface CreateResourceSharingRequest {
   /** Body param: The name of the share. */
   name: string;
   /** Body param */
-  recipients: { accountId?: string; organizationId?: string }[];
+  recipients: {
+    accountId?: string;
+    organizationId?: string;
+    recipientAccountId?: string;
+  }[];
   /** Body param */
   resources: {
     meta: unknown;
@@ -1647,10 +1655,12 @@ export const CreateResourceSharingRequest =
       Schema.Struct({
         accountId: Schema.optional(Schema.String),
         organizationId: Schema.optional(Schema.String),
+        recipientAccountId: Schema.optional(Schema.String),
       }).pipe(
         Schema.encodeKeys({
           accountId: "account_id",
           organizationId: "organization_id",
+          recipientAccountId: "recipient_account_id",
         }),
       ),
     ),
