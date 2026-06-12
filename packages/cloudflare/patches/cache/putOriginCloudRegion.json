@@ -1,6 +1,5 @@
 {
   "errors": {
-    "OriginCloudRegionNotFound": [{ "status": 404 }],
     "Forbidden": [{ "status": 403 }]
   }
 }

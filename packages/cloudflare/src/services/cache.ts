@@ -685,7 +685,7 @@ export const PutOriginCloudRegionResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PutOriginCloudRegionResponse>;
 
-export type PutOriginCloudRegionError = DefaultErrors;
+export type PutOriginCloudRegionError = DefaultErrors | Forbidden;
 
 export const putOriginCloudRegion: API.OperationMethod<
   PutOriginCloudRegionRequest,
@@ -695,7 +695,7 @@ export const putOriginCloudRegion: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutOriginCloudRegionRequest,
   output: PutOriginCloudRegionResponse,
-  errors: [],
+  errors: [Forbidden],
 }));
 
 export interface DeleteOriginCloudRegionRequest {

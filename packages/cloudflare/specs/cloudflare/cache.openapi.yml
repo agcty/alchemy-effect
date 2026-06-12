@@ -593,6 +593,9 @@ paths:
                   - region
                   - vendor
       x-distilled-response-path: result
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
     delete:
       operationId: deleteOriginCloudRegion
       description: "Removes the cloud region mapping for a single origin IP address.
