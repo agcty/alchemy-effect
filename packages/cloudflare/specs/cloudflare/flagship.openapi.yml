@@ -50,6 +50,11 @@ paths:
                   - updated_at
                   - updated_by
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
     put:
       operationId: updateApp
       description: Updates an app. Only `name` is mutable.
@@ -102,6 +107,11 @@ paths:
                   - updated_at
                   - updated_by
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
     delete:
       operationId: deleteApp
       description: Deletes an app and all its flags and changelog history. Returns 409
@@ -131,6 +141,11 @@ paths:
                 required:
                   - id
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
   /accounts/{account_id}/flagship/apps:
     get:
       operationId: listApps
@@ -664,6 +679,15 @@ paths:
                   - rules
                   - variations
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipFlagNotFound:
+          - status: 404
+            message:
+              includes: Flag not found
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
     put:
       operationId: updateAppFlag
       description: Replaces the entire flag definition. Omitted fields are dropped,
@@ -1396,6 +1420,15 @@ paths:
                   - rules
                   - variations
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipFlagNotFound:
+          - status: 404
+            message:
+              includes: Flag not found
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
     delete:
       operationId: deleteAppFlag
       description: Permanently deletes a flag. Subsequent evaluations fall back to the
@@ -1430,6 +1463,15 @@ paths:
                 required:
                   - key
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipFlagNotFound:
+          - status: 404
+            message:
+              includes: Flag not found
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
   /accounts/{account_id}/flagship/apps/{appId}/flags:
     get:
       operationId: listAppFlags
@@ -1815,6 +1857,11 @@ paths:
                   - rules
                   - variations
       x-distilled-pagination-class: FlagListResponsesCursorPaginationAfter
+      x-distilled-errors:
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
     post:
       operationId: createAppFlag
       description: Creates a flag. Returns 409 if the key already exists. `type` is
@@ -2541,6 +2588,15 @@ paths:
                   - rules
                   - variations
       x-distilled-response-path: result
+      x-distilled-errors:
+        FlagshipFlagAlreadyExists:
+          - status: 409
+            message:
+              includes: Flag already exists
+        FlagshipAppNotFound:
+          - status: 404
+            message:
+              includes: App not found
   /accounts/{account_id}/flagship/apps/{appId}/flags/{flagKey}/changelog:
     get:
       operationId: listAppFlagChangelogs

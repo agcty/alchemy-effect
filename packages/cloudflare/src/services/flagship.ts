@@ -13,6 +13,34 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class FlagshipAppNotFound extends Schema.TaggedErrorClass<FlagshipAppNotFound>()(
+  "FlagshipAppNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(FlagshipAppNotFound, [
+  { status: 404, message: { includes: "App not found" } },
+]);
+
+export class FlagshipFlagAlreadyExists extends Schema.TaggedErrorClass<FlagshipFlagAlreadyExists>()(
+  "FlagshipFlagAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(FlagshipFlagAlreadyExists, [
+  { status: 409, message: { includes: "Flag already exists" } },
+]);
+
+export class FlagshipFlagNotFound extends Schema.TaggedErrorClass<FlagshipFlagNotFound>()(
+  "FlagshipFlagNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(FlagshipFlagNotFound, [
+  { status: 404, message: { includes: "Flag not found" } },
+]);
+
+// =============================================================================
 // App
 // =============================================================================
 
@@ -59,7 +87,7 @@ export const GetAppResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   )
   .pipe(T.ResponsePath("result")) as unknown as Schema.Schema<GetAppResponse>;
 
-export type GetAppError = DefaultErrors;
+export type GetAppError = DefaultErrors | FlagshipAppNotFound;
 
 export const getApp: API.OperationMethod<
   GetAppRequest,
@@ -69,7 +97,7 @@ export const getApp: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetAppRequest,
   output: GetAppResponse,
-  errors: [],
+  errors: [FlagshipAppNotFound],
 }));
 
 export interface ListAppsRequest {
@@ -234,7 +262,7 @@ export const UpdateAppResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateAppResponse>;
 
-export type UpdateAppError = DefaultErrors;
+export type UpdateAppError = DefaultErrors | FlagshipAppNotFound;
 
 export const updateApp: API.OperationMethod<
   UpdateAppRequest,
@@ -244,7 +272,7 @@ export const updateApp: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateAppRequest,
   output: UpdateAppResponse,
-  errors: [],
+  errors: [FlagshipAppNotFound],
 }));
 
 export interface DeleteAppRequest {
@@ -273,7 +301,7 @@ export const DeleteAppResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteAppResponse>;
 
-export type DeleteAppError = DefaultErrors;
+export type DeleteAppError = DefaultErrors | FlagshipAppNotFound;
 
 export const deleteApp: API.OperationMethod<
   DeleteAppRequest,
@@ -283,7 +311,7 @@ export const deleteApp: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteAppRequest,
   output: DeleteAppResponse,
-  errors: [],
+  errors: [FlagshipAppNotFound],
 }));
 
 // =============================================================================
@@ -600,7 +628,10 @@ export const GetAppFlagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetAppFlagResponse>;
 
-export type GetAppFlagError = DefaultErrors;
+export type GetAppFlagError =
+  | DefaultErrors
+  | FlagshipFlagNotFound
+  | FlagshipAppNotFound;
 
 export const getAppFlag: API.OperationMethod<
   GetAppFlagRequest,
@@ -610,7 +641,7 @@ export const getAppFlag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetAppFlagRequest,
   output: GetAppFlagResponse,
-  errors: [],
+  errors: [FlagshipFlagNotFound, FlagshipAppNotFound],
 }));
 
 export interface ListAppFlagsRequest {
@@ -832,7 +863,7 @@ export const ListAppFlagsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListAppFlagsResponse>;
 
-export type ListAppFlagsError = DefaultErrors;
+export type ListAppFlagsError = DefaultErrors | FlagshipAppNotFound;
 
 export const listAppFlags: API.PaginatedOperationMethod<
   ListAppFlagsRequest,
@@ -842,7 +873,7 @@ export const listAppFlags: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListAppFlagsRequest,
   output: ListAppFlagsResponse,
-  errors: [],
+  errors: [FlagshipAppNotFound],
   pagination: {
     mode: "cursor",
     inputToken: "cursor",
@@ -1277,7 +1308,10 @@ export const CreateAppFlagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateAppFlagResponse>;
 
-export type CreateAppFlagError = DefaultErrors;
+export type CreateAppFlagError =
+  | DefaultErrors
+  | FlagshipFlagAlreadyExists
+  | FlagshipAppNotFound;
 
 export const createAppFlag: API.OperationMethod<
   CreateAppFlagRequest,
@@ -1287,7 +1321,7 @@ export const createAppFlag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateAppFlagRequest,
   output: CreateAppFlagResponse,
-  errors: [],
+  errors: [FlagshipFlagAlreadyExists, FlagshipAppNotFound],
 }));
 
 export interface UpdateAppFlagRequest {
@@ -1718,7 +1752,10 @@ export const UpdateAppFlagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateAppFlagResponse>;
 
-export type UpdateAppFlagError = DefaultErrors;
+export type UpdateAppFlagError =
+  | DefaultErrors
+  | FlagshipFlagNotFound
+  | FlagshipAppNotFound;
 
 export const updateAppFlag: API.OperationMethod<
   UpdateAppFlagRequest,
@@ -1728,7 +1765,7 @@ export const updateAppFlag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateAppFlagRequest,
   output: UpdateAppFlagResponse,
-  errors: [],
+  errors: [FlagshipFlagNotFound, FlagshipAppNotFound],
 }));
 
 export interface DeleteAppFlagRequest {
@@ -1759,7 +1796,10 @@ export const DeleteAppFlagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteAppFlagResponse>;
 
-export type DeleteAppFlagError = DefaultErrors;
+export type DeleteAppFlagError =
+  | DefaultErrors
+  | FlagshipFlagNotFound
+  | FlagshipAppNotFound;
 
 export const deleteAppFlag: API.OperationMethod<
   DeleteAppFlagRequest,
@@ -1769,7 +1809,7 @@ export const deleteAppFlag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteAppFlagRequest,
   output: DeleteAppFlagResponse,
-  errors: [],
+  errors: [FlagshipFlagNotFound, FlagshipAppNotFound],
 }));
 
 // =============================================================================
