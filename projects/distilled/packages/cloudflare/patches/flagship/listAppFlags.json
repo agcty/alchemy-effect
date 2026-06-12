@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "FlagshipAppNotFound": [
+      { "status": 404, "message": { "includes": "App not found" } }
+    ]
+  }
+}
