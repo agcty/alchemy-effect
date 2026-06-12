@@ -17,11 +17,29 @@ import { UploadableSchema } from "../schemas.ts";
 // Errors
 // =============================================================================
 
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
 export class InvalidObjectIdentifier extends Schema.TaggedErrorClass<InvalidObjectIdentifier>()(
   "InvalidObjectIdentifier",
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(InvalidObjectIdentifier, [{ code: 7003 }]);
+
+export class LabelAlreadyExists extends Schema.TaggedErrorClass<LabelAlreadyExists>()(
+  "LabelAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(LabelAlreadyExists, [{ code: 70009 }]);
+
+export class LabelNotFound extends Schema.TaggedErrorClass<LabelNotFound>()(
+  "LabelNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(LabelNotFound, [{ code: 70014 }]);
 
 export class NotEntitled extends Schema.TaggedErrorClass<NotEntitled>()(
   "NotEntitled",
@@ -98,7 +116,8 @@ export const GetConfigurationResponse =
 export type GetConfigurationError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | NotEntitled;
+  | NotEntitled
+  | Forbidden;
 
 export const getConfiguration: API.OperationMethod<
   GetConfigurationRequest,
@@ -108,7 +127,7 @@ export const getConfiguration: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetConfigurationRequest,
   output: GetConfigurationResponse,
-  errors: [InvalidObjectIdentifier, NotEntitled],
+  errors: [InvalidObjectIdentifier, NotEntitled, Forbidden],
 }));
 
 export interface PutConfigurationRequest {
@@ -185,7 +204,8 @@ export const PutConfigurationResponse =
 export type PutConfigurationError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | NotEntitled;
+  | NotEntitled
+  | Forbidden;
 
 export const putConfiguration: API.OperationMethod<
   PutConfigurationRequest,
@@ -195,7 +215,7 @@ export const putConfiguration: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutConfigurationRequest,
   output: PutConfigurationResponse,
-  errors: [InvalidObjectIdentifier, NotEntitled],
+  errors: [InvalidObjectIdentifier, NotEntitled, Forbidden],
 }));
 
 // =============================================================================
@@ -743,7 +763,7 @@ export const ListLabelsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListLabelsResponse>;
 
-export type ListLabelsError = DefaultErrors;
+export type ListLabelsError = DefaultErrors | Forbidden;
 
 export const listLabels: API.PaginatedOperationMethod<
   ListLabelsRequest,
@@ -753,7 +773,7 @@ export const listLabels: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListLabelsRequest,
   output: ListLabelsResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -992,7 +1012,7 @@ export const GetLabelUserResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetLabelUserResponse>;
 
-export type GetLabelUserError = DefaultErrors;
+export type GetLabelUserError = DefaultErrors | LabelNotFound | Forbidden;
 
 export const getLabelUser: API.OperationMethod<
   GetLabelUserRequest,
@@ -1002,7 +1022,7 @@ export const getLabelUser: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetLabelUserRequest,
   output: GetLabelUserResponse,
-  errors: [],
+  errors: [LabelNotFound, Forbidden],
 }));
 
 export interface PutLabelUserRequest {
@@ -1062,7 +1082,7 @@ export const PutLabelUserResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PutLabelUserResponse>;
 
-export type PutLabelUserError = DefaultErrors;
+export type PutLabelUserError = DefaultErrors | LabelNotFound;
 
 export const putLabelUser: API.OperationMethod<
   PutLabelUserRequest,
@@ -1072,7 +1092,7 @@ export const putLabelUser: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutLabelUserRequest,
   output: PutLabelUserResponse,
-  errors: [],
+  errors: [LabelNotFound],
 }));
 
 export interface PatchLabelUserRequest {
@@ -1134,7 +1154,7 @@ export const PatchLabelUserResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PatchLabelUserResponse>;
 
-export type PatchLabelUserError = DefaultErrors;
+export type PatchLabelUserError = DefaultErrors | LabelNotFound;
 
 export const patchLabelUser: API.OperationMethod<
   PatchLabelUserRequest,
@@ -1144,7 +1164,7 @@ export const patchLabelUser: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchLabelUserRequest,
   output: PatchLabelUserResponse,
-  errors: [],
+  errors: [LabelNotFound],
 }));
 
 export interface DeleteLabelUserRequest {
@@ -1201,7 +1221,7 @@ export const DeleteLabelUserResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<DeleteLabelUserResponse>;
 
-export type DeleteLabelUserError = DefaultErrors;
+export type DeleteLabelUserError = DefaultErrors | LabelNotFound | Forbidden;
 
 export const deleteLabelUser: API.OperationMethod<
   DeleteLabelUserRequest,
@@ -1211,7 +1231,7 @@ export const deleteLabelUser: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteLabelUserRequest,
   output: DeleteLabelUserResponse,
-  errors: [],
+  errors: [LabelNotFound, Forbidden],
 }));
 
 export interface BulkCreateLabelUsersRequest {
@@ -1275,7 +1295,10 @@ export const BulkCreateLabelUsersResponse =
     ),
   }) as unknown as Schema.Schema<BulkCreateLabelUsersResponse>;
 
-export type BulkCreateLabelUsersError = DefaultErrors;
+export type BulkCreateLabelUsersError =
+  | DefaultErrors
+  | LabelAlreadyExists
+  | Forbidden;
 
 export const bulkCreateLabelUsers: API.PaginatedOperationMethod<
   BulkCreateLabelUsersRequest,
@@ -1285,7 +1308,7 @@ export const bulkCreateLabelUsers: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: BulkCreateLabelUsersRequest,
   output: BulkCreateLabelUsersResponse,
-  errors: [],
+  errors: [LabelAlreadyExists, Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -1887,7 +1910,8 @@ export const GetOperationResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export type GetOperationError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | OperationNotFound;
+  | OperationNotFound
+  | Forbidden;
 
 export const getOperation: API.OperationMethod<
   GetOperationRequest,
@@ -1897,7 +1921,7 @@ export const getOperation: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetOperationRequest,
   output: GetOperationResponse,
-  errors: [InvalidObjectIdentifier, OperationNotFound],
+  errors: [InvalidObjectIdentifier, OperationNotFound, Forbidden],
 }));
 
 export interface ListOperationsRequest {
@@ -2350,7 +2374,7 @@ export const ListOperationsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListOperationsResponse>;
 
-export type ListOperationsError = DefaultErrors;
+export type ListOperationsError = DefaultErrors | Forbidden;
 
 export const listOperations: API.PaginatedOperationMethod<
   ListOperationsRequest,
@@ -2360,7 +2384,7 @@ export const listOperations: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListOperationsRequest,
   output: ListOperationsResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -2837,7 +2861,10 @@ export const CreateOperationResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateOperationResponse>;
 
-export type CreateOperationError = DefaultErrors | InvalidObjectIdentifier;
+export type CreateOperationError =
+  | DefaultErrors
+  | InvalidObjectIdentifier
+  | Forbidden;
 
 export const createOperation: API.OperationMethod<
   CreateOperationRequest,
@@ -2847,7 +2874,7 @@ export const createOperation: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateOperationRequest,
   output: CreateOperationResponse,
-  errors: [InvalidObjectIdentifier],
+  errors: [InvalidObjectIdentifier, Forbidden],
 }));
 
 export interface DeleteOperationRequest {
@@ -2945,7 +2972,8 @@ export const DeleteOperationResponse =
 export type DeleteOperationError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | OperationNotFound;
+  | OperationNotFound
+  | Forbidden;
 
 export const deleteOperation: API.OperationMethod<
   DeleteOperationRequest,
@@ -2955,7 +2983,7 @@ export const deleteOperation: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteOperationRequest,
   output: DeleteOperationResponse,
-  errors: [InvalidObjectIdentifier, OperationNotFound],
+  errors: [InvalidObjectIdentifier, OperationNotFound, Forbidden],
 }));
 
 export interface BulkCreateOperationsRequest {
@@ -4826,7 +4854,8 @@ export const GetUserSchemaResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export type GetUserSchemaError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | SchemaNotFound;
+  | SchemaNotFound
+  | Forbidden;
 
 export const getUserSchema: API.OperationMethod<
   GetUserSchemaRequest,
@@ -4836,7 +4865,7 @@ export const getUserSchema: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetUserSchemaRequest,
   output: GetUserSchemaResponse,
-  errors: [InvalidObjectIdentifier, SchemaNotFound],
+  errors: [InvalidObjectIdentifier, SchemaNotFound, Forbidden],
 }));
 
 export interface ListUserSchemasRequest {
@@ -4930,7 +4959,7 @@ export const ListUserSchemasResponse =
     Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
   ) as unknown as Schema.Schema<ListUserSchemasResponse>;
 
-export type ListUserSchemasError = DefaultErrors;
+export type ListUserSchemasError = DefaultErrors | Forbidden;
 
 export const listUserSchemas: API.PaginatedOperationMethod<
   ListUserSchemasRequest,
@@ -4940,7 +4969,7 @@ export const listUserSchemas: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListUserSchemasRequest,
   output: ListUserSchemasResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -5052,7 +5081,10 @@ export const CreateUserSchemaResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateUserSchemaResponse>;
 
-export type CreateUserSchemaError = DefaultErrors | InvalidObjectIdentifier;
+export type CreateUserSchemaError =
+  | DefaultErrors
+  | InvalidObjectIdentifier
+  | Forbidden;
 
 export const createUserSchema: API.OperationMethod<
   CreateUserSchemaRequest,
@@ -5062,7 +5094,7 @@ export const createUserSchema: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateUserSchemaRequest,
   output: CreateUserSchemaResponse,
-  errors: [InvalidObjectIdentifier],
+  errors: [InvalidObjectIdentifier, Forbidden],
 }));
 
 export interface PatchUserSchemaRequest {
@@ -5129,7 +5161,8 @@ export const PatchUserSchemaResponse =
 export type PatchUserSchemaError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | SchemaNotFound;
+  | SchemaNotFound
+  | Forbidden;
 
 export const patchUserSchema: API.OperationMethod<
   PatchUserSchemaRequest,
@@ -5139,7 +5172,7 @@ export const patchUserSchema: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchUserSchemaRequest,
   output: PatchUserSchemaResponse,
-  errors: [InvalidObjectIdentifier, SchemaNotFound],
+  errors: [InvalidObjectIdentifier, SchemaNotFound, Forbidden],
 }));
 
 export interface DeleteUserSchemaRequest {
@@ -5236,7 +5269,8 @@ export const DeleteUserSchemaResponse =
 export type DeleteUserSchemaError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | SchemaNotFound;
+  | SchemaNotFound
+  | Forbidden;
 
 export const deleteUserSchema: API.OperationMethod<
   DeleteUserSchemaRequest,
@@ -5246,7 +5280,7 @@ export const deleteUserSchema: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteUserSchemaRequest,
   output: DeleteUserSchemaResponse,
-  errors: [InvalidObjectIdentifier, SchemaNotFound],
+  errors: [InvalidObjectIdentifier, SchemaNotFound, Forbidden],
 }));
 
 // =============================================================================

@@ -11,19 +11,15 @@ paths:
       operationId: getSettingTls
       description: List the requested TLS setting for the hostnames under this zone.
       parameters:
-        - name: settingId
-          in: path
-          required: true
-          schema:
-            type: string
-            enum:
-              - ciphers
-              - min_tls_version
-              - http2
         - name: zone_id
           in: path
           required: true
           description: Identifier.
+          schema:
+            type: string
+        - name: settingId
+          in: path
+          required: true
           schema:
             type: string
       responses:
@@ -79,20 +75,16 @@ paths:
                       (e.g., `"1.2"`) - `http2`: a string indicating whether
                       HTTP/2 is enabled — `"on"` or `"off"` (e.g., `"on"`)'
       x-distilled-pagination-class: TLSGetResponsesSinglePage
+      x-distilled-errors:
+        AdvancedCertificateManagerRequired:
+          - code: 1450
+        Forbidden:
+          - status: 403
   /zones/{zone_id}/hostnames/settings/{settingId}/{hostname}:
     put:
       operationId: putSettingTls
       description: Update the tls setting value for the hostname.
       parameters:
-        - name: settingId
-          in: path
-          required: true
-          schema:
-            type: string
-            enum:
-              - ciphers
-              - min_tls_version
-              - http2
         - name: hostname
           in: path
           required: true
@@ -102,6 +94,11 @@ paths:
           in: path
           required: true
           description: "Path param: Identifier."
+          schema:
+            type: string
+        - name: settingId
+          in: path
+          required: true
           schema:
             type: string
       requestBody:
@@ -198,19 +195,15 @@ paths:
                       (e.g., `"1.2"`) - `http2`: a string indicating whether
                       HTTP/2 is enabled — `"on"` or `"off"` (e.g., `"on"`)'
       x-distilled-response-path: result
+      x-distilled-errors:
+        AdvancedCertificateManagerRequired:
+          - code: 1450
+        Forbidden:
+          - status: 403
     delete:
       operationId: deleteSettingTls
       description: Delete the tls setting value for the hostname.
       parameters:
-        - name: settingId
-          in: path
-          required: true
-          schema:
-            type: string
-            enum:
-              - ciphers
-              - min_tls_version
-              - http2
         - name: hostname
           in: path
           required: true
@@ -220,6 +213,11 @@ paths:
           in: path
           required: true
           description: Identifier.
+          schema:
+            type: string
+        - name: settingId
+          in: path
+          required: true
           schema:
             type: string
       responses:
@@ -275,3 +273,10 @@ paths:
                       (e.g., `"1.2"`) - `http2`: a string indicating whether
                       HTTP/2 is enabled — `"on"` or `"off"` (e.g., `"on"`)'
       x-distilled-response-path: result
+      x-distilled-errors:
+        AdvancedCertificateManagerRequired:
+          - code: 1450
+        HostnameTlsSettingNotFound:
+          - status: 404
+        Forbidden:
+          - status: 403

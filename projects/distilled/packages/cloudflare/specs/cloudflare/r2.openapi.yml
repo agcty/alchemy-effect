@@ -1,7 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Cloudflare R2 API
+  title: Cloudflare R2 Object API
   version: 0.0.0
+  description: R2 object operations not exposed in the Cloudflare TypeScript SDK.
 servers:
   - url: https://api.cloudflare.com/client/v4
 x-distilled-service: r2
@@ -982,6 +983,11 @@ paths:
                 required:
                   - domain
       x-distilled-response-path: result
+      x-distilled-errors:
+        DomainNotFound:
+          - code: 10053
+        NoSuchBucket:
+          - code: 10006
   /accounts/{account_id}/r2/buckets/{bucketName}/domains/custom:
     get:
       operationId: listBucketDomainCustoms
@@ -1200,6 +1206,10 @@ paths:
           - code: 10006
         InvalidBucketName:
           - code: 10005
+        CustomDomainInUse:
+          - status: 409
+            message:
+              includes: in use
   /accounts/{account_id}/r2/buckets/{bucketName}/domains/managed:
     get:
       operationId: listBucketDomainManageds
@@ -1369,7 +1379,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  queueId:
+                  queue:
                     type: string
                     description: Queue ID.
                   queueName:
@@ -1421,6 +1431,8 @@ paths:
           - code: 11000
         InvalidRoute:
           - code: 7003
+        Forbidden:
+          - status: 403
     put:
       operationId: putBucketEventNotification
       description: "Create event notification rule.  @example ```ts const
@@ -2767,6 +2779,8 @@ paths:
           - code: 10006
         InvalidRoute:
           - code: 7003
+        Forbidden:
+          - status: 403
     put:
       operationId: putBucketSippy
       description: "Sets configuration for Sippy for an existing R2 bucket.  @example

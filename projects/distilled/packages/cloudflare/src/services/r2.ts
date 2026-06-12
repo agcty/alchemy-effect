@@ -33,6 +33,14 @@ export class BucketNotFound extends Schema.TaggedErrorClass<BucketNotFound>()(
 ) {}
 T.applyErrorMatchers(BucketNotFound, [{ code: 10085 }]);
 
+export class CustomDomainInUse extends Schema.TaggedErrorClass<CustomDomainInUse>()(
+  "CustomDomainInUse",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(CustomDomainInUse, [
+  { status: 409, message: { includes: "in use" } },
+]);
+
 export class DomainNotFound extends Schema.TaggedErrorClass<DomainNotFound>()(
   "DomainNotFound",
   { code: Schema.Number, message: Schema.String },
@@ -50,6 +58,12 @@ export class EventNotificationRuleConflict extends Schema.TaggedErrorClass<Event
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(EventNotificationRuleConflict, [{ code: 11020 }]);
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
 
 export class InvalidBucketName extends Schema.TaggedErrorClass<InvalidBucketName>()(
   "InvalidBucketName",
@@ -1286,7 +1300,8 @@ export const CreateBucketDomainCustomResponse =
 export type CreateBucketDomainCustomError =
   | DefaultErrors
   | NoSuchBucket
-  | InvalidBucketName;
+  | InvalidBucketName
+  | CustomDomainInUse;
 
 export const createBucketDomainCustom: API.OperationMethod<
   CreateBucketDomainCustomRequest,
@@ -1296,7 +1311,7 @@ export const createBucketDomainCustom: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateBucketDomainCustomRequest,
   output: CreateBucketDomainCustomResponse,
-  errors: [NoSuchBucket, InvalidBucketName],
+  errors: [NoSuchBucket, InvalidBucketName, CustomDomainInUse],
 }));
 
 export interface UpdateBucketDomainCustomRequest {
@@ -1423,7 +1438,10 @@ export const DeleteBucketDomainCustomResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteBucketDomainCustomResponse>;
 
-export type DeleteBucketDomainCustomError = DefaultErrors;
+export type DeleteBucketDomainCustomError =
+  | DefaultErrors
+  | DomainNotFound
+  | NoSuchBucket;
 
 export const deleteBucketDomainCustom: API.OperationMethod<
   DeleteBucketDomainCustomRequest,
@@ -1433,7 +1451,7 @@ export const deleteBucketDomainCustom: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteBucketDomainCustomRequest,
   output: DeleteBucketDomainCustomResponse,
-  errors: [],
+  errors: [DomainNotFound, NoSuchBucket],
 }));
 
 // =============================================================================
@@ -1650,9 +1668,17 @@ export const GetBucketEventNotificationResponse =
         Schema.Null,
       ]),
     ),
-  }).pipe(
-    T.ResponsePath("result"),
-  ) as unknown as Schema.Schema<GetBucketEventNotificationResponse>;
+  })
+    .pipe(
+      Schema.encodeKeys({
+        queueId: "queue",
+        queueName: "queueName",
+        rules: "rules",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetBucketEventNotificationResponse>;
 
 export type GetBucketEventNotificationError =
   | DefaultErrors
@@ -1660,7 +1686,8 @@ export type GetBucketEventNotificationError =
   | NoEventNotificationConfig
   | EventNotificationConfigNotFound
   | QueueNotFound
-  | InvalidRoute;
+  | InvalidRoute
+  | Forbidden;
 
 export const getBucketEventNotification: API.OperationMethod<
   GetBucketEventNotificationRequest,
@@ -1676,6 +1703,7 @@ export const getBucketEventNotification: API.OperationMethod<
     EventNotificationConfigNotFound,
     QueueNotFound,
     InvalidRoute,
+    Forbidden,
   ],
 }));
 
@@ -3004,7 +3032,11 @@ export const GetBucketSippyResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetBucketSippyResponse>;
 
-export type GetBucketSippyError = DefaultErrors | NoSuchBucket | InvalidRoute;
+export type GetBucketSippyError =
+  | DefaultErrors
+  | NoSuchBucket
+  | InvalidRoute
+  | Forbidden;
 
 export const getBucketSippy: API.OperationMethod<
   GetBucketSippyRequest,
@@ -3014,7 +3046,7 @@ export const getBucketSippy: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetBucketSippyRequest,
   output: GetBucketSippyResponse,
-  errors: [NoSuchBucket, InvalidRoute],
+  errors: [NoSuchBucket, InvalidRoute, Forbidden],
 }));
 
 export interface PutBucketSippyRequest {

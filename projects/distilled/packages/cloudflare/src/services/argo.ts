@@ -16,6 +16,12 @@ import { type DefaultErrors } from "../errors.ts";
 // Errors
 // =============================================================================
 
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
 export class InvalidObjectIdentifier extends Schema.TaggedErrorClass<InvalidObjectIdentifier>()(
   "InvalidObjectIdentifier",
   { code: Schema.Number, message: Schema.String },
@@ -78,7 +84,8 @@ export const GetSmartRoutingResponse =
 export type GetSmartRoutingError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | NotAuthorized;
+  | NotAuthorized
+  | Forbidden;
 
 export const getSmartRouting: API.OperationMethod<
   GetSmartRoutingRequest,
@@ -88,7 +95,7 @@ export const getSmartRouting: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetSmartRoutingRequest,
   output: GetSmartRoutingResponse,
-  errors: [InvalidObjectIdentifier, NotAuthorized],
+  errors: [InvalidObjectIdentifier, NotAuthorized, Forbidden],
 }));
 
 export interface PatchSmartRoutingRequest {
@@ -139,7 +146,8 @@ export const PatchSmartRoutingResponse =
 export type PatchSmartRoutingError =
   | DefaultErrors
   | InvalidObjectIdentifier
-  | NotAuthorized;
+  | NotAuthorized
+  | Forbidden;
 
 export const patchSmartRouting: API.OperationMethod<
   PatchSmartRoutingRequest,
@@ -149,7 +157,7 @@ export const patchSmartRouting: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchSmartRoutingRequest,
   output: PatchSmartRoutingResponse,
-  errors: [InvalidObjectIdentifier, NotAuthorized],
+  errors: [InvalidObjectIdentifier, NotAuthorized, Forbidden],
 }));
 
 // =============================================================================
@@ -198,7 +206,10 @@ export const GetTieredCachingResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetTieredCachingResponse>;
 
-export type GetTieredCachingError = DefaultErrors | InvalidObjectIdentifier;
+export type GetTieredCachingError =
+  | DefaultErrors
+  | InvalidObjectIdentifier
+  | Forbidden;
 
 export const getTieredCaching: API.OperationMethod<
   GetTieredCachingRequest,
@@ -208,7 +219,7 @@ export const getTieredCaching: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetTieredCachingRequest,
   output: GetTieredCachingResponse,
-  errors: [InvalidObjectIdentifier],
+  errors: [InvalidObjectIdentifier, Forbidden],
 }));
 
 export interface PatchTieredCachingRequest {
@@ -256,7 +267,10 @@ export const PatchTieredCachingResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PatchTieredCachingResponse>;
 
-export type PatchTieredCachingError = DefaultErrors | InvalidObjectIdentifier;
+export type PatchTieredCachingError =
+  | DefaultErrors
+  | InvalidObjectIdentifier
+  | Forbidden;
 
 export const patchTieredCaching: API.OperationMethod<
   PatchTieredCachingRequest,
@@ -266,5 +280,5 @@ export const patchTieredCaching: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchTieredCachingRequest,
   output: PatchTieredCachingResponse,
-  errors: [InvalidObjectIdentifier],
+  errors: [InvalidObjectIdentifier, Forbidden],
 }));

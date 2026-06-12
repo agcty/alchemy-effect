@@ -13,6 +13,42 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class MaxRulesExceeded extends Schema.TaggedErrorClass<MaxRulesExceeded>()(
+  "MaxRulesExceeded",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(MaxRulesExceeded, [
+  { status: 409, message: { includes: "maxRulesError" } },
+]);
+
+export class RuleNotFound extends Schema.TaggedErrorClass<RuleNotFound>()(
+  "RuleNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(RuleNotFound, [{ code: 10003 }]);
+
+export class RulesetNotFound extends Schema.TaggedErrorClass<RulesetNotFound>()(
+  "RulesetNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(RulesetNotFound, [{ status: 404 }]);
+
+export class SiteNotFound extends Schema.TaggedErrorClass<SiteNotFound>()(
+  "SiteNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(SiteNotFound, [{ code: 10015 }]);
+
+// =============================================================================
 // Rule
 // =============================================================================
 
@@ -108,7 +144,7 @@ export const ListRulesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<ListRulesResponse>;
 
-export type ListRulesError = DefaultErrors;
+export type ListRulesError = DefaultErrors | Forbidden | RulesetNotFound;
 
 export const listRules: API.OperationMethod<
   ListRulesRequest,
@@ -118,7 +154,7 @@ export const listRules: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: ListRulesRequest,
   output: ListRulesResponse,
-  errors: [],
+  errors: [Forbidden, RulesetNotFound],
 }));
 
 export interface CreateRuleRequest {
@@ -196,7 +232,11 @@ export const CreateRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateRuleResponse>;
 
-export type CreateRuleError = DefaultErrors;
+export type CreateRuleError =
+  | DefaultErrors
+  | Forbidden
+  | RulesetNotFound
+  | MaxRulesExceeded;
 
 export const createRule: API.OperationMethod<
   CreateRuleRequest,
@@ -206,7 +246,7 @@ export const createRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateRuleRequest,
   output: CreateRuleResponse,
-  errors: [],
+  errors: [Forbidden, RulesetNotFound, MaxRulesExceeded],
 }));
 
 export interface UpdateRuleRequest {
@@ -286,7 +326,7 @@ export const UpdateRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateRuleResponse>;
 
-export type UpdateRuleError = DefaultErrors;
+export type UpdateRuleError = DefaultErrors | Forbidden | RulesetNotFound;
 
 export const updateRule: API.OperationMethod<
   UpdateRuleRequest,
@@ -296,7 +336,7 @@ export const updateRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateRuleRequest,
   output: UpdateRuleResponse,
-  errors: [],
+  errors: [Forbidden, RulesetNotFound],
 }));
 
 export interface DeleteRuleRequest {
@@ -328,7 +368,11 @@ export const DeleteRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteRuleResponse>;
 
-export type DeleteRuleError = DefaultErrors;
+export type DeleteRuleError =
+  | DefaultErrors
+  | Forbidden
+  | RulesetNotFound
+  | RuleNotFound;
 
 export const deleteRule: API.OperationMethod<
   DeleteRuleRequest,
@@ -338,7 +382,7 @@ export const deleteRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteRuleRequest,
   output: DeleteRuleResponse,
-  errors: [],
+  errors: [Forbidden, RulesetNotFound, RuleNotFound],
 }));
 
 export interface BulkCreateRulesRequest {
@@ -532,6 +576,7 @@ export interface GetSiteInfoResponse {
   siteToken?: string | null;
   /** Encoded JavaScript snippet. */
   snippet?: string | null;
+  host?: string | null;
 }
 
 export const GetSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -590,6 +635,7 @@ export const GetSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   siteTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   siteToken: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   snippet: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  host: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
 })
   .pipe(
     Schema.encodeKeys({
@@ -600,13 +646,14 @@ export const GetSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       siteTag: "site_tag",
       siteToken: "site_token",
       snippet: "snippet",
+      host: "host",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetSiteInfoResponse>;
 
-export type GetSiteInfoError = DefaultErrors;
+export type GetSiteInfoError = DefaultErrors | SiteNotFound | Forbidden;
 
 export const getSiteInfo: API.OperationMethod<
   GetSiteInfoRequest,
@@ -616,7 +663,7 @@ export const getSiteInfo: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetSiteInfoRequest,
   output: GetSiteInfoResponse,
-  errors: [],
+  errors: [SiteNotFound, Forbidden],
 }));
 
 export interface ListSiteInfosRequest {
@@ -663,6 +710,7 @@ export interface ListSiteInfosResponse {
     siteTag?: string | null;
     siteToken?: string | null;
     snippet?: string | null;
+    host?: string | null;
   }[];
   resultInfo?: {
     count?: number | null;
@@ -740,6 +788,7 @@ export const ListSiteInfosResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       siteTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       siteToken: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       snippet: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      host: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     }).pipe(
       Schema.encodeKeys({
         autoInstall: "auto_install",
@@ -749,6 +798,7 @@ export const ListSiteInfosResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         siteTag: "site_tag",
         siteToken: "site_token",
         snippet: "snippet",
+        host: "host",
       }),
     ),
   ),
@@ -774,7 +824,7 @@ export const ListSiteInfosResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListSiteInfosResponse>;
 
-export type ListSiteInfosError = DefaultErrors;
+export type ListSiteInfosError = DefaultErrors | Forbidden;
 
 export const listSiteInfos: API.PaginatedOperationMethod<
   ListSiteInfosRequest,
@@ -784,7 +834,7 @@ export const listSiteInfos: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListSiteInfosRequest,
   output: ListSiteInfosResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -847,6 +897,7 @@ export interface CreateSiteInfoResponse {
   siteToken?: string | null;
   /** Encoded JavaScript snippet. */
   snippet?: string | null;
+  host?: string | null;
 }
 
 export const CreateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -910,6 +961,7 @@ export const CreateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     siteTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     siteToken: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     snippet: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    host: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   },
 )
   .pipe(
@@ -921,13 +973,14 @@ export const CreateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       siteTag: "site_tag",
       siteToken: "site_token",
       snippet: "snippet",
+      host: "host",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateSiteInfoResponse>;
 
-export type CreateSiteInfoError = DefaultErrors;
+export type CreateSiteInfoError = DefaultErrors | Forbidden;
 
 export const createSiteInfo: API.OperationMethod<
   CreateSiteInfoRequest,
@@ -937,7 +990,7 @@ export const createSiteInfo: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateSiteInfoRequest,
   output: CreateSiteInfoResponse,
-  errors: [],
+  errors: [Forbidden],
 }));
 
 export interface UpdateSiteInfoRequest {
@@ -1006,6 +1059,7 @@ export interface UpdateSiteInfoResponse {
   siteToken?: string | null;
   /** Encoded JavaScript snippet. */
   snippet?: string | null;
+  host?: string | null;
 }
 
 export const UpdateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -1069,6 +1123,7 @@ export const UpdateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     siteTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     siteToken: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     snippet: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    host: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   },
 )
   .pipe(
@@ -1080,13 +1135,14 @@ export const UpdateSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       siteTag: "site_tag",
       siteToken: "site_token",
       snippet: "snippet",
+      host: "host",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateSiteInfoResponse>;
 
-export type UpdateSiteInfoError = DefaultErrors;
+export type UpdateSiteInfoError = DefaultErrors | SiteNotFound | Forbidden;
 
 export const updateSiteInfo: API.OperationMethod<
   UpdateSiteInfoRequest,
@@ -1096,7 +1152,7 @@ export const updateSiteInfo: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateSiteInfoRequest,
   output: UpdateSiteInfoResponse,
-  errors: [],
+  errors: [SiteNotFound, Forbidden],
 }));
 
 export interface DeleteSiteInfoRequest {
@@ -1130,7 +1186,7 @@ export const DeleteSiteInfoResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteSiteInfoResponse>;
 
-export type DeleteSiteInfoError = DefaultErrors;
+export type DeleteSiteInfoError = DefaultErrors | SiteNotFound | Forbidden;
 
 export const deleteSiteInfo: API.OperationMethod<
   DeleteSiteInfoRequest,
@@ -1140,5 +1196,5 @@ export const deleteSiteInfo: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteSiteInfoRequest,
   output: DeleteSiteInfoResponse,
-  errors: [],
+  errors: [SiteNotFound, Forbidden],
 }));

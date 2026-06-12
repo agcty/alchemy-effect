@@ -13,6 +13,73 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class AccessRuleNotFound extends Schema.TaggedErrorClass<AccessRuleNotFound>()(
+  "AccessRuleNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(AccessRuleNotFound, [
+  { code: 10001, message: { includes: "not_found" } },
+  { status: 404 },
+]);
+
+export class DuplicateAccessRule extends Schema.TaggedErrorClass<DuplicateAccessRule>()(
+  "DuplicateAccessRule",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DuplicateAccessRule, [
+  { code: 10009, message: { includes: "duplicate_of_existing" } },
+]);
+
+export class DuplicateLockdown extends Schema.TaggedErrorClass<DuplicateLockdown>()(
+  "DuplicateLockdown",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DuplicateLockdown, [
+  {
+    code: 10009,
+    message: { includes: "zonelockdown.api.duplicate_of_existing" },
+  },
+]);
+
+export class DuplicateUaRule extends Schema.TaggedErrorClass<DuplicateUaRule>()(
+  "DuplicateUaRule",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DuplicateUaRule, [
+  {
+    code: 10009,
+    message: { includes: "firewalluablock.api.duplicate_of_existing" },
+  },
+]);
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class LockdownNotFound extends Schema.TaggedErrorClass<LockdownNotFound>()(
+  "LockdownNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(LockdownNotFound, [
+  { code: 10001, message: { includes: "zonelockdown.api.not_found" } },
+  { status: 404 },
+]);
+
+export class UaRuleNotFound extends Schema.TaggedErrorClass<UaRuleNotFound>()(
+  "UaRuleNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(UaRuleNotFound, [
+  { code: 10001, message: { includes: "firewalluablock.api.not_found" } },
+  { status: 404 },
+]);
+
+// =============================================================================
 // AccessRule
 // =============================================================================
 
@@ -191,7 +258,7 @@ export const GetAccessRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetAccessRuleResponse>;
 
-export type GetAccessRuleError = DefaultErrors;
+export type GetAccessRuleError = DefaultErrors | AccessRuleNotFound | Forbidden;
 
 export const getAccessRuleForAccount: API.OperationMethod<
   GetAccessRuleForAccountRequest,
@@ -201,7 +268,7 @@ export const getAccessRuleForAccount: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetAccessRuleForAccountRequest,
   output: GetAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
 export const getAccessRuleForZone: API.OperationMethod<
@@ -212,12 +279,79 @@ export const getAccessRuleForZone: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetAccessRuleForZoneRequest,
   output: GetAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
-const ListAccessRulesBaseFields = {} as const;
+const ListAccessRulesBaseFields = {
+  page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
+  perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  configuration: Schema.optional(
+    Schema.Struct({
+      target: Schema.optional(
+        Schema.Union([
+          Schema.Literals(["ip", "ip_range", "asn", "country"]),
+          Schema.String,
+        ]),
+      ),
+      value: Schema.optional(Schema.String),
+    }),
+  ).pipe(T.HttpQuery("configuration")),
+  direction: Schema.optional(
+    Schema.Union([Schema.Literals(["asc", "desc"]), Schema.String]),
+  ).pipe(T.HttpQuery("direction")),
+  match: Schema.optional(
+    Schema.Union([Schema.Literals(["any", "all"]), Schema.String]),
+  ).pipe(T.HttpQuery("match")),
+  mode: Schema.optional(
+    Schema.Union([
+      Schema.Literals([
+        "block",
+        "challenge",
+        "whitelist",
+        "js_challenge",
+        "managed_challenge",
+      ]),
+      Schema.String,
+    ]),
+  ).pipe(T.HttpQuery("mode")),
+  notes: Schema.optional(Schema.String).pipe(T.HttpQuery("notes")),
+  order: Schema.optional(
+    Schema.Union([
+      Schema.Literals(["configuration.target", "configuration.value", "mode"]),
+      Schema.String,
+    ]),
+  ).pipe(T.HttpQuery("order")),
+} as const;
 
-interface ListAccessRulesBaseRequest {}
+interface ListAccessRulesBaseRequest {
+  page?: number;
+  perPage?: number;
+  /** Query param */
+  configuration?: {
+    target?: "ip" | "ip_range" | "asn" | "country" | (string & {});
+    value?: string;
+  };
+  /** Query param: Defines the direction used to sort returned rules. */
+  direction?: "asc" | "desc" | (string & {});
+  /** Query param: Defines the search requirements. When set to `all`, all the search requirements must match. When set to `any`, only one of the search requirements has to match. */
+  match?: "any" | "all" | (string & {});
+  /** Query param: The action to apply to a matched request. */
+  mode?:
+    | "block"
+    | "challenge"
+    | "whitelist"
+    | "js_challenge"
+    | "managed_challenge"
+    | (string & {});
+  /** Query param: Defines the string to search for in the notes of existing IP Access rules. Notes: For example, the string 'attack' would match IP Access rules with notes 'Attack 26/02' and 'Attack 27/02' */
+  notes?: string;
+  /** Query param: Defines the field used to sort returned rules. */
+  order?:
+    | "configuration.target"
+    | "configuration.value"
+    | "mode"
+    | (string & {});
+}
 
 export interface ListAccessRulesForAccountRequest extends ListAccessRulesBaseRequest {
   /** Path param: The Account ID to use for this endpoint. */
@@ -411,7 +545,7 @@ export const ListAccessRulesResponse =
     Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
   ) as unknown as Schema.Schema<ListAccessRulesResponse>;
 
-export type ListAccessRulesError = DefaultErrors;
+export type ListAccessRulesError = DefaultErrors | Forbidden;
 
 export const listAccessRulesForAccount: API.PaginatedOperationMethod<
   ListAccessRulesForAccountRequest,
@@ -421,7 +555,7 @@ export const listAccessRulesForAccount: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListAccessRulesForAccountRequest,
   output: ListAccessRulesResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -439,7 +573,7 @@ export const listAccessRulesForZone: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListAccessRulesForZoneRequest,
   output: ListAccessRulesResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -673,7 +807,10 @@ export const CreateAccessRuleResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateAccessRuleResponse>;
 
-export type CreateAccessRuleError = DefaultErrors;
+export type CreateAccessRuleError =
+  | DefaultErrors
+  | DuplicateAccessRule
+  | Forbidden;
 
 export const createAccessRuleForAccount: API.OperationMethod<
   CreateAccessRuleForAccountRequest,
@@ -683,7 +820,7 @@ export const createAccessRuleForAccount: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateAccessRuleForAccountRequest,
   output: CreateAccessRuleResponse,
-  errors: [],
+  errors: [DuplicateAccessRule, Forbidden],
 }));
 
 export const createAccessRuleForZone: API.OperationMethod<
@@ -694,7 +831,7 @@ export const createAccessRuleForZone: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateAccessRuleForZoneRequest,
   output: CreateAccessRuleResponse,
-  errors: [],
+  errors: [DuplicateAccessRule, Forbidden],
 }));
 
 const PatchAccessRuleBaseFields = {
@@ -923,7 +1060,10 @@ export const PatchAccessRuleResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PatchAccessRuleResponse>;
 
-export type PatchAccessRuleError = DefaultErrors;
+export type PatchAccessRuleError =
+  | DefaultErrors
+  | AccessRuleNotFound
+  | Forbidden;
 
 export const patchAccessRuleForAccount: API.OperationMethod<
   PatchAccessRuleForAccountRequest,
@@ -933,7 +1073,7 @@ export const patchAccessRuleForAccount: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchAccessRuleForAccountRequest,
   output: PatchAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
 export const patchAccessRuleForZone: API.OperationMethod<
@@ -944,7 +1084,7 @@ export const patchAccessRuleForZone: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchAccessRuleForZoneRequest,
   output: PatchAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
 const DeleteAccessRuleBaseFields = {
@@ -999,7 +1139,10 @@ export const DeleteAccessRuleResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteAccessRuleResponse>;
 
-export type DeleteAccessRuleError = DefaultErrors;
+export type DeleteAccessRuleError =
+  | DefaultErrors
+  | AccessRuleNotFound
+  | Forbidden;
 
 export const deleteAccessRuleForAccount: API.OperationMethod<
   DeleteAccessRuleForAccountRequest,
@@ -1009,7 +1152,7 @@ export const deleteAccessRuleForAccount: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteAccessRuleForAccountRequest,
   output: DeleteAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
 export const deleteAccessRuleForZone: API.OperationMethod<
@@ -1020,7 +1163,7 @@ export const deleteAccessRuleForZone: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteAccessRuleForZoneRequest,
   output: DeleteAccessRuleResponse,
-  errors: [],
+  errors: [AccessRuleNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -1054,13 +1197,14 @@ export interface GetLockdownResponse {
   /** The timestamp of when the rule was created. */
   createdOn: string;
   /** An informative summary of the rule. */
-  description: string;
+  description?: string | null;
   /** The timestamp of when the rule was last modified. */
   modifiedOn: string;
   /** When true, indicates that the rule is currently paused. */
   paused: boolean;
   /** The URLs to include in the rule definition. You can use wildcards. Each entered URL will be escaped before use, which means you can only use simple wildcard patterns. */
   urls: string[];
+  priority?: number | null;
 }
 
 export const GetLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -1082,10 +1226,11 @@ export const GetLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ]),
   ),
   createdOn: Schema.String,
-  description: Schema.String,
+  description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   modifiedOn: Schema.String,
   paused: Schema.Boolean,
   urls: Schema.Array(Schema.String),
+  priority: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
 })
   .pipe(
     Schema.encodeKeys({
@@ -1096,13 +1241,14 @@ export const GetLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       modifiedOn: "modified_on",
       paused: "paused",
       urls: "urls",
+      priority: "priority",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetLockdownResponse>;
 
-export type GetLockdownError = DefaultErrors;
+export type GetLockdownError = DefaultErrors | LockdownNotFound | Forbidden;
 
 export const getLockdown: API.OperationMethod<
   GetLockdownRequest,
@@ -1112,7 +1258,7 @@ export const getLockdown: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetLockdownRequest,
   output: GetLockdownResponse,
-  errors: [],
+  errors: [LockdownNotFound, Forbidden],
 }));
 
 export interface ListLockdownsRequest {
@@ -1169,10 +1315,11 @@ export interface ListLockdownsResponse {
       | { target?: "ip_range" | null; value?: string | null }
     )[];
     createdOn: string;
-    description: string;
+    description?: string | null;
     modifiedOn: string;
     paused: boolean;
     urls: string[];
+    priority?: number | null;
   }[];
   resultInfo?: {
     count?: number | null;
@@ -1203,10 +1350,11 @@ export const ListLockdownsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         ]),
       ),
       createdOn: Schema.String,
-      description: Schema.String,
+      description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       modifiedOn: Schema.String,
       paused: Schema.Boolean,
       urls: Schema.Array(Schema.String),
+      priority: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     }).pipe(
       Schema.encodeKeys({
         id: "id",
@@ -1216,6 +1364,7 @@ export const ListLockdownsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         modifiedOn: "modified_on",
         paused: "paused",
         urls: "urls",
+        priority: "priority",
       }),
     ),
   ),
@@ -1241,7 +1390,7 @@ export const ListLockdownsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListLockdownsResponse>;
 
-export type ListLockdownsError = DefaultErrors;
+export type ListLockdownsError = DefaultErrors | Forbidden;
 
 export const listLockdowns: API.PaginatedOperationMethod<
   ListLockdownsRequest,
@@ -1251,7 +1400,7 @@ export const listLockdowns: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListLockdownsRequest,
   output: ListLockdownsResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -1312,13 +1461,14 @@ export interface CreateLockdownResponse {
   /** The timestamp of when the rule was created. */
   createdOn: string;
   /** An informative summary of the rule. */
-  description: string;
+  description?: string | null;
   /** The timestamp of when the rule was last modified. */
   modifiedOn: string;
   /** When true, indicates that the rule is currently paused. */
   paused: boolean;
   /** The URLs to include in the rule definition. You can use wildcards. Each entered URL will be escaped before use, which means you can only use simple wildcard patterns. */
   urls: string[];
+  priority?: number | null;
 }
 
 export const CreateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -1341,10 +1491,11 @@ export const CreateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       ]),
     ),
     createdOn: Schema.String,
-    description: Schema.String,
+    description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     modifiedOn: Schema.String,
     paused: Schema.Boolean,
     urls: Schema.Array(Schema.String),
+    priority: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
   },
 )
   .pipe(
@@ -1356,13 +1507,14 @@ export const CreateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       modifiedOn: "modified_on",
       paused: "paused",
       urls: "urls",
+      priority: "priority",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateLockdownResponse>;
 
-export type CreateLockdownError = DefaultErrors;
+export type CreateLockdownError = DefaultErrors | DuplicateLockdown | Forbidden;
 
 export const createLockdown: API.OperationMethod<
   CreateLockdownRequest,
@@ -1372,7 +1524,7 @@ export const createLockdown: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateLockdownRequest,
   output: CreateLockdownResponse,
-  errors: [],
+  errors: [DuplicateLockdown, Forbidden],
 }));
 
 export interface UpdateLockdownRequest {
@@ -1386,6 +1538,9 @@ export interface UpdateLockdownRequest {
   )[];
   /** Body param: The URLs to include in the current WAF override. You can use wildcards. Each entered URL will be escaped before use, which means you can only use simple wildcard patterns. */
   urls: string[];
+  description?: string;
+  paused?: boolean;
+  priority?: number;
 }
 
 export const UpdateLockdownRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -1404,6 +1559,9 @@ export const UpdateLockdownRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ]),
   ),
   urls: Schema.Array(Schema.String),
+  description: Schema.optional(Schema.String),
+  paused: Schema.optional(Schema.Boolean),
+  priority: Schema.optional(Schema.Number),
 }).pipe(
   T.Http({
     method: "PUT",
@@ -1422,13 +1580,14 @@ export interface UpdateLockdownResponse {
   /** The timestamp of when the rule was created. */
   createdOn: string;
   /** An informative summary of the rule. */
-  description: string;
+  description?: string | null;
   /** The timestamp of when the rule was last modified. */
   modifiedOn: string;
   /** When true, indicates that the rule is currently paused. */
   paused: boolean;
   /** The URLs to include in the rule definition. You can use wildcards. Each entered URL will be escaped before use, which means you can only use simple wildcard patterns. */
   urls: string[];
+  priority?: number | null;
 }
 
 export const UpdateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -1451,10 +1610,11 @@ export const UpdateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       ]),
     ),
     createdOn: Schema.String,
-    description: Schema.String,
+    description: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     modifiedOn: Schema.String,
     paused: Schema.Boolean,
     urls: Schema.Array(Schema.String),
+    priority: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
   },
 )
   .pipe(
@@ -1466,13 +1626,18 @@ export const UpdateLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       modifiedOn: "modified_on",
       paused: "paused",
       urls: "urls",
+      priority: "priority",
     }),
   )
   .pipe(
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateLockdownResponse>;
 
-export type UpdateLockdownError = DefaultErrors;
+export type UpdateLockdownError =
+  | DefaultErrors
+  | LockdownNotFound
+  | DuplicateLockdown
+  | Forbidden;
 
 export const updateLockdown: API.OperationMethod<
   UpdateLockdownRequest,
@@ -1482,7 +1647,7 @@ export const updateLockdown: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateLockdownRequest,
   output: UpdateLockdownResponse,
-  errors: [],
+  errors: [LockdownNotFound, DuplicateLockdown, Forbidden],
 }));
 
 export interface DeleteLockdownRequest {
@@ -1514,7 +1679,7 @@ export const DeleteLockdownResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteLockdownResponse>;
 
-export type DeleteLockdownError = DefaultErrors;
+export type DeleteLockdownError = DefaultErrors | LockdownNotFound | Forbidden;
 
 export const deleteLockdown: API.OperationMethod<
   DeleteLockdownRequest,
@@ -1524,7 +1689,7 @@ export const deleteLockdown: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteLockdownRequest,
   output: DeleteLockdownResponse,
-  errors: [],
+  errors: [LockdownNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -3036,7 +3201,7 @@ export const GetUaRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetUaRuleResponse>;
 
-export type GetUaRuleError = DefaultErrors;
+export type GetUaRuleError = DefaultErrors | UaRuleNotFound | Forbidden;
 
 export const getUaRule: API.OperationMethod<
   GetUaRuleRequest,
@@ -3046,7 +3211,7 @@ export const getUaRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetUaRuleRequest,
   output: GetUaRuleResponse,
-  errors: [],
+  errors: [UaRuleNotFound, Forbidden],
 }));
 
 export interface ListUaRulesRequest {
@@ -3148,7 +3313,7 @@ export const ListUaRulesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListUaRulesResponse>;
 
-export type ListUaRulesError = DefaultErrors;
+export type ListUaRulesError = DefaultErrors | Forbidden;
 
 export const listUaRules: API.PaginatedOperationMethod<
   ListUaRulesRequest,
@@ -3158,7 +3323,7 @@ export const listUaRules: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListUaRulesRequest,
   output: ListUaRulesResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -3259,7 +3424,7 @@ export const CreateUaRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<CreateUaRuleResponse>;
 
-export type CreateUaRuleError = DefaultErrors;
+export type CreateUaRuleError = DefaultErrors | DuplicateUaRule | Forbidden;
 
 export const createUaRule: API.OperationMethod<
   CreateUaRuleRequest,
@@ -3269,7 +3434,7 @@ export const createUaRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateUaRuleRequest,
   output: CreateUaRuleResponse,
-  errors: [],
+  errors: [DuplicateUaRule, Forbidden],
 }));
 
 export interface UpdateUaRuleRequest {
@@ -3282,7 +3447,8 @@ export interface UpdateUaRuleRequest {
     | { target?: "ip6"; value?: string }
     | { target?: "ip_range"; value?: string }
     | { target?: "asn"; value?: string }
-    | { target?: "country"; value?: string };
+    | { target?: "country"; value?: string }
+    | { target?: "ua"; value?: string };
   /** Body param: The action to apply to a matched request. */
   mode:
     | "block"
@@ -3319,6 +3485,10 @@ export const UpdateUaRuleRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     }),
     Schema.Struct({
       target: Schema.optional(Schema.Literal("country")),
+      value: Schema.optional(Schema.String),
+    }),
+    Schema.Struct({
+      target: Schema.optional(Schema.Literal("ua")),
       value: Schema.optional(Schema.String),
     }),
   ]),
@@ -3391,7 +3561,11 @@ export const UpdateUaRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<UpdateUaRuleResponse>;
 
-export type UpdateUaRuleError = DefaultErrors;
+export type UpdateUaRuleError =
+  | DefaultErrors
+  | UaRuleNotFound
+  | DuplicateUaRule
+  | Forbidden;
 
 export const updateUaRule: API.OperationMethod<
   UpdateUaRuleRequest,
@@ -3401,7 +3575,7 @@ export const updateUaRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateUaRuleRequest,
   output: UpdateUaRuleResponse,
-  errors: [],
+  errors: [UaRuleNotFound, DuplicateUaRule, Forbidden],
 }));
 
 export interface DeleteUaRuleRequest {
@@ -3470,7 +3644,7 @@ export const DeleteUaRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteUaRuleResponse>;
 
-export type DeleteUaRuleError = DefaultErrors;
+export type DeleteUaRuleError = DefaultErrors | UaRuleNotFound | Forbidden;
 
 export const deleteUaRule: API.OperationMethod<
   DeleteUaRuleRequest,
@@ -3480,7 +3654,7 @@ export const deleteUaRule: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteUaRuleRequest,
   output: DeleteUaRuleResponse,
-  errors: [],
+  errors: [UaRuleNotFound, Forbidden],
 }));
 
 // =============================================================================

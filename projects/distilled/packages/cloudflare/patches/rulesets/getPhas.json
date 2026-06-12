@@ -1,8 +1,21 @@
 {
-  "errors": {},
+  "errors": {
+    "RulesetNotFound": [
+      {
+        "code": 10003
+      }
+    ],
+    "Forbidden": [
+      {
+        "status": 403
+      }
+    ]
+  },
   "response": {
     "properties": {
-      "rules": { "optional": true }
+      "rules": {
+        "optional": true
+      }
     }
   }
 }

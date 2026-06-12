@@ -16,11 +16,49 @@ import { type DefaultErrors } from "../errors.ts";
 // Errors
 // =============================================================================
 
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
 export class InvalidMember extends Schema.TaggedErrorClass<InvalidMember>()(
   "InvalidMember",
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(InvalidMember, [{ code: 400 }]);
+
+export class ResourceGroupNotFound extends Schema.TaggedErrorClass<ResourceGroupNotFound>()(
+  "ResourceGroupNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ResourceGroupNotFound, [
+  { code: 404, message: { includes: "Resource group" } },
+]);
+
+export class UserGroupMemberNotFound extends Schema.TaggedErrorClass<UserGroupMemberNotFound>()(
+  "UserGroupMemberNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(UserGroupMemberNotFound, [
+  { code: 404, message: { includes: "not found in user group" } },
+]);
+
+export class UserGroupNameInUse extends Schema.TaggedErrorClass<UserGroupNameInUse>()(
+  "UserGroupNameInUse",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(UserGroupNameInUse, [
+  { code: 400, message: { includes: "already in use" } },
+]);
+
+export class UserGroupNotFound extends Schema.TaggedErrorClass<UserGroupNotFound>()(
+  "UserGroupNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(UserGroupNotFound, [
+  { code: 404, message: { includes: "User group" } },
+]);
 
 // =============================================================================
 // PermissionGroup
@@ -111,11 +149,13 @@ export const ListPermissionGroupsRequest =
   ) as unknown as Schema.Schema<ListPermissionGroupsRequest>;
 
 export interface ListPermissionGroupsResponse {
-  result: {
-    id: string;
-    meta?: { key?: string | null; value?: string | null } | null;
-    name?: string | null;
-  }[];
+  result:
+    | {
+        id: string;
+        meta?: { key?: string | null; value?: string | null } | null;
+        name?: string | null;
+      }[]
+    | null;
   resultInfo?: {
     count?: number | null;
     page?: number | null;
@@ -126,23 +166,28 @@ export interface ListPermissionGroupsResponse {
 
 export const ListPermissionGroupsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    result: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        meta: Schema.optional(
-          Schema.Union([
-            Schema.Struct({
-              key: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-              value: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
-            }),
-            Schema.Null,
-          ]),
-        ),
-        name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      }),
-    ),
+    result: Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          meta: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                key: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                value: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }),
+              Schema.Null,
+            ]),
+          ),
+          name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }),
+      ),
+      Schema.Null,
+    ]),
     resultInfo: Schema.optional(
       Schema.Union([
         Schema.Struct({
@@ -237,7 +282,10 @@ export const GetResourceGroupResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetResourceGroupResponse>;
 
-export type GetResourceGroupError = DefaultErrors;
+export type GetResourceGroupError =
+  | DefaultErrors
+  | ResourceGroupNotFound
+  | Forbidden;
 
 export const getResourceGroup: API.OperationMethod<
   GetResourceGroupRequest,
@@ -247,7 +295,7 @@ export const getResourceGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetResourceGroupRequest,
   output: GetResourceGroupResponse,
-  errors: [],
+  errors: [ResourceGroupNotFound, Forbidden],
 }));
 
 export interface ListResourceGroupsRequest {
@@ -272,34 +320,41 @@ export const ListResourceGroupsRequest =
   ) as unknown as Schema.Schema<ListResourceGroupsRequest>;
 
 export interface ListResourceGroupsResponse {
-  result: {
-    id: string;
-    scope: unknown;
-    meta?: { key?: string | null; value?: string | null } | null;
-    name?: string | null;
-  }[];
+  result:
+    | {
+        id: string;
+        scope: unknown;
+        meta?: { key?: string | null; value?: string | null } | null;
+        name?: string | null;
+      }[]
+    | null;
 }
 
 export const ListResourceGroupsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    result: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        scope: Schema.Unknown,
-        meta: Schema.optional(
-          Schema.Union([
-            Schema.Struct({
-              key: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-              value: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
-            }),
-            Schema.Null,
-          ]),
-        ),
-        name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      }),
-    ),
+    result: Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          scope: Schema.Unknown,
+          meta: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                key: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                value: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }),
+              Schema.Null,
+            ]),
+          ),
+          name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }),
+      ),
+      Schema.Null,
+    ]),
   }) as unknown as Schema.Schema<ListResourceGroupsResponse>;
 
 export type ListResourceGroupsError = DefaultErrors;
@@ -450,7 +505,7 @@ export const UpdateResourceGroupResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateResourceGroupResponse>;
 
-export type UpdateResourceGroupError = DefaultErrors;
+export type UpdateResourceGroupError = DefaultErrors | ResourceGroupNotFound;
 
 export const updateResourceGroup: API.OperationMethod<
   UpdateResourceGroupRequest,
@@ -460,7 +515,7 @@ export const updateResourceGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateResourceGroupRequest,
   output: UpdateResourceGroupResponse,
-  errors: [],
+  errors: [ResourceGroupNotFound],
 }));
 
 export interface DeleteResourceGroupRequest {
@@ -492,7 +547,7 @@ export const DeleteResourceGroupResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteResourceGroupResponse>;
 
-export type DeleteResourceGroupError = DefaultErrors;
+export type DeleteResourceGroupError = DefaultErrors | ResourceGroupNotFound;
 
 export const deleteResourceGroup: API.OperationMethod<
   DeleteResourceGroupRequest,
@@ -502,7 +557,7 @@ export const deleteResourceGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteResourceGroupRequest,
   output: DeleteResourceGroupResponse,
-  errors: [],
+  errors: [ResourceGroupNotFound],
 }));
 
 // =============================================================================
@@ -1090,7 +1145,7 @@ export const GetUserGroupResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetUserGroupResponse>;
 
-export type GetUserGroupError = DefaultErrors;
+export type GetUserGroupError = DefaultErrors | UserGroupNotFound | Forbidden;
 
 export const getUserGroup: API.OperationMethod<
   GetUserGroupRequest,
@@ -1100,7 +1155,7 @@ export const getUserGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetUserGroupRequest,
   output: GetUserGroupResponse,
-  errors: [],
+  errors: [UserGroupNotFound, Forbidden],
 }));
 
 export interface ListUserGroupsRequest {
@@ -1133,33 +1188,41 @@ export const ListUserGroupsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 ) as unknown as Schema.Schema<ListUserGroupsRequest>;
 
 export interface ListUserGroupsResponse {
-  result: {
-    id: string;
-    createdOn: string;
-    modifiedOn: string;
-    name: string;
-    policies?:
-      | {
-          id?: string | null;
-          access?: "allow" | "deny" | (string & {}) | null;
-          permissionGroups?:
-            | {
-                id: string;
-                meta?: { key?: string | null; value?: string | null } | null;
-                name?: string | null;
-              }[]
-            | null;
-          resourceGroups?:
-            | {
-                id: string;
-                scope: unknown;
-                meta?: { key?: string | null; value?: string | null } | null;
-                name?: string | null;
-              }[]
-            | null;
-        }[]
-      | null;
-  }[];
+  result:
+    | {
+        id: string;
+        createdOn: string;
+        modifiedOn: string;
+        name: string;
+        policies?:
+          | {
+              id?: string | null;
+              access?: "allow" | "deny" | (string & {}) | null;
+              permissionGroups?:
+                | {
+                    id: string;
+                    meta?: {
+                      key?: string | null;
+                      value?: string | null;
+                    } | null;
+                    name?: string | null;
+                  }[]
+                | null;
+              resourceGroups?:
+                | {
+                    id: string;
+                    scope: unknown;
+                    meta?: {
+                      key?: string | null;
+                      value?: string | null;
+                    } | null;
+                    name?: string | null;
+                  }[]
+                | null;
+            }[]
+          | null;
+      }[]
+    | null;
   resultInfo?: {
     count?: number | null;
     page?: number | null;
@@ -1170,101 +1233,106 @@ export interface ListUserGroupsResponse {
 
 export const ListUserGroupsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   {
-    result: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        createdOn: Schema.String,
-        modifiedOn: Schema.String,
-        name: Schema.String,
-        policies: Schema.optional(
-          Schema.Union([
-            Schema.Array(
-              Schema.Struct({
-                id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-                access: Schema.optional(
-                  Schema.Union([
+    result: Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          createdOn: Schema.String,
+          modifiedOn: Schema.String,
+          name: Schema.String,
+          policies: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  id: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  access: Schema.optional(
                     Schema.Union([
-                      Schema.Literals(["allow", "deny"]),
-                      Schema.String,
+                      Schema.Union([
+                        Schema.Literals(["allow", "deny"]),
+                        Schema.String,
+                      ]),
+                      Schema.Null,
                     ]),
-                    Schema.Null,
-                  ]),
+                  ),
+                  permissionGroups: Schema.optional(
+                    Schema.Union([
+                      Schema.Array(
+                        Schema.Struct({
+                          id: Schema.String,
+                          meta: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                key: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                value: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          name: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                      ),
+                      Schema.Null,
+                    ]),
+                  ),
+                  resourceGroups: Schema.optional(
+                    Schema.Union([
+                      Schema.Array(
+                        Schema.Struct({
+                          id: Schema.String,
+                          scope: Schema.Unknown,
+                          meta: Schema.optional(
+                            Schema.Union([
+                              Schema.Struct({
+                                key: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                                value: Schema.optional(
+                                  Schema.Union([Schema.String, Schema.Null]),
+                                ),
+                              }),
+                              Schema.Null,
+                            ]),
+                          ),
+                          name: Schema.optional(
+                            Schema.Union([Schema.String, Schema.Null]),
+                          ),
+                        }),
+                      ),
+                      Schema.Null,
+                    ]),
+                  ),
+                }).pipe(
+                  Schema.encodeKeys({
+                    id: "id",
+                    access: "access",
+                    permissionGroups: "permission_groups",
+                    resourceGroups: "resource_groups",
+                  }),
                 ),
-                permissionGroups: Schema.optional(
-                  Schema.Union([
-                    Schema.Array(
-                      Schema.Struct({
-                        id: Schema.String,
-                        meta: Schema.optional(
-                          Schema.Union([
-                            Schema.Struct({
-                              key: Schema.optional(
-                                Schema.Union([Schema.String, Schema.Null]),
-                              ),
-                              value: Schema.optional(
-                                Schema.Union([Schema.String, Schema.Null]),
-                              ),
-                            }),
-                            Schema.Null,
-                          ]),
-                        ),
-                        name: Schema.optional(
-                          Schema.Union([Schema.String, Schema.Null]),
-                        ),
-                      }),
-                    ),
-                    Schema.Null,
-                  ]),
-                ),
-                resourceGroups: Schema.optional(
-                  Schema.Union([
-                    Schema.Array(
-                      Schema.Struct({
-                        id: Schema.String,
-                        scope: Schema.Unknown,
-                        meta: Schema.optional(
-                          Schema.Union([
-                            Schema.Struct({
-                              key: Schema.optional(
-                                Schema.Union([Schema.String, Schema.Null]),
-                              ),
-                              value: Schema.optional(
-                                Schema.Union([Schema.String, Schema.Null]),
-                              ),
-                            }),
-                            Schema.Null,
-                          ]),
-                        ),
-                        name: Schema.optional(
-                          Schema.Union([Schema.String, Schema.Null]),
-                        ),
-                      }),
-                    ),
-                    Schema.Null,
-                  ]),
-                ),
-              }).pipe(
-                Schema.encodeKeys({
-                  id: "id",
-                  access: "access",
-                  permissionGroups: "permission_groups",
-                  resourceGroups: "resource_groups",
-                }),
               ),
-            ),
-            Schema.Null,
-          ]),
+              Schema.Null,
+            ]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            id: "id",
+            createdOn: "created_on",
+            modifiedOn: "modified_on",
+            name: "name",
+            policies: "policies",
+          }),
         ),
-      }).pipe(
-        Schema.encodeKeys({
-          id: "id",
-          createdOn: "created_on",
-          modifiedOn: "modified_on",
-          name: "name",
-          policies: "policies",
-        }),
       ),
-    ),
+      Schema.Null,
+    ]),
     resultInfo: Schema.optional(
       Schema.Union([
         Schema.Struct({
@@ -1490,7 +1558,7 @@ export const CreateUserGroupResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateUserGroupResponse>;
 
-export type CreateUserGroupError = DefaultErrors;
+export type CreateUserGroupError = DefaultErrors | UserGroupNameInUse;
 
 export const createUserGroup: API.OperationMethod<
   CreateUserGroupRequest,
@@ -1500,7 +1568,7 @@ export const createUserGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateUserGroupRequest,
   output: CreateUserGroupResponse,
-  errors: [],
+  errors: [UserGroupNameInUse],
 }));
 
 export interface UpdateUserGroupRequest {
@@ -1511,7 +1579,7 @@ export interface UpdateUserGroupRequest {
   name?: string;
   /** Body param: Policies attached to the User group */
   policies?: {
-    id: string;
+    id?: string;
     access: "allow" | "deny" | (string & {});
     permissionGroups: { id: string }[];
     resourceGroups: { id: string }[];
@@ -1526,7 +1594,7 @@ export const UpdateUserGroupRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     policies: Schema.optional(
       Schema.Array(
         Schema.Struct({
-          id: Schema.String,
+          id: Schema.optional(Schema.String),
           access: Schema.Union([
             Schema.Literals(["allow", "deny"]),
             Schema.String,
@@ -1691,7 +1759,10 @@ export const UpdateUserGroupResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<UpdateUserGroupResponse>;
 
-export type UpdateUserGroupError = DefaultErrors;
+export type UpdateUserGroupError =
+  | DefaultErrors
+  | UserGroupNotFound
+  | UserGroupNameInUse;
 
 export const updateUserGroup: API.OperationMethod<
   UpdateUserGroupRequest,
@@ -1701,7 +1772,7 @@ export const updateUserGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateUserGroupRequest,
   output: UpdateUserGroupResponse,
-  errors: [],
+  errors: [UserGroupNotFound, UserGroupNameInUse],
 }));
 
 export interface DeleteUserGroupRequest {
@@ -1734,7 +1805,7 @@ export const DeleteUserGroupResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteUserGroupResponse>;
 
-export type DeleteUserGroupError = DefaultErrors;
+export type DeleteUserGroupError = DefaultErrors | UserGroupNotFound;
 
 export const deleteUserGroup: API.OperationMethod<
   DeleteUserGroupRequest,
@@ -1744,7 +1815,7 @@ export const deleteUserGroup: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteUserGroupRequest,
   output: DeleteUserGroupResponse,
-  errors: [],
+  errors: [UserGroupNotFound],
 }));
 
 // =============================================================================
@@ -1833,7 +1904,11 @@ export const GetUserGroupMemberResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetUserGroupMemberResponse>;
 
-export type GetUserGroupMemberError = DefaultErrors;
+export type GetUserGroupMemberError =
+  | DefaultErrors
+  | UserGroupMemberNotFound
+  | UserGroupNotFound
+  | Forbidden;
 
 export const getUserGroupMember: API.OperationMethod<
   GetUserGroupMemberRequest,
@@ -1843,7 +1918,7 @@ export const getUserGroupMember: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetUserGroupMemberRequest,
   output: GetUserGroupMemberResponse,
-  errors: [],
+  errors: [UserGroupMemberNotFound, UserGroupNotFound, Forbidden],
 }));
 
 export interface ListUserGroupMembersRequest {
@@ -1876,11 +1951,13 @@ export const ListUserGroupMembersRequest =
   ) as unknown as Schema.Schema<ListUserGroupMembersRequest>;
 
 export interface ListUserGroupMembersResponse {
-  result: {
-    id: string;
-    email?: string | null;
-    status?: "accepted" | "pending" | (string & {}) | null;
-  }[];
+  result:
+    | {
+        id: string;
+        email?: string | null;
+        status?: "accepted" | "pending" | (string & {}) | null;
+      }[]
+    | null;
   resultInfo?: {
     count?: number | null;
     page?: number | null;
@@ -1891,21 +1968,24 @@ export interface ListUserGroupMembersResponse {
 
 export const ListUserGroupMembersResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    result: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        email: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-        status: Schema.optional(
-          Schema.Union([
+    result: Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          email: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          status: Schema.optional(
             Schema.Union([
-              Schema.Literals(["accepted", "pending"]),
-              Schema.String,
+              Schema.Union([
+                Schema.Literals(["accepted", "pending"]),
+                Schema.String,
+              ]),
+              Schema.Null,
             ]),
-            Schema.Null,
-          ]),
-        ),
-      }),
-    ),
+          ),
+        }),
+      ),
+      Schema.Null,
+    ]),
     resultInfo: Schema.optional(
       Schema.Union([
         Schema.Struct({
@@ -1930,7 +2010,7 @@ export const ListUserGroupMembersResponse =
     Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
   ) as unknown as Schema.Schema<ListUserGroupMembersResponse>;
 
-export type ListUserGroupMembersError = DefaultErrors;
+export type ListUserGroupMembersError = DefaultErrors | UserGroupNotFound;
 
 export const listUserGroupMembers: API.PaginatedOperationMethod<
   ListUserGroupMembersRequest,
@@ -1940,7 +2020,7 @@ export const listUserGroupMembers: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListUserGroupMembersRequest,
   output: ListUserGroupMembersResponse,
-  errors: [],
+  errors: [UserGroupNotFound],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -1966,7 +2046,7 @@ export const CreateUserGroupMemberRequest =
       Schema.Struct({
         id: Schema.String,
       }),
-    ),
+    ).pipe(T.HttpBody()),
   }).pipe(
     T.Http({
       method: "POST",
@@ -2001,7 +2081,10 @@ export const CreateUserGroupMemberResponse =
     ),
   }) as unknown as Schema.Schema<CreateUserGroupMemberResponse>;
 
-export type CreateUserGroupMemberError = DefaultErrors | InvalidMember;
+export type CreateUserGroupMemberError =
+  | DefaultErrors
+  | InvalidMember
+  | UserGroupNotFound;
 
 export const createUserGroupMember: API.PaginatedOperationMethod<
   CreateUserGroupMemberRequest,
@@ -2011,7 +2094,7 @@ export const createUserGroupMember: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: CreateUserGroupMemberRequest,
   output: CreateUserGroupMemberResponse,
-  errors: [InvalidMember],
+  errors: [InvalidMember, UserGroupNotFound],
   pagination: {
     mode: "single",
     items: "result",
@@ -2034,7 +2117,7 @@ export const UpdateUserGroupMemberRequest =
       Schema.Struct({
         id: Schema.String,
       }),
-    ),
+    ).pipe(T.HttpBody()),
   }).pipe(
     T.Http({
       method: "PUT",
@@ -2069,7 +2152,10 @@ export const UpdateUserGroupMemberResponse =
     ),
   }) as unknown as Schema.Schema<UpdateUserGroupMemberResponse>;
 
-export type UpdateUserGroupMemberError = DefaultErrors;
+export type UpdateUserGroupMemberError =
+  | DefaultErrors
+  | InvalidMember
+  | UserGroupNotFound;
 
 export const updateUserGroupMember: API.PaginatedOperationMethod<
   UpdateUserGroupMemberRequest,
@@ -2079,7 +2165,7 @@ export const updateUserGroupMember: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: UpdateUserGroupMemberRequest,
   output: UpdateUserGroupMemberResponse,
-  errors: [],
+  errors: [InvalidMember, UserGroupNotFound],
   pagination: {
     mode: "single",
     items: "result",
@@ -2128,7 +2214,11 @@ export const DeleteUserGroupMemberResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteUserGroupMemberResponse>;
 
-export type DeleteUserGroupMemberError = DefaultErrors | InvalidMember;
+export type DeleteUserGroupMemberError =
+  | DefaultErrors
+  | InvalidMember
+  | UserGroupMemberNotFound
+  | UserGroupNotFound;
 
 export const deleteUserGroupMember: API.OperationMethod<
   DeleteUserGroupMemberRequest,
@@ -2138,7 +2228,7 @@ export const deleteUserGroupMember: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteUserGroupMemberRequest,
   output: DeleteUserGroupMemberResponse,
-  errors: [InvalidMember],
+  errors: [InvalidMember, UserGroupMemberNotFound, UserGroupNotFound],
 }));
 
 // =============================================================================

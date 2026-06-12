@@ -53,6 +53,8 @@ paths:
           - code: 7003
         NotAuthorized:
           - code: 1015
+        Forbidden:
+          - status: 403
     patch:
       operationId: patchSmartRouting
       description: "Configures the value of the Argo Smart Routing enablement
@@ -114,6 +116,8 @@ paths:
           - code: 7003
         NotAuthorized:
           - code: 1015
+        Forbidden:
+          - status: 403
   /zones/{zone_id}/argo/tiered_caching:
     get:
       operationId: getTieredCaching
@@ -173,6 +177,8 @@ paths:
       x-distilled-errors:
         InvalidObjectIdentifier:
           - code: 7003
+        Forbidden:
+          - status: 403
     patch:
       operationId: patchTieredCaching
       description: "Tiered Cache works by dividing Cloudflare's data centers into a
@@ -246,3 +252,5 @@ paths:
       x-distilled-errors:
         InvalidObjectIdentifier:
           - code: 7003
+        Forbidden:
+          - status: 403

@@ -51,6 +51,12 @@ T.applyErrorMatchers(FeatureNotEnabled, [
   { code: 1002, message: { includes: "address_maps_not_enabled" } },
 ]);
 
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
 export class InvalidAccountId extends Schema.TaggedErrorClass<InvalidAccountId>()(
   "InvalidAccountId",
   { code: Schema.Number, message: Schema.String },
@@ -134,6 +140,7 @@ export class PrefixNotFound extends Schema.TaggedErrorClass<PrefixNotFound>()(
 T.applyErrorMatchers(PrefixNotFound, [
   { code: 1000 },
   { code: 1000, message: { includes: "not_found" } },
+  { code: 1002, message: { includes: "forbidden" } },
 ]);
 
 export class RegionalHostnameEmpty extends Schema.TaggedErrorClass<RegionalHostnameEmpty>()(
@@ -284,7 +291,8 @@ export const GetAddressMapResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export type GetAddressMapError =
   | DefaultErrors
   | AddressMapNotFound
-  | InvalidAccountId;
+  | InvalidAccountId
+  | Forbidden;
 
 export const getAddressMap: API.OperationMethod<
   GetAddressMapRequest,
@@ -294,7 +302,7 @@ export const getAddressMap: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetAddressMapRequest,
   output: GetAddressMapResponse,
-  errors: [AddressMapNotFound, InvalidAccountId],
+  errors: [AddressMapNotFound, InvalidAccountId, Forbidden],
 }));
 
 export interface ListAddressMapsRequest {
@@ -520,7 +528,8 @@ export const CreateAddressMapResponse =
 export type CreateAddressMapError =
   | DefaultErrors
   | FeatureNotEnabled
-  | InvalidAccountId;
+  | InvalidAccountId
+  | Forbidden;
 
 export const createAddressMap: API.OperationMethod<
   CreateAddressMapRequest,
@@ -530,7 +539,7 @@ export const createAddressMap: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateAddressMapRequest,
   output: CreateAddressMapResponse,
-  errors: [FeatureNotEnabled, InvalidAccountId],
+  errors: [FeatureNotEnabled, InvalidAccountId, Forbidden],
 }));
 
 export interface PatchAddressMapRequest {
@@ -2818,7 +2827,10 @@ export const ListPrefixBgpPrefixesResponse =
     ),
   }) as unknown as Schema.Schema<ListPrefixBgpPrefixesResponse>;
 
-export type ListPrefixBgpPrefixesError = DefaultErrors;
+export type ListPrefixBgpPrefixesError =
+  | DefaultErrors
+  | PrefixNotFound
+  | InvalidAccountId;
 
 export const listPrefixBgpPrefixes: API.PaginatedOperationMethod<
   ListPrefixBgpPrefixesRequest,
@@ -2828,7 +2840,7 @@ export const listPrefixBgpPrefixes: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListPrefixBgpPrefixesRequest,
   output: ListPrefixBgpPrefixesResponse,
-  errors: [],
+  errors: [PrefixNotFound, InvalidAccountId],
   pagination: {
     mode: "single",
     items: "result",
@@ -3102,6 +3114,7 @@ export const PatchPrefixBgpPrefixResponse =
 export type PatchPrefixBgpPrefixError =
   | DefaultErrors
   | BgpPrefixNotFound
+  | PrefixNotFound
   | InvalidAccountId;
 
 export const patchPrefixBgpPrefix: API.OperationMethod<
@@ -3112,7 +3125,7 @@ export const patchPrefixBgpPrefix: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchPrefixBgpPrefixRequest,
   output: PatchPrefixBgpPrefixResponse,
-  errors: [BgpPrefixNotFound, InvalidAccountId],
+  errors: [BgpPrefixNotFound, PrefixNotFound, InvalidAccountId],
 }));
 
 // =============================================================================
@@ -3174,7 +3187,10 @@ export const ListPrefixDelegationsResponse =
     ),
   }) as unknown as Schema.Schema<ListPrefixDelegationsResponse>;
 
-export type ListPrefixDelegationsError = DefaultErrors;
+export type ListPrefixDelegationsError =
+  | DefaultErrors
+  | PrefixNotFound
+  | InvalidAccountId;
 
 export const listPrefixDelegations: API.PaginatedOperationMethod<
   ListPrefixDelegationsRequest,
@@ -3184,7 +3200,7 @@ export const listPrefixDelegations: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListPrefixDelegationsRequest,
   output: ListPrefixDelegationsResponse,
-  errors: [],
+  errors: [PrefixNotFound, InvalidAccountId],
   pagination: {
     mode: "single",
     items: "result",
@@ -3478,7 +3494,10 @@ export const ListPrefixServiceBindingsResponse =
     ),
   }) as unknown as Schema.Schema<ListPrefixServiceBindingsResponse>;
 
-export type ListPrefixServiceBindingsError = DefaultErrors;
+export type ListPrefixServiceBindingsError =
+  | DefaultErrors
+  | PrefixNotFound
+  | InvalidAccountId;
 
 export const listPrefixServiceBindings: API.PaginatedOperationMethod<
   ListPrefixServiceBindingsRequest,
@@ -3488,7 +3507,7 @@ export const listPrefixServiceBindings: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListPrefixServiceBindingsRequest,
   output: ListPrefixServiceBindingsResponse,
-  errors: [],
+  errors: [PrefixNotFound, InvalidAccountId],
   pagination: {
     mode: "single",
     items: "result",

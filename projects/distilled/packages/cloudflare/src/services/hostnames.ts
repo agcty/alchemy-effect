@@ -13,21 +13,40 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class AdvancedCertificateManagerRequired extends Schema.TaggedErrorClass<AdvancedCertificateManagerRequired>()(
+  "AdvancedCertificateManagerRequired",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(AdvancedCertificateManagerRequired, [{ code: 1450 }]);
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class HostnameTlsSettingNotFound extends Schema.TaggedErrorClass<HostnameTlsSettingNotFound>()(
+  "HostnameTlsSettingNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(HostnameTlsSettingNotFound, [{ status: 404 }]);
+
+// =============================================================================
 // SettingTl
 // =============================================================================
 
 export interface GetSettingTlsRequest {
-  settingId: "ciphers" | "min_tls_version" | "http2" | (string & {});
   /** Identifier. */
   zoneId: string;
+  settingId: string;
 }
 
 export const GetSettingTlsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-  settingId: Schema.Union([
-    Schema.Literals(["ciphers", "min_tls_version", "http2"]),
-    Schema.String,
-  ]).pipe(T.HttpPath("settingId")),
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+  settingId: Schema.String.pipe(T.HttpPath("settingId")),
 }).pipe(
   T.Http({
     method: "GET",
@@ -78,7 +97,10 @@ export const GetSettingTlsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   ),
 }) as unknown as Schema.Schema<GetSettingTlsResponse>;
 
-export type GetSettingTlsError = DefaultErrors;
+export type GetSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | Forbidden;
 
 export const getSettingTls: API.PaginatedOperationMethod<
   GetSettingTlsRequest,
@@ -88,7 +110,7 @@ export const getSettingTls: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: GetSettingTlsRequest,
   output: GetSettingTlsResponse,
-  errors: [],
+  errors: [AdvancedCertificateManagerRequired, Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -96,21 +118,18 @@ export const getSettingTls: API.PaginatedOperationMethod<
 }));
 
 export interface PutSettingTlsRequest {
-  settingId: "ciphers" | "min_tls_version" | "http2" | (string & {});
   hostname: string;
   /** Path param: Identifier. */
   zoneId: string;
+  settingId: string;
   /** Body param: The TLS setting value. The type depends on the `setting_id` used in the request path:  - `ciphers`: an array of allowed cipher suite strings in BoringSSL format (e.g., `["ECDHE-RSA-AES128- */
   value: "1.0" | "1.1" | "1.2" | "1.3" | "on" | "off" | string[];
 }
 
 export const PutSettingTlsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-  settingId: Schema.Union([
-    Schema.Literals(["ciphers", "min_tls_version", "http2"]),
-    Schema.String,
-  ]).pipe(T.HttpPath("settingId")),
   hostname: Schema.String.pipe(T.HttpPath("hostname")),
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+  settingId: Schema.String.pipe(T.HttpPath("settingId")),
   value: Schema.Union([
     Schema.Literal("1.0"),
     Schema.Literal("1.1"),
@@ -173,7 +192,10 @@ export const PutSettingTlsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PutSettingTlsResponse>;
 
-export type PutSettingTlsError = DefaultErrors;
+export type PutSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | Forbidden;
 
 export const putSettingTls: API.OperationMethod<
   PutSettingTlsRequest,
@@ -183,24 +205,21 @@ export const putSettingTls: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutSettingTlsRequest,
   output: PutSettingTlsResponse,
-  errors: [],
+  errors: [AdvancedCertificateManagerRequired, Forbidden],
 }));
 
 export interface DeleteSettingTlsRequest {
-  settingId: "ciphers" | "min_tls_version" | "http2" | (string & {});
   hostname: string;
   /** Identifier. */
   zoneId: string;
+  settingId: string;
 }
 
 export const DeleteSettingTlsRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    settingId: Schema.Union([
-      Schema.Literals(["ciphers", "min_tls_version", "http2"]),
-      Schema.String,
-    ]).pipe(T.HttpPath("settingId")),
     hostname: Schema.String.pipe(T.HttpPath("hostname")),
     zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+    settingId: Schema.String.pipe(T.HttpPath("settingId")),
   }).pipe(
     T.Http({
       method: "DELETE",
@@ -255,7 +274,11 @@ export const DeleteSettingTlsResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<DeleteSettingTlsResponse>;
 
-export type DeleteSettingTlsError = DefaultErrors;
+export type DeleteSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | HostnameTlsSettingNotFound
+  | Forbidden;
 
 export const deleteSettingTls: API.OperationMethod<
   DeleteSettingTlsRequest,
@@ -265,5 +288,9 @@ export const deleteSettingTls: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteSettingTlsRequest,
   output: DeleteSettingTlsResponse,
-  errors: [],
+  errors: [
+    AdvancedCertificateManagerRequired,
+    HostnameTlsSettingNotFound,
+    Forbidden,
+  ],
 }));

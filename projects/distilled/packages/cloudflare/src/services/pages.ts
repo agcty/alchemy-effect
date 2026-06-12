@@ -14,6 +14,52 @@ import { type DefaultErrors } from "../errors.ts";
 import { UploadableSchema } from "../schemas.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class ActiveProductionDeployment extends Schema.TaggedErrorClass<ActiveProductionDeployment>()(
+  "ActiveProductionDeployment",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ActiveProductionDeployment, [{ code: 8000034 }]);
+
+export class DeploymentNotFound extends Schema.TaggedErrorClass<DeploymentNotFound>()(
+  "DeploymentNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DeploymentNotFound, [{ code: 8000009 }]);
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class PagesDomainAlreadyExists extends Schema.TaggedErrorClass<PagesDomainAlreadyExists>()(
+  "PagesDomainAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(PagesDomainAlreadyExists, [{ code: 8000018 }]);
+
+export class PagesDomainNotFound extends Schema.TaggedErrorClass<PagesDomainNotFound>()(
+  "PagesDomainNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(PagesDomainNotFound, [{ code: 8000021 }]);
+
+export class ProjectAlreadyExists extends Schema.TaggedErrorClass<ProjectAlreadyExists>()(
+  "ProjectAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ProjectAlreadyExists, [{ code: 8000002 }]);
+
+export class ProjectNotFound extends Schema.TaggedErrorClass<ProjectNotFound>()(
+  "ProjectNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ProjectNotFound, [{ code: 8000007 }]);
+
+// =============================================================================
 // BuildCacheProject
 // =============================================================================
 
@@ -1098,7 +1144,7 @@ export const GetProjectResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<GetProjectResponse>;
 
-export type GetProjectError = DefaultErrors;
+export type GetProjectError = DefaultErrors | ProjectNotFound | Forbidden;
 
 export const getProject: API.OperationMethod<
   GetProjectRequest,
@@ -1108,7 +1154,7 @@ export const getProject: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetProjectRequest,
   output: GetProjectResponse,
-  errors: [],
+  errors: [ProjectNotFound, Forbidden],
 }));
 
 export interface ListProjectsRequest {
@@ -2180,7 +2226,7 @@ export const ListProjectsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
 ) as unknown as Schema.Schema<ListProjectsResponse>;
 
-export type ListProjectsError = DefaultErrors;
+export type ListProjectsError = DefaultErrors | Forbidden;
 
 export const listProjects: API.PaginatedOperationMethod<
   ListProjectsRequest,
@@ -2190,7 +2236,7 @@ export const listProjects: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListProjectsRequest,
   output: ListProjectsResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",
@@ -3580,7 +3626,10 @@ export const CreateProjectResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateProjectResponse>;
 
-export type CreateProjectError = DefaultErrors;
+export type CreateProjectError =
+  | DefaultErrors
+  | ProjectAlreadyExists
+  | Forbidden;
 
 export const createProject: API.OperationMethod<
   CreateProjectRequest,
@@ -3590,7 +3639,7 @@ export const createProject: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateProjectRequest,
   output: CreateProjectResponse,
-  errors: [],
+  errors: [ProjectAlreadyExists, Forbidden],
 }));
 
 export interface PatchProjectRequest {
@@ -4978,7 +5027,7 @@ export const PatchProjectResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PatchProjectResponse>;
 
-export type PatchProjectError = DefaultErrors;
+export type PatchProjectError = DefaultErrors | ProjectNotFound | Forbidden;
 
 export const patchProject: API.OperationMethod<
   PatchProjectRequest,
@@ -4988,7 +5037,7 @@ export const patchProject: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchProjectRequest,
   output: PatchProjectResponse,
-  errors: [],
+  errors: [ProjectNotFound, Forbidden],
 }));
 
 export interface DeleteProjectRequest {
@@ -5014,7 +5063,7 @@ export const DeleteProjectResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteProjectResponse>;
 
-export type DeleteProjectError = DefaultErrors;
+export type DeleteProjectError = DefaultErrors | ProjectNotFound | Forbidden;
 
 export const deleteProject: API.OperationMethod<
   DeleteProjectRequest,
@@ -5024,7 +5073,7 @@ export const deleteProject: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteProjectRequest,
   output: DeleteProjectResponse,
-  errors: [],
+  errors: [ProjectNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -5110,7 +5159,7 @@ export interface GetProjectDeploymentResponse {
   /** Short Id (8 character) of the deployment. */
   shortId: string;
   /** Configs for the project source control. */
-  source: {
+  source?: {
     config: {
       deploymentsEnabled: boolean;
       owner: string;
@@ -5127,7 +5176,7 @@ export interface GetProjectDeploymentResponse {
       repoName: string;
     };
     type: "github" | "gitlab" | (string & {});
-  };
+  } | null;
   /** List of past stages. */
   stages: {
     endedOn: string | null;
@@ -5236,46 +5285,51 @@ export const GetProjectDeploymentResponse =
     projectId: Schema.String,
     projectName: Schema.String,
     shortId: Schema.String,
-    source: Schema.Struct({
-      config: Schema.Struct({
-        deploymentsEnabled: Schema.Boolean,
-        owner: Schema.String,
-        ownerId: Schema.String,
-        pathExcludes: Schema.Array(Schema.String),
-        pathIncludes: Schema.Array(Schema.String),
-        prCommentsEnabled: Schema.Boolean,
-        previewBranchExcludes: Schema.Array(Schema.String),
-        previewBranchIncludes: Schema.Array(Schema.String),
-        previewDeploymentSetting: Schema.Union([
-          Schema.Literals(["all", "none", "custom"]),
-          Schema.String,
-        ]),
-        productionBranch: Schema.String,
-        productionDeploymentsEnabled: Schema.Boolean,
-        repoId: Schema.String,
-        repoName: Schema.String,
-      }).pipe(
-        Schema.encodeKeys({
-          deploymentsEnabled: "deployments_enabled",
-          owner: "owner",
-          ownerId: "owner_id",
-          pathExcludes: "path_excludes",
-          pathIncludes: "path_includes",
-          prCommentsEnabled: "pr_comments_enabled",
-          previewBranchExcludes: "preview_branch_excludes",
-          previewBranchIncludes: "preview_branch_includes",
-          previewDeploymentSetting: "preview_deployment_setting",
-          productionBranch: "production_branch",
-          productionDeploymentsEnabled: "production_deployments_enabled",
-          repoId: "repo_id",
-          repoName: "repo_name",
+    source: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          config: Schema.Struct({
+            deploymentsEnabled: Schema.Boolean,
+            owner: Schema.String,
+            ownerId: Schema.String,
+            pathExcludes: Schema.Array(Schema.String),
+            pathIncludes: Schema.Array(Schema.String),
+            prCommentsEnabled: Schema.Boolean,
+            previewBranchExcludes: Schema.Array(Schema.String),
+            previewBranchIncludes: Schema.Array(Schema.String),
+            previewDeploymentSetting: Schema.Union([
+              Schema.Literals(["all", "none", "custom"]),
+              Schema.String,
+            ]),
+            productionBranch: Schema.String,
+            productionDeploymentsEnabled: Schema.Boolean,
+            repoId: Schema.String,
+            repoName: Schema.String,
+          }).pipe(
+            Schema.encodeKeys({
+              deploymentsEnabled: "deployments_enabled",
+              owner: "owner",
+              ownerId: "owner_id",
+              pathExcludes: "path_excludes",
+              pathIncludes: "path_includes",
+              prCommentsEnabled: "pr_comments_enabled",
+              previewBranchExcludes: "preview_branch_excludes",
+              previewBranchIncludes: "preview_branch_includes",
+              previewDeploymentSetting: "preview_deployment_setting",
+              productionBranch: "production_branch",
+              productionDeploymentsEnabled: "production_deployments_enabled",
+              repoId: "repo_id",
+              repoName: "repo_name",
+            }),
+          ),
+          type: Schema.Union([
+            Schema.Literals(["github", "gitlab"]),
+            Schema.String,
+          ]),
         }),
-      ),
-      type: Schema.Union([
-        Schema.Literals(["github", "gitlab"]),
-        Schema.String,
+        Schema.Null,
       ]),
-    }),
+    ),
     stages: Schema.Array(
       Schema.Struct({
         endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -5331,7 +5385,11 @@ export const GetProjectDeploymentResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetProjectDeploymentResponse>;
 
-export type GetProjectDeploymentError = DefaultErrors;
+export type GetProjectDeploymentError =
+  | DefaultErrors
+  | DeploymentNotFound
+  | ProjectNotFound
+  | Forbidden;
 
 export const getProjectDeployment: API.OperationMethod<
   GetProjectDeploymentRequest,
@@ -5341,7 +5399,7 @@ export const getProjectDeployment: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetProjectDeploymentRequest,
   output: GetProjectDeploymentResponse,
-  errors: [],
+  errors: [DeploymentNotFound, ProjectNotFound, Forbidden],
 }));
 
 export interface ListProjectDeploymentsRequest {
@@ -5835,7 +5893,7 @@ export interface CreateProjectDeploymentResponse {
   /** Short Id (8 character) of the deployment. */
   shortId: string;
   /** Configs for the project source control. */
-  source: {
+  source?: {
     config: {
       deploymentsEnabled: boolean;
       owner: string;
@@ -5852,7 +5910,7 @@ export interface CreateProjectDeploymentResponse {
       repoName: string;
     };
     type: "github" | "gitlab" | (string & {});
-  };
+  } | null;
   /** List of past stages. */
   stages: {
     endedOn: string | null;
@@ -5961,46 +6019,51 @@ export const CreateProjectDeploymentResponse =
     projectId: Schema.String,
     projectName: Schema.String,
     shortId: Schema.String,
-    source: Schema.Struct({
-      config: Schema.Struct({
-        deploymentsEnabled: Schema.Boolean,
-        owner: Schema.String,
-        ownerId: Schema.String,
-        pathExcludes: Schema.Array(Schema.String),
-        pathIncludes: Schema.Array(Schema.String),
-        prCommentsEnabled: Schema.Boolean,
-        previewBranchExcludes: Schema.Array(Schema.String),
-        previewBranchIncludes: Schema.Array(Schema.String),
-        previewDeploymentSetting: Schema.Union([
-          Schema.Literals(["all", "none", "custom"]),
-          Schema.String,
-        ]),
-        productionBranch: Schema.String,
-        productionDeploymentsEnabled: Schema.Boolean,
-        repoId: Schema.String,
-        repoName: Schema.String,
-      }).pipe(
-        Schema.encodeKeys({
-          deploymentsEnabled: "deployments_enabled",
-          owner: "owner",
-          ownerId: "owner_id",
-          pathExcludes: "path_excludes",
-          pathIncludes: "path_includes",
-          prCommentsEnabled: "pr_comments_enabled",
-          previewBranchExcludes: "preview_branch_excludes",
-          previewBranchIncludes: "preview_branch_includes",
-          previewDeploymentSetting: "preview_deployment_setting",
-          productionBranch: "production_branch",
-          productionDeploymentsEnabled: "production_deployments_enabled",
-          repoId: "repo_id",
-          repoName: "repo_name",
+    source: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          config: Schema.Struct({
+            deploymentsEnabled: Schema.Boolean,
+            owner: Schema.String,
+            ownerId: Schema.String,
+            pathExcludes: Schema.Array(Schema.String),
+            pathIncludes: Schema.Array(Schema.String),
+            prCommentsEnabled: Schema.Boolean,
+            previewBranchExcludes: Schema.Array(Schema.String),
+            previewBranchIncludes: Schema.Array(Schema.String),
+            previewDeploymentSetting: Schema.Union([
+              Schema.Literals(["all", "none", "custom"]),
+              Schema.String,
+            ]),
+            productionBranch: Schema.String,
+            productionDeploymentsEnabled: Schema.Boolean,
+            repoId: Schema.String,
+            repoName: Schema.String,
+          }).pipe(
+            Schema.encodeKeys({
+              deploymentsEnabled: "deployments_enabled",
+              owner: "owner",
+              ownerId: "owner_id",
+              pathExcludes: "path_excludes",
+              pathIncludes: "path_includes",
+              prCommentsEnabled: "pr_comments_enabled",
+              previewBranchExcludes: "preview_branch_excludes",
+              previewBranchIncludes: "preview_branch_includes",
+              previewDeploymentSetting: "preview_deployment_setting",
+              productionBranch: "production_branch",
+              productionDeploymentsEnabled: "production_deployments_enabled",
+              repoId: "repo_id",
+              repoName: "repo_name",
+            }),
+          ),
+          type: Schema.Union([
+            Schema.Literals(["github", "gitlab"]),
+            Schema.String,
+          ]),
         }),
-      ),
-      type: Schema.Union([
-        Schema.Literals(["github", "gitlab"]),
-        Schema.String,
+        Schema.Null,
       ]),
-    }),
+    ),
     stages: Schema.Array(
       Schema.Struct({
         endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -6056,7 +6119,10 @@ export const CreateProjectDeploymentResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateProjectDeploymentResponse>;
 
-export type CreateProjectDeploymentError = DefaultErrors;
+export type CreateProjectDeploymentError =
+  | DefaultErrors
+  | ProjectNotFound
+  | Forbidden;
 
 export const createProjectDeployment: API.OperationMethod<
   CreateProjectDeploymentRequest,
@@ -6066,7 +6132,7 @@ export const createProjectDeployment: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateProjectDeploymentRequest,
   output: CreateProjectDeploymentResponse,
-  errors: [],
+  errors: [ProjectNotFound, Forbidden],
 }));
 
 export interface DeleteProjectDeploymentRequest {
@@ -6098,7 +6164,12 @@ export const DeleteProjectDeploymentResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteProjectDeploymentResponse>;
 
-export type DeleteProjectDeploymentError = DefaultErrors;
+export type DeleteProjectDeploymentError =
+  | DefaultErrors
+  | DeploymentNotFound
+  | ProjectNotFound
+  | ActiveProductionDeployment
+  | Forbidden;
 
 export const deleteProjectDeployment: API.OperationMethod<
   DeleteProjectDeploymentRequest,
@@ -6108,7 +6179,12 @@ export const deleteProjectDeployment: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteProjectDeploymentRequest,
   output: DeleteProjectDeploymentResponse,
-  errors: [],
+  errors: [
+    DeploymentNotFound,
+    ProjectNotFound,
+    ActiveProductionDeployment,
+    Forbidden,
+  ],
 }));
 
 export interface RetryProjectDeploymentRequest {
@@ -6944,7 +7020,11 @@ export const GetProjectDomainResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<GetProjectDomainResponse>;
 
-export type GetProjectDomainError = DefaultErrors;
+export type GetProjectDomainError =
+  | DefaultErrors
+  | ProjectNotFound
+  | PagesDomainNotFound
+  | Forbidden;
 
 export const getProjectDomain: API.OperationMethod<
   GetProjectDomainRequest,
@@ -6954,7 +7034,7 @@ export const getProjectDomain: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetProjectDomainRequest,
   output: GetProjectDomainResponse,
-  errors: [],
+  errors: [ProjectNotFound, PagesDomainNotFound, Forbidden],
 }));
 
 export interface ListProjectDomainsRequest {
@@ -7105,7 +7185,10 @@ export const ListProjectDomainsResponse =
     ),
   }) as unknown as Schema.Schema<ListProjectDomainsResponse>;
 
-export type ListProjectDomainsError = DefaultErrors;
+export type ListProjectDomainsError =
+  | DefaultErrors
+  | ProjectNotFound
+  | Forbidden;
 
 export const listProjectDomains: API.PaginatedOperationMethod<
   ListProjectDomainsRequest,
@@ -7115,7 +7198,7 @@ export const listProjectDomains: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListProjectDomainsRequest,
   output: ListProjectDomainsResponse,
-  errors: [],
+  errors: [ProjectNotFound, Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -7262,7 +7345,11 @@ export const CreateProjectDomainResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateProjectDomainResponse>;
 
-export type CreateProjectDomainError = DefaultErrors;
+export type CreateProjectDomainError =
+  | DefaultErrors
+  | ProjectNotFound
+  | PagesDomainAlreadyExists
+  | Forbidden;
 
 export const createProjectDomain: API.OperationMethod<
   CreateProjectDomainRequest,
@@ -7272,7 +7359,7 @@ export const createProjectDomain: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateProjectDomainRequest,
   output: CreateProjectDomainResponse,
-  errors: [],
+  errors: [ProjectNotFound, PagesDomainAlreadyExists, Forbidden],
 }));
 
 export interface PatchProjectDomainRequest {
@@ -7414,7 +7501,11 @@ export const PatchProjectDomainResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<PatchProjectDomainResponse>;
 
-export type PatchProjectDomainError = DefaultErrors;
+export type PatchProjectDomainError =
+  | DefaultErrors
+  | ProjectNotFound
+  | PagesDomainNotFound
+  | Forbidden;
 
 export const patchProjectDomain: API.OperationMethod<
   PatchProjectDomainRequest,
@@ -7424,7 +7515,7 @@ export const patchProjectDomain: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchProjectDomainRequest,
   output: PatchProjectDomainResponse,
-  errors: [],
+  errors: [ProjectNotFound, PagesDomainNotFound, Forbidden],
 }));
 
 export interface DeleteProjectDomainRequest {
@@ -7453,7 +7544,11 @@ export const DeleteProjectDomainResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteProjectDomainResponse>;
 
-export type DeleteProjectDomainError = DefaultErrors;
+export type DeleteProjectDomainError =
+  | DefaultErrors
+  | ProjectNotFound
+  | PagesDomainNotFound
+  | Forbidden;
 
 export const deleteProjectDomain: API.OperationMethod<
   DeleteProjectDomainRequest,
@@ -7463,5 +7558,5 @@ export const deleteProjectDomain: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteProjectDomainRequest,
   output: DeleteProjectDomainResponse,
-  errors: [],
+  errors: [ProjectNotFound, PagesDomainNotFound, Forbidden],
 }));

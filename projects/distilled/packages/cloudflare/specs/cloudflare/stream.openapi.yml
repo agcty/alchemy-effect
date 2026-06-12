@@ -1509,6 +1509,9 @@ paths:
                     type: string
                     description: The unique identifier for the signing key.
       x-distilled-pagination-class: KeyGetResponsesSinglePage
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
     post:
       operationId: createKey
       description: "Creates an RSA private key in PEM and JWK formats. Key files are
@@ -1576,6 +1579,11 @@ paths:
               schema:
                 type: string
       x-distilled-response-path: result
+      x-distilled-errors:
+        SigningKeyNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/live_inputs/{liveInputIdentifier}:
     get:
       operationId: getLiveInput
@@ -1627,6 +1635,11 @@ paths:
                     type: string
                     description: A unique identifier for a live input.
       x-distilled-response-path: result
+      x-distilled-errors:
+        LiveInputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
     put:
       operationId: updateLiveInput
       description: "Updates a specified live input.  @example ```ts const liveInput =
@@ -1764,6 +1777,11 @@ paths:
       responses:
         "200":
           description: Success
+      x-distilled-errors:
+        LiveInputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/live_inputs:
     get:
       operationId: listLiveInputs
@@ -1987,6 +2005,11 @@ paths:
                     type: string
                     description: The URL an output uses to restream.
       x-distilled-pagination-class: OutputsSinglePage
+      x-distilled-errors:
+        LiveInputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
     post:
       operationId: createLiveInputOutput
       description: "Creates a new output that can be used to simulcast or restream
@@ -2061,6 +2084,11 @@ paths:
                     type: string
                     description: The URL an output uses to restream.
       x-distilled-response-path: result
+      x-distilled-errors:
+        LiveInputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/live_inputs/{liveInputIdentifier}/outputs/{outputIdentifier}:
     put:
       operationId: updateLiveInputOutput
@@ -2129,6 +2157,11 @@ paths:
                     type: string
                     description: The URL an output uses to restream.
       x-distilled-response-path: result
+      x-distilled-errors:
+        OutputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
     delete:
       operationId: deleteLiveInputOutput
       description: "Deletes an output and removes it from the associated live
@@ -2155,6 +2188,11 @@ paths:
       responses:
         "200":
           description: Success
+      x-distilled-errors:
+        OutputNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/{identifier}:
     get:
       operationId: getStream
@@ -3384,6 +3422,11 @@ paths:
                     type: number
                     description: The width of the image in pixels.
       x-distilled-response-path: result
+      x-distilled-errors:
+        WatermarkNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
     delete:
       operationId: deleteWatermark
       description: "Deletes a watermark profile.  @example ```ts const watermark =
@@ -3410,6 +3453,11 @@ paths:
               schema:
                 type: string
       x-distilled-response-path: result
+      x-distilled-errors:
+        WatermarkNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/watermarks:
     get:
       operationId: listWatermarks
@@ -3588,6 +3636,11 @@ paths:
                     type: number
                     description: The width of the image in pixels.
       x-distilled-response-path: result
+      x-distilled-errors:
+        WatermarkImageInvalid:
+          - code: 10004
+        Forbidden:
+          - status: 403
   /accounts/{account_id}/stream/webhook:
     get:
       operationId: getWebhook
@@ -3619,6 +3672,11 @@ paths:
                     type: string
                     description: The secret used to verify webhook signatures.
       x-distilled-response-path: result
+      x-distilled-errors:
+        WebhookNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403
     put:
       operationId: putWebhook
       description: "Creates a webhook notification.  @example ```ts const webhook =
@@ -3679,3 +3737,8 @@ paths:
               schema:
                 type: string
       x-distilled-response-path: result
+      x-distilled-errors:
+        WebhookNotFound:
+          - code: 10003
+        Forbidden:
+          - status: 403

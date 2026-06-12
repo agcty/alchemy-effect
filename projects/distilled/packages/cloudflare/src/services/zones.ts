@@ -16,11 +16,25 @@ import { type DefaultErrors } from "../errors.ts";
 // Errors
 // =============================================================================
 
+export class CustomNameserverSetNotFound extends Schema.TaggedErrorClass<CustomNameserverSetNotFound>()(
+  "CustomNameserverSetNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(CustomNameserverSetNotFound, [
+  { code: 1001, message: { includes: "Custom Nameserver set doesn't exist" } },
+]);
+
 export class DomainNotRegistered extends Schema.TaggedErrorClass<DomainNotRegistered>()(
   "DomainNotRegistered",
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(DomainNotRegistered, [{ code: 1099 }]);
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
 
 export class InvalidDomain extends Schema.TaggedErrorClass<InvalidDomain>()(
   "InvalidDomain",
@@ -47,6 +61,25 @@ export class ZoneAlreadyExists extends Schema.TaggedErrorClass<ZoneAlreadyExists
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(ZoneAlreadyExists, [{ code: 1061 }]);
+
+export class ZoneHoldNotFound extends Schema.TaggedErrorClass<ZoneHoldNotFound>()(
+  "ZoneHoldNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneHoldNotFound, [
+  { code: 1003, message: { includes: "No Zone Hold Found" } },
+]);
+
+export class ZoneHoldsRequireEnterprise extends Schema.TaggedErrorClass<ZoneHoldsRequireEnterprise>()(
+  "ZoneHoldsRequireEnterprise",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneHoldsRequireEnterprise, [
+  {
+    code: 1005,
+    message: { includes: "Zone holds are only available on Enterprise zones" },
+  },
+]);
 
 // =============================================================================
 // ActivationCheck
@@ -106,20 +139,24 @@ export const GetCustomNameserverRequest =
   ) as unknown as Schema.Schema<GetCustomNameserverRequest>;
 
 export interface GetCustomNameserverResponse {
-  errors: {
-    code: number;
-    message: string;
-    documentationUrl?: string | null;
-    source?: { pointer?: string | null } | null;
-  }[];
-  messages: {
-    code: number;
-    message: string;
-    documentationUrl?: string | null;
-    source?: { pointer?: string | null } | null;
-  }[];
+  errors?:
+    | {
+        code: number;
+        message: string;
+        documentationUrl?: string | null;
+        source?: { pointer?: string | null } | null;
+      }[]
+    | null;
+  messages?:
+    | {
+        code: number;
+        message: string;
+        documentationUrl?: string | null;
+        source?: { pointer?: string | null } | null;
+      }[]
+    | null;
   /** Whether the API call was successful. */
-  success: true;
+  success?: true | null;
   /** Whether zone uses account-level custom nameservers. */
   enabled?: boolean | null;
   /** The number of the name server set to assign to the zone. */
@@ -135,59 +172,69 @@ export interface GetCustomNameserverResponse {
 
 export const GetCustomNameserverResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    errors: Schema.Array(
-      Schema.Struct({
-        code: Schema.Number,
-        message: Schema.String,
-        documentationUrl: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-        source: Schema.optional(
-          Schema.Union([
-            Schema.Struct({
-              pointer: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
+    errors: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            code: Schema.Number,
+            message: Schema.String,
+            documentationUrl: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            source: Schema.optional(
+              Schema.Union([
+                Schema.Struct({
+                  pointer: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                }),
+                Schema.Null,
+              ]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              code: "code",
+              message: "message",
+              documentationUrl: "documentation_url",
+              source: "source",
             }),
-            Schema.Null,
-          ]),
+          ),
         ),
-      }).pipe(
-        Schema.encodeKeys({
-          code: "code",
-          message: "message",
-          documentationUrl: "documentation_url",
-          source: "source",
-        }),
-      ),
+        Schema.Null,
+      ]),
     ),
-    messages: Schema.Array(
-      Schema.Struct({
-        code: Schema.Number,
-        message: Schema.String,
-        documentationUrl: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-        source: Schema.optional(
-          Schema.Union([
-            Schema.Struct({
-              pointer: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
+    messages: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            code: Schema.Number,
+            message: Schema.String,
+            documentationUrl: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            source: Schema.optional(
+              Schema.Union([
+                Schema.Struct({
+                  pointer: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                }),
+                Schema.Null,
+              ]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              code: "code",
+              message: "message",
+              documentationUrl: "documentation_url",
+              source: "source",
             }),
-            Schema.Null,
-          ]),
+          ),
         ),
-      }).pipe(
-        Schema.encodeKeys({
-          code: "code",
-          message: "message",
-          documentationUrl: "documentation_url",
-          source: "source",
-        }),
-      ),
+        Schema.Null,
+      ]),
     ),
-    success: Schema.Literal(true),
+    success: Schema.optional(Schema.Union([Schema.Literal(true), Schema.Null])),
     enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
     nsSet: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     resultInfo: Schema.optional(
@@ -214,18 +261,25 @@ export const GetCustomNameserverResponse =
         Schema.Null,
       ]),
     ),
-  }).pipe(
-    Schema.encodeKeys({
-      errors: "errors",
-      messages: "messages",
-      success: "success",
-      enabled: "enabled",
-      nsSet: "ns_set",
-      resultInfo: "result_info",
-    }),
-  ) as unknown as Schema.Schema<GetCustomNameserverResponse>;
+  })
+    .pipe(
+      Schema.encodeKeys({
+        errors: "errors",
+        messages: "messages",
+        success: "success",
+        enabled: "enabled",
+        nsSet: "ns_set",
+        resultInfo: "result_info",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetCustomNameserverResponse>;
 
-export type GetCustomNameserverError = DefaultErrors;
+export type GetCustomNameserverError =
+  | DefaultErrors
+  | InvalidZoneIdentifier
+  | Forbidden;
 
 export const getCustomNameserver: API.OperationMethod<
   GetCustomNameserverRequest,
@@ -235,7 +289,7 @@ export const getCustomNameserver: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetCustomNameserverRequest,
   output: GetCustomNameserverResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, Forbidden],
 }));
 
 export interface PutCustomNameserverRequest {
@@ -258,15 +312,19 @@ export const PutCustomNameserverRequest =
   ) as unknown as Schema.Schema<PutCustomNameserverRequest>;
 
 export interface PutCustomNameserverResponse {
-  result: string[];
+  result: unknown;
 }
 
 export const PutCustomNameserverResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    result: Schema.Array(Schema.String),
+    result: Schema.Unknown,
   }) as unknown as Schema.Schema<PutCustomNameserverResponse>;
 
-export type PutCustomNameserverError = DefaultErrors;
+export type PutCustomNameserverError =
+  | DefaultErrors
+  | InvalidZoneIdentifier
+  | CustomNameserverSetNotFound
+  | Forbidden;
 
 export const putCustomNameserver: API.PaginatedOperationMethod<
   PutCustomNameserverRequest,
@@ -276,7 +334,7 @@ export const putCustomNameserver: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: PutCustomNameserverRequest,
   output: PutCustomNameserverResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, CustomNameserverSetNotFound, Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -837,14 +895,14 @@ export const GetHoldRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export interface GetHoldResponse {
   hold?: boolean | null;
   holdAfter?: string | null;
-  includeSubdomains?: string | null;
+  includeSubdomains?: unknown | null;
 }
 
 export const GetHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   hold: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
   holdAfter: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   includeSubdomains: Schema.optional(
-    Schema.Union([Schema.String, Schema.Null]),
+    Schema.Union([Schema.Unknown, Schema.Null]),
   ),
 })
   .pipe(
@@ -856,7 +914,7 @@ export const GetHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   )
   .pipe(T.ResponsePath("result")) as unknown as Schema.Schema<GetHoldResponse>;
 
-export type GetHoldError = DefaultErrors;
+export type GetHoldError = DefaultErrors | InvalidZoneIdentifier | Forbidden;
 
 export const getHold: API.OperationMethod<
   GetHoldRequest,
@@ -866,7 +924,7 @@ export const getHold: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetHoldRequest,
   output: GetHoldResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, Forbidden],
 }));
 
 export interface CreateHoldRequest {
@@ -888,14 +946,14 @@ export const CreateHoldRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export interface CreateHoldResponse {
   hold?: boolean | null;
   holdAfter?: string | null;
-  includeSubdomains?: string | null;
+  includeSubdomains?: unknown | null;
 }
 
 export const CreateHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   hold: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
   holdAfter: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   includeSubdomains: Schema.optional(
-    Schema.Union([Schema.String, Schema.Null]),
+    Schema.Union([Schema.Unknown, Schema.Null]),
   ),
 })
   .pipe(
@@ -909,7 +967,11 @@ export const CreateHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateHoldResponse>;
 
-export type CreateHoldError = DefaultErrors;
+export type CreateHoldError =
+  | DefaultErrors
+  | ZoneHoldsRequireEnterprise
+  | InvalidZoneIdentifier
+  | Forbidden;
 
 export const createHold: API.OperationMethod<
   CreateHoldRequest,
@@ -919,7 +981,7 @@ export const createHold: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateHoldRequest,
   output: CreateHoldResponse,
-  errors: [],
+  errors: [ZoneHoldsRequireEnterprise, InvalidZoneIdentifier, Forbidden],
 }));
 
 export interface PatchHoldRequest {
@@ -946,14 +1008,14 @@ export const PatchHoldRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export interface PatchHoldResponse {
   hold?: boolean | null;
   holdAfter?: string | null;
-  includeSubdomains?: string | null;
+  includeSubdomains?: unknown | null;
 }
 
 export const PatchHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   hold: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
   holdAfter: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   includeSubdomains: Schema.optional(
-    Schema.Union([Schema.String, Schema.Null]),
+    Schema.Union([Schema.Unknown, Schema.Null]),
   ),
 })
   .pipe(
@@ -967,7 +1029,12 @@ export const PatchHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<PatchHoldResponse>;
 
-export type PatchHoldError = DefaultErrors;
+export type PatchHoldError =
+  | DefaultErrors
+  | ZoneHoldNotFound
+  | ZoneHoldsRequireEnterprise
+  | InvalidZoneIdentifier
+  | Forbidden;
 
 export const patchHold: API.OperationMethod<
   PatchHoldRequest,
@@ -977,7 +1044,12 @@ export const patchHold: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchHoldRequest,
   output: PatchHoldResponse,
-  errors: [],
+  errors: [
+    ZoneHoldNotFound,
+    ZoneHoldsRequireEnterprise,
+    InvalidZoneIdentifier,
+    Forbidden,
+  ],
 }));
 
 export interface DeleteHoldRequest {
@@ -997,14 +1069,14 @@ export const DeleteHoldRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 export interface DeleteHoldResponse {
   hold?: boolean | null;
   holdAfter?: string | null;
-  includeSubdomains?: string | null;
+  includeSubdomains?: unknown | null;
 }
 
 export const DeleteHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   hold: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
   holdAfter: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   includeSubdomains: Schema.optional(
-    Schema.Union([Schema.String, Schema.Null]),
+    Schema.Union([Schema.Unknown, Schema.Null]),
   ),
 })
   .pipe(
@@ -1018,7 +1090,7 @@ export const DeleteHoldResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteHoldResponse>;
 
-export type DeleteHoldError = DefaultErrors;
+export type DeleteHoldError = DefaultErrors | InvalidZoneIdentifier | Forbidden;
 
 export const deleteHold: API.OperationMethod<
   DeleteHoldRequest,
@@ -1028,7 +1100,7 @@ export const deleteHold: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteHoldRequest,
   output: DeleteHoldResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, Forbidden],
 }));
 
 // =============================================================================
@@ -2895,7 +2967,7 @@ export const GetSettingResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Union([
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetSettingResponse>;
 
-export type GetSettingError = DefaultErrors;
+export type GetSettingError = DefaultErrors | InvalidZoneIdentifier | Forbidden;
 
 export const getSetting: API.OperationMethod<
   GetSettingRequest,
@@ -2905,7 +2977,7 @@ export const getSetting: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetSettingRequest,
   output: GetSettingResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, Forbidden],
 }));
 
 export interface PatchSettingRequest {
@@ -4463,7 +4535,10 @@ export const PatchSettingResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Union([
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<PatchSettingResponse>;
 
-export type PatchSettingError = DefaultErrors;
+export type PatchSettingError =
+  | DefaultErrors
+  | InvalidZoneIdentifier
+  | Forbidden;
 
 export const patchSetting: API.OperationMethod<
   PatchSettingRequest,
@@ -4473,7 +4548,7 @@ export const patchSetting: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PatchSettingRequest,
   output: PatchSettingResponse,
-  errors: [],
+  errors: [InvalidZoneIdentifier, Forbidden],
 }));
 
 // =============================================================================
@@ -5436,11 +5511,73 @@ export const getZone: API.OperationMethod<
   errors: [InvalidZoneIdentifier],
 }));
 
-export interface ListZonesRequest {}
+export interface ListZonesRequest {
+  page?: number;
+  perPage?: number;
+  account?: { id?: string; name?: string };
+  /** Direction to order zones. */
+  direction?: "asc" | "desc" | (string & {});
+  /** Whether to match all search requirements or at least one (any). */
+  match?: "any" | "all" | (string & {});
+  /** A domain name. Optional filter operators can be provided to extend refine the search:  - `equal` (default) - `not_equal` - `starts_with` - `ends_with` - `contains` - `starts_with_case_sensitive` - `en */
+  name?: string;
+  /** Field to order zones by. */
+  order?:
+    | "name"
+    | "status"
+    | "account.id"
+    | "account.name"
+    | "plan.id"
+    | (string & {});
+  /** Specify a zone status to filter by. */
+  status?: "initializing" | "pending" | "active" | "moved" | (string & {});
+  /** Zone types to filter by. Multiple types can be specified as a comma-separated list (e.g., ?type=full,partial,secondary). When this parameter is not provided, zones with type "internal" are excluded fr */
+  type?: ("full" | "partial" | "secondary" | "internal" | (string & {}))[];
+}
 
-export const ListZonesRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
-  {},
-).pipe(
+export const ListZonesRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
+  perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  account: Schema.optional(
+    Schema.Struct({
+      id: Schema.optional(Schema.String),
+      name: Schema.optional(Schema.String),
+    }),
+  ).pipe(T.HttpQuery("account")),
+  direction: Schema.optional(
+    Schema.Union([Schema.Literals(["asc", "desc"]), Schema.String]),
+  ).pipe(T.HttpQuery("direction")),
+  match: Schema.optional(
+    Schema.Union([Schema.Literals(["any", "all"]), Schema.String]),
+  ).pipe(T.HttpQuery("match")),
+  name: Schema.optional(Schema.String).pipe(T.HttpQuery("name")),
+  order: Schema.optional(
+    Schema.Union([
+      Schema.Literals([
+        "name",
+        "status",
+        "account.id",
+        "account.name",
+        "plan.id",
+      ]),
+      Schema.String,
+    ]),
+  ).pipe(T.HttpQuery("order")),
+  status: Schema.optional(
+    Schema.Union([
+      Schema.Literals(["initializing", "pending", "active", "moved"]),
+      Schema.String,
+    ]),
+  ).pipe(T.HttpQuery("status")),
+  type: Schema.optional(
+    Schema.Array(
+      Schema.Union([
+        Schema.Literals(["full", "partial", "secondary", "internal"]),
+        Schema.String,
+      ]),
+    ),
+  ).pipe(T.HttpQuery("type")),
+}).pipe(
   T.Http({ method: "GET", path: "/zones" }),
 ) as unknown as Schema.Schema<ListZonesRequest>;
 

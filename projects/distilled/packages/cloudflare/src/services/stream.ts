@@ -13,6 +13,52 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class LiveInputNotFound extends Schema.TaggedErrorClass<LiveInputNotFound>()(
+  "LiveInputNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(LiveInputNotFound, [{ code: 10003 }]);
+
+export class OutputNotFound extends Schema.TaggedErrorClass<OutputNotFound>()(
+  "OutputNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(OutputNotFound, [{ code: 10003 }]);
+
+export class SigningKeyNotFound extends Schema.TaggedErrorClass<SigningKeyNotFound>()(
+  "SigningKeyNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(SigningKeyNotFound, [{ code: 10003 }]);
+
+export class WatermarkImageInvalid extends Schema.TaggedErrorClass<WatermarkImageInvalid>()(
+  "WatermarkImageInvalid",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(WatermarkImageInvalid, [{ code: 10004 }]);
+
+export class WatermarkNotFound extends Schema.TaggedErrorClass<WatermarkNotFound>()(
+  "WatermarkNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(WatermarkNotFound, [{ code: 10003 }]);
+
+export class WebhookNotFound extends Schema.TaggedErrorClass<WebhookNotFound>()(
+  "WebhookNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(WebhookNotFound, [{ code: 10003 }]);
+
+// =============================================================================
 // AudioTrack
 // =============================================================================
 
@@ -1522,26 +1568,27 @@ export const GetKeyRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 ) as unknown as Schema.Schema<GetKeyRequest>;
 
 export interface GetKeyResponse {
-  result: {
-    id?: string | null;
-    created?: string | null;
-    keyId?: string | null;
-  }[];
+  result:
+    | { id?: string | null; created?: string | null; keyId?: string | null }[]
+    | null;
 }
 
 export const GetKeyResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-  result: Schema.Array(
-    Schema.Struct({
-      id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      created: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      keyId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-    }).pipe(
-      Schema.encodeKeys({ id: "id", created: "created", keyId: "key_id" }),
+  result: Schema.Union([
+    Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        created: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        keyId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      }).pipe(
+        Schema.encodeKeys({ id: "id", created: "created", keyId: "key_id" }),
+      ),
     ),
-  ),
+    Schema.Null,
+  ]),
 }) as unknown as Schema.Schema<GetKeyResponse>;
 
-export type GetKeyError = DefaultErrors;
+export type GetKeyError = DefaultErrors | Forbidden;
 
 export const getKey: API.PaginatedOperationMethod<
   GetKeyRequest,
@@ -1551,7 +1598,7 @@ export const getKey: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: GetKeyRequest,
   output: GetKeyResponse,
-  errors: [],
+  errors: [Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -1627,7 +1674,7 @@ export const DeleteKeyResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.String.pipe(
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<DeleteKeyResponse>;
 
-export type DeleteKeyError = DefaultErrors;
+export type DeleteKeyError = DefaultErrors | SigningKeyNotFound | Forbidden;
 
 export const deleteKey: API.OperationMethod<
   DeleteKeyRequest,
@@ -1637,7 +1684,7 @@ export const deleteKey: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteKeyRequest,
   output: DeleteKeyResponse,
-  errors: [],
+  errors: [SigningKeyNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -1688,7 +1735,7 @@ export const GetLiveInputResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetLiveInputResponse>;
 
-export type GetLiveInputError = DefaultErrors;
+export type GetLiveInputError = DefaultErrors | LiveInputNotFound | Forbidden;
 
 export const getLiveInput: API.OperationMethod<
   GetLiveInputRequest,
@@ -1698,7 +1745,7 @@ export const getLiveInput: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetLiveInputRequest,
   output: GetLiveInputResponse,
-  errors: [],
+  errors: [LiveInputNotFound, Forbidden],
 }));
 
 export interface ListLiveInputsRequest {
@@ -1979,7 +2026,10 @@ export type DeleteLiveInputResponse = unknown;
 export const DeleteLiveInputResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<DeleteLiveInputResponse>;
 
-export type DeleteLiveInputError = DefaultErrors;
+export type DeleteLiveInputError =
+  | DefaultErrors
+  | LiveInputNotFound
+  | Forbidden;
 
 export const deleteLiveInput: API.OperationMethod<
   DeleteLiveInputRequest,
@@ -1989,7 +2039,7 @@ export const deleteLiveInput: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteLiveInputRequest,
   output: DeleteLiveInputResponse,
-  errors: [],
+  errors: [LiveInputNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -2034,7 +2084,10 @@ export const ListLiveInputOutputsResponse =
     ),
   }) as unknown as Schema.Schema<ListLiveInputOutputsResponse>;
 
-export type ListLiveInputOutputsError = DefaultErrors;
+export type ListLiveInputOutputsError =
+  | DefaultErrors
+  | LiveInputNotFound
+  | Forbidden;
 
 export const listLiveInputOutputs: API.PaginatedOperationMethod<
   ListLiveInputOutputsRequest,
@@ -2044,7 +2097,7 @@ export const listLiveInputOutputs: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListLiveInputOutputsRequest,
   output: ListLiveInputOutputsResponse,
-  errors: [],
+  errors: [LiveInputNotFound, Forbidden],
   pagination: {
     mode: "single",
     items: "result",
@@ -2098,7 +2151,10 @@ export const CreateLiveInputOutputResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateLiveInputOutputResponse>;
 
-export type CreateLiveInputOutputError = DefaultErrors;
+export type CreateLiveInputOutputError =
+  | DefaultErrors
+  | LiveInputNotFound
+  | Forbidden;
 
 export const createLiveInputOutput: API.OperationMethod<
   CreateLiveInputOutputRequest,
@@ -2108,7 +2164,7 @@ export const createLiveInputOutput: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateLiveInputOutputRequest,
   output: CreateLiveInputOutputResponse,
-  errors: [],
+  errors: [LiveInputNotFound, Forbidden],
 }));
 
 export interface UpdateLiveInputOutputRequest {
@@ -2154,7 +2210,10 @@ export const UpdateLiveInputOutputResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<UpdateLiveInputOutputResponse>;
 
-export type UpdateLiveInputOutputError = DefaultErrors;
+export type UpdateLiveInputOutputError =
+  | DefaultErrors
+  | OutputNotFound
+  | Forbidden;
 
 export const updateLiveInputOutput: API.OperationMethod<
   UpdateLiveInputOutputRequest,
@@ -2164,7 +2223,7 @@ export const updateLiveInputOutput: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateLiveInputOutputRequest,
   output: UpdateLiveInputOutputResponse,
-  errors: [],
+  errors: [OutputNotFound, Forbidden],
 }));
 
 export interface DeleteLiveInputOutputRequest {
@@ -2191,7 +2250,10 @@ export type DeleteLiveInputOutputResponse = unknown;
 export const DeleteLiveInputOutputResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown as unknown as Schema.Schema<DeleteLiveInputOutputResponse>;
 
-export type DeleteLiveInputOutputError = DefaultErrors;
+export type DeleteLiveInputOutputError =
+  | DefaultErrors
+  | OutputNotFound
+  | Forbidden;
 
 export const deleteLiveInputOutput: API.OperationMethod<
   DeleteLiveInputOutputRequest,
@@ -2201,7 +2263,7 @@ export const deleteLiveInputOutput: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteLiveInputOutputRequest,
   output: DeleteLiveInputOutputResponse,
-  errors: [],
+  errors: [OutputNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -3339,7 +3401,7 @@ export const GetWatermarkResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetWatermarkResponse>;
 
-export type GetWatermarkError = DefaultErrors;
+export type GetWatermarkError = DefaultErrors | WatermarkNotFound | Forbidden;
 
 export const getWatermark: API.OperationMethod<
   GetWatermarkRequest,
@@ -3349,7 +3411,7 @@ export const getWatermark: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetWatermarkRequest,
   output: GetWatermarkResponse,
-  errors: [],
+  errors: [WatermarkNotFound, Forbidden],
 }));
 
 export interface ListWatermarksRequest {
@@ -3491,7 +3553,10 @@ export const CreateWatermarkResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateWatermarkResponse>;
 
-export type CreateWatermarkError = DefaultErrors;
+export type CreateWatermarkError =
+  | DefaultErrors
+  | WatermarkImageInvalid
+  | Forbidden;
 
 export const createWatermark: API.OperationMethod<
   CreateWatermarkRequest,
@@ -3501,7 +3566,7 @@ export const createWatermark: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateWatermarkRequest,
   output: CreateWatermarkResponse,
-  errors: [],
+  errors: [WatermarkImageInvalid, Forbidden],
 }));
 
 export interface DeleteWatermarkRequest {
@@ -3529,7 +3594,10 @@ export const DeleteWatermarkResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteWatermarkResponse>;
 
-export type DeleteWatermarkError = DefaultErrors;
+export type DeleteWatermarkError =
+  | DefaultErrors
+  | WatermarkNotFound
+  | Forbidden;
 
 export const deleteWatermark: API.OperationMethod<
   DeleteWatermarkRequest,
@@ -3539,7 +3607,7 @@ export const deleteWatermark: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteWatermarkRequest,
   output: DeleteWatermarkResponse,
-  errors: [],
+  errors: [WatermarkNotFound, Forbidden],
 }));
 
 // =============================================================================
@@ -3574,7 +3642,7 @@ export const GetWebhookResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<GetWebhookResponse>;
 
-export type GetWebhookError = DefaultErrors;
+export type GetWebhookError = DefaultErrors | WebhookNotFound | Forbidden;
 
 export const getWebhook: API.OperationMethod<
   GetWebhookRequest,
@@ -3584,7 +3652,7 @@ export const getWebhook: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetWebhookRequest,
   output: GetWebhookResponse,
-  errors: [],
+  errors: [WebhookNotFound, Forbidden],
 }));
 
 export interface PutWebhookRequest {
@@ -3649,7 +3717,7 @@ export const DeleteWebhookResponse =
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<DeleteWebhookResponse>;
 
-export type DeleteWebhookError = DefaultErrors;
+export type DeleteWebhookError = DefaultErrors | WebhookNotFound | Forbidden;
 
 export const deleteWebhook: API.OperationMethod<
   DeleteWebhookRequest,
@@ -3659,5 +3727,5 @@ export const deleteWebhook: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteWebhookRequest,
   output: DeleteWebhookResponse,
-  errors: [],
+  errors: [WebhookNotFound, Forbidden],
 }));

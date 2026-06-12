@@ -1,7 +1,12 @@
 {
-  "errors": {},
+  "errors": {
+    "UserGroupNotFound": [
+      { "code": 404, "message": { "includes": "User group" } }
+    ]
+  },
   "response": {
     "properties": {
+      "result": { "nullable": true },
       "result_info": { "optional": true }
     }
   }

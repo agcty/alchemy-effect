@@ -1692,6 +1692,9 @@ paths:
                 required:
                   - search_engine_crawler_bypass
       x-distilled-response-path: result
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
     put:
       operationId: putSetting
       description: "Fully updates zone-level Waiting Room settings, replacing the
@@ -1737,6 +1740,11 @@ paths:
                 required:
                   - search_engine_crawler_bypass
       x-distilled-response-path: result
+      x-distilled-errors:
+        ZoneNotEntitled:
+          - code: 1034
+        Forbidden:
+          - status: 403
     patch:
       operationId: patchSetting
       description: "Partially updates zone-level Waiting Room settings using PATCH
@@ -2289,6 +2297,11 @@ paths:
                       to anything other than `off` or `invisible` requires
                       Advanced Waiting Room.
       x-distilled-response-path: result
+      x-distilled-errors:
+        WaitingRoomNotFound:
+          - code: 1001
+        Forbidden:
+          - status: 403
     put:
       operationId: updateWaitingRoom
       description: "Updates a configured waiting room.  @example ```ts const
@@ -3159,6 +3172,13 @@ paths:
                       to anything other than `off` or `invisible` requires
                       Advanced Waiting Room.
       x-distilled-response-path: result
+      x-distilled-errors:
+        WaitingRoomNotFound:
+          - code: 1001
+        ZoneNotEntitled:
+          - code: 1034
+        Forbidden:
+          - status: 403
     patch:
       operationId: patchWaitingRoom
       description: "Patches a configured waiting room.  @example ```ts const
@@ -4057,9 +4077,39 @@ paths:
                   id:
                     type: string
       x-distilled-response-path: result
+      x-distilled-errors:
+        WaitingRoomNotFound:
+          - code: 1001
+        Forbidden:
+          - status: 403
   /{accountOrZone}/{accountOrZoneId}/waiting_rooms:
     get:
       operationId: listWaitingRooms
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: The Account ID to use for this endpoint. Mutually
+            exclusive with the Zone ID."
+          schema:
+            type: string
+        - name: zone_id
+          in: path
+          required: true
+          description: "Path param: The Zone ID to use for this endpoint. Mutually
+            exclusive with the Account ID."
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: number
       responses:
         "200":
           description: Success
@@ -4492,6 +4542,9 @@ paths:
                       to anything other than `off` or `invisible` requires
                       Advanced Waiting Room.
       x-distilled-pagination-class: WaitingRoomsV4PagePaginationArray
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
   /zones/{zone_id}/waiting_rooms:
     post:
       operationId: createWaitingRoom
@@ -5357,3 +5410,8 @@ paths:
                       to anything other than `off` or `invisible` requires
                       Advanced Waiting Room.
       x-distilled-response-path: result
+      x-distilled-errors:
+        ZoneNotEntitled:
+          - code: 1034
+        Forbidden:
+          - status: 403
