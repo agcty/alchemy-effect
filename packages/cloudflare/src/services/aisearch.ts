@@ -67,6 +67,14 @@ export class SyncInCooldown extends Schema.TaggedErrorClass<SyncInCooldown>()(
 ) {}
 T.applyErrorMatchers(SyncInCooldown, [{ code: 7020 }]);
 
+export class TokenInUseByInstances extends Schema.TaggedErrorClass<TokenInUseByInstances>()(
+  "TokenInUseByInstances",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(TokenInUseByInstances, [
+  { status: 409, message: { includes: "token_in_use_by_instances" } },
+]);
+
 export class TokenNotFound extends Schema.TaggedErrorClass<TokenNotFound>()(
   "TokenNotFound",
   { code: Schema.Number, message: Schema.String },
@@ -15595,6 +15603,7 @@ export type DeleteTokenError =
   | NotFound
   | InvalidRoute
   | TokenNotFound
+  | TokenInUseByInstances
   | Forbidden;
 
 export const deleteToken: API.OperationMethod<
@@ -15605,7 +15614,14 @@ export const deleteToken: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteTokenRequest,
   output: DeleteTokenResponse,
-  errors: [ValidationError, NotFound, InvalidRoute, TokenNotFound, Forbidden],
+  errors: [
+    ValidationError,
+    NotFound,
+    InvalidRoute,
+    TokenNotFound,
+    TokenInUseByInstances,
+    Forbidden,
+  ],
 }));
 
 export interface ReadTokenRequest {

@@ -3712,6 +3712,10 @@ paths:
       x-distilled-errors:
         GatewayNotFound:
           - code: 7002
+        DatasetNameAlreadyExists:
+          - status: 400
+            message:
+              includes: already exists
   /accounts/{account_id}/ai-gateway/gateways/{gatewayId}/routes/{id}/deployments:
     post:
       operationId: createDeploymentDynamicRouting
@@ -5821,10 +5825,8 @@ paths:
                           type: string
                         result:
                           type: string
-                        status:
-                          type: number
-                        status_description:
-                          type: string
+                        status: {}
+                        status_description: {}
                         total_logs:
                           type: number
                       required:
@@ -5980,10 +5982,8 @@ paths:
                           type: string
                         result:
                           type: string
-                        status:
-                          type: number
-                        status_description:
-                          type: string
+                        status: {}
+                        status_description: {}
                         total_logs:
                           type: number
                       required:
@@ -6344,10 +6344,8 @@ paths:
                           type: string
                         result:
                           type: string
-                        status:
-                          type: number
-                        status_description:
-                          type: string
+                        status: {}
+                        status_description: {}
                         total_logs:
                           type: number
                       required:
@@ -6376,6 +6374,10 @@ paths:
       x-distilled-errors:
         GatewayNotFound:
           - code: 7002
+        EvaluationNameAlreadyExists:
+          - status: 400
+            message:
+              includes: already exists
   /accounts/{account_id}/ai-gateway/evaluation-types:
     get:
       operationId: listEvaluationTypes

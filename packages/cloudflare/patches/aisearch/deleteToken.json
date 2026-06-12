@@ -20,6 +20,12 @@
         "code": 7075
       }
     ],
+    "TokenInUseByInstances": [
+      {
+        "status": 409,
+        "message": { "includes": "token_in_use_by_instances" }
+      }
+    ],
     "Forbidden": [
       {
         "status": 403
