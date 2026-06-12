@@ -225,39 +225,6 @@ export interface WorkerProps<
    */
   main?: string;
   /**
-   * Whether to bundle {@link main} with rolldown before upload.
-   *
-   * Set to `false` when `main` already points at a complete,
-   * runtime-ready ESM Worker produced by an external tool (OpenNext,
-   * a separate rolldown/esbuild pipeline, etc.). The entry and every
-   * file around it matching {@link rules} are uploaded byte-for-byte —
-   * no bundling, no minification, no transformation. Module names are
-   * the files' POSIX paths relative to the entry's directory, matching
-   * Wrangler's `no_bundle` contract.
-   *
-   * Re-bundling such artifacts is unsafe: dynamic `import()` calls the
-   * upstream tool relies on can be rewritten in ways that break runtime
-   * behavior.
-   *
-   * Durable Object and Workflow classes must be exported by the prebuilt
-   * entry itself — {@link exports} is not applied when `bundle` is
-   * `false`.
-   *
-   * @default true
-   */
-  bundle?: boolean;
-  /**
-   * Module rules selecting which files in the directory containing
-   * {@link main} are uploaded as additional modules when {@link bundle}
-   * is `false`. Each rule's globs are matched against POSIX-style paths
-   * relative to that directory, mirroring Wrangler's `rules`
-   * configuration. When provided, these rules replace
-   * {@link defaultModuleRules}.
-   *
-   * @default defaultModuleRules — ESModule (`**\/*.js`, `**\/*.mjs`), CompiledWasm (`**\/*.wasm`), Text (`**\/*.txt`, `**\/*.html`, `**\/*.sql`), Data (`**\/*.bin`)
-   */
-  rules?: ModuleRule[];
-  /**
    * Raw module source for the Worker. When provided, bundling is bypassed
    * entirely and this string is uploaded as a single ESM module
    * (`main.js`). Useful for tiny inline workers (tests, fixtures,
@@ -309,6 +276,39 @@ export interface WorkerProps<
    * options used to build this Worker. See {@link Bundle.BundleExtraOptions}.
    */
   build?: Bundle.BundleExtraOptions;
+  /**
+   * Whether to bundle {@link main} with rolldown before upload.
+   *
+   * Set to `false` when `main` already points at a complete,
+   * runtime-ready ESM Worker produced by an external tool (OpenNext,
+   * a separate rolldown/esbuild pipeline, etc.). The entry and every
+   * file around it matching {@link rules} are uploaded byte-for-byte —
+   * no bundling, no minification, no transformation. Module names are
+   * the files' POSIX paths relative to the entry's directory, matching
+   * Wrangler's `no_bundle` contract.
+   *
+   * Re-bundling such artifacts is unsafe: dynamic `import()` calls the
+   * upstream tool relies on can be rewritten in ways that break runtime
+   * behavior.
+   *
+   * Durable Object and Workflow classes must be exported by the prebuilt
+   * entry itself — {@link exports} is not applied when `bundle` is
+   * `false`.
+   *
+   * @default true
+   */
+  bundle?: boolean;
+  /**
+   * Module rules selecting which files in the directory containing
+   * {@link main} are uploaded as additional modules when {@link bundle}
+   * is `false`. Each rule's globs are matched against POSIX-style paths
+   * relative to that directory, mirroring Wrangler's `rules`
+   * configuration. When provided, these rules replace
+   * {@link defaultModuleRules}.
+   *
+   * @default defaultModuleRules — ESModule (`**\/*.js`, `**\/*.mjs`), CompiledWasm (`**\/*.wasm`), Text (`**\/*.txt`, `**\/*.html`, `**\/*.sql`), Data (`**\/*.bin`)
+   */
+  rules?: ModuleRule[];
   /**
    * Options for the local dev server that runs this Worker under `alchemy dev`.
    * Each Worker is served on its own port.
