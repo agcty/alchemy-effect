@@ -61,6 +61,1037 @@ T.applyErrorMatchers(UserGroupNotFound, [
 ]);
 
 // =============================================================================
+// OauthClient
+// =============================================================================
+
+export interface GetOauthClientRequest {
+  oauthClientId: string;
+  /** Account identifier tag. */
+  accountId: string;
+}
+
+export const GetOauthClientRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  oauthClientId: Schema.String.pipe(T.HttpPath("oauthClientId")),
+  accountId: Schema.String.pipe(T.HttpPath("account_id")),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/accounts/{account_id}/oauth_clients/{oauthClientId}",
+  }),
+) as unknown as Schema.Schema<GetOauthClientRequest>;
+
+export interface GetOauthClientResponse {
+  /** The unique identifier for an OAuth client. */
+  clientId: string;
+  /** Visibility of the OAuth client. */
+  visibility: "public" | "private" | (string & {});
+  /** Array of allowed CORS origins. */
+  allowedCorsOrigins?: string[] | null;
+  /** Human-readable name of the OAuth client. */
+  clientName?: string | null;
+  /** URL of the home page of the client. */
+  clientUri?: string | null;
+  /** Client URI domain control verification state. */
+  clientUriVerification?: {
+    status?:
+      | "pending"
+      | "in_progress"
+      | "verified"
+      | "failed"
+      | (string & {})
+      | null;
+    text?: string | null;
+  } | null;
+  /** Timestamp when the OAuth client was created. */
+  createdAt?: string | null;
+  /** Array of OAuth grant types the client is allowed to use. `authorization_code` is required; `refresh_token` may be included optionally. */
+  grantTypes?:
+    | ("authorization_code" | "refresh_token" | (string & {}))[]
+    | null;
+  /** Indicates whether the client has a rotated secret that has not yet been deleted. */
+  hasRotatedSecret?: boolean | null;
+  /** URL of the client's logo. */
+  logoUri?: string | null;
+  /** URL that points to a privacy policy document. */
+  policyUri?: string | null;
+  /** Array of allowed post-logout redirect URIs. */
+  postLogoutRedirectUris?: string[] | null;
+  /** Timestamp when the OAuth client was promoted to public visibility. */
+  promotedAt?: string | null;
+  /** Array of allowed redirect URIs for the client. */
+  redirectUris?: string[] | null;
+  /** Array of OAuth response types the client is allowed to use. */
+  responseTypes?: ("token" | "id_token" | "code" | (string & {}))[] | null;
+  /** Array of OAuth scopes the client is allowed to request. Colon-delimited scopes are not accepted. Dot-delimited scopes are validated against available OAuth API scopes; simple identity scopes are allow */
+  scopes?: string[] | null;
+  /** The authentication method the client uses at the token endpoint. */
+  tokenEndpointAuthMethod?:
+    | "none"
+    | "client_secret_basic"
+    | "client_secret_post"
+    | (string & {})
+    | null;
+  /** URL that points to a terms of service document. */
+  tosUri?: string | null;
+  /** Timestamp when the OAuth client was last updated. */
+  updatedAt?: string | null;
+}
+
+export const GetOauthClientResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    clientId: Schema.String,
+    visibility: Schema.Union([
+      Schema.Literals(["public", "private"]),
+      Schema.String,
+    ]),
+    allowedCorsOrigins: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    clientName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUriVerification: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          status: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Literals([
+                  "pending",
+                  "in_progress",
+                  "verified",
+                  "failed",
+                ]),
+                Schema.String,
+              ]),
+              Schema.Null,
+            ]),
+          ),
+          text: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    grantTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["authorization_code", "refresh_token"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    hasRotatedSecret: Schema.optional(
+      Schema.Union([Schema.Boolean, Schema.Null]),
+    ),
+    logoUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    policyUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    postLogoutRedirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    promotedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    redirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    responseTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["token", "id_token", "code"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    scopes: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    tokenEndpointAuthMethod: Schema.optional(
+      Schema.Union([
+        Schema.Union([
+          Schema.Literals([
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+          ]),
+          Schema.String,
+        ]),
+        Schema.Null,
+      ]),
+    ),
+    tosUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  },
+)
+  .pipe(
+    Schema.encodeKeys({
+      clientId: "client_id",
+      visibility: "visibility",
+      allowedCorsOrigins: "allowed_cors_origins",
+      clientName: "client_name",
+      clientUri: "client_uri",
+      clientUriVerification: "client_uri_verification",
+      createdAt: "created_at",
+      grantTypes: "grant_types",
+      hasRotatedSecret: "has_rotated_secret",
+      logoUri: "logo_uri",
+      policyUri: "policy_uri",
+      postLogoutRedirectUris: "post_logout_redirect_uris",
+      promotedAt: "promoted_at",
+      redirectUris: "redirect_uris",
+      responseTypes: "response_types",
+      scopes: "scopes",
+      tokenEndpointAuthMethod: "token_endpoint_auth_method",
+      tosUri: "tos_uri",
+      updatedAt: "updated_at",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<GetOauthClientResponse>;
+
+export type GetOauthClientError = DefaultErrors;
+
+export const getOauthClient: API.OperationMethod<
+  GetOauthClientRequest,
+  GetOauthClientResponse,
+  GetOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetOauthClientRequest,
+  output: GetOauthClientResponse,
+  errors: [],
+}));
+
+export interface ListOauthClientsRequest {
+  /** Account identifier tag. */
+  accountId: string;
+}
+
+export const ListOauthClientsRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({ method: "GET", path: "/accounts/{account_id}/oauth_clients" }),
+  ) as unknown as Schema.Schema<ListOauthClientsRequest>;
+
+export interface ListOauthClientsResponse {
+  result: {
+    clientId: string;
+    visibility: "public" | "private" | (string & {});
+    allowedCorsOrigins?: string[] | null;
+    clientName?: string | null;
+    clientUri?: string | null;
+    clientUriVerification?: {
+      status?:
+        | "pending"
+        | "in_progress"
+        | "verified"
+        | "failed"
+        | (string & {})
+        | null;
+      text?: string | null;
+    } | null;
+    createdAt?: string | null;
+    grantTypes?:
+      | ("authorization_code" | "refresh_token" | (string & {}))[]
+      | null;
+    hasRotatedSecret?: boolean | null;
+    logoUri?: string | null;
+    policyUri?: string | null;
+    postLogoutRedirectUris?: string[] | null;
+    promotedAt?: string | null;
+    redirectUris?: string[] | null;
+    responseTypes?: ("token" | "id_token" | "code" | (string & {}))[] | null;
+    scopes?: string[] | null;
+    tokenEndpointAuthMethod?:
+      | "none"
+      | "client_secret_basic"
+      | "client_secret_post"
+      | (string & {})
+      | null;
+    tosUri?: string | null;
+    updatedAt?: string | null;
+  }[];
+}
+
+export const ListOauthClientsResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    result: Schema.Array(
+      Schema.Struct({
+        clientId: Schema.String,
+        visibility: Schema.Union([
+          Schema.Literals(["public", "private"]),
+          Schema.String,
+        ]),
+        allowedCorsOrigins: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+        clientName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        clientUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        clientUriVerification: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              status: Schema.optional(
+                Schema.Union([
+                  Schema.Union([
+                    Schema.Literals([
+                      "pending",
+                      "in_progress",
+                      "verified",
+                      "failed",
+                    ]),
+                    Schema.String,
+                  ]),
+                  Schema.Null,
+                ]),
+              ),
+              text: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+            }),
+            Schema.Null,
+          ]),
+        ),
+        createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        grantTypes: Schema.optional(
+          Schema.Union([
+            Schema.Array(
+              Schema.Union([
+                Schema.Literals(["authorization_code", "refresh_token"]),
+                Schema.String,
+              ]),
+            ),
+            Schema.Null,
+          ]),
+        ),
+        hasRotatedSecret: Schema.optional(
+          Schema.Union([Schema.Boolean, Schema.Null]),
+        ),
+        logoUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        policyUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        postLogoutRedirectUris: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+        promotedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        redirectUris: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+        responseTypes: Schema.optional(
+          Schema.Union([
+            Schema.Array(
+              Schema.Union([
+                Schema.Literals(["token", "id_token", "code"]),
+                Schema.String,
+              ]),
+            ),
+            Schema.Null,
+          ]),
+        ),
+        scopes: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+        tokenEndpointAuthMethod: Schema.optional(
+          Schema.Union([
+            Schema.Union([
+              Schema.Literals([
+                "none",
+                "client_secret_basic",
+                "client_secret_post",
+              ]),
+              Schema.String,
+            ]),
+            Schema.Null,
+          ]),
+        ),
+        tosUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      }).pipe(
+        Schema.encodeKeys({
+          clientId: "client_id",
+          visibility: "visibility",
+          allowedCorsOrigins: "allowed_cors_origins",
+          clientName: "client_name",
+          clientUri: "client_uri",
+          clientUriVerification: "client_uri_verification",
+          createdAt: "created_at",
+          grantTypes: "grant_types",
+          hasRotatedSecret: "has_rotated_secret",
+          logoUri: "logo_uri",
+          policyUri: "policy_uri",
+          postLogoutRedirectUris: "post_logout_redirect_uris",
+          promotedAt: "promoted_at",
+          redirectUris: "redirect_uris",
+          responseTypes: "response_types",
+          scopes: "scopes",
+          tokenEndpointAuthMethod: "token_endpoint_auth_method",
+          tosUri: "tos_uri",
+          updatedAt: "updated_at",
+        }),
+      ),
+    ),
+  }) as unknown as Schema.Schema<ListOauthClientsResponse>;
+
+export type ListOauthClientsError = DefaultErrors;
+
+export const listOauthClients: API.PaginatedOperationMethod<
+  ListOauthClientsRequest,
+  ListOauthClientsResponse,
+  ListOauthClientsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: ListOauthClientsRequest,
+  output: ListOauthClientsResponse,
+  errors: [],
+  pagination: {
+    mode: "single",
+    items: "result",
+  } as const,
+}));
+
+export interface CreateOauthClientRequest {
+  /** Path param: Account identifier tag. */
+  accountId: string;
+  /** Body param: Human-readable name of the OAuth client. */
+  clientName: string;
+  /** Body param: Array of OAuth grant types the client is allowed to use. `authorization_code` is required; `refresh_token` may be included optionally. */
+  grantTypes: ("authorization_code" | "refresh_token" | (string & {}))[];
+  /** Body param: Array of allowed redirect URIs for the client. */
+  redirectUris: string[];
+  /** Body param: Array of OAuth response types the client is allowed to use. */
+  responseTypes: ("token" | "id_token" | "code" | (string & {}))[];
+  /** Body param: Array of OAuth scopes the client is allowed to request. Colon-delimited scopes are not accepted. Dot-delimited scopes are validated against available OAuth API scopes; simple identity scop */
+  scopes: string[];
+  /** Body param: The authentication method the client uses at the token endpoint. */
+  tokenEndpointAuthMethod:
+    | "none"
+    | "client_secret_basic"
+    | "client_secret_post"
+    | (string & {});
+  /** Body param: Array of allowed CORS origins. */
+  allowedCorsOrigins?: string[];
+  /** Body param: URL of the home page of the client. */
+  clientUri?: string;
+  /** Body param: URL of the client's logo. */
+  logoUri?: string;
+  /** Body param: URL that points to a privacy policy document. */
+  policyUri?: string;
+  /** Body param: Array of allowed post-logout redirect URIs. */
+  postLogoutRedirectUris?: string[];
+  /** Body param: URL that points to a terms of service document. */
+  tosUri?: string;
+}
+
+export const CreateOauthClientRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    clientName: Schema.String,
+    grantTypes: Schema.Array(
+      Schema.Union([
+        Schema.Literals(["authorization_code", "refresh_token"]),
+        Schema.String,
+      ]),
+    ),
+    redirectUris: Schema.Array(Schema.String),
+    responseTypes: Schema.Array(
+      Schema.Union([
+        Schema.Literals(["token", "id_token", "code"]),
+        Schema.String,
+      ]),
+    ),
+    scopes: Schema.Array(Schema.String),
+    tokenEndpointAuthMethod: Schema.Union([
+      Schema.Literals(["none", "client_secret_basic", "client_secret_post"]),
+      Schema.String,
+    ]),
+    allowedCorsOrigins: Schema.optional(Schema.Array(Schema.String)),
+    clientUri: Schema.optional(Schema.String),
+    logoUri: Schema.optional(Schema.String),
+    policyUri: Schema.optional(Schema.String),
+    postLogoutRedirectUris: Schema.optional(Schema.Array(Schema.String)),
+    tosUri: Schema.optional(Schema.String),
+  }).pipe(
+    Schema.encodeKeys({
+      clientName: "client_name",
+      grantTypes: "grant_types",
+      redirectUris: "redirect_uris",
+      responseTypes: "response_types",
+      scopes: "scopes",
+      tokenEndpointAuthMethod: "token_endpoint_auth_method",
+      allowedCorsOrigins: "allowed_cors_origins",
+      clientUri: "client_uri",
+      logoUri: "logo_uri",
+      policyUri: "policy_uri",
+      postLogoutRedirectUris: "post_logout_redirect_uris",
+      tosUri: "tos_uri",
+    }),
+    T.Http({ method: "POST", path: "/accounts/{account_id}/oauth_clients" }),
+  ) as unknown as Schema.Schema<CreateOauthClientRequest>;
+
+export interface CreateOauthClientResponse {
+  /** The unique identifier for an OAuth client. */
+  clientId: string;
+  /** Visibility of the OAuth client. */
+  visibility: "public" | "private" | (string & {});
+  /** Array of allowed CORS origins. */
+  allowedCorsOrigins?: string[] | null;
+  /** Human-readable name of the OAuth client. */
+  clientName?: string | null;
+  /** The client secret. This is the only time the secret is returned in a response. */
+  clientSecret?: string | null;
+  /** URL of the home page of the client. */
+  clientUri?: string | null;
+  /** Client URI domain control verification state. */
+  clientUriVerification?: {
+    status?:
+      | "pending"
+      | "in_progress"
+      | "verified"
+      | "failed"
+      | (string & {})
+      | null;
+    text?: string | null;
+  } | null;
+  /** Timestamp when the OAuth client was created. */
+  createdAt?: string | null;
+  /** Array of OAuth grant types the client is allowed to use. `authorization_code` is required; `refresh_token` may be included optionally. */
+  grantTypes?:
+    | ("authorization_code" | "refresh_token" | (string & {}))[]
+    | null;
+  /** Indicates whether the client has a rotated secret that has not yet been deleted. */
+  hasRotatedSecret?: boolean | null;
+  /** URL of the client's logo. */
+  logoUri?: string | null;
+  /** URL that points to a privacy policy document. */
+  policyUri?: string | null;
+  /** Array of allowed post-logout redirect URIs. */
+  postLogoutRedirectUris?: string[] | null;
+  /** Timestamp when the OAuth client was promoted to public visibility. */
+  promotedAt?: string | null;
+  /** Array of allowed redirect URIs for the client. */
+  redirectUris?: string[] | null;
+  /** Array of OAuth response types the client is allowed to use. */
+  responseTypes?: ("token" | "id_token" | "code" | (string & {}))[] | null;
+  /** Array of OAuth scopes the client is allowed to request. Colon-delimited scopes are not accepted. Dot-delimited scopes are validated against available OAuth API scopes; simple identity scopes are allow */
+  scopes?: string[] | null;
+  /** The authentication method the client uses at the token endpoint. */
+  tokenEndpointAuthMethod?:
+    | "none"
+    | "client_secret_basic"
+    | "client_secret_post"
+    | (string & {})
+    | null;
+  /** URL that points to a terms of service document. */
+  tosUri?: string | null;
+  /** Timestamp when the OAuth client was last updated. */
+  updatedAt?: string | null;
+}
+
+export const CreateOauthClientResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    clientId: Schema.String,
+    visibility: Schema.Union([
+      Schema.Literals(["public", "private"]),
+      Schema.String,
+    ]),
+    allowedCorsOrigins: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    clientName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientSecret: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUriVerification: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          status: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Literals([
+                  "pending",
+                  "in_progress",
+                  "verified",
+                  "failed",
+                ]),
+                Schema.String,
+              ]),
+              Schema.Null,
+            ]),
+          ),
+          text: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    grantTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["authorization_code", "refresh_token"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    hasRotatedSecret: Schema.optional(
+      Schema.Union([Schema.Boolean, Schema.Null]),
+    ),
+    logoUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    policyUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    postLogoutRedirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    promotedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    redirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    responseTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["token", "id_token", "code"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    scopes: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    tokenEndpointAuthMethod: Schema.optional(
+      Schema.Union([
+        Schema.Union([
+          Schema.Literals([
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+          ]),
+          Schema.String,
+        ]),
+        Schema.Null,
+      ]),
+    ),
+    tosUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        clientId: "client_id",
+        visibility: "visibility",
+        allowedCorsOrigins: "allowed_cors_origins",
+        clientName: "client_name",
+        clientSecret: "client_secret",
+        clientUri: "client_uri",
+        clientUriVerification: "client_uri_verification",
+        createdAt: "created_at",
+        grantTypes: "grant_types",
+        hasRotatedSecret: "has_rotated_secret",
+        logoUri: "logo_uri",
+        policyUri: "policy_uri",
+        postLogoutRedirectUris: "post_logout_redirect_uris",
+        promotedAt: "promoted_at",
+        redirectUris: "redirect_uris",
+        responseTypes: "response_types",
+        scopes: "scopes",
+        tokenEndpointAuthMethod: "token_endpoint_auth_method",
+        tosUri: "tos_uri",
+        updatedAt: "updated_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateOauthClientResponse>;
+
+export type CreateOauthClientError = DefaultErrors;
+
+export const createOauthClient: API.OperationMethod<
+  CreateOauthClientRequest,
+  CreateOauthClientResponse,
+  CreateOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateOauthClientRequest,
+  output: CreateOauthClientResponse,
+  errors: [],
+}));
+
+export interface PatchOauthClientRequest {
+  oauthClientId: string;
+  /** Path param: Account identifier tag. */
+  accountId: string;
+  /** Body param: Array of allowed CORS origins. */
+  allowedCorsOrigins?: string[];
+  /** Body param: Human-readable name of the OAuth client. */
+  clientName?: string;
+  /** Body param: URL of the home page of the client. */
+  clientUri?: string;
+  /** Body param: Array of OAuth grant types the client is allowed to use. `authorization_code` is required; `refresh_token` may be included optionally. */
+  grantTypes?: ("authorization_code" | "refresh_token" | (string & {}))[];
+  /** Body param: URL of the client's logo. */
+  logoUri?: string;
+  /** Body param: URL that points to a privacy policy document. */
+  policyUri?: string;
+  /** Body param: Array of allowed post-logout redirect URIs. */
+  postLogoutRedirectUris?: string[];
+  /** Body param: Array of allowed redirect URIs for the client. */
+  redirectUris?: string[];
+  /** Body param: Array of OAuth response types the client is allowed to use. */
+  responseTypes?: ("token" | "id_token" | "code" | (string & {}))[];
+  /** Body param: Array of OAuth scopes the client is allowed to request. Colon-delimited scopes are not accepted. Dot-delimited scopes are validated against available OAuth API scopes; simple identity scop */
+  scopes?: string[];
+  /** Body param: The authentication method the client uses at the token endpoint. */
+  tokenEndpointAuthMethod?:
+    | "none"
+    | "client_secret_basic"
+    | "client_secret_post"
+    | (string & {});
+  /** Body param: URL that points to a terms of service document. */
+  tosUri?: string;
+  /** Body param: Promote the OAuth client from private to public visibility. Only `public` is accepted; demotion to `private` is not supported. Promotion requires a non-empty client name, logo URI, verifie */
+  visibility?: "public";
+}
+
+export const PatchOauthClientRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    oauthClientId: Schema.String.pipe(T.HttpPath("oauthClientId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    allowedCorsOrigins: Schema.optional(Schema.Array(Schema.String)),
+    clientName: Schema.optional(Schema.String),
+    clientUri: Schema.optional(Schema.String),
+    grantTypes: Schema.optional(
+      Schema.Array(
+        Schema.Union([
+          Schema.Literals(["authorization_code", "refresh_token"]),
+          Schema.String,
+        ]),
+      ),
+    ),
+    logoUri: Schema.optional(Schema.String),
+    policyUri: Schema.optional(Schema.String),
+    postLogoutRedirectUris: Schema.optional(Schema.Array(Schema.String)),
+    redirectUris: Schema.optional(Schema.Array(Schema.String)),
+    responseTypes: Schema.optional(
+      Schema.Array(
+        Schema.Union([
+          Schema.Literals(["token", "id_token", "code"]),
+          Schema.String,
+        ]),
+      ),
+    ),
+    scopes: Schema.optional(Schema.Array(Schema.String)),
+    tokenEndpointAuthMethod: Schema.optional(
+      Schema.Union([
+        Schema.Literals(["none", "client_secret_basic", "client_secret_post"]),
+        Schema.String,
+      ]),
+    ),
+    tosUri: Schema.optional(Schema.String),
+    visibility: Schema.optional(Schema.Literal("public")),
+  }).pipe(
+    Schema.encodeKeys({
+      allowedCorsOrigins: "allowed_cors_origins",
+      clientName: "client_name",
+      clientUri: "client_uri",
+      grantTypes: "grant_types",
+      logoUri: "logo_uri",
+      policyUri: "policy_uri",
+      postLogoutRedirectUris: "post_logout_redirect_uris",
+      redirectUris: "redirect_uris",
+      responseTypes: "response_types",
+      scopes: "scopes",
+      tokenEndpointAuthMethod: "token_endpoint_auth_method",
+      tosUri: "tos_uri",
+      visibility: "visibility",
+    }),
+    T.Http({
+      method: "PATCH",
+      path: "/accounts/{account_id}/oauth_clients/{oauthClientId}",
+    }),
+  ) as unknown as Schema.Schema<PatchOauthClientRequest>;
+
+export interface PatchOauthClientResponse {
+  /** The unique identifier for an OAuth client. */
+  clientId: string;
+  /** Visibility of the OAuth client. */
+  visibility: "public" | "private" | (string & {});
+  /** Array of allowed CORS origins. */
+  allowedCorsOrigins?: string[] | null;
+  /** Human-readable name of the OAuth client. */
+  clientName?: string | null;
+  /** URL of the home page of the client. */
+  clientUri?: string | null;
+  /** Client URI domain control verification state. */
+  clientUriVerification?: {
+    status?:
+      | "pending"
+      | "in_progress"
+      | "verified"
+      | "failed"
+      | (string & {})
+      | null;
+    text?: string | null;
+  } | null;
+  /** Timestamp when the OAuth client was created. */
+  createdAt?: string | null;
+  /** Array of OAuth grant types the client is allowed to use. `authorization_code` is required; `refresh_token` may be included optionally. */
+  grantTypes?:
+    | ("authorization_code" | "refresh_token" | (string & {}))[]
+    | null;
+  /** Indicates whether the client has a rotated secret that has not yet been deleted. */
+  hasRotatedSecret?: boolean | null;
+  /** URL of the client's logo. */
+  logoUri?: string | null;
+  /** URL that points to a privacy policy document. */
+  policyUri?: string | null;
+  /** Array of allowed post-logout redirect URIs. */
+  postLogoutRedirectUris?: string[] | null;
+  /** Timestamp when the OAuth client was promoted to public visibility. */
+  promotedAt?: string | null;
+  /** Array of allowed redirect URIs for the client. */
+  redirectUris?: string[] | null;
+  /** Array of OAuth response types the client is allowed to use. */
+  responseTypes?: ("token" | "id_token" | "code" | (string & {}))[] | null;
+  /** Array of OAuth scopes the client is allowed to request. Colon-delimited scopes are not accepted. Dot-delimited scopes are validated against available OAuth API scopes; simple identity scopes are allow */
+  scopes?: string[] | null;
+  /** The authentication method the client uses at the token endpoint. */
+  tokenEndpointAuthMethod?:
+    | "none"
+    | "client_secret_basic"
+    | "client_secret_post"
+    | (string & {})
+    | null;
+  /** URL that points to a terms of service document. */
+  tosUri?: string | null;
+  /** Timestamp when the OAuth client was last updated. */
+  updatedAt?: string | null;
+}
+
+export const PatchOauthClientResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    clientId: Schema.String,
+    visibility: Schema.Union([
+      Schema.Literals(["public", "private"]),
+      Schema.String,
+    ]),
+    allowedCorsOrigins: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    clientName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    clientUriVerification: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          status: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Literals([
+                  "pending",
+                  "in_progress",
+                  "verified",
+                  "failed",
+                ]),
+                Schema.String,
+              ]),
+              Schema.Null,
+            ]),
+          ),
+          text: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    grantTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["authorization_code", "refresh_token"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    hasRotatedSecret: Schema.optional(
+      Schema.Union([Schema.Boolean, Schema.Null]),
+    ),
+    logoUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    policyUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    postLogoutRedirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    promotedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    redirectUris: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    responseTypes: Schema.optional(
+      Schema.Union([
+        Schema.Array(
+          Schema.Union([
+            Schema.Literals(["token", "id_token", "code"]),
+            Schema.String,
+          ]),
+        ),
+        Schema.Null,
+      ]),
+    ),
+    scopes: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    tokenEndpointAuthMethod: Schema.optional(
+      Schema.Union([
+        Schema.Union([
+          Schema.Literals([
+            "none",
+            "client_secret_basic",
+            "client_secret_post",
+          ]),
+          Schema.String,
+        ]),
+        Schema.Null,
+      ]),
+    ),
+    tosUri: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        clientId: "client_id",
+        visibility: "visibility",
+        allowedCorsOrigins: "allowed_cors_origins",
+        clientName: "client_name",
+        clientUri: "client_uri",
+        clientUriVerification: "client_uri_verification",
+        createdAt: "created_at",
+        grantTypes: "grant_types",
+        hasRotatedSecret: "has_rotated_secret",
+        logoUri: "logo_uri",
+        policyUri: "policy_uri",
+        postLogoutRedirectUris: "post_logout_redirect_uris",
+        promotedAt: "promoted_at",
+        redirectUris: "redirect_uris",
+        responseTypes: "response_types",
+        scopes: "scopes",
+        tokenEndpointAuthMethod: "token_endpoint_auth_method",
+        tosUri: "tos_uri",
+        updatedAt: "updated_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<PatchOauthClientResponse>;
+
+export type PatchOauthClientError = DefaultErrors;
+
+export const patchOauthClient: API.OperationMethod<
+  PatchOauthClientRequest,
+  PatchOauthClientResponse,
+  PatchOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: PatchOauthClientRequest,
+  output: PatchOauthClientResponse,
+  errors: [],
+}));
+
+export interface DeleteOauthClientRequest {
+  oauthClientId: string;
+  /** Account identifier tag. */
+  accountId: string;
+}
+
+export const DeleteOauthClientRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    oauthClientId: Schema.String.pipe(T.HttpPath("oauthClientId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/accounts/{account_id}/oauth_clients/{oauthClientId}",
+    }),
+  ) as unknown as Schema.Schema<DeleteOauthClientRequest>;
+
+export interface DeleteOauthClientResponse {
+  /** Identifier */
+  id: string;
+}
+
+export const DeleteOauthClientResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<DeleteOauthClientResponse>;
+
+export type DeleteOauthClientError = DefaultErrors;
+
+export const deleteOauthClient: API.OperationMethod<
+  DeleteOauthClientRequest,
+  DeleteOauthClientResponse,
+  DeleteOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteOauthClientRequest,
+  output: DeleteOauthClientResponse,
+  errors: [],
+}));
+
+// =============================================================================
+// OauthScope
+// =============================================================================
+
+export interface ListOauthScopesRequest {}
+
+export const ListOauthScopesRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({ method: "GET", path: "/oauth/scopes" }),
+) as unknown as Schema.Schema<ListOauthScopesRequest>;
+
+export interface ListOauthScopesResponse {
+  result: {
+    id: string;
+    name: string;
+    category?: string | null;
+    scopes?: string[] | null;
+  }[];
+}
+
+export const ListOauthScopesResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    result: Schema.Array(
+      Schema.Struct({
+        id: Schema.String,
+        name: Schema.String,
+        category: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        scopes: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+      }),
+    ),
+  }) as unknown as Schema.Schema<ListOauthScopesResponse>;
+
+export type ListOauthScopesError = DefaultErrors;
+
+export const listOauthScopes: API.PaginatedOperationMethod<
+  ListOauthScopesRequest,
+  ListOauthScopesResponse,
+  ListOauthScopesError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: ListOauthScopesRequest,
+  output: ListOauthScopesResponse,
+  errors: [],
+  pagination: {
+    mode: "single",
+    items: "result",
+  } as const,
+}));
+
+// =============================================================================
 // PermissionGroup
 // =============================================================================
 
@@ -558,6 +1589,100 @@ export const deleteResourceGroup: API.OperationMethod<
   input: DeleteResourceGroupRequest,
   output: DeleteResourceGroupResponse,
   errors: [ResourceGroupNotFound],
+}));
+
+// =============================================================================
+// RotatedSecretOauthClient
+// =============================================================================
+
+export interface DeleteRotatedSecretOauthClientRequest {
+  oauthClientId: string;
+  /** Account identifier tag. */
+  accountId: string;
+}
+
+export const DeleteRotatedSecretOauthClientRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    oauthClientId: Schema.String.pipe(T.HttpPath("oauthClientId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/accounts/{account_id}/oauth_clients/{oauthClientId}/rotate_secret",
+    }),
+  ) as unknown as Schema.Schema<DeleteRotatedSecretOauthClientRequest>;
+
+export interface DeleteRotatedSecretOauthClientResponse {
+  /** Identifier */
+  id: string;
+}
+
+export const DeleteRotatedSecretOauthClientResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<DeleteRotatedSecretOauthClientResponse>;
+
+export type DeleteRotatedSecretOauthClientError = DefaultErrors;
+
+export const deleteRotatedSecretOauthClient: API.OperationMethod<
+  DeleteRotatedSecretOauthClientRequest,
+  DeleteRotatedSecretOauthClientResponse,
+  DeleteRotatedSecretOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteRotatedSecretOauthClientRequest,
+  output: DeleteRotatedSecretOauthClientResponse,
+  errors: [],
+}));
+
+// =============================================================================
+// SecretOauthClient
+// =============================================================================
+
+export interface RotateSecretOauthClientRequest {
+  oauthClientId: string;
+  /** Account identifier tag. */
+  accountId: string;
+}
+
+export const RotateSecretOauthClientRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    oauthClientId: Schema.String.pipe(T.HttpPath("oauthClientId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/oauth_clients/{oauthClientId}/rotate_secret",
+    }),
+  ) as unknown as Schema.Schema<RotateSecretOauthClientRequest>;
+
+export interface RotateSecretOauthClientResponse {
+  /** The new client secret. */
+  clientSecret?: string | null;
+}
+
+export const RotateSecretOauthClientResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    clientSecret: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(Schema.encodeKeys({ clientSecret: "client_secret" }))
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<RotateSecretOauthClientResponse>;
+
+export type RotateSecretOauthClientError = DefaultErrors;
+
+export const rotateSecretOauthClient: API.OperationMethod<
+  RotateSecretOauthClientRequest,
+  RotateSecretOauthClientResponse,
+  RotateSecretOauthClientError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: RotateSecretOauthClientRequest,
+  output: RotateSecretOauthClientResponse,
+  errors: [],
 }));
 
 // =============================================================================

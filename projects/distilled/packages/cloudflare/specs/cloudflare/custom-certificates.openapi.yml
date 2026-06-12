@@ -125,14 +125,14 @@ paths:
                         properties:
                           private_ip:
                             type: string
-                            description: Private IP of the Key Server Host
+                            description: Private IP of the Key Server Host.
                           vnet_id:
                             type: string
-                            description: Cloudflare Tunnel Virtual Network ID
+                            description: Cloudflare Tunnel Virtual Network ID.
                         required:
                           - private_ip
                           - vnet_id
-                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel
+                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel.
                     required:
                       - id
                       - created_on
@@ -239,7 +239,7 @@ paths:
                     - staging
                     - production
                   description: "Body param: The environment to deploy the certificate to, defaults
-                    to production"
+                    to production."
                 geo_restrictions:
                   type: object
                   properties:
@@ -377,14 +377,14 @@ paths:
                         properties:
                           private_ip:
                             type: string
-                            description: Private IP of the Key Server Host
+                            description: Private IP of the Key Server Host.
                           vnet_id:
                             type: string
-                            description: Cloudflare Tunnel Virtual Network ID
+                            description: Cloudflare Tunnel Virtual Network ID.
                         required:
                           - private_ip
                           - vnet_id
-                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel
+                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel.
                     required:
                       - id
                       - created_on
@@ -627,14 +627,14 @@ paths:
                         properties:
                           private_ip:
                             type: string
-                            description: Private IP of the Key Server Host
+                            description: Private IP of the Key Server Host.
                           vnet_id:
                             type: string
-                            description: Cloudflare Tunnel Virtual Network ID
+                            description: Cloudflare Tunnel Virtual Network ID.
                         required:
                           - private_ip
                           - vnet_id
-                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel
+                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel.
                     required:
                       - id
                       - created_on
@@ -751,7 +751,7 @@ paths:
                     - staging
                     - production
                   description: "Body param: The environment to deploy the certificate to, defaults
-                    to production"
+                    to production."
                 geo_restrictions:
                   type: object
                   properties:
@@ -898,14 +898,14 @@ paths:
                         properties:
                           private_ip:
                             type: string
-                            description: Private IP of the Key Server Host
+                            description: Private IP of the Key Server Host.
                           vnet_id:
                             type: string
-                            description: Cloudflare Tunnel Virtual Network ID
+                            description: Cloudflare Tunnel Virtual Network ID.
                         required:
                           - private_ip
                           - vnet_id
-                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel
+                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel.
                     required:
                       - id
                       - created_on
@@ -1099,14 +1099,14 @@ paths:
                         properties:
                           private_ip:
                             type: string
-                            description: Private IP of the Key Server Host
+                            description: Private IP of the Key Server Host.
                           vnet_id:
                             type: string
-                            description: Cloudflare Tunnel Virtual Network ID
+                            description: Cloudflare Tunnel Virtual Network ID.
                         required:
                           - private_ip
                           - vnet_id
-                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel
+                        description: Configuration for using Keyless SSL through a Cloudflare Tunnel.
                     required:
                       - id
                       - created_on

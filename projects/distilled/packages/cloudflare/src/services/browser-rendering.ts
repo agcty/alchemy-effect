@@ -4117,6 +4117,14 @@ export interface CreateSnapshotRequest {
   }[];
   /** Body param */
   emulateMediaType?: string;
+  /** Body param */
+  formats?: (
+    | "content"
+    | "screenshot"
+    | "markdown"
+    | "accessibilityTree"
+    | (string & {})
+  )[];
   /** Body param: Check [options](https://pptr.dev/api/puppeteer.gotooptions). */
   gotoOptions?: {
     referer?: string;
@@ -4298,6 +4306,19 @@ export const CreateSnapshotRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ),
   ),
   emulateMediaType: Schema.optional(Schema.String),
+  formats: Schema.optional(
+    Schema.Array(
+      Schema.Union([
+        Schema.Literals([
+          "content",
+          "screenshot",
+          "markdown",
+          "accessibilityTree",
+        ]),
+        Schema.String,
+      ]),
+    ),
+  ),
   gotoOptions: Schema.optional(
     Schema.Struct({
       referer: Schema.optional(Schema.String),
@@ -4407,16 +4428,124 @@ export const CreateSnapshotRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 ) as unknown as Schema.Schema<CreateSnapshotRequest>;
 
 export interface CreateSnapshotResponse {
+  /** Accessibility tree node */
+  accessibilityTree?: {
+    role: string;
+    autocomplete?: string | null;
+    checked?: boolean | "mixed" | null;
+    children?: unknown[] | null;
+    description?: string | null;
+    disabled?: boolean | null;
+    expanded?: boolean | null;
+    focused?: boolean | null;
+    haspopup?: string | null;
+    invalid?: string | null;
+    keyshortcuts?: string | null;
+    level?: number | null;
+    modal?: boolean | null;
+    multiline?: boolean | null;
+    multiselectable?: boolean | null;
+    name?: string | null;
+    orientation?: string | null;
+    pressed?: boolean | "mixed" | null;
+    readonly?: boolean | null;
+    required?: boolean | null;
+    roledescription?: string | null;
+    selected?: boolean | null;
+    value?: string | number | null;
+    valuemax?: number | null;
+    valuemin?: number | null;
+    valuetext?: string | null;
+  } | null;
   /** HTML content. */
-  content: string;
+  content?: string | null;
+  /** Markdown content. */
+  markdown?: string | null;
   /** Base64 encoded image. */
-  screenshot: string;
+  screenshot?: string | null;
 }
 
 export const CreateSnapshotResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
   {
-    content: Schema.String,
-    screenshot: Schema.String,
+    accessibilityTree: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          role: Schema.String,
+          autocomplete: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          checked: Schema.optional(
+            Schema.Union([
+              Schema.Union([Schema.Boolean, Schema.Literal("mixed")]),
+              Schema.Null,
+            ]),
+          ),
+          children: Schema.optional(
+            Schema.Union([Schema.Array(Schema.Unknown), Schema.Null]),
+          ),
+          description: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          disabled: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          expanded: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          focused: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          haspopup: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          invalid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          keyshortcuts: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          level: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          modal: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          multiline: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          multiselectable: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          name: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          orientation: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          pressed: Schema.optional(
+            Schema.Union([
+              Schema.Union([Schema.Boolean, Schema.Literal("mixed")]),
+              Schema.Null,
+            ]),
+          ),
+          readonly: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          required: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          roledescription: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          selected: Schema.optional(
+            Schema.Union([Schema.Boolean, Schema.Null]),
+          ),
+          value: Schema.optional(
+            Schema.Union([
+              Schema.Union([Schema.String, Schema.Number]),
+              Schema.Null,
+            ]),
+          ),
+          valuemax: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          valuemin: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          valuetext: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+        }),
+        Schema.Null,
+      ]),
+    ),
+    content: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    markdown: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    screenshot: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   },
 ).pipe(
   T.ResponsePath("result"),

@@ -129,25 +129,29 @@ export interface PatchManagedTransformRequest {
   /** Path param: The unique ID of the zone. */
   zoneId: string;
   /** Body param: The list of Managed Request Transforms. */
-  managedRequestHeaders: { id: string; enabled: boolean }[];
+  managedRequestHeaders?: { id: string; enabled: boolean }[];
   /** Body param: The list of Managed Response Transforms. */
-  managedResponseHeaders: { id: string; enabled: boolean }[];
+  managedResponseHeaders?: { id: string; enabled: boolean }[];
 }
 
 export const PatchManagedTransformRequest =
   /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
-    managedRequestHeaders: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        enabled: Schema.Boolean,
-      }),
+    managedRequestHeaders: Schema.optional(
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          enabled: Schema.Boolean,
+        }),
+      ),
     ),
-    managedResponseHeaders: Schema.Array(
-      Schema.Struct({
-        id: Schema.String,
-        enabled: Schema.Boolean,
-      }),
+    managedResponseHeaders: Schema.optional(
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          enabled: Schema.Boolean,
+        }),
+      ),
     ),
   }).pipe(
     Schema.encodeKeys({

@@ -34721,6 +34721,7 @@ paths:
                   enum:
                     - PERCENTAGE
                     - MIN0_MAX
+                    - PERCENTAGE_CHANGE
                   description: Normalization method applied to the results. Refer to
                     [Normalization
                     methods](https://developers.cloudflare.com/radar/concepts/normalization/).
@@ -35286,6 +35287,15 @@ paths:
                   items:
                     type: string
                   description: Array of names used to label the series in the response.
+                normalization:
+                  type: string
+                  enum:
+                    - PERCENTAGE
+                    - MIN0_MAX
+                    - PERCENTAGE_CHANGE
+                  description: Normalization method applied to the results. Refer to
+                    [Normalization
+                    methods](https://developers.cloudflare.com/radar/concepts/normalization/).
                 responseStatus:
                   type: array
                   items:
@@ -36046,6 +36056,7 @@ paths:
                   enum:
                     - PERCENTAGE
                     - MIN0_MAX
+                    - PERCENTAGE_CHANGE
                   description: Normalization method applied to the results. Refer to
                     [Normalization
                     methods](https://developers.cloudflare.com/radar/concepts/normalization/).

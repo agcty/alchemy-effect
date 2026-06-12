@@ -314,10 +314,14 @@ paths:
               properties:
                 body_account_id:
                   type: string
-                  description: "Body param: Account identifier."
+                  description: "@deprecated This field has been renamed to `recipient_account_id`.
+                    Both names are accepted during the deprecation period."
                 organization_id:
                   type: string
                   description: "Body param: Organization identifier."
+                recipient_account_id:
+                  type: string
+                  description: "Body param: The account that will receive the share."
       responses:
         "200":
           description: Success
@@ -381,7 +385,7 @@ paths:
           - status: 404
         Forbidden:
           - status: 403
-  /accounts/{account_id}/shares/{shareId}/resources/{resourceId}:
+  /accounts/{account_id}/shares/{shareId}/resources/{shareResourceId}:
     get:
       operationId: getResource
       description: "Get share resource by ID.  @example ```ts const resource = await
@@ -394,7 +398,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: resourceId
+        - name: shareResourceId
           in: path
           required: true
           schema:
@@ -480,7 +484,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: resourceId
+        - name: shareResourceId
           in: path
           required: true
           schema:
@@ -577,7 +581,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: resourceId
+        - name: shareResourceId
           in: path
           required: true
           schema:
@@ -1646,10 +1650,15 @@ paths:
                     properties:
                       account_id:
                         type: string
-                        description: Account identifier.
+                        description: "@deprecated This field has been renamed to `recipient_account_id`.
+                          Both names are accepted during the deprecation
+                          period."
                       organization_id:
                         type: string
                         description: Organization identifier.
+                      recipient_account_id:
+                        type: string
+                        description: The account that will receive the share.
                   description: Body param
                 resources:
                   type: array

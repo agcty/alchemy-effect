@@ -784,6 +784,8 @@ export interface ListModelsRequest {
   format?: "openrouter";
   /** Query param: Filter to hide experimental models */
   hideExperimental?: boolean;
+  /** Query param: If true, include models whose planned_deprecation_date is in the past — but only within a three-month grace window after that date. Models whose planned_deprecation_date is more than thre */
+  includeDeprecated?: boolean;
   /** Query param: Search */
   search?: string;
   /** Query param: Filter by Source Id */
@@ -802,6 +804,9 @@ export const ListModelsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   ),
   hideExperimental: Schema.optional(Schema.Boolean).pipe(
     T.HttpQuery("hide_experimental"),
+  ),
+  includeDeprecated: Schema.optional(Schema.Boolean).pipe(
+    T.HttpQuery("include_deprecated"),
   ),
   search: Schema.optional(Schema.String).pipe(T.HttpQuery("search")),
   source: Schema.optional(Schema.Number).pipe(T.HttpQuery("source")),

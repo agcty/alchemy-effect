@@ -168,7 +168,7 @@ export interface ListCustomTrustStoresRequest {
   perPage?: number;
   /** Query param: Limit to the number of records returned. */
   limit?: number;
-  /** Query param: Offset the results */
+  /** Query param: Offset the results. */
   offset?: number;
 }
 

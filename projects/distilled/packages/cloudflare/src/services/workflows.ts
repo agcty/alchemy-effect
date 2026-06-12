@@ -102,6 +102,10 @@ export interface GetInstanceResponse {
   output: string | number | null;
   params: unknown;
   queued: string;
+  rollback: {
+    error: { message: string; name: string } | null;
+    outcome: "complete" | "failed" | (string & {});
+  } | null;
   start: string | null;
   status:
     | "queued"
@@ -112,6 +116,7 @@ export interface GetInstanceResponse {
     | "complete"
     | "waitingForPause"
     | "waiting"
+    | "rollingBack"
     | (string & {});
   stepCount: number;
   steps: (
@@ -141,7 +146,7 @@ export interface GetInstanceResponse {
         output: string | null;
         start: string;
         success: boolean | null;
-        type: "step";
+        type: "step" | "rollback" | (string & {});
       }
     | {
         end: string;
@@ -167,6 +172,7 @@ export interface GetInstanceResponse {
     source: "unknown" | "api" | "binding" | "event" | "cron" | (string & {});
   };
   versionId: string;
+  schedule?: { cron: string; scheduledTime: number } | null;
 }
 
 export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -181,6 +187,22 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   output: Schema.Union([Schema.String, Schema.Number, Schema.Null]),
   params: Schema.Unknown,
   queued: Schema.String,
+  rollback: Schema.Union([
+    Schema.Struct({
+      error: Schema.Union([
+        Schema.Struct({
+          message: Schema.String,
+          name: Schema.String,
+        }),
+        Schema.Null,
+      ]),
+      outcome: Schema.Union([
+        Schema.Literals(["complete", "failed"]),
+        Schema.String,
+      ]),
+    }),
+    Schema.Null,
+  ]),
   start: Schema.Union([Schema.String, Schema.Null]),
   status: Schema.Union([
     Schema.Literals([
@@ -192,6 +214,7 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       "complete",
       "waitingForPause",
       "waiting",
+      "rollingBack",
     ]),
     Schema.String,
   ]),
@@ -237,7 +260,10 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         output: Schema.Union([Schema.String, Schema.Null]),
         start: Schema.String,
         success: Schema.Union([Schema.Boolean, Schema.Null]),
-        type: Schema.Literal("step"),
+        type: Schema.Union([
+          Schema.Literals(["step", "rollback"]),
+          Schema.String,
+        ]),
       }),
       Schema.Struct({
         end: Schema.String,
@@ -284,6 +310,15 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     ]),
   }),
   versionId: Schema.String,
+  schedule: Schema.optional(
+    Schema.Union([
+      Schema.Struct({
+        cron: Schema.String,
+        scheduledTime: Schema.Number,
+      }),
+      Schema.Null,
+    ]),
+  ),
 })
   .pipe(
     Schema.encodeKeys({
@@ -292,6 +327,7 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       output: "output",
       params: "params",
       queued: "queued",
+      rollback: "rollback",
       start: "start",
       status: "status",
       stepCount: "step_count",
@@ -299,6 +335,7 @@ export const GetInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       success: "success",
       trigger: "trigger",
       versionId: "versionId",
+      schedule: "schedule",
     }),
   )
   .pipe(
@@ -346,6 +383,7 @@ export interface ListInstancesRequest {
     | "complete"
     | "waitingForPause"
     | "waiting"
+    | "rollingBack"
     | (string & {});
 }
 
@@ -371,6 +409,7 @@ export const ListInstancesRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         "complete",
         "waitingForPause",
         "waiting",
+        "rollingBack",
       ]),
       Schema.String,
     ]),
@@ -398,9 +437,18 @@ export interface ListInstancesResponse {
       | "complete"
       | "waitingForPause"
       | "waiting"
+      | "rollingBack"
       | (string & {});
     versionId: string;
     workflowId: string;
+    triggerSource?:
+      | "unknown"
+      | "api"
+      | "binding"
+      | "event"
+      | "cron"
+      | (string & {})
+      | null;
   }[];
   resultInfo?: {
     count?: number | null;
@@ -428,11 +476,21 @@ export const ListInstancesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           "complete",
           "waitingForPause",
           "waiting",
+          "rollingBack",
         ]),
         Schema.String,
       ]),
       versionId: Schema.String,
       workflowId: Schema.String,
+      triggerSource: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Literals(["unknown", "api", "binding", "event", "cron"]),
+            Schema.String,
+          ]),
+          Schema.Null,
+        ]),
+      ),
     }).pipe(
       Schema.encodeKeys({
         id: "id",
@@ -443,6 +501,7 @@ export const ListInstancesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         status: "status",
         versionId: "version_id",
         workflowId: "workflow_id",
+        triggerSource: "trigger_source",
       }),
     ),
   ),
@@ -551,9 +610,18 @@ export interface CreateInstanceResponse {
     | "complete"
     | "waitingForPause"
     | "waiting"
+    | "rollingBack"
     | (string & {});
   versionId: string;
   workflowId: string;
+  triggerSource?:
+    | "unknown"
+    | "api"
+    | "binding"
+    | "event"
+    | "cron"
+    | (string & {})
+    | null;
 }
 
 export const CreateInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
@@ -569,11 +637,21 @@ export const CreateInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         "complete",
         "waitingForPause",
         "waiting",
+        "rollingBack",
       ]),
       Schema.String,
     ]),
     versionId: Schema.String,
     workflowId: Schema.String,
+    triggerSource: Schema.optional(
+      Schema.Union([
+        Schema.Union([
+          Schema.Literals(["unknown", "api", "binding", "event", "cron"]),
+          Schema.String,
+        ]),
+        Schema.Null,
+      ]),
+    ),
   },
 )
   .pipe(
@@ -582,6 +660,7 @@ export const CreateInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       status: "status",
       versionId: "version_id",
       workflowId: "workflow_id",
+      triggerSource: "trigger_source",
     }),
   )
   .pipe(
@@ -672,9 +751,18 @@ export interface BulkInstanceResponse {
       | "complete"
       | "waitingForPause"
       | "waiting"
+      | "rollingBack"
       | (string & {});
     versionId: string;
     workflowId: string;
+    triggerSource?:
+      | "unknown"
+      | "api"
+      | "binding"
+      | "event"
+      | "cron"
+      | (string & {})
+      | null;
   }[];
 }
 
@@ -692,17 +780,28 @@ export const BulkInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           "complete",
           "waitingForPause",
           "waiting",
+          "rollingBack",
         ]),
         Schema.String,
       ]),
       versionId: Schema.String,
       workflowId: Schema.String,
+      triggerSource: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Literals(["unknown", "api", "binding", "event", "cron"]),
+            Schema.String,
+          ]),
+          Schema.Null,
+        ]),
+      ),
     }).pipe(
       Schema.encodeKeys({
         id: "id",
         status: "status",
         versionId: "version_id",
         workflowId: "workflow_id",
+        triggerSource: "trigger_source",
       }),
     ),
   ),
@@ -728,6 +827,94 @@ export const bulkInstance: API.PaginatedOperationMethod<
     mode: "single",
     items: "result",
   } as const,
+}));
+
+export interface StepInstanceRequest {
+  workflowName: string;
+  instanceId: string;
+  /** Path param */
+  accountId: string;
+  /** Query param: Exact step name from the instance logs response, including the generated counter suffix. */
+  name: string;
+  /** Query param: Step type to disambiguate step.do and waitForEvent entries that share the same name. */
+  type: "step" | "waitForEvent" | (string & {});
+  /** Query param: Specific attempt number to retrieve output or error for. */
+  attempt?: number;
+}
+
+export const StepInstanceRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  workflowName: Schema.String.pipe(T.HttpPath("workflowName")),
+  instanceId: Schema.String.pipe(T.HttpPath("instanceId")),
+  accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  name: Schema.String.pipe(T.HttpQuery("name")),
+  type: Schema.Union([
+    Schema.Literals(["step", "waitForEvent"]),
+    Schema.String,
+  ]).pipe(T.HttpQuery("type")),
+  attempt: Schema.optional(Schema.Number).pipe(T.HttpQuery("attempt")),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/accounts/{account_id}/workflows/{workflowName}/instances/{instanceId}/step",
+  }),
+) as unknown as Schema.Schema<StepInstanceRequest>;
+
+export interface StepInstanceResponse {
+  /** Error details when status='errored'; null otherwise. */
+  error: { message: string; name: string } | null;
+  status:
+    | "queued"
+    | "running"
+    | "paused"
+    | "errored"
+    | "terminated"
+    | "complete"
+    | "waitingForPause"
+    | "waiting"
+    | "rollingBack"
+    | (string & {});
+  /** Full step output or waitForEvent payload without truncation. Sensitive outputs are returned as '[REDACTED]'. Populated when status='complete'. May be a ReadableStream when the step returned one from s */
+  output?: unknown | null;
+}
+
+export const StepInstanceResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  error: Schema.Union([
+    Schema.Struct({
+      message: Schema.String,
+      name: Schema.String,
+    }),
+    Schema.Null,
+  ]),
+  status: Schema.Union([
+    Schema.Literals([
+      "queued",
+      "running",
+      "paused",
+      "errored",
+      "terminated",
+      "complete",
+      "waitingForPause",
+      "waiting",
+      "rollingBack",
+    ]),
+    Schema.String,
+  ]),
+  output: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
+}).pipe(
+  T.ResponsePath("result"),
+) as unknown as Schema.Schema<StepInstanceResponse>;
+
+export type StepInstanceError = DefaultErrors;
+
+export const stepInstance: API.OperationMethod<
+  StepInstanceRequest,
+  StepInstanceResponse,
+  StepInstanceError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: StepInstanceRequest,
+  output: StepInstanceResponse,
+  errors: [],
 }));
 
 // =============================================================================
@@ -792,9 +979,11 @@ export interface PatchInstanceStatusRequest {
   instanceId: string;
   /** Path param */
   accountId: string;
-  /** Body param: Apply action to instance. */
-  status: "resume" | "pause" | "terminate" | "restart" | (string & {});
-  /** Body param: Step to restart from. Only applicable when status is "restart". */
+  /** Body param */
+  status: "pause" | "resume" | "terminate" | "restart" | (string & {});
+  /** Body param: Run rollback before terminating. */
+  rollback?: boolean;
+  /** Body param: Step to restart from. */
   from?: {
     name: string;
     count?: number;
@@ -808,9 +997,10 @@ export const PatchInstanceStatusRequest =
     instanceId: Schema.String.pipe(T.HttpPath("instanceId")),
     accountId: Schema.String.pipe(T.HttpPath("account_id")),
     status: Schema.Union([
-      Schema.Literals(["resume", "pause", "terminate", "restart"]),
+      Schema.Literals(["pause", "resume", "terminate", "restart"]),
       Schema.String,
     ]),
+    rollback: Schema.optional(Schema.Boolean),
     from: Schema.optional(
       Schema.Struct({
         name: Schema.String,
@@ -840,6 +1030,7 @@ export interface PatchInstanceStatusResponse {
     | "complete"
     | "waitingForPause"
     | "waiting"
+    | "rollingBack"
     | (string & {});
   /** Accepts ISO 8601 with no timezone offsets and in UTC. */
   timestamp: string;
@@ -857,6 +1048,7 @@ export const PatchInstanceStatusResponse =
         "complete",
         "waitingForPause",
         "waiting",
+        "rollingBack",
       ]),
       Schema.String,
     ]),
@@ -1089,6 +1281,390 @@ export const listVersions: API.PaginatedOperationMethod<
   } as const,
 }));
 
+export interface GraphVersionRequest {
+  workflowName: string;
+  versionId: string;
+  accountId: string;
+}
+
+export const GraphVersionRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  workflowName: Schema.String.pipe(T.HttpPath("workflowName")),
+  versionId: Schema.String.pipe(T.HttpPath("versionId")),
+  accountId: Schema.String.pipe(T.HttpPath("account_id")),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/accounts/{account_id}/workflows/{workflowName}/versions/{versionId}/graph",
+  }),
+) as unknown as Schema.Schema<GraphVersionRequest>;
+
+export interface GraphVersionResponse {
+  id: string;
+  className: string;
+  createdOn: string;
+  /** Versioned workflow graph payload. */
+  graph: {
+    version: number;
+    workflow: {
+      className: string;
+      functions: Record<string, unknown>;
+      nodes: (
+        | {
+            duration: number | string;
+            name: string;
+            type: "step_sleep";
+            resolves?: number | null;
+            starts?: number | null;
+          }
+        | {
+            config: {
+              retries: {
+                backoff: "constant" | "linear" | "exponential" | (string & {});
+                delay: number | string;
+                limit: number;
+              };
+              timeout: number | string;
+            };
+            name: string;
+            nodes: unknown[];
+            type: "step_do";
+            resolves?: number | null;
+            starts?: number | null;
+          }
+        | {
+            name: string;
+            options: { eventType: string; timeout: number | string } | null;
+            type: "step_wait_for_event";
+            payload?:
+              | { type: "unknown" }
+              | { fields: Record<string, unknown>; type: "object" }
+              | null;
+            resolves?: number | null;
+            starts?: number | null;
+          }
+        | {
+            name: string;
+            timestamp: string;
+            type: "step_sleep_until";
+            resolves?: number | null;
+            starts?: number | null;
+          }
+        | { nodes: unknown[]; type: "loop" }
+        | {
+            kind: "all" | "any" | "all_settled" | "race" | (string & {});
+            nodes: unknown[];
+            type: "parallel";
+          }
+        | {
+            catchBlock: { nodes: unknown[]; type: "block" } | null;
+            finallyBlock: { nodes: unknown[]; type: "block" } | null;
+            tryBlock: { nodes: unknown[]; type: "block" } | null;
+            type: "try";
+          }
+        | { nodes: unknown[]; type: "block" }
+        | {
+            branches: { condition: string | null; nodes: unknown[] }[];
+            type: "if";
+          }
+        | {
+            branches: { condition: string | null; nodes: unknown[] }[];
+            discriminant: string;
+            type: "switch";
+          }
+        | {
+            className: string;
+            functions: Record<string, unknown>;
+            nodes: unknown[];
+            type: "start";
+            payload?:
+              | { type: "unknown" }
+              | { fields: Record<string, unknown>; type: "object" }
+              | null;
+          }
+        | {
+            name: string;
+            type: "function_call";
+            resolves?: number | null;
+            starts?: number | null;
+          }
+        | { name: string; nodes: unknown[]; type: "function_def" }
+        | { kind: "break" | "return" | (string & {}); type: "break" }
+      )[];
+      payload?:
+        | { type: "unknown" }
+        | { fields: Record<string, unknown>; type: "object" }
+        | null;
+    };
+  } | null;
+  modifiedOn: string;
+  workflowId: string;
+}
+
+export const GraphVersionResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.String,
+  className: Schema.String,
+  createdOn: Schema.String,
+  graph: Schema.Union([
+    Schema.Struct({
+      version: Schema.Number,
+      workflow: Schema.Struct({
+        className: Schema.String,
+        functions: Schema.Record(Schema.String, Schema.Unknown),
+        nodes: Schema.Array(
+          Schema.Union([
+            Schema.Struct({
+              config: Schema.Struct({
+                retries: Schema.Struct({
+                  backoff: Schema.Union([
+                    Schema.Literals(["constant", "linear", "exponential"]),
+                    Schema.String,
+                  ]),
+                  delay: Schema.Union([Schema.Number, Schema.String]),
+                  limit: Schema.Number,
+                }),
+                timeout: Schema.Union([Schema.Number, Schema.String]),
+              }),
+              name: Schema.String,
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("step_do"),
+              resolves: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              starts: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              catchBlock: Schema.Union([
+                Schema.Struct({
+                  nodes: Schema.Array(Schema.Unknown),
+                  type: Schema.Literal("block"),
+                }),
+                Schema.Null,
+              ]),
+              finallyBlock: Schema.Union([
+                Schema.Struct({
+                  nodes: Schema.Array(Schema.Unknown),
+                  type: Schema.Literal("block"),
+                }),
+                Schema.Null,
+              ]),
+              tryBlock: Schema.Union([
+                Schema.Struct({
+                  nodes: Schema.Array(Schema.Unknown),
+                  type: Schema.Literal("block"),
+                }),
+                Schema.Null,
+              ]),
+              type: Schema.Literal("try"),
+            }).pipe(
+              Schema.encodeKeys({
+                catchBlock: "catch_block",
+                finallyBlock: "finally_block",
+                tryBlock: "try_block",
+                type: "type",
+              }),
+            ),
+            Schema.Struct({
+              className: Schema.String,
+              functions: Schema.Record(Schema.String, Schema.Unknown),
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("start"),
+              payload: Schema.optional(
+                Schema.Union([
+                  Schema.Union([
+                    Schema.Struct({
+                      fields: Schema.Record(Schema.String, Schema.Unknown),
+                      type: Schema.Literal("object"),
+                    }),
+                    Schema.Struct({
+                      type: Schema.Literal("unknown"),
+                    }),
+                  ]),
+                  Schema.Null,
+                ]),
+              ),
+            }).pipe(
+              Schema.encodeKeys({
+                className: "class_name",
+                functions: "functions",
+                nodes: "nodes",
+                type: "type",
+                payload: "payload",
+              }),
+            ),
+            Schema.Struct({
+              duration: Schema.Union([Schema.Number, Schema.String]),
+              name: Schema.String,
+              type: Schema.Literal("step_sleep"),
+              resolves: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              starts: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              options: Schema.Union([
+                Schema.Struct({
+                  eventType: Schema.String,
+                  timeout: Schema.Union([Schema.Number, Schema.String]),
+                }).pipe(
+                  Schema.encodeKeys({
+                    eventType: "event_type",
+                    timeout: "timeout",
+                  }),
+                ),
+                Schema.Null,
+              ]),
+              type: Schema.Literal("step_wait_for_event"),
+              payload: Schema.optional(
+                Schema.Union([
+                  Schema.Union([
+                    Schema.Struct({
+                      fields: Schema.Record(Schema.String, Schema.Unknown),
+                      type: Schema.Literal("object"),
+                    }),
+                    Schema.Struct({
+                      type: Schema.Literal("unknown"),
+                    }),
+                  ]),
+                  Schema.Null,
+                ]),
+              ),
+              resolves: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              starts: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              timestamp: Schema.String,
+              type: Schema.Literal("step_sleep_until"),
+              resolves: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              starts: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              kind: Schema.Union([
+                Schema.Literals(["all", "any", "all_settled", "race"]),
+                Schema.String,
+              ]),
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("parallel"),
+            }),
+            Schema.Struct({
+              branches: Schema.Array(
+                Schema.Struct({
+                  condition: Schema.Union([Schema.String, Schema.Null]),
+                  nodes: Schema.Array(Schema.Unknown),
+                }),
+              ),
+              discriminant: Schema.String,
+              type: Schema.Literal("switch"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("function_def"),
+            }),
+            Schema.Struct({
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("loop"),
+            }),
+            Schema.Struct({
+              nodes: Schema.Array(Schema.Unknown),
+              type: Schema.Literal("block"),
+            }),
+            Schema.Struct({
+              branches: Schema.Array(
+                Schema.Struct({
+                  condition: Schema.Union([Schema.String, Schema.Null]),
+                  nodes: Schema.Array(Schema.Unknown),
+                }),
+              ),
+              type: Schema.Literal("if"),
+            }),
+            Schema.Struct({
+              name: Schema.String,
+              type: Schema.Literal("function_call"),
+              resolves: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              starts: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              kind: Schema.Union([
+                Schema.Literals(["break", "return"]),
+                Schema.String,
+              ]),
+              type: Schema.Literal("break"),
+            }),
+          ]),
+        ),
+        payload: Schema.optional(
+          Schema.Union([
+            Schema.Union([
+              Schema.Struct({
+                fields: Schema.Record(Schema.String, Schema.Unknown),
+                type: Schema.Literal("object"),
+              }),
+              Schema.Struct({
+                type: Schema.Literal("unknown"),
+              }),
+            ]),
+            Schema.Null,
+          ]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          className: "class_name",
+          functions: "functions",
+          nodes: "nodes",
+          payload: "payload",
+        }),
+      ),
+    }),
+    Schema.Null,
+  ]),
+  modifiedOn: Schema.String,
+  workflowId: Schema.String,
+})
+  .pipe(
+    Schema.encodeKeys({
+      id: "id",
+      className: "class_name",
+      createdOn: "created_on",
+      graph: "graph",
+      modifiedOn: "modified_on",
+      workflowId: "workflow_id",
+    }),
+  )
+  .pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<GraphVersionResponse>;
+
+export type GraphVersionError = DefaultErrors;
+
+export const graphVersion: API.OperationMethod<
+  GraphVersionRequest,
+  GraphVersionResponse,
+  GraphVersionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GraphVersionRequest,
+  output: GraphVersionResponse,
+  errors: [],
+}));
+
 // =============================================================================
 // Workflow
 // =============================================================================
@@ -1117,6 +1693,7 @@ export interface GetWorkflowResponse {
     errored?: number | null;
     paused?: number | null;
     queued?: number | null;
+    rollingBack?: number | null;
     running?: number | null;
     terminated?: number | null;
     waiting?: number | null;
@@ -1126,6 +1703,7 @@ export interface GetWorkflowResponse {
   name: string;
   scriptName: string;
   triggeredOn: string | null;
+  schedules?: { cron: string; nextInstance: string }[] | null;
 }
 
 export const GetWorkflowResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -1137,6 +1715,7 @@ export const GetWorkflowResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     errored: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     paused: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     queued: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+    rollingBack: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     running: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     terminated: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     waiting: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
@@ -1148,6 +1727,19 @@ export const GetWorkflowResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   name: Schema.String,
   scriptName: Schema.String,
   triggeredOn: Schema.Union([Schema.String, Schema.Null]),
+  schedules: Schema.optional(
+    Schema.Union([
+      Schema.Array(
+        Schema.Struct({
+          cron: Schema.String,
+          nextInstance: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({ cron: "cron", nextInstance: "next_instance" }),
+        ),
+      ),
+      Schema.Null,
+    ]),
+  ),
 })
   .pipe(
     Schema.encodeKeys({
@@ -1159,6 +1751,7 @@ export const GetWorkflowResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       name: "name",
       scriptName: "script_name",
       triggeredOn: "triggered_on",
+      schedules: "schedules",
     }),
   )
   .pipe(
@@ -1206,6 +1799,7 @@ export interface ListWorkflowsResponse {
       errored?: number | null;
       paused?: number | null;
       queued?: number | null;
+      rollingBack?: number | null;
       running?: number | null;
       terminated?: number | null;
       waiting?: number | null;
@@ -1215,6 +1809,7 @@ export interface ListWorkflowsResponse {
     name: string;
     scriptName: string;
     triggeredOn: string | null;
+    schedules?: { cron: string; nextInstance: string }[] | null;
   }[];
   resultInfo?: {
     count?: number | null;
@@ -1235,6 +1830,9 @@ export const ListWorkflowsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         errored: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
         paused: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
         queued: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+        rollingBack: Schema.optional(
+          Schema.Union([Schema.Number, Schema.Null]),
+        ),
         running: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
         terminated: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
         waiting: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
@@ -1246,6 +1844,22 @@ export const ListWorkflowsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       name: Schema.String,
       scriptName: Schema.String,
       triggeredOn: Schema.Union([Schema.String, Schema.Null]),
+      schedules: Schema.optional(
+        Schema.Union([
+          Schema.Array(
+            Schema.Struct({
+              cron: Schema.String,
+              nextInstance: Schema.String,
+            }).pipe(
+              Schema.encodeKeys({
+                cron: "cron",
+                nextInstance: "next_instance",
+              }),
+            ),
+          ),
+          Schema.Null,
+        ]),
+      ),
     }).pipe(
       Schema.encodeKeys({
         id: "id",
@@ -1256,6 +1870,7 @@ export const ListWorkflowsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         name: "name",
         scriptName: "script_name",
         triggeredOn: "triggered_on",
+        schedules: "schedules",
       }),
     ),
   ),
@@ -1311,6 +1926,8 @@ export interface PutWorkflowRequest {
   scriptName: string;
   /** Body param */
   limits?: { steps?: number };
+  /** Body param */
+  schedules?: { cron: string }[];
 }
 
 export const PutWorkflowRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
@@ -1323,11 +1940,19 @@ export const PutWorkflowRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       steps: Schema.optional(Schema.Number),
     }),
   ),
+  schedules: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        cron: Schema.String,
+      }),
+    ),
+  ),
 }).pipe(
   Schema.encodeKeys({
     className: "class_name",
     scriptName: "script_name",
     limits: "limits",
+    schedules: "schedules",
   }),
   T.Http({
     method: "PUT",

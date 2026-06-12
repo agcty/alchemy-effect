@@ -182,8 +182,10 @@ export interface GetDatasetJobResponse {
       | "sinkhole_http_logs"
       | "spectrum_events"
       | "ssh_logs"
+      | "turnstile_events"
       | "warp_config_changes"
       | "warp_toggle_changes"
+      | "websocket_analytics"
       | "workers_trace_events"
       | "zaraz_events"
       | "zero_trust_network_sessions"
@@ -260,8 +262,10 @@ export const GetDatasetJobResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Literal("sinkhole_http_logs"),
             Schema.Literal("spectrum_events"),
             Schema.Literal("ssh_logs"),
+            Schema.Literal("turnstile_events"),
             Schema.Literal("warp_config_changes"),
             Schema.Literal("warp_toggle_changes"),
+            Schema.Literal("websocket_analytics"),
             Schema.Literal("workers_trace_events"),
             Schema.Literal("zaraz_events"),
             Schema.Literal("zero_trust_network_sessions"),
@@ -729,8 +733,10 @@ export interface GetJobResponse {
     | "sinkhole_http_logs"
     | "spectrum_events"
     | "ssh_logs"
+    | "turnstile_events"
     | "warp_config_changes"
     | "warp_toggle_changes"
+    | "websocket_analytics"
     | "workers_trace_events"
     | "zaraz_events"
     | "zero_trust_network_sessions"
@@ -816,8 +822,10 @@ export const GetJobResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       Schema.Literal("sinkhole_http_logs"),
       Schema.Literal("spectrum_events"),
       Schema.Literal("ssh_logs"),
+      Schema.Literal("turnstile_events"),
       Schema.Literal("warp_config_changes"),
       Schema.Literal("warp_toggle_changes"),
+      Schema.Literal("websocket_analytics"),
       Schema.Literal("workers_trace_events"),
       Schema.Literal("zaraz_events"),
       Schema.Literal("zero_trust_network_sessions"),
@@ -1033,8 +1041,10 @@ export interface ListJobsResponse {
       | "sinkhole_http_logs"
       | "spectrum_events"
       | "ssh_logs"
+      | "turnstile_events"
       | "warp_config_changes"
       | "warp_toggle_changes"
+      | "websocket_analytics"
       | "workers_trace_events"
       | "zaraz_events"
       | "zero_trust_network_sessions"
@@ -1111,8 +1121,10 @@ export const ListJobsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             Schema.Literal("sinkhole_http_logs"),
             Schema.Literal("spectrum_events"),
             Schema.Literal("ssh_logs"),
+            Schema.Literal("turnstile_events"),
             Schema.Literal("warp_config_changes"),
             Schema.Literal("warp_toggle_changes"),
+            Schema.Literal("websocket_analytics"),
             Schema.Literal("workers_trace_events"),
             Schema.Literal("zaraz_events"),
             Schema.Literal("zero_trust_network_sessions"),
@@ -1324,8 +1336,10 @@ const CreateJobBaseFields = {
       Schema.Literal("sinkhole_http_logs"),
       Schema.Literal("spectrum_events"),
       Schema.Literal("ssh_logs"),
+      Schema.Literal("turnstile_events"),
       Schema.Literal("warp_config_changes"),
       Schema.Literal("warp_toggle_changes"),
+      Schema.Literal("websocket_analytics"),
       Schema.Literal("workers_trace_events"),
       Schema.Literal("zaraz_events"),
       Schema.Literal("zero_trust_network_sessions"),
@@ -1454,8 +1468,10 @@ interface CreateJobBaseRequest {
     | "sinkhole_http_logs"
     | "spectrum_events"
     | "ssh_logs"
+    | "turnstile_events"
     | "warp_config_changes"
     | "warp_toggle_changes"
+    | "websocket_analytics"
     | "workers_trace_events"
     | "zaraz_events"
     | "zero_trust_network_sessions"
@@ -1593,8 +1609,10 @@ export interface CreateJobResponse {
     | "sinkhole_http_logs"
     | "spectrum_events"
     | "ssh_logs"
+    | "turnstile_events"
     | "warp_config_changes"
     | "warp_toggle_changes"
+    | "websocket_analytics"
     | "workers_trace_events"
     | "zaraz_events"
     | "zero_trust_network_sessions"
@@ -1680,8 +1698,10 @@ export const CreateJobResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       Schema.Literal("sinkhole_http_logs"),
       Schema.Literal("spectrum_events"),
       Schema.Literal("ssh_logs"),
+      Schema.Literal("turnstile_events"),
       Schema.Literal("warp_config_changes"),
       Schema.Literal("warp_toggle_changes"),
+      Schema.Literal("websocket_analytics"),
       Schema.Literal("workers_trace_events"),
       Schema.Literal("zaraz_events"),
       Schema.Literal("zero_trust_network_sessions"),
@@ -2066,8 +2086,10 @@ export interface UpdateJobResponse {
     | "sinkhole_http_logs"
     | "spectrum_events"
     | "ssh_logs"
+    | "turnstile_events"
     | "warp_config_changes"
     | "warp_toggle_changes"
+    | "websocket_analytics"
     | "workers_trace_events"
     | "zaraz_events"
     | "zero_trust_network_sessions"
@@ -2153,8 +2175,10 @@ export const UpdateJobResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       Schema.Literal("sinkhole_http_logs"),
       Schema.Literal("spectrum_events"),
       Schema.Literal("ssh_logs"),
+      Schema.Literal("turnstile_events"),
       Schema.Literal("warp_config_changes"),
       Schema.Literal("warp_toggle_changes"),
+      Schema.Literal("websocket_analytics"),
       Schema.Literal("workers_trace_events"),
       Schema.Literal("zaraz_events"),
       Schema.Literal("zero_trust_network_sessions"),

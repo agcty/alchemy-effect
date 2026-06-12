@@ -32727,6 +32727,85 @@ paths:
                   - errors
                   - messages
                   - success
+  /accounts/{account_id}/dns_records/usage:
+    get:
+      operationId: getUsageAccount
+      description: "Get the current DNS record usage and quota for an account. May
+        include internal DNS usage and quota.  @example ```ts const account =
+        await client.dns.usage.account.get({ account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353', }); ```"
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record_quota:
+                    oneOf:
+                      - type: number
+                    nullable: true
+                    description: Maximum number of DNS records allowed across all public zones in
+                      the account. Null if using zone-level quota.
+                  record_usage:
+                    type: number
+                    description: Current number of DNS records across all public zones in the
+                      account.
+                  internal_record_quota:
+                    type: number
+                    description: Maximum number of DNS records allowed across all internal zones in
+                      the account. Only present if internal DNS is enabled.
+                  internal_record_usage:
+                    type: number
+                    description: Current number of DNS records across all internal zones in the
+                      account. Only present if internal DNS is enabled.
+                required:
+                  - record_quota
+                  - record_usage
+      x-distilled-response-path: result
+  /zones/{zone_id}/dns_records/usage:
+    get:
+      operationId: getUsageZone
+      description: "Get the current DNS record usage for a zone, including the number
+        of records and the quota limit.  @example ```ts const zone = await
+        client.dns.usage.zone.get({ zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
+        }); ```"
+      parameters:
+        - name: zone_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  record_quota:
+                    oneOf:
+                      - type: number
+                    nullable: true
+                    description: Maximum number of DNS records allowed for the zone. Null if using
+                      account-level quota.
+                  record_usage:
+                    type: number
+                    description: Current number of DNS records in the zone.
+                required:
+                  - record_quota
+                  - record_usage
+      x-distilled-response-path: result
   /accounts/{account_id}/secondary_dns/acls/{aclId}:
     get:
       operationId: getZoneTransferAcl

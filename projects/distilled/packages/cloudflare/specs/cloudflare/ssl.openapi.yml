@@ -187,7 +187,7 @@ paths:
                     description: Certificate Authority selected for the order. For information on
                       any certificate authority specific details or restrictions
                       [see this page for more
-                      details.](https://developers.cloudflare.com/ssl/reference/certificate-authorities)
+                      details](https://developers.cloudflare.com/ssl/reference/certificate-authorities).
                   cloudflare_branding:
                     type: boolean
                     description: Whether or not to add Cloudflare Branding for the order. This will
@@ -452,7 +452,7 @@ paths:
                     description: Certificate Authority selected for the order. For information on
                       any certificate authority specific details or restrictions
                       [see this page for more
-                      details.](https://developers.cloudflare.com/ssl/reference/certificate-authorities)
+                      details](https://developers.cloudflare.com/ssl/reference/certificate-authorities).
                   cloudflare_branding:
                     type: boolean
                     description: Whether or not to add Cloudflare Branding for the order. This will
@@ -764,7 +764,7 @@ paths:
                     description: Certificate Authority selected for the order. For information on
                       any certificate authority specific details or restrictions
                       [see this page for more
-                      details.](https://developers.cloudflare.com/ssl/reference/certificate-authorities)
+                      details](https://developers.cloudflare.com/ssl/reference/certificate-authorities).
                   cloudflare_branding:
                     type: boolean
                     description: Whether or not to add Cloudflare Branding for the order. This will
@@ -912,8 +912,8 @@ paths:
                   description: "Body param: Certificate Authority selected for the order. For
                     information on any certificate authority specific details or
                     restrictions [see this page for more
-                    details.](https://developers.cloudflare.com/ssl/reference/c\
-                    ertificate-authorities)"
+                    details](https://developers.cloudflare.com/ssl/reference/ce\
+                    rtificate-authorities)."
                 hosts:
                   type: array
                   items:
@@ -1066,7 +1066,7 @@ paths:
                     description: Certificate Authority selected for the order. For information on
                       any certificate authority specific details or restrictions
                       [see this page for more
-                      details.](https://developers.cloudflare.com/ssl/reference/certificate-authorities)
+                      details](https://developers.cloudflare.com/ssl/reference/certificate-authorities).
                   cloudflare_branding:
                     type: boolean
                     description: Whether or not to add Cloudflare Branding for the order. This will

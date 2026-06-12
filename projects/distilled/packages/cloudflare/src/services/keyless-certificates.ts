@@ -80,7 +80,7 @@ export interface GetKeylessCertificateResponse {
   port: number;
   /** Status of the Keyless SSL. */
   status: "active" | "deleted" | (string & {});
-  /** Configuration for using Keyless SSL through a Cloudflare Tunnel */
+  /** Configuration for using Keyless SSL through a Cloudflare Tunnel. */
   tunnel?: { privateIp: string; vnetId: string } | null;
 }
 
@@ -245,7 +245,7 @@ export interface CreateKeylessCertificateRequest {
   bundleMethod?: "ubiquitous" | "optimal" | "force" | (string & {});
   /** Body param: The keyless SSL name. */
   name?: string;
-  /** Body param: Configuration for using Keyless SSL through a Cloudflare Tunnel */
+  /** Body param: Configuration for using Keyless SSL through a Cloudflare Tunnel. */
   tunnel?: { privateIp: string; vnetId: string };
 }
 
@@ -301,7 +301,7 @@ export interface CreateKeylessCertificateResponse {
   port: number;
   /** Status of the Keyless SSL. */
   status: "active" | "deleted" | (string & {});
-  /** Configuration for using Keyless SSL through a Cloudflare Tunnel */
+  /** Configuration for using Keyless SSL through a Cloudflare Tunnel. */
   tunnel?: { privateIp: string; vnetId: string } | null;
 }
 
@@ -377,7 +377,7 @@ export interface PatchKeylessCertificateRequest {
   name?: string;
   /** Body param: The keyless SSL port used to communicate between Cloudflare and the client's Keyless SSL server. */
   port?: number;
-  /** Body param: Configuration for using Keyless SSL through a Cloudflare Tunnel */
+  /** Body param: Configuration for using Keyless SSL through a Cloudflare Tunnel. */
   tunnel?: { privateIp: string; vnetId: string };
 }
 
@@ -425,7 +425,7 @@ export interface PatchKeylessCertificateResponse {
   port: number;
   /** Status of the Keyless SSL. */
   status: "active" | "deleted" | (string & {});
-  /** Configuration for using Keyless SSL through a Cloudflare Tunnel */
+  /** Configuration for using Keyless SSL through a Cloudflare Tunnel. */
   tunnel?: { privateIp: string; vnetId: string } | null;
 }
 

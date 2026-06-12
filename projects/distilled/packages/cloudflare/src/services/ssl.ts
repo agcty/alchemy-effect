@@ -165,7 +165,7 @@ export interface GetCertificatePackResponse {
     | "keyless"
     | "legacy_custom"
     | (string & {});
-  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details.](https://developers.cloudflare.com/ssl/refe */
+  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details](https://developers.cloudflare.com/ssl/refer */
   certificateAuthority?:
     | "google"
     | "lets_encrypt"
@@ -872,7 +872,7 @@ export const listCertificatePacks: API.PaginatedOperationMethod<
 export interface CreateCertificatePackRequest {
   /** Path param: Identifier. */
   zoneId: string;
-  /** Body param: Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details.](https://developers.cloudflare. */
+  /** Body param: Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details](https://developers.cloudflare.c */
   certificateAuthority: "google" | "lets_encrypt" | "ssl_com" | (string & {});
   /** Body param: Comma separated list of valid host names for the certificate packs. Must contain the zone apex, may not contain more than 50 hosts, and may not be empty. */
   hosts: string[];
@@ -973,7 +973,7 @@ export interface CreateCertificatePackResponse {
     | "keyless"
     | "legacy_custom"
     | (string & {});
-  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details.](https://developers.cloudflare.com/ssl/refe */
+  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details](https://developers.cloudflare.com/ssl/refer */
   certificateAuthority?:
     | "google"
     | "lets_encrypt"
@@ -1342,7 +1342,7 @@ export interface PatchCertificatePackResponse {
     | "keyless"
     | "legacy_custom"
     | (string & {});
-  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details.](https://developers.cloudflare.com/ssl/refe */
+  /** Certificate Authority selected for the order. For information on any certificate authority specific details or restrictions [see this page for more details](https://developers.cloudflare.com/ssl/refer */
   certificateAuthority?:
     | "google"
     | "lets_encrypt"

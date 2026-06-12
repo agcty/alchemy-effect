@@ -80,6 +80,36 @@ export const getContent: API.OperationMethod<
 // Rule
 // =============================================================================
 
+export interface GetRuleRequest {
+  /** Use this field to specify the unique ID of the zone. */
+  zoneId: string;
+}
+
+export const GetRuleRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+}).pipe(
+  T.Http({ method: "GET", path: "/zones/{zone_id}/snippets/snippet_rules" }),
+) as unknown as Schema.Schema<GetRuleRequest>;
+
+export type GetRuleResponse = unknown;
+
+export const GetRuleResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Unknown.pipe(
+  T.ResponsePath("result"),
+) as unknown as Schema.Schema<GetRuleResponse>;
+
+export type GetRuleError = DefaultErrors;
+
+export const getRule: API.OperationMethod<
+  GetRuleRequest,
+  GetRuleResponse,
+  GetRuleError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetRuleRequest,
+  output: GetRuleResponse,
+  errors: [],
+}));
+
 export interface ListRulesRequest {
   /** Use this field to specify the unique ID of the zone. */
   zoneId: string;

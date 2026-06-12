@@ -602,9 +602,37 @@ paths:
         - name: account_id
           in: path
           required: true
-          description: The account identifier tag.
+          description: "Path param: The account identifier tag."
           schema:
             type: string
+        - name: page_no
+          in: query
+          required: false
+          description: "Query param: The page number from which you want your page search
+            results to be displayed."
+          schema:
+            type: number
+        - name: per_page
+          in: query
+          required: false
+          description: "Query param: Number of results per page."
+          schema:
+            type: number
+        - name: search
+          in: query
+          required: false
+          description: "Query param: Search string that matches apps by name."
+          schema:
+            type: string
+        - name: sort_order
+          in: query
+          required: false
+          description: "Query param: Sort order for apps by creation time."
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
       responses:
         "200":
           description: Success
@@ -624,6 +652,15 @@ paths:
                           type: string
                         name:
                           type: string
+                  paging:
+                    type: object
+                    properties:
+                      end_offset:
+                        type: number
+                      start_offset:
+                        type: number
+                      total_count:
+                        type: number
                   success:
                     type: boolean
       x-distilled-errors:
@@ -632,13 +669,13 @@ paths:
     post:
       operationId: postApp
       description: "Create new app for your account  @example ```ts const response =
-        await client.realtimeKit.apps.post({ account_id: 'account_id', name:
-        'name', }); ```"
+        await client.realtimeKit.apps.post({ account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353', name: 'x', }); ```"
       parameters:
         - name: account_id
           in: path
           required: true
-          description: Path param
+          description: "Path param: The account identifier tag."
           schema:
             type: string
       requestBody:
@@ -700,17 +737,23 @@ paths:
         - name: end_time
           in: query
           required: false
-          description: "Query param: Specify the end time range in ISO format to access
-            the livestream analytics."
+          description: "Query param: Specify the end time as a Unix timestamp in seconds
+            to access the livestream analytics."
+          schema:
+            type: number
+        - name: filters
+          in: query
+          required: false
+          description: "Query param: Optional filters for livestream analytics."
           schema:
             type: string
         - name: start_time
           in: query
           required: false
-          description: "Query param: Specify the start time range in ISO format to access
-            the livestream analytics."
+          description: "Query param: Specify the start time as a Unix timestamp in seconds
+            to access the livestream analytics."
           schema:
-            type: string
+            type: number
       responses:
         "200":
           description: Success
@@ -732,6 +775,75 @@ paths:
                       total_viewer_seconds:
                         type: number
                         description: Total view time for which the viewers watched the stream.
+                  success:
+                    type: boolean
+  /accounts/{account_id}/realtime/kit/{appId}/analytics/livestreams/daywise:
+    get:
+      operationId: getLivestreamAnalyticsDaywiseLivestream
+      description: "Returns day-wise livestream analytics for the specified time
+        range.  @example ```ts const response = await
+        client.realtimeKit.livestreams.getLivestreamAnalyticsDaywise( 'app_id',
+        { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: The account identifier tag."
+          schema:
+            type: string
+        - name: end_time
+          in: query
+          required: false
+          description: "Query param: Specify the end time as a Unix timestamp in seconds
+            to access the livestream analytics."
+          schema:
+            type: number
+        - name: filters
+          in: query
+          required: false
+          description: "Query param: Optional filters for livestream analytics."
+          schema:
+            type: string
+        - name: start_time
+          in: query
+          required: false
+          description: "Query param: Specify the start time as a Unix timestamp in seconds
+            to access the livestream analytics."
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        count:
+                          type: number
+                          description: Count of total livestream sessions.
+                        date:
+                          oneOf:
+                            - type: string
+                          nullable: true
+                          description: Analytics date.
+                        total_ingest_seconds:
+                          type: number
+                          description: Total time duration for which the input was given or the meeting
+                            was streamed.
+                        total_viewer_seconds:
+                          type: number
+                          description: Total view time for which the viewers watched the stream.
                   success:
                     type: boolean
   /accounts/{account_id}/realtime/kit/{appId}/meetings/{meetingId}/livestreams:
@@ -1115,6 +1227,15 @@ paths:
             the meetings. The time must be specified in ISO format."
           schema:
             type: string
+        - name: status
+          in: query
+          required: false
+          description: "Query param: Filter meetings by status."
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
       responses:
         "200":
           description: Success
@@ -1150,6 +1271,161 @@ paths:
                           type: boolean
                           description: Specifies if the meeting should start getting recorded as soon as
                             someone joins the meeting.
+                        recording_config:
+                          type: object
+                          properties:
+                            audio_config:
+                              type: object
+                              properties:
+                                channel:
+                                  type: string
+                                  enum:
+                                    - mono
+                                    - stereo
+                                  description: Audio signal pathway within an audio file that carries a specific
+                                    sound source.
+                                codec:
+                                  type: string
+                                  enum:
+                                    - MP3
+                                    - AAC
+                                  description: Codec using which the recording will be encoded. If VP8/VP9 is
+                                    selected for videoConfig, changing
+                                    audioConfig is not allowed. In this case,
+                                    the codec in the audioConfig is
+                                    automatically set to vorbis.
+                                export_file:
+                                  type: boolean
+                                  description: Controls whether to export audio file seperately
+                              description: Object containing configuration regarding the audio that is being
+                                recorded.
+                            file_name_prefix:
+                              type: string
+                              description: Adds a prefix to the beginning of the file name of the recording.
+                            live_streaming_config:
+                              type: object
+                              properties:
+                                rtmp_url:
+                                  type: string
+                                  description: RTMP URL to stream to
+                            max_seconds:
+                              type: number
+                              description: Specifies the maximum duration for recording in seconds, ranging
+                                from a minimum of 60 seconds to a maximum of 24
+                                hours.
+                            realtimekit_bucket_config:
+                              type: object
+                              properties:
+                                enabled:
+                                  type: boolean
+                                  description: Controls whether recordings are uploaded to RealtimeKit's bucket.
+                                    If set to false, `download_url`,
+                                    `audio_download_url`, `download_url_expiry`
+                                    won't be generated for a recording.
+                              required:
+                                - enabled
+                            storage_config:
+                              oneOf:
+                                - type: object
+                                  properties:
+                                    type:
+                                      type: string
+                                      enum:
+                                        - aws
+                                        - azure
+                                        - digitalocean
+                                        - gcs
+                                        - sftp
+                                      description: Type of storage media.
+                                    auth_method:
+                                      type: string
+                                      enum:
+                                        - KEY
+                                        - PASSWORD
+                                      description: Authentication method used for "sftp" type storage medium
+                                    bucket:
+                                      type: string
+                                      description: Name of the storage medium's bucket.
+                                    host:
+                                      type: string
+                                      description: SSH destination server host for SFTP type storage medium
+                                    password:
+                                      type: string
+                                      description: SSH destination server password for SFTP type storage medium when
+                                        auth_method is "PASSWORD". If
+                                        auth_method is "KEY", this specifies the
+                                        password for the ssh private key.
+                                    path:
+                                      type: string
+                                      description: Path relative to the bucket root at which the recording will be
+                                        placed.
+                                    port:
+                                      type: number
+                                      description: SSH destination server port for SFTP type storage medium
+                                    private_key:
+                                      type: string
+                                      description: Private key used to login to destination SSH server for SFTP type
+                                        storage medium, when auth_method used is
+                                        "KEY"
+                                    region:
+                                      type: string
+                                      description: Region of the storage medium.
+                                    secret:
+                                      type: string
+                                      description: Secret key of the storage medium. Similar to `access_key`, it is
+                                        only writeable by clients, not readable.
+                                    username:
+                                      type: string
+                                      description: SSH destination server username for SFTP type storage medium
+                                  required:
+                                    - type
+                              nullable: true
+                            video_config:
+                              type: object
+                              properties:
+                                codec:
+                                  type: string
+                                  enum:
+                                    - H264
+                                    - VP8
+                                  description: Codec using which the recording will be encoded.
+                                export_file:
+                                  type: boolean
+                                  description: Controls whether to export video file seperately
+                                height:
+                                  type: number
+                                  description: Height of the recording video in pixels
+                                watermark:
+                                  type: object
+                                  properties:
+                                    position:
+                                      type: string
+                                      enum:
+                                        - left top
+                                        - right top
+                                        - left bottom
+                                        - right bottom
+                                      description: Position of the watermark
+                                    size:
+                                      type: object
+                                      properties:
+                                        height:
+                                          type: number
+                                          description: Height of the watermark in px
+                                        width:
+                                          type: number
+                                          description: Width of the watermark in px
+                                      description: Size of the watermark
+                                    url:
+                                      type: string
+                                      description: URL of the watermark image
+                                  description: Watermark to be added to the recording
+                                width:
+                                  type: number
+                                  description: Width of the recording video in pixels
+                          description: Recording Configurations to be used for this meeting. This level of
+                            configs takes higher preference over App level
+                            configs on the RealtimeKit developer portal.
                         session_keep_alive_time_in_secs:
                           type: number
                           description: Time in seconds, for which a session remains active, after the last
@@ -1169,6 +1445,9 @@ paths:
                         title:
                           type: string
                           description: Title of the meeting.
+                        transcribe_on_end:
+                          type: boolean
+                          description: Automatically generate transcripts when the meeting ends.
                       required:
                         - id
                         - created_at
@@ -1465,6 +1744,10 @@ paths:
                     - type: string
                   nullable: true
                   description: "Body param: Title of the meeting"
+                transcribe_on_end:
+                  type: boolean
+                  description: "Body param: Automatically generate transcripts when the meeting
+                    ends."
       responses:
         "200":
           description: Success
@@ -1735,6 +2018,9 @@ paths:
                       title:
                         type: string
                         description: Title of the meeting.
+                      transcribe_on_end:
+                        type: boolean
+                        description: Automatically generate transcripts when the meeting ends.
                     required:
                       - id
                       - created_at
@@ -2119,6 +2405,9 @@ paths:
                       title:
                         type: string
                         description: Title of the meeting.
+                      transcribe_on_end:
+                        type: boolean
+                        description: Automatically generate transcripts when the meeting ends.
                     required:
                       - id
                       - created_at
@@ -2230,6 +2519,164 @@ paths:
                   type: boolean
                   description: "Body param: Specifies if the meeting should start getting recorded
                     as soon as someone joins the meeting."
+                recording_config:
+                  type: object
+                  properties:
+                    audio_config:
+                      type: object
+                      properties:
+                        channel:
+                          type: string
+                          enum:
+                            - mono
+                            - stereo
+                          description: Audio signal pathway within an audio file that carries a specific
+                            sound source.
+                        codec:
+                          type: string
+                          enum:
+                            - MP3
+                            - AAC
+                          description: Codec using which the recording will be encoded. If VP8/VP9 is
+                            selected for videoConfig, changing audioConfig is
+                            not allowed. In this case, the codec in the
+                            audioConfig is automatically set to vorbis.
+                        export_file:
+                          type: boolean
+                          description: Controls whether to export audio file seperately
+                      description: Object containing configuration regarding the audio that is being
+                        recorded.
+                    file_name_prefix:
+                      type: string
+                      description: Adds a prefix to the beginning of the file name of the recording.
+                    live_streaming_config:
+                      type: object
+                      properties:
+                        rtmp_url:
+                          type: string
+                          description: RTMP URL to stream to
+                    max_seconds:
+                      type: number
+                      description: Specifies the maximum duration for recording in seconds, ranging
+                        from a minimum of 60 seconds to a maximum of 24 hours.
+                    realtimekit_bucket_config:
+                      type: object
+                      properties:
+                        enabled:
+                          type: boolean
+                          description: Controls whether recordings are uploaded to RealtimeKit's bucket.
+                            If set to false, `download_url`,
+                            `audio_download_url`, `download_url_expiry` won't be
+                            generated for a recording.
+                      required:
+                        - enabled
+                    storage_config:
+                      oneOf:
+                        - type: object
+                          properties:
+                            type:
+                              type: string
+                              enum:
+                                - aws
+                                - azure
+                                - digitalocean
+                                - gcs
+                                - sftp
+                              description: Type of storage media.
+                            access_key:
+                              type: string
+                              description: Access key of the storage medium. Access key is not required for
+                                the `gcs` storage media type.  Note that this
+                                field is not readable by clients, only
+                                writeable.
+                            auth_method:
+                              type: string
+                              enum:
+                                - KEY
+                                - PASSWORD
+                              description: Authentication method used for "sftp" type storage medium
+                            bucket:
+                              type: string
+                              description: Name of the storage medium's bucket.
+                            host:
+                              type: string
+                              description: SSH destination server host for SFTP type storage medium
+                            password:
+                              type: string
+                              description: SSH destination server password for SFTP type storage medium when
+                                auth_method is "PASSWORD". If auth_method is
+                                "KEY", this specifies the password for the ssh
+                                private key.
+                            path:
+                              type: string
+                              description: Path relative to the bucket root at which the recording will be
+                                placed.
+                            port:
+                              type: number
+                              description: SSH destination server port for SFTP type storage medium
+                            private_key:
+                              type: string
+                              description: Private key used to login to destination SSH server for SFTP type
+                                storage medium, when auth_method used is "KEY"
+                            region:
+                              type: string
+                              description: Region of the storage medium.
+                            secret:
+                              type: string
+                              description: Secret key of the storage medium. Similar to `access_key`, it is
+                                only writeable by clients, not readable.
+                            username:
+                              type: string
+                              description: SSH destination server username for SFTP type storage medium
+                          required:
+                            - type
+                      nullable: true
+                    video_config:
+                      type: object
+                      properties:
+                        codec:
+                          type: string
+                          enum:
+                            - H264
+                            - VP8
+                          description: Codec using which the recording will be encoded.
+                        export_file:
+                          type: boolean
+                          description: Controls whether to export video file seperately
+                        height:
+                          type: number
+                          description: Height of the recording video in pixels
+                        watermark:
+                          type: object
+                          properties:
+                            position:
+                              type: string
+                              enum:
+                                - left top
+                                - right top
+                                - left bottom
+                                - right bottom
+                              description: Position of the watermark
+                            size:
+                              type: object
+                              properties:
+                                height:
+                                  type: number
+                                  description: Height of the watermark in px
+                                width:
+                                  type: number
+                                  description: Width of the watermark in px
+                              description: Size of the watermark
+                            url:
+                              type: string
+                              description: URL of the watermark image
+                          description: Watermark to be added to the recording
+                        width:
+                          type: number
+                          description: Width of the recording video in pixels
+                  description: "Body param: Recording Configurations to be used for this meeting.
+                    This level of configs takes higher preference over App level
+                    configs on the RealtimeKit developer portal."
                 session_keep_alive_time_in_secs:
                   type: number
                   description: "Body param: Time in seconds, for which a session remains active,
@@ -2249,6 +2696,10 @@ paths:
                 title:
                   type: string
                   description: "Body param: Title of the meeting"
+                transcribe_on_end:
+                  type: boolean
+                  description: "Body param: Automatically generate transcripts when the meeting
+                    ends."
       responses:
         "200":
           description: Success
@@ -2519,6 +2970,9 @@ paths:
                       title:
                         type: string
                         description: Title of the meeting.
+                      transcribe_on_end:
+                        type: boolean
+                        description: Automatically generate transcripts when the meeting ends.
                     required:
                       - id
                       - created_at
@@ -2805,6 +3259,10 @@ paths:
                     - type: string
                   nullable: true
                   description: "Body param: Title of the meeting"
+                transcribe_on_end:
+                  type: boolean
+                  description: "Body param: Automatically generate transcripts when the meeting
+                    ends."
       responses:
         "200":
           description: Success
@@ -3075,6 +3533,9 @@ paths:
                       title:
                         type: string
                         description: Title of the meeting.
+                      transcribe_on_end:
+                        type: boolean
+                        description: Automatically generate transcripts when the meeting ends.
                     required:
                       - id
                       - created_at
@@ -4099,10 +4560,11 @@ paths:
   /accounts/{account_id}/realtime/kit/{appId}/sessions/peer-report/{peerId}:
     get:
       operationId: getParticipantDataFromPeerIdSession
-      description: "Returns details of the given peer ID along with call statistics
-        for the given session ID.  @example ```ts const response = await
+      description: "Returns participant details for the given peer ID along with call
+        statistics.  @example ```ts const response = await
         client.realtimeKit.sessions.getParticipantDataFromPeerId( 'app_id',
-        'peer_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -4123,8 +4585,7 @@ paths:
         - name: filters
           in: query
           required: false
-          description: "Query param: Comma separated list of filters to apply. Note that
-            there must be no spaces between the filters."
+          description: "Query param: Filter to apply to the peer report."
           schema:
             type: string
             enum:
@@ -4133,6 +4594,13 @@ paths:
               - precall_network_information
               - events
               - quality_stats
+        - name: include_peer_events
+          in: query
+          required: false
+          description: "Query param: if true, response includes all the peer events of
+            participant."
+          schema:
+            type: boolean
       responses:
         "200":
           description: Success
@@ -4149,453 +4617,51 @@ paths:
                         properties:
                           id:
                             type: string
+                            description: ID of the participant.
                           created_at:
                             type: string
+                            description: timestamp when this participant was created.
                           custom_participant_id:
                             type: string
+                            description: ID passed by client to create this participant.
                           display_name:
                             type: string
+                            description: Display name of participant when joining the session.
                           duration:
                             type: number
+                            description: number of minutes for which the participant was in the session.
                           joined_at:
                             type: string
+                            description: timestamp at which participant joined the session.
                           left_at:
                             type: string
+                            description: timestamp at which participant left the session.
+                          peer_events:
+                            type: array
+                            items:
+                              type: object
+                              additionalProperties: true
                           peer_report:
                             type: object
                             properties:
                               metadata:
                                 type: object
-                                properties:
-                                  audio_devices_updates:
-                                    type: array
-                                    items: {}
-                                  browser_metadata:
-                                    type: object
-                                    properties:
-                                      browser:
-                                        type: string
-                                      browser_version:
-                                        type: string
-                                      engine:
-                                        type: string
-                                      user_agent:
-                                        type: string
-                                      webgl_support:
-                                        type: string
-                                  candidate_pairs:
-                                    type: object
-                                    properties:
-                                      consuming_transport:
-                                        type: array
-                                        items: {}
-                                      producing_transport:
-                                        type: array
-                                        items:
-                                          type: object
-                                          properties:
-                                            available_outgoing_bitrate:
-                                              type: number
-                                            bytes_discarded_on_send:
-                                              type: number
-                                            bytes_received:
-                                              type: number
-                                            bytes_sent:
-                                              type: number
-                                            current_round_trip_time:
-                                              type: number
-                                            last_packet_received_timestamp:
-                                              type: number
-                                            last_packet_sent_timestamp:
-                                              type: number
-                                            local_candidate_address:
-                                              type: string
-                                            local_candidate_id:
-                                              type: string
-                                            local_candidate_network_type:
-                                              type: string
-                                            local_candidate_port:
-                                              type: number
-                                            local_candidate_protocol:
-                                              type: string
-                                            local_candidate_related_address:
-                                              type: string
-                                            local_candidate_related_port:
-                                              type: number
-                                            local_candidate_type:
-                                              type: string
-                                            nominated:
-                                              type: boolean
-                                            packets_discarded_on_send:
-                                              type: number
-                                            packets_received:
-                                              type: number
-                                            packets_sent:
-                                              type: number
-                                            remote_candidate_address:
-                                              type: string
-                                            remote_candidate_id:
-                                              type: string
-                                            remote_candidate_port:
-                                              type: number
-                                            remote_candidate_protocol:
-                                              type: string
-                                            remote_candidate_type:
-                                              type: string
-                                            total_round_trip_time:
-                                              type: number
-                                  device_info:
-                                    type: object
-                                    properties:
-                                      cpus:
-                                        type: number
-                                      is_mobile:
-                                        type: boolean
-                                      os:
-                                        type: string
-                                      os_version:
-                                        type: string
-                                  events:
-                                    type: array
-                                    items:
-                                      type: object
-                                      properties:
-                                        name:
-                                          type: string
-                                        timestamp:
-                                          type: string
-                                  ip_information:
-                                    type: object
-                                    properties:
-                                      asn:
-                                        type: object
-                                        properties:
-                                          asn:
-                                            type: string
-                                      city:
-                                        type: string
-                                      country:
-                                        type: string
-                                      ipv4:
-                                        type: string
-                                      region:
-                                        type: string
-                                      timezone:
-                                        type: string
-                                  pc_metadata:
-                                    type: array
-                                    items:
-                                      type: object
-                                      properties:
-                                        effective_network_type:
-                                          type: string
-                                        reflexive_connectivity:
-                                          type: boolean
-                                        relay_connectivity:
-                                          type: boolean
-                                        timestamp:
-                                          type: string
-                                        turn_connectivity:
-                                          type: boolean
-                                  room_view_type:
-                                    type: string
-                                  sdk_name:
-                                    type: string
-                                  sdk_version:
-                                    type: string
-                                  selected_device_updates:
-                                    type: array
-                                    items: {}
-                                  speaker_devices_updates:
-                                    type: array
-                                    items: {}
-                                  video_devices_updates:
-                                    type: array
-                                    items: {}
+                                additionalProperties: true
                               quality:
                                 type: object
-                                properties:
-                                  audio_consumer:
-                                    type: array
-                                    items: {}
-                                  audio_consumer_cumulative: {}
-                                  audio_producer:
-                                    type: array
-                                    items:
-                                      type: object
-                                      properties:
-                                        bytes_sent:
-                                          type: number
-                                        jitter:
-                                          type: number
-                                        mid:
-                                          type: string
-                                        mos_quality:
-                                          type: number
-                                        packets_lost:
-                                          type: number
-                                        packets_sent:
-                                          type: number
-                                        producer_id:
-                                          type: string
-                                        rtt:
-                                          type: number
-                                        ssrc:
-                                          type: number
-                                        timestamp:
-                                          type: string
-                                  audio_producer_cumulative:
-                                    type: object
-                                    properties:
-                                      packet_loss:
-                                        type: object
-                                        properties:
-                                          10_or_greater_event_fraction:
-                                            type: number
-                                          25_or_greater_event_fraction:
-                                            type: number
-                                          5_or_greater_event_fraction:
-                                            type: number
-                                          50_or_greater_event_fraction:
-                                            type: number
-                                          avg:
-                                            type: number
-                                      quality_mos:
-                                        type: object
-                                        properties:
-                                          avg:
-                                            type: number
-                                          p50:
-                                            type: number
-                                          p75:
-                                            type: number
-                                          p90:
-                                            type: number
-                                      rtt:
-                                        type: object
-                                        properties:
-                                          100ms_or_greater_event_fraction:
-                                            type: number
-                                          250ms_or_greater_event_fraction:
-                                            type: number
-                                          500ms_or_greater_event_fraction:
-                                            type: number
-                                          avg:
-                                            type: number
-                                  screenshare_audio_consumer:
-                                    type: array
-                                    items: {}
-                                  screenshare_audio_consumer_cumulative: {}
-                                  screenshare_audio_producer:
-                                    type: array
-                                    items: {}
-                                  screenshare_audio_producer_cumulative: {}
-                                  screenshare_video_consumer:
-                                    type: array
-                                    items: {}
-                                  screenshare_video_consumer_cumulative: {}
-                                  screenshare_video_producer:
-                                    type: array
-                                    items: {}
-                                  screenshare_video_producer_cumulative: {}
-                                  video_consumer:
-                                    type: array
-                                    items: {}
-                                  video_consumer_cumulative: {}
-                                  video_producer:
-                                    type: array
-                                    items: {}
-                                  video_producer_cumulative: {}
-                          peer_stats:
-                            type: object
-                            properties:
-                              device_info:
-                                type: object
-                                properties:
-                                  browser:
-                                    type: string
-                                  browser_version:
-                                    type: string
-                                  cpus:
-                                    type: number
-                                  engine:
-                                    type: string
-                                  is_mobile:
-                                    type: boolean
-                                  os:
-                                    type: string
-                                  os_version:
-                                    type: string
-                                  sdk_name:
-                                    type: string
-                                  sdk_version:
-                                    type: string
-                                  user_agent:
-                                    type: string
-                                  webgl_support:
-                                    type: string
-                              events:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    metadata:
-                                      type: object
-                                      properties:
-                                        connection_info:
-                                          type: object
-                                          properties:
-                                            backend_r_t_t:
-                                              type: number
-                                            connectivity:
-                                              type: object
-                                              properties:
-                                                host:
-                                                  type: boolean
-                                                reflexive:
-                                                  type: boolean
-                                                relay:
-                                                  type: boolean
-                                            effective_network_type:
-                                              type: string
-                                            fractional_loss:
-                                              type: number
-                                            ip_details:
-                                              type: object
-                                              properties:
-                                                asn:
-                                                  type: object
-                                                  properties:
-                                                    asn:
-                                                      type: string
-                                                city:
-                                                  type: string
-                                                country:
-                                                  type: string
-                                                ip:
-                                                  type: string
-                                                loc:
-                                                  type: string
-                                                postal:
-                                                  type: string
-                                                region:
-                                                  type: string
-                                                timezone:
-                                                  type: string
-                                            jitter:
-                                              type: number
-                                            location:
-                                              type: object
-                                              properties:
-                                                coords:
-                                                  type: object
-                                                  properties:
-                                                    latitude:
-                                                      type: number
-                                                    longitude:
-                                                      type: number
-                                            r_t_t:
-                                              type: number
-                                            throughput:
-                                              type: number
-                                            turn_connectivity:
-                                              type: boolean
-                                    timestamp:
-                                      type: string
-                                    type:
-                                      type: string
-                              ip_information:
-                                type: object
-                                properties:
-                                  asn:
-                                    type: object
-                                    properties:
-                                      asn:
-                                        type: string
-                                  city:
-                                    type: string
-                                  country:
-                                    type: string
-                                  ip_location:
-                                    type: string
-                                  ipv4:
-                                    type: string
-                                  org:
-                                    type: string
-                                  region:
-                                    type: string
-                                  timezone:
-                                    type: string
-                              precall_network_information:
-                                type: object
-                                properties:
-                                  backend_rtt:
-                                    type: number
-                                  effective_networktype:
-                                    type: string
-                                  fractional_loss:
-                                    type: number
-                                  jitter:
-                                    type: number
-                                  reflexive_connectivity:
-                                    type: boolean
-                                  relay_connectivity:
-                                    type: boolean
-                                  rtt:
-                                    type: number
-                                  throughput:
-                                    type: number
-                                  turn_connectivity:
-                                    type: boolean
-                          quality_stats:
-                            type: object
-                            properties:
-                              audio_bandwidth:
-                                type: number
-                              audio_stats:
-                                type: array
-                                items: {}
-                              average_quality:
-                                type: number
-                              end:
-                                oneOf:
-                                  - type: string
-                                nullable: true
-                              first_audio_packet_received:
-                                type: string
-                              first_video_packet_received:
-                                type: string
-                              last_audio_packet_received:
-                                type: string
-                              last_video_packet_received:
-                                type: string
-                              peer_ids:
-                                type: array
-                                items:
-                                  type: string
-                              start:
-                                oneOf:
-                                  - type: string
-                                nullable: true
-                              total_audio_packets:
-                                type: number
-                              total_audio_packets_lost:
-                                type: number
-                              total_video_packets:
-                                type: number
-                              total_video_packets_lost:
-                                type: number
-                              video_bandwidth:
-                                type: number
-                              video_stats:
-                                type: array
-                                items: {}
+                                additionalProperties: true
+                            description: Peer call statistics report.
                           role:
+                            type: string
+                            description: Name of the preset associated with the participant.
+                          session_id:
                             type: string
                           updated_at:
                             type: string
+                            description: timestamp when this participant's data was last updated.
                           user_id:
                             type: string
+                            description: User id for this participant.
                   success:
                     type: boolean
   /accounts/{account_id}/realtime/kit/{appId}/meetings/{meetingId}/active-session/kick:
@@ -4883,6 +4949,12 @@ paths:
           description: "Query param: Number of results per page"
           schema:
             type: number
+        - name: search
+          in: query
+          required: false
+          description: "Query param: Search presets by name."
+          schema:
+            type: string
       responses:
         "200":
           description: Success
@@ -4936,8 +5008,16 @@ paths:
         const preset = await client.realtimeKit.presets.create('app_id', {
         account_id: '023e105f4ecef8ad9ca31a8372d0c353', config: {
         max_screenshare_count: 0, max_video_streams: { ... }, media: { ... },
-        view_type: 'GROUP_CALL', }, name: 'name', ui: { design_tokens: { ... },
-        }, }); ```"
+        view_type: 'GROUP_CALL', }, name: 'name', permissions: {
+        accept_waiting_requests: true, can_accept_production_requests: true,
+        can_change_participant_permissions: true, can_edit_display_name: true,
+        can_livestream: true, can_record: true, can_spotlight: true, chat: { ...
+        }, connected_meetings: { ... }, disable_participant_audio: true,
+        disable_participant_screensharing: true, disable_participant_video:
+        true, hidden_participant: true, kick_participant: true, media: { ... },
+        pin_participant: true, plugins: { ... }, polls: { ... }, recorder_type:
+        'RECORDER', show_participant_list: true, waiting_room_type: 'SKIP', },
+        ui: { design_tokens: { ... }, }, }); ```"
       parameters:
         - name: appId
           in: path
@@ -4991,6 +5071,8 @@ paths:
                                 - hd
                                 - vga
                                 - qvga
+                                - fhd
+                                - uhd
                               description: Quality of screen share
                           required:
                             - frame_rate
@@ -5008,7 +5090,12 @@ paths:
                                 - hd
                                 - vga
                                 - qvga
+                                - fhd
+                                - uhd
                               description: Video quality of participants
+                            simulcast:
+                              type: boolean
+                              description: Enable simulcast for participant videos.
                           required:
                             - frame_rate
                             - quality
@@ -5033,7 +5120,15 @@ paths:
                         - GROUP_CALL
                         - WEBINAR
                         - AUDIO_ROOM
+                        - LIVESTREAM
                       description: Type of the meeting
+                    livestream_viewer_qualities:
+                      oneOf:
+                        - type: array
+                          items:
+                            type: number
+                      nullable: true
+                      description: Livestream viewer quality levels.
                   required:
                     - max_screenshare_count
                     - max_video_streams
@@ -5043,101 +5138,6 @@ paths:
                 name:
                   type: string
                   description: "Body param: Name of the preset"
-                ui:
-                  type: object
-                  properties:
-                    design_tokens:
-                      type: object
-                      properties:
-                        border_radius:
-                          type: string
-                          enum:
-                            - rounded
-                        border_width:
-                          type: string
-                          enum:
-                            - thin
-                        colors:
-                          type: object
-                          properties:
-                            background:
-                              type: object
-                              properties:
-                                "600":
-                                  type: string
-                                "700":
-                                  type: string
-                                "800":
-                                  type: string
-                                "900":
-                                  type: string
-                                "1000":
-                                  type: string
-                              required:
-                                - "1000"
-                                - "600"
-                                - "700"
-                                - "800"
-                                - "900"
-                            brand:
-                              type: object
-                              properties:
-                                "300":
-                                  type: string
-                                "400":
-                                  type: string
-                                "500":
-                                  type: string
-                                "600":
-                                  type: string
-                                "700":
-                                  type: string
-                              required:
-                                - "300"
-                                - "400"
-                                - "500"
-                                - "600"
-                                - "700"
-                            danger:
-                              type: string
-                            success:
-                              type: string
-                            text:
-                              type: string
-                            text_on_brand:
-                              type: string
-                            video_bg:
-                              type: string
-                            warning:
-                              type: string
-                          required:
-                            - background
-                            - brand
-                            - danger
-                            - success
-                            - text
-                            - text_on_brand
-                            - video_bg
-                            - warning
-                        logo:
-                          type: string
-                        spacing_base:
-                          type: number
-                        theme:
-                          type: string
-                          enum:
-                            - dark
-                      required:
-                        - border_radius
-                        - border_width
-                        - colors
-                        - logo
-                        - spacing_base
-                        - theme
-                    config_diff: {}
-                  required:
-                    - design_tokens
-                  description: Body param
                 permissions:
                   type: object
                   properties:
@@ -5194,7 +5194,6 @@ paths:
                       required:
                         - private
                         - public
-                      description: Chat permissions
                     connected_meetings:
                       type: object
                       properties:
@@ -5280,7 +5279,8 @@ paths:
                         can_start:
                           type: boolean
                           description: Can start plugins
-                        config: {}
+                        config:
+                          description: Plugin configuration keyed by plugin UUID.
                       required:
                         - can_close
                         - can_edit_config
@@ -5320,7 +5320,19 @@ paths:
                         - ON_PRIVILEGED_USER_ENTRY
                         - SKIP_ON_ACCEPT
                       description: Waiting room type
+                    accept_stage_requests:
+                      type: boolean
                     is_recorder:
+                      type: boolean
+                    stage_access:
+                      type: string
+                      enum:
+                        - ALLOWED
+                        - NOT_ALLOWED
+                        - CAN_REQUEST
+                    stage_enabled:
+                      type: boolean
+                    transcription_enabled:
                       type: boolean
                   required:
                     - accept_waiting_requests
@@ -5345,9 +5357,114 @@ paths:
                     - show_participant_list
                     - waiting_room_type
                   description: Body param
+                ui:
+                  type: object
+                  properties:
+                    design_tokens:
+                      type: object
+                      properties:
+                        border_radius:
+                          type: string
+                          enum:
+                            - sharp
+                            - rounded
+                            - extra-rounded
+                            - circular
+                        border_width:
+                          type: string
+                          enum:
+                            - none
+                            - thin
+                            - fat
+                        colors:
+                          type: object
+                          properties:
+                            background:
+                              type: object
+                              properties:
+                                "600":
+                                  type: string
+                                "700":
+                                  type: string
+                                "800":
+                                  type: string
+                                "900":
+                                  type: string
+                                "1000":
+                                  type: string
+                              required:
+                                - "1000"
+                                - "600"
+                                - "700"
+                                - "800"
+                                - "900"
+                            brand:
+                              type: object
+                              properties:
+                                "300":
+                                  type: string
+                                "400":
+                                  type: string
+                                "500":
+                                  type: string
+                                "600":
+                                  type: string
+                                "700":
+                                  type: string
+                              required:
+                                - "300"
+                                - "400"
+                                - "500"
+                                - "600"
+                                - "700"
+                            danger:
+                              type: string
+                            success:
+                              type: string
+                            text:
+                              type: string
+                            text_on_brand:
+                              type: string
+                            video_bg:
+                              type: string
+                            warning:
+                              type: string
+                          required:
+                            - background
+                            - brand
+                            - danger
+                            - success
+                            - text
+                            - text_on_brand
+                            - video_bg
+                            - warning
+                        spacing_base:
+                          type: number
+                        theme:
+                          type: string
+                          enum:
+                            - darkest
+                            - dark
+                            - light
+                        font_family:
+                          type: string
+                        google_font:
+                          type: string
+                        logo:
+                          type: string
+                      required:
+                        - border_radius
+                        - border_width
+                        - colors
+                        - spacing_base
+                        - theme
+                  required:
+                    - design_tokens
+                  description: Body param
               required:
                 - config
                 - name
+                - permissions
                 - ui
       responses:
         "200":
@@ -5397,6 +5514,8 @@ paths:
                                       - hd
                                       - vga
                                       - qvga
+                                      - fhd
+                                      - uhd
                                     description: Quality of screen share
                                 required:
                                   - frame_rate
@@ -5414,7 +5533,12 @@ paths:
                                       - hd
                                       - vga
                                       - qvga
+                                      - fhd
+                                      - uhd
                                     description: Video quality of participants
+                                  simulcast:
+                                    type: boolean
+                                    description: Enable simulcast for participant videos.
                                 required:
                                   - frame_rate
                                   - quality
@@ -5439,109 +5563,26 @@ paths:
                               - GROUP_CALL
                               - WEBINAR
                               - AUDIO_ROOM
+                              - LIVESTREAM
                             description: Type of the meeting
+                          livestream_viewer_qualities:
+                            oneOf:
+                              - type: array
+                                items:
+                                  type: number
+                            nullable: true
+                            description: Livestream viewer quality levels.
                         required:
                           - max_screenshare_count
                           - max_video_streams
                           - media
                           - view_type
+                      created_at:
+                        type: string
+                        description: Timestamp this preset was created at
                       name:
                         type: string
                         description: Name of the preset
-                      ui:
-                        type: object
-                        properties:
-                          design_tokens:
-                            type: object
-                            properties:
-                              border_radius:
-                                type: string
-                                enum:
-                                  - rounded
-                              border_width:
-                                type: string
-                                enum:
-                                  - thin
-                              colors:
-                                type: object
-                                properties:
-                                  background:
-                                    type: object
-                                    properties:
-                                      "600":
-                                        type: string
-                                      "700":
-                                        type: string
-                                      "800":
-                                        type: string
-                                      "900":
-                                        type: string
-                                      "1000":
-                                        type: string
-                                    required:
-                                      - "1000"
-                                      - "600"
-                                      - "700"
-                                      - "800"
-                                      - "900"
-                                  brand:
-                                    type: object
-                                    properties:
-                                      "300":
-                                        type: string
-                                      "400":
-                                        type: string
-                                      "500":
-                                        type: string
-                                      "600":
-                                        type: string
-                                      "700":
-                                        type: string
-                                    required:
-                                      - "300"
-                                      - "400"
-                                      - "500"
-                                      - "600"
-                                      - "700"
-                                  danger:
-                                    type: string
-                                  success:
-                                    type: string
-                                  text:
-                                    type: string
-                                  text_on_brand:
-                                    type: string
-                                  video_bg:
-                                    type: string
-                                  warning:
-                                    type: string
-                                required:
-                                  - background
-                                  - brand
-                                  - danger
-                                  - success
-                                  - text
-                                  - text_on_brand
-                                  - video_bg
-                                  - warning
-                              logo:
-                                type: string
-                              spacing_base:
-                                type: number
-                              theme:
-                                type: string
-                                enum:
-                                  - dark
-                            required:
-                              - border_radius
-                              - border_width
-                              - colors
-                              - logo
-                              - spacing_base
-                              - theme
-                          config_diff: {}
-                        required:
-                          - design_tokens
                       permissions:
                         type: object
                         properties:
@@ -5598,7 +5639,6 @@ paths:
                             required:
                               - private
                               - public
-                            description: Chat permissions
                           connected_meetings:
                             type: object
                             properties:
@@ -5684,7 +5724,8 @@ paths:
                               can_start:
                                 type: boolean
                                 description: Can start plugins
-                              config: {}
+                              config:
+                                description: Plugin configuration keyed by plugin UUID.
                             required:
                               - can_close
                               - can_edit_config
@@ -5724,7 +5765,19 @@ paths:
                               - ON_PRIVILEGED_USER_ENTRY
                               - SKIP_ON_ACCEPT
                             description: Waiting room type
+                          accept_stage_requests:
+                            type: boolean
                           is_recorder:
+                            type: boolean
+                          stage_access:
+                            type: string
+                            enum:
+                              - ALLOWED
+                              - NOT_ALLOWED
+                              - CAN_REQUEST
+                          stage_enabled:
+                            type: boolean
+                          transcription_enabled:
                             type: boolean
                         required:
                           - accept_waiting_requests
@@ -5748,11 +5801,120 @@ paths:
                           - recorder_type
                           - show_participant_list
                           - waiting_room_type
+                      ui:
+                        type: object
+                        properties:
+                          design_tokens:
+                            type: object
+                            properties:
+                              border_radius:
+                                type: string
+                                enum:
+                                  - sharp
+                                  - rounded
+                                  - extra-rounded
+                                  - circular
+                              border_width:
+                                type: string
+                                enum:
+                                  - none
+                                  - thin
+                                  - fat
+                              colors:
+                                type: object
+                                properties:
+                                  background:
+                                    type: object
+                                    properties:
+                                      "600":
+                                        type: string
+                                      "700":
+                                        type: string
+                                      "800":
+                                        type: string
+                                      "900":
+                                        type: string
+                                      "1000":
+                                        type: string
+                                    required:
+                                      - "1000"
+                                      - "600"
+                                      - "700"
+                                      - "800"
+                                      - "900"
+                                  brand:
+                                    type: object
+                                    properties:
+                                      "300":
+                                        type: string
+                                      "400":
+                                        type: string
+                                      "500":
+                                        type: string
+                                      "600":
+                                        type: string
+                                      "700":
+                                        type: string
+                                    required:
+                                      - "300"
+                                      - "400"
+                                      - "500"
+                                      - "600"
+                                      - "700"
+                                  danger:
+                                    type: string
+                                  success:
+                                    type: string
+                                  text:
+                                    type: string
+                                  text_on_brand:
+                                    type: string
+                                  video_bg:
+                                    type: string
+                                  warning:
+                                    type: string
+                                required:
+                                  - background
+                                  - brand
+                                  - danger
+                                  - success
+                                  - text
+                                  - text_on_brand
+                                  - video_bg
+                                  - warning
+                              spacing_base:
+                                type: number
+                              theme:
+                                type: string
+                                enum:
+                                  - darkest
+                                  - dark
+                                  - light
+                              font_family:
+                                type: string
+                              google_font:
+                                type: string
+                              logo:
+                                type: string
+                            required:
+                              - border_radius
+                              - border_width
+                              - colors
+                              - spacing_base
+                              - theme
+                        required:
+                          - design_tokens
+                      updated_at:
+                        type: string
+                        description: Timestamp this preset was last updated
                     required:
                       - id
                       - config
+                      - created_at
                       - name
+                      - permissions
                       - ui
+                      - updated_at
                     description: Data returned by the operation
                   success:
                     type: boolean
@@ -5767,8 +5929,9 @@ paths:
     patch:
       operationId: patchPreset
       description: "Update a preset by the provided preset ID  @example ```ts const
-        preset = await client.realtimeKit.presets.update( 'app_id', 'preset_id',
-        { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        preset = await client.realtimeKit.presets.update( 'app_id',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -5796,6 +5959,13 @@ paths:
                 config:
                   type: object
                   properties:
+                    livestream_viewer_qualities:
+                      oneOf:
+                        - type: array
+                          items:
+                            type: number
+                      nullable: true
+                      description: Livestream viewer quality levels.
                     max_screenshare_count:
                       type: number
                       description: Maximum number of screen shares that can be active at a given time
@@ -5812,6 +5982,16 @@ paths:
                     media:
                       type: object
                       properties:
+                        audio:
+                          type: object
+                          properties:
+                            enable_high_bitrate:
+                              type: boolean
+                              description: Enable High Quality Audio for your meetings
+                            enable_stereo:
+                              type: boolean
+                              description: Enable Stereo for your meetings
+                          description: Control options for Audio quality.
                         screenshare:
                           type: object
                           properties:
@@ -5824,6 +6004,8 @@ paths:
                                 - hd
                                 - vga
                                 - qvga
+                                - fhd
+                                - uhd
                               description: Quality of screen share
                           description: Configuration options for participant screen shares
                         video:
@@ -5838,7 +6020,12 @@ paths:
                                 - hd
                                 - vga
                                 - qvga
+                                - fhd
+                                - uhd
                               description: Video quality of participants
+                            simulcast:
+                              type: boolean
+                              description: Enable simulcast for participant videos.
                           description: Configuration options for participant videos
                       description: "Media configuration options. eg: Video quality"
                     view_type:
@@ -5847,6 +6034,7 @@ paths:
                         - GROUP_CALL
                         - WEBINAR
                         - AUDIO_ROOM
+                        - LIVESTREAM
                       description: Type of the meeting
                   description: Body param
                 name:
@@ -5855,6 +6043,8 @@ paths:
                 permissions:
                   type: object
                   properties:
+                    accept_stage_requests:
+                      type: boolean
                     accept_waiting_requests:
                       type: boolean
                       description: Whether this participant can accept waiting requests
@@ -5896,7 +6086,6 @@ paths:
                             text:
                               type: boolean
                               description: Can send text messages
-                      description: Chat permissions
                     connected_meetings:
                       type: object
                       properties:
@@ -5970,7 +6159,8 @@ paths:
                         can_start:
                           type: boolean
                           description: Can start plugins
-                        config: {}
+                        config:
+                          description: Plugin configuration keyed by plugin UUID.
                       description: Plugin permissions
                     polls:
                       type: object
@@ -5994,6 +6184,16 @@ paths:
                       description: Type of the recording peer
                     show_participant_list:
                       type: boolean
+                    stage_access:
+                      type: string
+                      enum:
+                        - ALLOWED
+                        - NOT_ALLOWED
+                        - CAN_REQUEST
+                    stage_enabled:
+                      type: boolean
+                    transcription_enabled:
+                      type: boolean
                     waiting_room_type:
                       type: string
                       enum:
@@ -6005,18 +6205,22 @@ paths:
                 ui:
                   type: object
                   properties:
-                    config_diff: {}
                     design_tokens:
                       type: object
                       properties:
                         border_radius:
                           type: string
                           enum:
+                            - sharp
                             - rounded
+                            - extra-rounded
+                            - circular
                         border_width:
                           type: string
                           enum:
+                            - none
                             - thin
+                            - fat
                         colors:
                           type: object
                           properties:
@@ -6058,6 +6262,10 @@ paths:
                               type: string
                             warning:
                               type: string
+                        font_family:
+                          type: string
+                        google_font:
+                          type: string
                         logo:
                           type: string
                         spacing_base:
@@ -6065,7 +6273,9 @@ paths:
                         theme:
                           type: string
                           enum:
+                            - darkest
                             - dark
+                            - light
                   description: Body param
       responses:
         "200":
@@ -6092,7 +6302,8 @@ paths:
       operationId: deletePreset
       description: "Deletes a preset using the provided preset ID  @example ```ts
         const preset = await client.realtimeKit.presets.delete( 'app_id',
-        'preset_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -6135,8 +6346,8 @@ paths:
       operationId: getPresetByIdPreset
       description: "Fetches details of a preset using the provided preset ID  @example
         ```ts const response = await client.realtimeKit.presets.getPresetById(
-        'app_id', 'preset_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353'
-        }, ); ```"
+        'app_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -6202,6 +6413,8 @@ paths:
                                       - hd
                                       - vga
                                       - qvga
+                                      - fhd
+                                      - uhd
                                     description: Quality of screen share
                                 required:
                                   - frame_rate
@@ -6219,7 +6432,12 @@ paths:
                                       - hd
                                       - vga
                                       - qvga
+                                      - fhd
+                                      - uhd
                                     description: Video quality of participants
+                                  simulcast:
+                                    type: boolean
+                                    description: Enable simulcast for participant videos.
                                 required:
                                   - frame_rate
                                   - quality
@@ -6244,109 +6462,26 @@ paths:
                               - GROUP_CALL
                               - WEBINAR
                               - AUDIO_ROOM
+                              - LIVESTREAM
                             description: Type of the meeting
+                          livestream_viewer_qualities:
+                            oneOf:
+                              - type: array
+                                items:
+                                  type: number
+                            nullable: true
+                            description: Livestream viewer quality levels.
                         required:
                           - max_screenshare_count
                           - max_video_streams
                           - media
                           - view_type
+                      created_at:
+                        type: string
+                        description: Timestamp this preset was created at
                       name:
                         type: string
                         description: Name of the preset
-                      ui:
-                        type: object
-                        properties:
-                          design_tokens:
-                            type: object
-                            properties:
-                              border_radius:
-                                type: string
-                                enum:
-                                  - rounded
-                              border_width:
-                                type: string
-                                enum:
-                                  - thin
-                              colors:
-                                type: object
-                                properties:
-                                  background:
-                                    type: object
-                                    properties:
-                                      "600":
-                                        type: string
-                                      "700":
-                                        type: string
-                                      "800":
-                                        type: string
-                                      "900":
-                                        type: string
-                                      "1000":
-                                        type: string
-                                    required:
-                                      - "1000"
-                                      - "600"
-                                      - "700"
-                                      - "800"
-                                      - "900"
-                                  brand:
-                                    type: object
-                                    properties:
-                                      "300":
-                                        type: string
-                                      "400":
-                                        type: string
-                                      "500":
-                                        type: string
-                                      "600":
-                                        type: string
-                                      "700":
-                                        type: string
-                                    required:
-                                      - "300"
-                                      - "400"
-                                      - "500"
-                                      - "600"
-                                      - "700"
-                                  danger:
-                                    type: string
-                                  success:
-                                    type: string
-                                  text:
-                                    type: string
-                                  text_on_brand:
-                                    type: string
-                                  video_bg:
-                                    type: string
-                                  warning:
-                                    type: string
-                                required:
-                                  - background
-                                  - brand
-                                  - danger
-                                  - success
-                                  - text
-                                  - text_on_brand
-                                  - video_bg
-                                  - warning
-                              logo:
-                                type: string
-                              spacing_base:
-                                type: number
-                              theme:
-                                type: string
-                                enum:
-                                  - dark
-                            required:
-                              - border_radius
-                              - border_width
-                              - colors
-                              - logo
-                              - spacing_base
-                              - theme
-                          config_diff: {}
-                        required:
-                          - design_tokens
                       permissions:
                         type: object
                         properties:
@@ -6403,7 +6538,6 @@ paths:
                             required:
                               - private
                               - public
-                            description: Chat permissions
                           connected_meetings:
                             type: object
                             properties:
@@ -6489,7 +6623,8 @@ paths:
                               can_start:
                                 type: boolean
                                 description: Can start plugins
-                              config: {}
+                              config:
+                                description: Plugin configuration keyed by plugin UUID.
                             required:
                               - can_close
                               - can_edit_config
@@ -6529,7 +6664,19 @@ paths:
                               - ON_PRIVILEGED_USER_ENTRY
                               - SKIP_ON_ACCEPT
                             description: Waiting room type
+                          accept_stage_requests:
+                            type: boolean
                           is_recorder:
+                            type: boolean
+                          stage_access:
+                            type: string
+                            enum:
+                              - ALLOWED
+                              - NOT_ALLOWED
+                              - CAN_REQUEST
+                          stage_enabled:
+                            type: boolean
+                          transcription_enabled:
                             type: boolean
                         required:
                           - accept_waiting_requests
@@ -6553,11 +6700,120 @@ paths:
                           - recorder_type
                           - show_participant_list
                           - waiting_room_type
+                      ui:
+                        type: object
+                        properties:
+                          design_tokens:
+                            type: object
+                            properties:
+                              border_radius:
+                                type: string
+                                enum:
+                                  - sharp
+                                  - rounded
+                                  - extra-rounded
+                                  - circular
+                              border_width:
+                                type: string
+                                enum:
+                                  - none
+                                  - thin
+                                  - fat
+                              colors:
+                                type: object
+                                properties:
+                                  background:
+                                    type: object
+                                    properties:
+                                      "600":
+                                        type: string
+                                      "700":
+                                        type: string
+                                      "800":
+                                        type: string
+                                      "900":
+                                        type: string
+                                      "1000":
+                                        type: string
+                                    required:
+                                      - "1000"
+                                      - "600"
+                                      - "700"
+                                      - "800"
+                                      - "900"
+                                  brand:
+                                    type: object
+                                    properties:
+                                      "300":
+                                        type: string
+                                      "400":
+                                        type: string
+                                      "500":
+                                        type: string
+                                      "600":
+                                        type: string
+                                      "700":
+                                        type: string
+                                    required:
+                                      - "300"
+                                      - "400"
+                                      - "500"
+                                      - "600"
+                                      - "700"
+                                  danger:
+                                    type: string
+                                  success:
+                                    type: string
+                                  text:
+                                    type: string
+                                  text_on_brand:
+                                    type: string
+                                  video_bg:
+                                    type: string
+                                  warning:
+                                    type: string
+                                required:
+                                  - background
+                                  - brand
+                                  - danger
+                                  - success
+                                  - text
+                                  - text_on_brand
+                                  - video_bg
+                                  - warning
+                              spacing_base:
+                                type: number
+                              theme:
+                                type: string
+                                enum:
+                                  - darkest
+                                  - dark
+                                  - light
+                              font_family:
+                                type: string
+                              google_font:
+                                type: string
+                              logo:
+                                type: string
+                            required:
+                              - border_radius
+                              - border_width
+                              - colors
+                              - spacing_base
+                              - theme
+                        required:
+                          - design_tokens
+                      updated_at:
+                        type: string
+                        description: Timestamp this preset was last updated
                     required:
                       - id
                       - config
+                      - created_at
                       - name
+                      - permissions
                       - ui
+                      - updated_at
                     description: Data returned by the operation
                   success:
                     type: boolean
@@ -6763,6 +7019,164 @@ paths:
                               type: boolean
                               description: Specifies if the meeting should start getting recorded as soon as
                                 someone joins the meeting.
+                            recording_config:
+                              type: object
+                              properties:
+                                audio_config:
+                                  type: object
+                                  properties:
+                                    channel:
+                                      type: string
+                                      enum:
+                                        - mono
+                                        - stereo
+                                      description: Audio signal pathway within an audio file that carries a specific
+                                        sound source.
+                                    codec:
+                                      type: string
+                                      enum:
+                                        - MP3
+                                        - AAC
+                                      description: Codec using which the recording will be encoded. If VP8/VP9 is
+                                        selected for videoConfig, changing
+                                        audioConfig is not allowed. In this
+                                        case, the codec in the audioConfig is
+                                        automatically set to vorbis.
+                                    export_file:
+                                      type: boolean
+                                      description: Controls whether to export audio file seperately
+                                  description: Object containing configuration regarding the audio that is being
+                                    recorded.
+                                file_name_prefix:
+                                  type: string
+                                  description: Adds a prefix to the beginning of the file name of the recording.
+                                live_streaming_config:
+                                  type: object
+                                  properties:
+                                    rtmp_url:
+                                      type: string
+                                      description: RTMP URL to stream to
+                                max_seconds:
+                                  type: number
+                                  description: Specifies the maximum duration for recording in seconds, ranging
+                                    from a minimum of 60 seconds to a maximum of
+                                    24 hours.
+                                realtimekit_bucket_config:
+                                  type: object
+                                  properties:
+                                    enabled:
+                                      type: boolean
+                                      description: Controls whether recordings are uploaded to RealtimeKit's bucket.
+                                        If set to false, `download_url`,
+                                        `audio_download_url`,
+                                        `download_url_expiry` won't be generated
+                                        for a recording.
+                                  required:
+                                    - enabled
+                                storage_config:
+                                  oneOf:
+                                    - type: object
+                                      properties:
+                                        type:
+                                          type: string
+                                          enum:
+                                            - aws
+                                            - azure
+                                            - digitalocean
+                                            - gcs
+                                            - sftp
+                                          description: Type of storage media.
+                                        auth_method:
+                                          type: string
+                                          enum:
+                                            - KEY
+                                            - PASSWORD
+                                          description: Authentication method used for "sftp" type storage medium
+                                        bucket:
+                                          type: string
+                                          description: Name of the storage medium's bucket.
+                                        host:
+                                          type: string
+                                          description: SSH destination server host for SFTP type storage medium
+                                        password:
+                                          type: string
+                                          description: SSH destination server password for SFTP type storage medium when
+                                            auth_method is "PASSWORD". If
+                                            auth_method is "KEY", this specifies
+                                            the password for the ssh private
+                                            key.
+                                        path:
+                                          type: string
+                                          description: Path relative to the bucket root at which the recording will be
+                                            placed.
+                                        port:
+                                          type: number
+                                          description: SSH destination server port for SFTP type storage medium
+                                        private_key:
+                                          type: string
+                                          description: Private key used to login to destination SSH server for SFTP type
+                                            storage medium, when auth_method
+                                            used is "KEY"
+                                        region:
+                                          type: string
+                                          description: Region of the storage medium.
+                                        secret:
+                                          type: string
+                                          description: Secret key of the storage medium. Similar to `access_key`, it is
+                                            only writeable by clients, not
+                                            readable.
+                                        username:
+                                          type: string
+                                          description: SSH destination server username for SFTP type storage medium
+                                      required:
+                                        - type
+                                  nullable: true
+                                video_config:
+                                  type: object
+                                  properties:
+                                    codec:
+                                      type: string
+                                      enum:
+                                        - H264
+                                        - VP8
+                                      description: Codec using which the recording will be encoded.
+                                    export_file:
+                                      type: boolean
+                                      description: Controls whether to export video file seperately
+                                    height:
+                                      type: number
+                                      description: Height of the recording video in pixels
+                                    watermark:
+                                      type: object
+                                      properties:
+                                        position:
+                                          type: string
+                                          enum:
+                                            - left top
+                                            - right top
+                                            - left bottom
+                                            - right bottom
+                                          description: Position of the watermark
+                                        size:
+                                          type: object
+                                          properties:
+                                            height:
+                                              type: number
+                                              description: Height of the watermark in px
+                                            width:
+                                              type: number
+                                              description: Width of the watermark in px
+                                          description: Size of the watermark
+                                        url:
+                                          type: string
+                                          description: URL of the watermark image
+                                      description: Watermark to be added to the recording
+                                    width:
+                                      type: number
+                                      description: Width of the recording video in pixels
+                              description: Recording Configurations to be used for this meeting. This level of
+                                configs takes higher preference over App level
+                                configs on the RealtimeKit developer portal.
                             session_keep_alive_time_in_secs:
                               type: number
                               description: Time in seconds, for which a session remains active, after the last
@@ -6782,6 +7196,9 @@ paths:
                             title:
                               type: string
                               description: Title of the meeting.
+                            transcribe_on_end:
+                              type: boolean
+                              description: Automatically generate transcripts when the meeting ends.
                           required:
                             - id
                             - created_at
@@ -7297,8 +7714,9 @@ paths:
       operationId: getSessionChatSession
       description: "Returns a URL to download all chat messages of the session ID in
         CSV format.  @example ```ts const response = await
-        client.realtimeKit.sessions.getSessionChat( 'app_id', 'session_id', {
-        account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        client.realtimeKit.sessions.getSessionChat( 'app_id',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -7343,8 +7761,9 @@ paths:
       operationId: getSessionDetailsSession
       description: "Returns data of the given session ID including recording
         details.  @example ```ts const response = await
-        client.realtimeKit.sessions.getSessionDetails( 'app_id', 'session_id', {
-        account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        client.realtimeKit.sessions.getSessionDetails( 'app_id',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -7379,75 +7798,72 @@ paths:
                   data:
                     type: object
                     properties:
-                      session:
-                        type: object
-                        properties:
-                          id:
-                            type: string
-                            description: ID of the session
-                          associated_id:
-                            type: string
-                            description: ID of the meeting this session is associated with. In the case of
-                              V2 meetings, it is always a UUID. In V1 meetings,
-                              it is a room name of the form `abcdef-ghijkl`
-                          created_at:
-                            type: string
-                            description: timestamp when session created
-                          live_participants:
-                            type: number
-                            description: number of participants currently in the session
-                          max_concurrent_participants:
-                            type: number
-                            description: number of maximum participants that were in the session
-                          meeting_display_name:
-                            type: string
-                            description: Title of the meeting this session belongs to
-                          minutes_consumed:
-                            type: number
-                            description: number of minutes consumed since the session started
-                          organization_id:
-                            type: string
-                            description: App id that hosted this session
-                          started_at:
-                            type: string
-                            description: timestamp when session started
-                          status:
-                            type: string
-                            enum:
-                              - LIVE
-                              - ENDED
-                            description: current status of session
-                          type:
-                            type: string
-                            enum:
-                              - meeting
-                              - livestream
-                              - participant
-                            description: type of session
-                          updated_at:
-                            type: string
-                            description: timestamp when session was last updated
-                          breakout_rooms:
-                            type: array
-                            items: {}
-                          ended_at:
-                            type: string
-                            description: timestamp when session ended
-                          meta:
-                            description: Any meta data about session.
-                        required:
-                          - id
-                          - associated_id
-                          - created_at
-                          - live_participants
-                          - max_concurrent_participants
-                          - meeting_display_name
-                          - minutes_consumed
-                          - organization_id
-                          - started_at
-                          - status
-                          - type
-                          - updated_at
+                      id:
+                        type: string
+                        description: ID of the session
+                      associated_id:
+                        type: string
+                        description: ID of the meeting this session is associated with. In the case of
+                          V2 meetings, it is always a UUID. In V1 meetings, it
+                          is a room name of the form `abcdef-ghijkl`
+                      created_at:
+                        type: string
+                        description: timestamp when session created
+                      live_participants:
+                        type: number
+                        description: number of participants currently in the session
+                      max_concurrent_participants:
+                        type: number
+                        description: number of maximum participants that were in the session
+                      meeting_display_name:
+                        type: string
+                        description: Title of the meeting this session belongs to
+                      minutes_consumed:
+                        type: number
+                        description: number of minutes consumed since the session started
+                      organization_id:
+                        type: string
+                        description: App id that hosted this session
+                      started_at:
+                        type: string
+                        description: timestamp when session started
+                      status:
+                        type: string
+                        enum:
+                          - LIVE
+                          - ENDED
+                        description: current status of session
+                      type:
+                        type: string
+                        enum:
+                          - meeting
+                          - livestream
+                          - participant
+                        description: type of session
+                      updated_at:
+                        type: string
+                        description: timestamp when session was last updated
+                      breakout_rooms:
+                        type: array
+                        items: {}
+                      ended_at:
+                        type: string
+                        description: timestamp when session ended
+                      meta:
+                        description: Any meta data about session.
+                    required:
+                      - id
+                      - associated_id
+                      - created_at
+                      - live_participants
+                      - max_concurrent_participants
+                      - meeting_display_name
+                      - minutes_consumed
+                      - organization_id
+                      - started_at
+                      - status
+                      - type
+                      - updated_at
                   success:
                     type: boolean
   /accounts/{account_id}/realtime/kit/{appId}/sessions/{sessionId}/participants/{participantId}:
@@ -7456,7 +7872,8 @@ paths:
       description: "Returns details of the given participant ID along with call
         statistics for the given session ID.  @example ```ts const response =
         await client.realtimeKit.sessions.getSessionParticipantDetails(
-        'app_id', 'session_id', 'participant_id', { account_id:
+        'app_id', '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
         '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
@@ -7535,149 +7952,9 @@ paths:
                           left_at:
                             type: string
                             description: timestamp at which participant left the session.
-                          peer_stats:
-                            type: object
-                            properties:
-                              config:
-                                type: string
-                              device_info:
-                                type: object
-                                properties:
-                                  browser:
-                                    type: string
-                                  browser_version:
-                                    type: string
-                                  cpus:
-                                    type: number
-                                  engine:
-                                    type: string
-                                  is_mobile:
-                                    type: boolean
-                                  memory:
-                                    type: number
-                                  os:
-                                    type: string
-                                  os_version:
-                                    type: string
-                                  sdk_name:
-                                    type: string
-                                  sdk_version:
-                                    type: string
-                                  user_agent:
-                                    type: string
-                                  webgl_support:
-                                    type: string
-                              events:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    timestamp:
-                                      type: string
-                                    type:
-                                      type: string
-                              ip_information:
-                                type: object
-                                properties:
-                                  city:
-                                    type: string
-                                  country:
-                                    type: string
-                                  ip_location:
-                                    type: string
-                                  ipv4:
-                                    type: string
-                                  org:
-                                    type: string
-                                  portal:
-                                    type: string
-                                  region:
-                                    type: string
-                                  timezone:
-                                    type: string
-                              precall_network_information:
-                                type: object
-                                properties:
-                                  backend_rtt:
-                                    type: number
-                                  effective_networktype:
-                                    type: string
-                                  fractional_loss:
-                                    type: number
-                                  jitter:
-                                    type: number
-                                  reflexive_connectivity:
-                                    type: boolean
-                                  relay_connectivity:
-                                    type: boolean
-                                  rtt:
-                                    type: number
-                                  throughtput:
-                                    type: number
-                                  turn_connectivity:
-                                    type: boolean
-                              status:
-                                type: string
                           preset_name:
                             type: string
                             description: Name of the preset associated with the participant.
-                          quality_stats:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                audio_bandwidth:
-                                  type: number
-                                audio_packet_loss:
-                                  type: number
-                                audio_stats:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      concealment_events:
-                                        type: number
-                                      jitter:
-                                        type: number
-                                      packets_lost:
-                                        type: number
-                                      quality:
-                                        type: number
-                                      timestamp:
-                                        type: string
-                                average_quality:
-                                  type: number
-                                end:
-                                  type: string
-                                peer_id:
-                                  type: string
-                                start:
-                                  type: string
-                                video_bandwidth:
-                                  type: number
-                                video_packet_loss:
-                                  type: number
-                                video_stats:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      frame_height:
-                                        type: number
-                                      frame_width:
-                                        type: number
-                                      frames_dropped:
-                                        type: number
-                                      frames_per_second:
-                                        type: number
-                                      jitter:
-                                        type: number
-                                      packets_lost:
-                                        type: number
-                                      quality:
-                                        type: number
-                                      timestamp:
-                                        type: string
                           updated_at:
                             type: string
                             description: timestamp when this participant's data was last updated.
@@ -7692,8 +7969,8 @@ paths:
       description: "Returns a list of participants for the given session ID.  @example
         ```ts const response = await
         client.realtimeKit.sessions.getSessionParticipants( 'app_id',
-        'session_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, );
-        ```"
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -7734,8 +8011,8 @@ paths:
         - name: search
           in: query
           required: false
-          description: "Query param: The search query string. You can search using the
-            meeting ID or title."
+          description: "Query param: The search query string. You can search using
+            participant ID, custom participant ID, or display name."
           schema:
             type: string
         - name: sort_by
@@ -7990,6 +8267,15 @@ paths:
                             - status
                             - type
                             - updated_at
+                  paging:
+                    type: object
+                    properties:
+                      end_offset:
+                        type: number
+                      start_offset:
+                        type: number
+                      total_count:
+                        type: number
                   success:
                     type: boolean
   /accounts/{account_id}/realtime/kit/{appId}/sessions/{sessionId}/summary:
@@ -7997,8 +8283,9 @@ paths:
       operationId: getSessionSummarySession
       description: "Returns a Summary URL to download the Summary of Transcripts for
         the session ID as plain text.  @example ```ts const response = await
-        client.realtimeKit.sessions.getSessionSummary( 'app_id', 'session_id', {
-        account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+        client.realtimeKit.sessions.getSessionSummary( 'app_id',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -8044,38 +8331,10 @@ paths:
     post:
       operationId: generateSummaryOfTranscriptsSession
       description: "Trigger Summary generation of Transcripts for the session
-        ID.  @example ```ts await
+        ID.  @example ```ts const response = await
         client.realtimeKit.sessions.generateSummaryOfTranscripts( 'app_id',
-        'session_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, );
-        ```"
-      parameters:
-        - name: appId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: sessionId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: account_id
-          in: path
-          required: true
-          description: The account identifier tag.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-  /accounts/{account_id}/realtime/kit/{appId}/sessions/{sessionId}/transcript:
-    get:
-      operationId: getSessionTranscriptsSession
-      description: "Returns a URL to download the transcript for the session ID in CSV
-        format.  @example ```ts const response = await
-        client.realtimeKit.sessions.getSessionTranscripts( 'app_id',
-        'session_id', { account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, );
-        ```"
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -8104,6 +8363,59 @@ paths:
                   data:
                     type: object
                     properties:
+                      session_id:
+                        type: string
+                      status:
+                        type: string
+                  success:
+                    type: boolean
+  /accounts/{account_id}/realtime/kit/{appId}/sessions/{sessionId}/transcript:
+    get:
+      operationId: getSessionTranscriptsSession
+      description: "Returns a URL to download the transcript for the session ID in CSV
+        format.  @example ```ts const response = await
+        client.realtimeKit.sessions.getSessionTranscripts( 'app_id',
+        '182bd5e5-6e1a-4fe4-a799-aa6d9a6ab26e', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: The account identifier tag."
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          description: "Query param: Transcript file format to fetch."
+          schema:
+            type: string
+            enum:
+              - SRT
+              - VTT
+              - JSON
+              - CSV
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
                       sessionId:
                         type: string
                       transcript_download_url:
@@ -8121,18 +8433,15 @@ paths:
   /accounts/{account_id}/realtime/kit/{appId}/recordings/track:
     post:
       operationId: startTrackRecordingRecording
-      description: "Starts a track recording in a meeting. Track recordings consist of
-        \"layers\". Layers are used to map audio/video tracks in a meeting to
-        output destinations. More information about track recordings is
-        available in the [Track Recordings Guide
-        Page](https://docs.realtime.cloudflare.com/guides/capabilities/recordin\
-        g/recording-overview).  @example ```ts await
+      description: "Starts track recording for a meeting. Track recording currently
+        records separate participant audio tracks as WebM files in the
+        RealtimeKit bucket. Video track recording is in development. For more
+        information, refer to [Track
+        recording](/realtime/realtimekit/recording-guide/track-recording/).  @e\
+        xample ```ts const response = await
         client.realtimeKit.recordings.startTrackRecording( 'app_id', {
-        account_id: '023e105f4ecef8ad9ca31a8372d0c353', layers: { default: {
-        file_name_prefix: 'string', outputs: [{ type: 'REALTIMEKIT_BUCKET' }],
-        }, 'default-video': { file_name_prefix: 'string', outputs: [{ type:
-        'REALTIMEKIT_BUCKET' }], }, }, meeting_id: 'string', max_seconds: 60, },
-        ); ```"
+        account_id: '023e105f4ecef8ad9ca31a8372d0c353', meeting_id:
+        '97440c6a-140b-40a9-9499-b23fd7a3868a', }, ); ```"
       parameters:
         - name: appId
           in: path
@@ -8152,23 +8461,118 @@ paths:
             schema:
               type: object
               properties:
-                layers:
-                  type: object
-                  additionalProperties: true
-                  description: Body param
                 meeting_id:
                   type: string
                   description: "Body param: ID of the meeting to record."
-                max_seconds:
-                  type: number
-                  description: "Body param: Maximum seconds this recording should be active for
-                    (beta)"
+                layers:
+                  type: object
+                  additionalProperties: true
+                  description: "Body param: Optional audio layer configuration. If omitted,
+                    RealtimeKit records all participant audio using the default
+                    file name prefix."
+                user_ids:
+                  type: array
+                  items:
+                    type: string
+                  description: "Body param: Optional list of participant user IDs to record.
+                    Selective track recording (`user_ids`) is in early beta
+                    contact support to use this feature."
               required:
-                - layers
                 - meeting_id
       responses:
         "200":
           description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Success status of the operation
+                  data:
+                    type: object
+                    properties:
+                      recording:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: ID of the recording
+                          audio_download_url:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: If the audio_config is passed, the URL for downloading the audio
+                              recording is returned.
+                          download_url:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: URL where the recording can be downloaded.
+                          download_url_expiry:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: Timestamp when the download URL expires.
+                          file_size:
+                            oneOf:
+                              - type: number
+                            nullable: true
+                            description: File size of the recording, in bytes.
+                          invoked_time:
+                            type: string
+                            description: Timestamp when this recording was invoked.
+                          output_file_name:
+                            type: string
+                            description: File name of the recording.
+                          session_id:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: ID of the meeting session this recording is for.
+                          started_time:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: Timestamp when this recording actually started after being invoked.
+                              Usually a few seconds after `invoked_time`.
+                          status:
+                            type: string
+                            enum:
+                              - INVOKED
+                              - RECORDING
+                              - UPLOADING
+                              - UPLOADED
+                              - ERRORED
+                              - PAUSED
+                            description: Current status of the recording.
+                          stopped_time:
+                            oneOf:
+                              - type: string
+                            nullable: true
+                            description: Timestamp when this recording was stopped. Optional; is present
+                              only when the recording has actually been stopped.
+                          recording_duration:
+                            type: number
+                            description: Total recording time in seconds.
+                        required:
+                          - id
+                          - audio_download_url
+                          - download_url
+                          - download_url_expiry
+                          - file_size
+                          - invoked_time
+                          - output_file_name
+                          - session_id
+                          - started_time
+                          - status
+                          - stopped_time
+                    required:
+                      - recording
+                    description: Data returned by the operation
+                required:
+                  - success
   /accounts/{account_id}/realtime/kit/{appId}/webhooks/{webhookId}:
     get:
       operationId: getWebhookByIdWebhook

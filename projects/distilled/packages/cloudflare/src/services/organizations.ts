@@ -618,6 +618,7 @@ export interface GetOrganizationResponse {
       accountMobility: string;
       subOrgCreation: string;
     } | null;
+    hierarchyTags?: string[] | null;
     managedBy?: string | null;
   };
   name: string;
@@ -656,8 +657,17 @@ export const GetOrganizationResponse =
           Schema.Null,
         ]),
       ),
+      hierarchyTags: Schema.optional(
+        Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+      ),
       managedBy: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-    }).pipe(Schema.encodeKeys({ flags: "flags", managedBy: "managed_by" })),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        hierarchyTags: "hierarchy_tags",
+        managedBy: "managed_by",
+      }),
+    ),
     name: Schema.String,
     parent: Schema.optional(
       Schema.Union([
@@ -771,6 +781,7 @@ export interface ListOrganizationsResponse {
         accountMobility: string;
         subOrgCreation: string;
       } | null;
+      hierarchyTags?: string[] | null;
       managedBy?: string | null;
     };
     name: string;
@@ -812,10 +823,19 @@ export const ListOrganizationsResponse =
               Schema.Null,
             ]),
           ),
+          hierarchyTags: Schema.optional(
+            Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+          ),
           managedBy: Schema.optional(
             Schema.Union([Schema.String, Schema.Null]),
           ),
-        }).pipe(Schema.encodeKeys({ flags: "flags", managedBy: "managed_by" })),
+        }).pipe(
+          Schema.encodeKeys({
+            flags: "flags",
+            hierarchyTags: "hierarchy_tags",
+            managedBy: "managed_by",
+          }),
+        ),
         name: Schema.String,
         parent: Schema.optional(
           Schema.Union([
@@ -928,6 +948,7 @@ export interface CreateOrganizationResponse {
       accountMobility: string;
       subOrgCreation: string;
     } | null;
+    hierarchyTags?: string[] | null;
     managedBy?: string | null;
   };
   name: string;
@@ -966,8 +987,17 @@ export const CreateOrganizationResponse =
           Schema.Null,
         ]),
       ),
+      hierarchyTags: Schema.optional(
+        Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+      ),
       managedBy: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-    }).pipe(Schema.encodeKeys({ flags: "flags", managedBy: "managed_by" })),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        hierarchyTags: "hierarchy_tags",
+        managedBy: "managed_by",
+      }),
+    ),
     name: Schema.String,
     parent: Schema.optional(
       Schema.Union([
@@ -1080,6 +1110,7 @@ export interface UpdateOrganizationResponse {
       accountMobility: string;
       subOrgCreation: string;
     } | null;
+    hierarchyTags?: string[] | null;
     managedBy?: string | null;
   };
   name: string;
@@ -1118,8 +1149,17 @@ export const UpdateOrganizationResponse =
           Schema.Null,
         ]),
       ),
+      hierarchyTags: Schema.optional(
+        Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+      ),
       managedBy: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-    }).pipe(Schema.encodeKeys({ flags: "flags", managedBy: "managed_by" })),
+    }).pipe(
+      Schema.encodeKeys({
+        flags: "flags",
+        hierarchyTags: "hierarchy_tags",
+        managedBy: "managed_by",
+      }),
+    ),
     name: Schema.String,
     parent: Schema.optional(
       Schema.Union([

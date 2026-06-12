@@ -988,14 +988,14 @@ export interface PatchHoldRequest {
   /** Path param: Identifier. */
   zoneId: string;
   /** Body param: If `hold_after` is provided and future-dated, the hold will be temporarily disabled, then automatically re-enabled by the system at the time specified in this RFC3339-formatted timestamp.  */
-  holdAfter?: string;
+  holdAfter?: string | null;
   /** Body param: If `true`, the zone hold will extend to block any subdomain of the given zone, as well as SSL4SaaS Custom Hostnames. For example, a zone hold on a zone with the hostname 'example.com' and  */
   includeSubdomains?: boolean;
 }
 
 export const PatchHoldRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
-  holdAfter: Schema.optional(Schema.String),
+  holdAfter: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   includeSubdomains: Schema.optional(Schema.Boolean),
 }).pipe(
   Schema.encodeKeys({

@@ -79,6 +79,31 @@ paths:
                   params: {}
                   queued:
                     type: string
+                  rollback:
+                    oneOf:
+                      - type: object
+                        properties:
+                          error:
+                            oneOf:
+                              - type: object
+                                properties:
+                                  message:
+                                    type: string
+                                  name:
+                                    type: string
+                                required:
+                                  - message
+                                  - name
+                            nullable: true
+                          outcome:
+                            type: string
+                            enum:
+                              - complete
+                              - failed
+                        required:
+                          - error
+                          - outcome
+                    nullable: true
                   start:
                     oneOf:
                       - type: string
@@ -94,6 +119,7 @@ paths:
                       - complete
                       - waitingForPause
                       - waiting
+                      - rollingBack
                   step_count:
                     type: number
                   steps:
@@ -187,6 +213,7 @@ paths:
                               type: string
                               enum:
                                 - step
+                                - rollback
                           required:
                             - attempts
                             - config
@@ -299,12 +326,23 @@ paths:
                       - source
                   versionId:
                     type: string
+                  schedule:
+                    type: object
+                    properties:
+                      cron:
+                        type: string
+                      scheduledTime:
+                        type: number
+                    required:
+                      - cron
+                      - scheduledTime
                 required:
                   - end
                   - error
                   - output
                   - params
                   - queued
+                  - rollback
                   - start
                   - status
                   - step_count
@@ -389,6 +427,7 @@ paths:
               - complete
               - waitingForPause
               - waiting
+              - rollingBack
       responses:
         "200":
           description: Success
@@ -422,10 +461,19 @@ paths:
                       - complete
                       - waitingForPause
                       - waiting
+                      - rollingBack
                   version_id:
                     type: string
                   workflow_id:
                     type: string
+                  trigger_source:
+                    type: string
+                    enum:
+                      - unknown
+                      - api
+                      - binding
+                      - event
+                      - cron
                 required:
                   - id
                   - created_on
@@ -509,10 +557,19 @@ paths:
                       - complete
                       - waitingForPause
                       - waiting
+                      - rollingBack
                   version_id:
                     type: string
                   workflow_id:
                     type: string
+                  trigger_source:
+                    type: string
+                    enum:
+                      - unknown
+                      - api
+                      - binding
+                      - event
+                      - cron
                 required:
                   - id
                   - status
@@ -592,10 +649,19 @@ paths:
                       - complete
                       - waitingForPause
                       - waiting
+                      - rollingBack
                   version_id:
                     type: string
                   workflow_id:
                     type: string
+                  trigger_source:
+                    type: string
+                    enum:
+                      - unknown
+                      - api
+                      - binding
+                      - event
+                      - cron
                 required:
                   - id
                   - status
@@ -611,6 +677,102 @@ paths:
           - code: 7003
         InvalidBody:
           - code: 10002
+  /accounts/{account_id}/workflows/{workflowName}/instances/{instanceId}/step:
+    get:
+      operationId: stepInstance
+      description: Retrieves the full, untruncated output for a specific step on a
+        workflow instance. Returns a flat status-shaped JSON body with step
+        `status` ('running' | 'waiting' | 'complete' | 'errored'), `error`
+        (nullable), and `output` (the step value, or null while
+        running/waiting/errored). When the step returned a ReadableStream from
+        step.do, the response is served as 'application/octet-stream' with the
+        raw bytes as the body instead of JSON. A `status='running'` response
+        with non-null `error` indicates the step is currently retrying after a
+        prior attempt failed.
+      parameters:
+        - name: workflowName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: instanceId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: Path param
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          description: "Query param: Exact step name from the instance logs response,
+            including the generated counter suffix."
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: true
+          description: "Query param: Step type to disambiguate step.do and waitForEvent
+            entries that share the same name."
+          schema:
+            type: string
+            enum:
+              - step
+              - waitForEvent
+        - name: attempt
+          in: query
+          required: false
+          description: "Query param: Specific attempt number to retrieve output or error
+            for."
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    oneOf:
+                      - type: object
+                        properties:
+                          message:
+                            type: string
+                          name:
+                            type: string
+                        required:
+                          - message
+                          - name
+                    nullable: true
+                    description: Error details when status='errored'; null otherwise.
+                  status:
+                    type: string
+                    enum:
+                      - queued
+                      - running
+                      - paused
+                      - errored
+                      - terminated
+                      - complete
+                      - waitingForPause
+                      - waiting
+                      - rollingBack
+                  output:
+                    description: Full step output or waitForEvent payload without truncation.
+                      Sensitive outputs are returned as '[REDACTED]'. Populated
+                      when status='complete'. May be a ReadableStream when the
+                      step returned one from step.do; stream outputs are served
+                      as application/octet-stream rather than JSON.
+                required:
+                  - error
+                  - status
+      x-distilled-response-path: result
   /accounts/{account_id}/workflows/{workflowName}/instances/{instanceId}/events/{eventType}:
     post:
       operationId: createInstanceEvent
@@ -691,11 +853,14 @@ paths:
                 status:
                   type: string
                   enum:
-                    - resume
                     - pause
+                    - resume
                     - terminate
                     - restart
-                  description: "Body param: Apply action to instance."
+                  description: Body param
+                rollback:
+                  type: boolean
+                  description: "Body param: Run rollback before terminating."
                 from:
                   type: object
                   properties:
@@ -711,8 +876,7 @@ paths:
                         - waitForEvent
                   required:
                     - name
-                  description: 'Body param: Step to restart from. Only applicable when status is
-                    "restart".'
+                  description: "Body param: Step to restart from."
               required:
                 - status
       responses:
@@ -734,6 +898,7 @@ paths:
                       - complete
                       - waitingForPause
                       - waiting
+                      - rollingBack
                   timestamp:
                     type: string
                     description: Accepts ISO 8601 with no timezone offsets and in UTC.
@@ -888,6 +1053,504 @@ paths:
           - code: 10200
         InvalidRoute:
           - code: 7003
+  /accounts/{account_id}/workflows/{workflowName}/versions/{versionId}/graph:
+    get:
+      operationId: graphVersion
+      description: Retrieves the graph visualization of a workflow version.
+      parameters:
+        - name: workflowName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: versionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  class_name:
+                    type: string
+                  created_on:
+                    type: string
+                  graph:
+                    oneOf:
+                      - type: object
+                        properties:
+                          version:
+                            type: number
+                          workflow:
+                            type: object
+                            properties:
+                              class_name:
+                                type: string
+                              functions:
+                                type: object
+                                additionalProperties: true
+                              nodes:
+                                type: array
+                                items:
+                                  oneOf:
+                                    - type: object
+                                      properties:
+                                        duration:
+                                          oneOf:
+                                            - type: number
+                                            - type: string
+                                          description: Duration as milliseconds (number) or human-readable string.
+                                        name:
+                                          type: string
+                                        type:
+                                          type: string
+                                          enum:
+                                            - step_sleep
+                                        resolves:
+                                          type: number
+                                        starts:
+                                          type: number
+                                      required:
+                                        - duration
+                                        - name
+                                        - type
+                                    - type: object
+                                      properties:
+                                        config:
+                                          type: object
+                                          properties:
+                                            retries:
+                                              type: object
+                                              properties:
+                                                backoff:
+                                                  type: string
+                                                  enum:
+                                                    - constant
+                                                    - linear
+                                                    - exponential
+                                                  description: Backoff strategy for step retries.
+                                                delay:
+                                                  oneOf:
+                                                    - type: number
+                                                    - type: string
+                                                  description: Duration as milliseconds (number) or human-readable string.
+                                                limit:
+                                                  type: number
+                                              required:
+                                                - backoff
+                                                - delay
+                                                - limit
+                                              description: Retry policy for a step.
+                                            timeout:
+                                              oneOf:
+                                                - type: number
+                                                - type: string
+                                              description: Duration as milliseconds (number) or human-readable string.
+                                          required:
+                                            - retries
+                                            - timeout
+                                          description: Configuration for a step (retries and timeout).
+                                        name:
+                                          type: string
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - step_do
+                                        resolves:
+                                          type: number
+                                        starts:
+                                          type: number
+                                      required:
+                                        - config
+                                        - name
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        options:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                event_type:
+                                                  type: string
+                                                timeout:
+                                                  oneOf:
+                                                    - type: number
+                                                    - type: string
+                                                  description: Duration as milliseconds (number) or human-readable string.
+                                              required:
+                                                - event_type
+                                                - timeout
+                                          nullable: true
+                                          description: Options for a waitForEvent step.
+                                        type:
+                                          type: string
+                                          enum:
+                                            - step_wait_for_event
+                                        payload:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - unknown
+                                              required:
+                                                - type
+                                            - type: object
+                                              properties:
+                                                fields:
+                                                  type: object
+                                                  additionalProperties: true
+                                                  description: Nested JsonShape fields (recursive structure).
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - object
+                                              required:
+                                                - fields
+                                                - type
+                                          description: Shape descriptor for JSON payloads.
+                                        resolves:
+                                          type: number
+                                        starts:
+                                          type: number
+                                      required:
+                                        - name
+                                        - options
+                                        - type
+                                    - type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        timestamp:
+                                          type: string
+                                        type:
+                                          type: string
+                                          enum:
+                                            - step_sleep_until
+                                        resolves:
+                                          type: number
+                                        starts:
+                                          type: number
+                                      required:
+                                        - name
+                                        - timestamp
+                                        - type
+                                    - type: object
+                                      properties:
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - loop
+                                      required:
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        kind:
+                                          type: string
+                                          enum:
+                                            - all
+                                            - any
+                                            - all_settled
+                                            - race
+                                          description: Parallel execution strategy.
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - parallel
+                                      required:
+                                        - kind
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        catch_block:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                nodes:
+                                                  type: array
+                                                  items: {}
+                                                  description: Child nodes (recursive).
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - block
+                                              required:
+                                                - nodes
+                                                - type
+                                          nullable: true
+                                        finally_block:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                nodes:
+                                                  type: array
+                                                  items: {}
+                                                  description: Child nodes (recursive).
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - block
+                                              required:
+                                                - nodes
+                                                - type
+                                          nullable: true
+                                        try_block:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                nodes:
+                                                  type: array
+                                                  items: {}
+                                                  description: Child nodes (recursive).
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - block
+                                              required:
+                                                - nodes
+                                                - type
+                                          nullable: true
+                                        type:
+                                          type: string
+                                          enum:
+                                            - try
+                                      required:
+                                        - catch_block
+                                        - finally_block
+                                        - try_block
+                                        - type
+                                    - type: object
+                                      properties:
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - block
+                                      required:
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        branches:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              condition:
+                                                oneOf:
+                                                  - type: string
+                                                nullable: true
+                                              nodes:
+                                                type: array
+                                                items: {}
+                                                description: Child nodes (recursive).
+                                            required:
+                                              - condition
+                                              - nodes
+                                        type:
+                                          type: string
+                                          enum:
+                                            - if
+                                      required:
+                                        - branches
+                                        - type
+                                    - type: object
+                                      properties:
+                                        branches:
+                                          type: array
+                                          items:
+                                            type: object
+                                            properties:
+                                              condition:
+                                                oneOf:
+                                                  - type: string
+                                                nullable: true
+                                              nodes:
+                                                type: array
+                                                items: {}
+                                                description: Child nodes (recursive).
+                                            required:
+                                              - condition
+                                              - nodes
+                                        discriminant:
+                                          type: string
+                                        type:
+                                          type: string
+                                          enum:
+                                            - switch
+                                      required:
+                                        - branches
+                                        - discriminant
+                                        - type
+                                    - type: object
+                                      properties:
+                                        class_name:
+                                          type: string
+                                        functions:
+                                          type: object
+                                          additionalProperties: true
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - start
+                                        payload:
+                                          oneOf:
+                                            - type: object
+                                              properties:
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - unknown
+                                              required:
+                                                - type
+                                            - type: object
+                                              properties:
+                                                fields:
+                                                  type: object
+                                                  additionalProperties: true
+                                                  description: Nested JsonShape fields (recursive structure).
+                                                type:
+                                                  type: string
+                                                  enum:
+                                                    - object
+                                              required:
+                                                - fields
+                                                - type
+                                          description: Shape descriptor for JSON payloads.
+                                      required:
+                                        - class_name
+                                        - functions
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        type:
+                                          type: string
+                                          enum:
+                                            - function_call
+                                        resolves:
+                                          type: number
+                                        starts:
+                                          type: number
+                                      required:
+                                        - name
+                                        - type
+                                    - type: object
+                                      properties:
+                                        name:
+                                          type: string
+                                        nodes:
+                                          type: array
+                                          items: {}
+                                          description: Child nodes (recursive).
+                                        type:
+                                          type: string
+                                          enum:
+                                            - function_def
+                                      required:
+                                        - name
+                                        - nodes
+                                        - type
+                                    - type: object
+                                      properties:
+                                        kind:
+                                          type: string
+                                          enum:
+                                            - break
+                                            - return
+                                          description: Break or return from a loop.
+                                        type:
+                                          type: string
+                                          enum:
+                                            - break
+                                      required:
+                                        - kind
+                                        - type
+                              payload:
+                                oneOf:
+                                  - type: object
+                                    properties:
+                                      type:
+                                        type: string
+                                        enum:
+                                          - unknown
+                                    required:
+                                      - type
+                                  - type: object
+                                    properties:
+                                      fields:
+                                        type: object
+                                        additionalProperties: true
+                                        description: Nested JsonShape fields (recursive structure).
+                                      type:
+                                        type: string
+                                        enum:
+                                          - object
+                                    required:
+                                      - fields
+                                      - type
+                                description: Shape descriptor for JSON payloads.
+                            required:
+                              - class_name
+                              - functions
+                              - nodes
+                            description: A parsed workflow entrypoint with its step graph.
+                        required:
+                          - version
+                          - workflow
+                    nullable: true
+                    description: Versioned workflow graph payload.
+                  modified_on:
+                    type: string
+                  workflow_id:
+                    type: string
+                required:
+                  - id
+                  - class_name
+                  - created_on
+                  - graph
+                  - modified_on
+                  - workflow_id
+      x-distilled-response-path: result
   /accounts/{account_id}/workflows/{workflowName}:
     get:
       operationId: getWorkflow
@@ -928,6 +1591,8 @@ paths:
                         type: number
                       queued:
                         type: number
+                      rollingBack:
+                        type: number
                       running:
                         type: number
                       terminated:
@@ -946,6 +1611,18 @@ paths:
                     oneOf:
                       - type: string
                     nullable: true
+                  schedules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cron:
+                          type: string
+                        next_instance:
+                          type: string
+                      required:
+                        - cron
+                        - next_instance
                 required:
                   - id
                   - class_name
@@ -994,6 +1671,16 @@ paths:
                   properties:
                     steps:
                       type: number
+                  description: Body param
+                schedules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      cron:
+                        type: string
+                    required:
+                      - cron
                   description: Body param
               required:
                 - class_name
@@ -1134,6 +1821,8 @@ paths:
                         type: number
                       queued:
                         type: number
+                      rollingBack:
+                        type: number
                       running:
                         type: number
                       terminated:
@@ -1152,6 +1841,18 @@ paths:
                     oneOf:
                       - type: string
                     nullable: true
+                  schedules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        cron:
+                          type: string
+                        next_instance:
+                          type: string
+                      required:
+                        - cron
+                        - next_instance
                 required:
                   - id
                   - class_name

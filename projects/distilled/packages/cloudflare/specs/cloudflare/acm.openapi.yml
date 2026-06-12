@@ -159,7 +159,7 @@ paths:
         - name: offset
           in: query
           required: false
-          description: "Query param: Offset the results"
+          description: "Query param: Offset the results."
           schema:
             type: number
       responses:

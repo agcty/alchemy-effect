@@ -3280,7 +3280,7 @@ paths:
                   oneOf:
                     - type: string
                   nullable: true
-                  description: Body param
+                  description: "Body param: Custom S3-compatible endpoint that must use https://."
                 keys:
                   oneOf:
                     - type: array
@@ -3695,6 +3695,7 @@ paths:
                           oneOf:
                             - type: string
                           nullable: true
+                          description: Custom S3-compatible endpoint that must use https://.
                         keys:
                           oneOf:
                             - type: array

@@ -2450,7 +2450,7 @@ export interface PutIndicatorFeedSnapshotRequest {
   feedId: number;
   /** Path param: Identifier */
   accountId: string;
-  /** Body param: The file to upload */
+  /** Body param: The file to upload. Either a plain STIX2/CRDF body or a gzipped one (recognised by `0x1f 0x8b` magic bytes or a `.gz` filename suffix). */
   source?: string;
 }
 
@@ -2773,7 +2773,7 @@ export const ListSinkholesRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
 
 export interface ListSinkholesResponse {
   result: {
-    id?: number | null;
+    id?: string | null;
     accountTag?: string | null;
     createdOn?: string | null;
     modifiedOn?: string | null;
@@ -2786,7 +2786,7 @@ export interface ListSinkholesResponse {
 export const ListSinkholesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   result: Schema.Array(
     Schema.Struct({
-      id: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       accountTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       createdOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
       modifiedOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),

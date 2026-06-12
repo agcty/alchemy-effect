@@ -9,7 +9,8 @@ paths:
   /accounts/{account_id}/cloudforce-one/binary/{hash}:
     get:
       operationId: getBinaryStorage
-      description: "Retrieves a file from Binary Storage  @example ```ts await
+      description: "Retrieves a binary file from the Cloudforce One binary storage for
+        analysis.  @example ```ts await
         client.cloudforceOne.binaryStorage.get('hash', { account_id:
         'account_id', }); ```"
       parameters:
@@ -30,9 +31,11 @@ paths:
   /accounts/{account_id}/cloudforce-one/binary:
     post:
       operationId: createBinaryStorage
-      description: "Posts a file to Binary Storage  @example ```ts const binaryStorage
-        = await client.cloudforceOne.binaryStorage.create({ account_id:
-        'account_id', file: fs.createReadStream('path/to/file'), }); ```"
+      description: "Uploads a binary file to Cloudforce One's binary database for
+        malware analysis and threat intelligence correlation.  @example ```ts
+        const binaryStorage = await client.cloudforceOne.binaryStorage.create({
+        account_id: 'account_id', file: fs.createReadStream('path/to/file'), });
+        ```"
       parameters:
         - name: account_id
           in: path

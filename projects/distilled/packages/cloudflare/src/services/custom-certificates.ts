@@ -523,7 +523,7 @@ export interface CreateCustomCertificateRequest {
   bundleMethod?: "ubiquitous" | "optimal" | "force" | (string & {});
   /** Body param: The identifier for the Custom CSR that was used. */
   customCsrId?: string;
-  /** Body param: The environment to deploy the certificate to, defaults to production */
+  /** Body param: The environment to deploy the certificate to, defaults to production. */
   deploy?: "staging" | "production" | (string & {});
   /** Body param: Specify the region where your private key can be held locally for optimal TLS performance. HTTPS connections to any excluded data center will still be fully encrypted, but will incur some  */
   geoRestrictions?: {
@@ -787,7 +787,7 @@ export interface PatchCustomCertificateRequest {
   certificate?: string;
   /** Body param: The identifier for the Custom CSR that was used. */
   customCsrId?: string;
-  /** Body param: The environment to deploy the certificate to, defaults to production */
+  /** Body param: The environment to deploy the certificate to, defaults to production. */
   deploy?: "staging" | "production" | (string & {});
   /** Body param: Specify the region where your private key can be held locally for optimal TLS performance. HTTPS connections to any excluded data center will still be fully encrypted, but will incur some  */
   geoRestrictions?: {

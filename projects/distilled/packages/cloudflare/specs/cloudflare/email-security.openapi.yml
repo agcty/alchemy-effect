@@ -419,13 +419,6 @@ paths:
           required: false
           schema:
             type: number
-        - name: action_log
-          in: query
-          required: false
-          description: "Query param: Whether to include the message action log in the
-            response."
-          schema:
-            type: boolean
         - name: alert_id
           in: query
           required: false
@@ -4036,6 +4029,323 @@ paths:
               includes: not available in the current subscription
         Forbidden:
           - status: 403
+  /accounts/{account_id}/email-security/settings/sending_domain_restrictions/{sendingDomainRestrictionId}:
+    get:
+      operationId: getSettingSendingDomainRestriction
+      description: "Retrieves details for a specific sending domain restriction
+        including the domain requiring TLS and any excluded subdomains exempt
+        from the TLS requirement.  @example ```ts const sendingDomainRestriction
+        = await client.emailSecurity.settings.sendingDomainRestrictions.get(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: sendingDomainRestrictionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Sending domain restriction identifier.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                  domain:
+                    type: string
+                    description: Domain that requires TLS enforcement.
+                  exclude:
+                    type: array
+                    items:
+                      type: string
+                    description: Excluded subdomains that are exempt from TLS requirements.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+      x-distilled-response-path: result
+    patch:
+      operationId: patchSettingSendingDomainRestriction
+      description: "Updates an existing sending domain restriction. Only provided
+        fields will be modified. Changes affect which domains require TLS and
+        which subdomains are excluded.  @example ```ts const response = await
+        client.emailSecurity.settings.sendingDomainRestrictions.edit(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: sendingDomainRestrictionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comments:
+                  oneOf:
+                    - type: string
+                  nullable: true
+                  description: Body param
+                domain:
+                  type: string
+                  description: "Body param: Domain that requires TLS enforcement."
+                exclude:
+                  type: array
+                  items:
+                    type: string
+                  description: "Body param: Excluded subdomains that are exempt from TLS
+                    requirements."
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Sending domain restriction identifier.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                  domain:
+                    type: string
+                    description: Domain that requires TLS enforcement.
+                  exclude:
+                    type: array
+                    items:
+                      type: string
+                    description: Excluded subdomains that are exempt from TLS requirements.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+      x-distilled-response-path: result
+    delete:
+      operationId: deleteSettingSendingDomainRestriction
+      description: "Removes a sending domain restriction. After deletion, TLS will no
+        longer be enforced for emails from this domain.  @example ```ts const
+        sendingDomainRestriction = await
+        client.emailSecurity.settings.sendingDomainRestrictions.delete(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: sendingDomainRestrictionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Sending domain restriction identifier.
+                required:
+                  - id
+      x-distilled-response-path: result
+  /accounts/{account_id}/email-security/settings/sending_domain_restrictions:
+    get:
+      operationId: listSettingSendingDomainRestrictions
+      description: "Returns a paginated list of sending domain restrictions. These
+        restrictions enforce TLS requirements for emails from specific domains.
+        Mail without TLS from restricted domains will be dropped unless the
+        subdomain is in the exclude list. Supports sorting and
+        searching.  @example ```ts // Automatically fetches more pages as
+        needed. for await (const sendingDomainRestrictionListResponse of
+        client.emailSecurity.settings.sendingDomainRestrictions.list( {
+        account_id: '023e105f4ecef8ad9ca31a8372d0c353' }, )) { // ... } ```"
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: direction
+          in: query
+          required: false
+          description: "Query param: The sorting direction."
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: order
+          in: query
+          required: false
+          description: "Query param: Field to sort by."
+          schema:
+            type: string
+            enum:
+              - domain
+              - created_at
+        - name: search
+          in: query
+          required: false
+          description: "Query param: Search term for filtering records. Behavior may
+            change."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Sending domain restriction identifier.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                  domain:
+                    type: string
+                    description: Domain that requires TLS enforcement.
+                  exclude:
+                    type: array
+                    items:
+                      type: string
+                    description: Excluded subdomains that are exempt from TLS requirements.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+      x-distilled-pagination-class: SendingDomainRestrictionListResponsesV4PagePaginationArray
+    post:
+      operationId: createSettingSendingDomainRestriction
+      description: "Creates a new sending domain restriction to enforce TLS
+        requirements for a domain. Emails without TLS from this domain will be
+        dropped unless the subdomain is in the exclude list.  @example ```ts
+        const sendingDomainRestriction = await
+        client.emailSecurity.settings.sendingDomainRestrictions.create( {
+        account_id: '023e105f4ecef8ad9ca31a8372d0c353', domain: 'example.com',
+        exclude: ['subdomain.example.com'], }, ); ```"
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain:
+                  type: string
+                  description: "Body param: Domain that requires TLS enforcement."
+                exclude:
+                  type: array
+                  items:
+                    type: string
+                  description: "Body param: Excluded subdomains that are exempt from TLS
+                    requirements."
+                comments:
+                  oneOf:
+                    - type: string
+                  nullable: true
+                  description: Body param
+              required:
+                - domain
+                - exclude
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Sending domain restriction identifier.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                  created_at:
+                    type: string
+                  domain:
+                    type: string
+                    description: Domain that requires TLS enforcement.
+                  exclude:
+                    type: array
+                    items:
+                      type: string
+                    description: Excluded subdomains that are exempt from TLS requirements.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+      x-distilled-response-path: result
   /accounts/{account_id}/email-security/settings/trusted_domains/{trustedDomainId}:
     get:
       operationId: getSettingTrustedDomain
@@ -4449,6 +4759,283 @@ paths:
               includes: not available in the current subscription
         Forbidden:
           - status: 403
+  /accounts/{account_id}/email-security/settings/url_ignore_patterns/{patternId}:
+    get:
+      operationId: getSettingUrlIgnorePattern
+      description: "Returns a single URL rewrite ignore pattern by its
+        identifier.  @example ```ts const urlIgnorePattern = await
+        client.emailSecurity.settings.urlIgnorePatterns.get(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: patternId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: URL ignore pattern identifier
+                  created_at:
+                    type: string
+                  pattern:
+                    type: string
+                    description: Regular expression matching URLs that should not be rewritten.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                    description: Optional note describing the reason for the ignore pattern.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+                required:
+                  - id
+                  - created_at
+                  - pattern
+      x-distilled-response-path: result
+    patch:
+      operationId: patchSettingUrlIgnorePattern
+      description: "Updates an existing URL rewrite ignore pattern. Only provided
+        fields will be modified.  @example ```ts const response = await
+        client.emailSecurity.settings.urlIgnorePatterns.edit(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: patternId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comments:
+                  oneOf:
+                    - type: string
+                  nullable: true
+                  description: "Body param: Optional note describing the reason for the ignore
+                    pattern."
+                pattern:
+                  type: string
+                  description: "Body param: Regular expression matching URLs that should not be
+                    rewritten."
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: URL ignore pattern identifier
+                  created_at:
+                    type: string
+                  pattern:
+                    type: string
+                    description: Regular expression matching URLs that should not be rewritten.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                    description: Optional note describing the reason for the ignore pattern.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+                required:
+                  - id
+                  - created_at
+                  - pattern
+      x-distilled-response-path: result
+    delete:
+      operationId: deleteSettingUrlIgnorePattern
+      description: "Removes a URL rewrite ignore pattern. After deletion, URLs
+        matching this pattern will be rewritten again.  @example ```ts const
+        urlIgnorePattern = await
+        client.emailSecurity.settings.urlIgnorePatterns.delete(
+        'f174e90a-fafe-4643-bbbc-4a0ed4fc8415', { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, ); ```"
+      parameters:
+        - name: patternId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account_id
+          in: path
+          required: true
+          description: Identifier.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: URL ignore pattern identifier
+                required:
+                  - id
+      x-distilled-response-path: result
+  /accounts/{account_id}/email-security/settings/url_ignore_patterns:
+    get:
+      operationId: listSettingUrlIgnorePatterns
+      description: "Returns a paginated list of URL rewrite ignore patterns for the
+        account. URLs matching these patterns will not be rewritten.  @example
+        ```ts // Automatically fetches more pages as needed. for await (const
+        urlIgnorePatternListResponse of
+        client.emailSecurity.settings.urlIgnorePatterns.list( { account_id:
+        '023e105f4ecef8ad9ca31a8372d0c353' }, )) { // ... } ```"
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: per_page
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: URL ignore pattern identifier
+                  created_at:
+                    type: string
+                  pattern:
+                    type: string
+                    description: Regular expression matching URLs that should not be rewritten.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                    description: Optional note describing the reason for the ignore pattern.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+                required:
+                  - id
+                  - created_at
+                  - pattern
+      x-distilled-pagination-class: URLIgnorePatternListResponsesV4PagePaginationArray
+    post:
+      operationId: createSettingUrlIgnorePattern
+      description: "Creates a new URL rewrite ignore pattern. URLs matching this
+        pattern will not be rewritten.  @example ```ts const urlIgnorePattern =
+        await client.emailSecurity.settings.urlIgnorePatterns.create( {
+        account_id: '023e105f4ecef8ad9ca31a8372d0c353', pattern:
+        'https://example\\\\.com/. ', }, ); ```"
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          description: "Path param: Identifier."
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pattern:
+                  type: string
+                  description: "Body param: Regular expression matching URLs that should not be
+                    rewritten."
+                comments:
+                  oneOf:
+                    - type: string
+                  nullable: true
+                  description: "Body param: Optional note describing the reason for the ignore
+                    pattern."
+              required:
+                - pattern
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: URL ignore pattern identifier
+                  created_at:
+                    type: string
+                  pattern:
+                    type: string
+                    description: Regular expression matching URLs that should not be rewritten.
+                  comments:
+                    oneOf:
+                      - type: string
+                    nullable: true
+                    description: Optional note describing the reason for the ignore pattern.
+                  last_modified:
+                    type: string
+                    description: "@deprecated Deprecated, use `modified_at` instead. End of life:
+                      November 1, 2026."
+                  modified_at:
+                    type: string
+                required:
+                  - id
+                  - created_at
+                  - pattern
+      x-distilled-response-path: result
   /accounts/{account_id}/email-security/submissions:
     get:
       operationId: listSubmissions

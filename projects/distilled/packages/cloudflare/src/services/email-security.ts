@@ -608,8 +608,6 @@ export interface ListInvestigatesRequest {
   accountId: string;
   page?: number;
   perPage?: number;
-  /** Query param: Whether to include the message action log in the response. */
-  actionLog?: boolean;
   /** Query param */
   alertId?: string;
   /** Query param */
@@ -662,7 +660,6 @@ export const ListInvestigatesRequest =
     accountId: Schema.String.pipe(T.HttpPath("account_id")),
     page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
     perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
-    actionLog: Schema.optional(Schema.Boolean).pipe(T.HttpQuery("action_log")),
     alertId: Schema.optional(Schema.String).pipe(T.HttpQuery("alert_id")),
     cursor: Schema.optional(Schema.String).pipe(T.HttpQuery("cursor")),
     deliveryStatus: Schema.optional(
@@ -5302,6 +5299,408 @@ export const deleteSettingImpersonationRegistry: API.OperationMethod<
 }));
 
 // =============================================================================
+// SettingSendingDomainRestriction
+// =============================================================================
+
+export interface GetSettingSendingDomainRestrictionRequest {
+  sendingDomainRestrictionId: string;
+  /** Identifier. */
+  accountId: string;
+}
+
+export const GetSettingSendingDomainRestrictionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    sendingDomainRestrictionId: Schema.String.pipe(
+      T.HttpPath("sendingDomainRestrictionId"),
+    ),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/email-security/settings/sending_domain_restrictions/{sendingDomainRestrictionId}",
+    }),
+  ) as unknown as Schema.Schema<GetSettingSendingDomainRestrictionRequest>;
+
+export interface GetSettingSendingDomainRestrictionResponse {
+  /** Sending domain restriction identifier. */
+  id?: string | null;
+  comments?: string | null;
+  createdAt?: string | null;
+  /** Domain that requires TLS enforcement. */
+  domain?: string | null;
+  /** Excluded subdomains that are exempt from TLS requirements. */
+  exclude?: string[] | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const GetSettingSendingDomainRestrictionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    domain: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    exclude: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        comments: "comments",
+        createdAt: "created_at",
+        domain: "domain",
+        exclude: "exclude",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetSettingSendingDomainRestrictionResponse>;
+
+export type GetSettingSendingDomainRestrictionError = DefaultErrors;
+
+export const getSettingSendingDomainRestriction: API.OperationMethod<
+  GetSettingSendingDomainRestrictionRequest,
+  GetSettingSendingDomainRestrictionResponse,
+  GetSettingSendingDomainRestrictionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetSettingSendingDomainRestrictionRequest,
+  output: GetSettingSendingDomainRestrictionResponse,
+  errors: [],
+}));
+
+export interface ListSettingSendingDomainRestrictionsRequest {
+  /** Path param: Identifier. */
+  accountId: string;
+  page?: number;
+  perPage?: number;
+  /** Query param: The sorting direction. */
+  direction?: "asc" | "desc" | (string & {});
+  /** Query param: Field to sort by. */
+  order?: "domain" | "created_at" | (string & {});
+  /** Query param: Search term for filtering records. Behavior may change. */
+  search?: string;
+}
+
+export const ListSettingSendingDomainRestrictionsRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
+    perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+    direction: Schema.optional(
+      Schema.Union([Schema.Literals(["asc", "desc"]), Schema.String]),
+    ).pipe(T.HttpQuery("direction")),
+    order: Schema.optional(
+      Schema.Union([Schema.Literals(["domain", "created_at"]), Schema.String]),
+    ).pipe(T.HttpQuery("order")),
+    search: Schema.optional(Schema.String).pipe(T.HttpQuery("search")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/email-security/settings/sending_domain_restrictions",
+    }),
+  ) as unknown as Schema.Schema<ListSettingSendingDomainRestrictionsRequest>;
+
+export interface ListSettingSendingDomainRestrictionsResponse {
+  result: {
+    id?: string | null;
+    comments?: string | null;
+    createdAt?: string | null;
+    domain?: string | null;
+    exclude?: string[] | null;
+    lastModified?: string | null;
+    modifiedAt?: string | null;
+  }[];
+  resultInfo?: {
+    count?: number | null;
+    page?: number | null;
+    perPage?: number | null;
+    totalCount?: number | null;
+  } | null;
+}
+
+export const ListSettingSendingDomainRestrictionsResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    result: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        domain: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        exclude: Schema.optional(
+          Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+        ),
+        lastModified: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      }).pipe(
+        Schema.encodeKeys({
+          id: "id",
+          comments: "comments",
+          createdAt: "created_at",
+          domain: "domain",
+          exclude: "exclude",
+          lastModified: "last_modified",
+          modifiedAt: "modified_at",
+        }),
+      ),
+    ),
+    resultInfo: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          page: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          perPage: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          totalCount: Schema.optional(
+            Schema.Union([Schema.Number, Schema.Null]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            count: "count",
+            page: "page",
+            perPage: "per_page",
+            totalCount: "total_count",
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
+  ) as unknown as Schema.Schema<ListSettingSendingDomainRestrictionsResponse>;
+
+export type ListSettingSendingDomainRestrictionsError = DefaultErrors;
+
+export const listSettingSendingDomainRestrictions: API.PaginatedOperationMethod<
+  ListSettingSendingDomainRestrictionsRequest,
+  ListSettingSendingDomainRestrictionsResponse,
+  ListSettingSendingDomainRestrictionsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: ListSettingSendingDomainRestrictionsRequest,
+  output: ListSettingSendingDomainRestrictionsResponse,
+  errors: [],
+  pagination: {
+    mode: "page",
+    inputToken: "page",
+    outputToken: "resultInfo.page",
+    items: "result",
+    pageSize: "perPage",
+  } as const,
+}));
+
+export interface CreateSettingSendingDomainRestrictionRequest {
+  /** Path param: Identifier. */
+  accountId: string;
+  /** Body param: Domain that requires TLS enforcement. */
+  domain: string;
+  /** Body param: Excluded subdomains that are exempt from TLS requirements. */
+  exclude: string[];
+  /** Body param */
+  comments?: string | null;
+}
+
+export const CreateSettingSendingDomainRestrictionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    domain: Schema.String,
+    exclude: Schema.Array(Schema.String),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/email-security/settings/sending_domain_restrictions",
+    }),
+  ) as unknown as Schema.Schema<CreateSettingSendingDomainRestrictionRequest>;
+
+export interface CreateSettingSendingDomainRestrictionResponse {
+  /** Sending domain restriction identifier. */
+  id?: string | null;
+  comments?: string | null;
+  createdAt?: string | null;
+  /** Domain that requires TLS enforcement. */
+  domain?: string | null;
+  /** Excluded subdomains that are exempt from TLS requirements. */
+  exclude?: string[] | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const CreateSettingSendingDomainRestrictionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    domain: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    exclude: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        comments: "comments",
+        createdAt: "created_at",
+        domain: "domain",
+        exclude: "exclude",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateSettingSendingDomainRestrictionResponse>;
+
+export type CreateSettingSendingDomainRestrictionError = DefaultErrors;
+
+export const createSettingSendingDomainRestriction: API.OperationMethod<
+  CreateSettingSendingDomainRestrictionRequest,
+  CreateSettingSendingDomainRestrictionResponse,
+  CreateSettingSendingDomainRestrictionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateSettingSendingDomainRestrictionRequest,
+  output: CreateSettingSendingDomainRestrictionResponse,
+  errors: [],
+}));
+
+export interface PatchSettingSendingDomainRestrictionRequest {
+  sendingDomainRestrictionId: string;
+  /** Path param: Identifier. */
+  accountId: string;
+  /** Body param */
+  comments?: string | null;
+  /** Body param: Domain that requires TLS enforcement. */
+  domain?: string;
+  /** Body param: Excluded subdomains that are exempt from TLS requirements. */
+  exclude?: string[];
+}
+
+export const PatchSettingSendingDomainRestrictionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    sendingDomainRestrictionId: Schema.String.pipe(
+      T.HttpPath("sendingDomainRestrictionId"),
+    ),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    domain: Schema.optional(Schema.String),
+    exclude: Schema.optional(Schema.Array(Schema.String)),
+  }).pipe(
+    T.Http({
+      method: "PATCH",
+      path: "/accounts/{account_id}/email-security/settings/sending_domain_restrictions/{sendingDomainRestrictionId}",
+    }),
+  ) as unknown as Schema.Schema<PatchSettingSendingDomainRestrictionRequest>;
+
+export interface PatchSettingSendingDomainRestrictionResponse {
+  /** Sending domain restriction identifier. */
+  id?: string | null;
+  comments?: string | null;
+  createdAt?: string | null;
+  /** Domain that requires TLS enforcement. */
+  domain?: string | null;
+  /** Excluded subdomains that are exempt from TLS requirements. */
+  exclude?: string[] | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const PatchSettingSendingDomainRestrictionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    domain: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    exclude: Schema.optional(
+      Schema.Union([Schema.Array(Schema.String), Schema.Null]),
+    ),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        comments: "comments",
+        createdAt: "created_at",
+        domain: "domain",
+        exclude: "exclude",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<PatchSettingSendingDomainRestrictionResponse>;
+
+export type PatchSettingSendingDomainRestrictionError = DefaultErrors;
+
+export const patchSettingSendingDomainRestriction: API.OperationMethod<
+  PatchSettingSendingDomainRestrictionRequest,
+  PatchSettingSendingDomainRestrictionResponse,
+  PatchSettingSendingDomainRestrictionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: PatchSettingSendingDomainRestrictionRequest,
+  output: PatchSettingSendingDomainRestrictionResponse,
+  errors: [],
+}));
+
+export interface DeleteSettingSendingDomainRestrictionRequest {
+  sendingDomainRestrictionId: string;
+  /** Identifier. */
+  accountId: string;
+}
+
+export const DeleteSettingSendingDomainRestrictionRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    sendingDomainRestrictionId: Schema.String.pipe(
+      T.HttpPath("sendingDomainRestrictionId"),
+    ),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/accounts/{account_id}/email-security/settings/sending_domain_restrictions/{sendingDomainRestrictionId}",
+    }),
+  ) as unknown as Schema.Schema<DeleteSettingSendingDomainRestrictionRequest>;
+
+export interface DeleteSettingSendingDomainRestrictionResponse {
+  /** Sending domain restriction identifier. */
+  id: string;
+}
+
+export const DeleteSettingSendingDomainRestrictionResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<DeleteSettingSendingDomainRestrictionResponse>;
+
+export type DeleteSettingSendingDomainRestrictionError = DefaultErrors;
+
+export const deleteSettingSendingDomainRestriction: API.OperationMethod<
+  DeleteSettingSendingDomainRestrictionRequest,
+  DeleteSettingSendingDomainRestrictionResponse,
+  DeleteSettingSendingDomainRestrictionError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteSettingSendingDomainRestrictionRequest,
+  output: DeleteSettingSendingDomainRestrictionResponse,
+  errors: [],
+}));
+
+// =============================================================================
 // SettingTrustedDomain
 // =============================================================================
 
@@ -5768,6 +6167,363 @@ export const deleteSettingTrustedDomain: API.OperationMethod<
   input: DeleteSettingTrustedDomainRequest,
   output: DeleteSettingTrustedDomainResponse,
   errors: [TrustedDomainNotFound, EmailSecurityNotEntitled, Forbidden],
+}));
+
+// =============================================================================
+// SettingUrlIgnorePattern
+// =============================================================================
+
+export interface GetSettingUrlIgnorePatternRequest {
+  patternId: string;
+  /** Identifier. */
+  accountId: string;
+}
+
+export const GetSettingUrlIgnorePatternRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    patternId: Schema.String.pipe(T.HttpPath("patternId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/email-security/settings/url_ignore_patterns/{patternId}",
+    }),
+  ) as unknown as Schema.Schema<GetSettingUrlIgnorePatternRequest>;
+
+export interface GetSettingUrlIgnorePatternResponse {
+  /** URL ignore pattern identifier */
+  id: string;
+  createdAt: string;
+  /** Regular expression matching URLs that should not be rewritten. */
+  pattern: string;
+  /** Optional note describing the reason for the ignore pattern. */
+  comments?: string | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const GetSettingUrlIgnorePatternResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+    createdAt: Schema.String,
+    pattern: Schema.String,
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        createdAt: "created_at",
+        pattern: "pattern",
+        comments: "comments",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<GetSettingUrlIgnorePatternResponse>;
+
+export type GetSettingUrlIgnorePatternError = DefaultErrors;
+
+export const getSettingUrlIgnorePattern: API.OperationMethod<
+  GetSettingUrlIgnorePatternRequest,
+  GetSettingUrlIgnorePatternResponse,
+  GetSettingUrlIgnorePatternError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetSettingUrlIgnorePatternRequest,
+  output: GetSettingUrlIgnorePatternResponse,
+  errors: [],
+}));
+
+export interface ListSettingUrlIgnorePatternsRequest {
+  /** Path param: Identifier. */
+  accountId: string;
+  page?: number;
+  perPage?: number;
+}
+
+export const ListSettingUrlIgnorePatternsRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
+    perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/email-security/settings/url_ignore_patterns",
+    }),
+  ) as unknown as Schema.Schema<ListSettingUrlIgnorePatternsRequest>;
+
+export interface ListSettingUrlIgnorePatternsResponse {
+  result: {
+    id: string;
+    createdAt: string;
+    pattern: string;
+    comments?: string | null;
+    lastModified?: string | null;
+    modifiedAt?: string | null;
+  }[];
+  resultInfo?: {
+    count?: number | null;
+    page?: number | null;
+    perPage?: number | null;
+    totalCount?: number | null;
+  } | null;
+}
+
+export const ListSettingUrlIgnorePatternsResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    result: Schema.Array(
+      Schema.Struct({
+        id: Schema.String,
+        createdAt: Schema.String,
+        pattern: Schema.String,
+        comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+        lastModified: Schema.optional(
+          Schema.Union([Schema.String, Schema.Null]),
+        ),
+        modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      }).pipe(
+        Schema.encodeKeys({
+          id: "id",
+          createdAt: "created_at",
+          pattern: "pattern",
+          comments: "comments",
+          lastModified: "last_modified",
+          modifiedAt: "modified_at",
+        }),
+      ),
+    ),
+    resultInfo: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          count: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          page: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          perPage: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+          totalCount: Schema.optional(
+            Schema.Union([Schema.Number, Schema.Null]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            count: "count",
+            page: "page",
+            perPage: "per_page",
+            totalCount: "total_count",
+          }),
+        ),
+        Schema.Null,
+      ]),
+    ),
+  }).pipe(
+    Schema.encodeKeys({ result: "result", resultInfo: "result_info" }),
+  ) as unknown as Schema.Schema<ListSettingUrlIgnorePatternsResponse>;
+
+export type ListSettingUrlIgnorePatternsError = DefaultErrors;
+
+export const listSettingUrlIgnorePatterns: API.PaginatedOperationMethod<
+  ListSettingUrlIgnorePatternsRequest,
+  ListSettingUrlIgnorePatternsResponse,
+  ListSettingUrlIgnorePatternsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: ListSettingUrlIgnorePatternsRequest,
+  output: ListSettingUrlIgnorePatternsResponse,
+  errors: [],
+  pagination: {
+    mode: "page",
+    inputToken: "page",
+    outputToken: "resultInfo.page",
+    items: "result",
+    pageSize: "perPage",
+  } as const,
+}));
+
+export interface CreateSettingUrlIgnorePatternRequest {
+  /** Path param: Identifier. */
+  accountId: string;
+  /** Body param: Regular expression matching URLs that should not be rewritten. */
+  pattern: string;
+  /** Body param: Optional note describing the reason for the ignore pattern. */
+  comments?: string | null;
+}
+
+export const CreateSettingUrlIgnorePatternRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    pattern: Schema.String,
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/accounts/{account_id}/email-security/settings/url_ignore_patterns",
+    }),
+  ) as unknown as Schema.Schema<CreateSettingUrlIgnorePatternRequest>;
+
+export interface CreateSettingUrlIgnorePatternResponse {
+  /** URL ignore pattern identifier */
+  id: string;
+  createdAt: string;
+  /** Regular expression matching URLs that should not be rewritten. */
+  pattern: string;
+  /** Optional note describing the reason for the ignore pattern. */
+  comments?: string | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const CreateSettingUrlIgnorePatternResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+    createdAt: Schema.String,
+    pattern: Schema.String,
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        createdAt: "created_at",
+        pattern: "pattern",
+        comments: "comments",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<CreateSettingUrlIgnorePatternResponse>;
+
+export type CreateSettingUrlIgnorePatternError = DefaultErrors;
+
+export const createSettingUrlIgnorePattern: API.OperationMethod<
+  CreateSettingUrlIgnorePatternRequest,
+  CreateSettingUrlIgnorePatternResponse,
+  CreateSettingUrlIgnorePatternError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateSettingUrlIgnorePatternRequest,
+  output: CreateSettingUrlIgnorePatternResponse,
+  errors: [],
+}));
+
+export interface PatchSettingUrlIgnorePatternRequest {
+  patternId: string;
+  /** Path param: Identifier. */
+  accountId: string;
+  /** Body param: Optional note describing the reason for the ignore pattern. */
+  comments?: string | null;
+  /** Body param: Regular expression matching URLs that should not be rewritten. */
+  pattern?: string;
+}
+
+export const PatchSettingUrlIgnorePatternRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    patternId: Schema.String.pipe(T.HttpPath("patternId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    pattern: Schema.optional(Schema.String),
+  }).pipe(
+    T.Http({
+      method: "PATCH",
+      path: "/accounts/{account_id}/email-security/settings/url_ignore_patterns/{patternId}",
+    }),
+  ) as unknown as Schema.Schema<PatchSettingUrlIgnorePatternRequest>;
+
+export interface PatchSettingUrlIgnorePatternResponse {
+  /** URL ignore pattern identifier */
+  id: string;
+  createdAt: string;
+  /** Regular expression matching URLs that should not be rewritten. */
+  pattern: string;
+  /** Optional note describing the reason for the ignore pattern. */
+  comments?: string | null;
+  /** @deprecated Deprecated, use `modified_at` instead. End of life: November 1, 2026. */
+  lastModified?: string | null;
+  modifiedAt?: string | null;
+}
+
+export const PatchSettingUrlIgnorePatternResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+    createdAt: Schema.String,
+    pattern: Schema.String,
+    comments: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    lastModified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+    modifiedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+  })
+    .pipe(
+      Schema.encodeKeys({
+        id: "id",
+        createdAt: "created_at",
+        pattern: "pattern",
+        comments: "comments",
+        lastModified: "last_modified",
+        modifiedAt: "modified_at",
+      }),
+    )
+    .pipe(
+      T.ResponsePath("result"),
+    ) as unknown as Schema.Schema<PatchSettingUrlIgnorePatternResponse>;
+
+export type PatchSettingUrlIgnorePatternError = DefaultErrors;
+
+export const patchSettingUrlIgnorePattern: API.OperationMethod<
+  PatchSettingUrlIgnorePatternRequest,
+  PatchSettingUrlIgnorePatternResponse,
+  PatchSettingUrlIgnorePatternError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: PatchSettingUrlIgnorePatternRequest,
+  output: PatchSettingUrlIgnorePatternResponse,
+  errors: [],
+}));
+
+export interface DeleteSettingUrlIgnorePatternRequest {
+  patternId: string;
+  /** Identifier. */
+  accountId: string;
+}
+
+export const DeleteSettingUrlIgnorePatternRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    patternId: Schema.String.pipe(T.HttpPath("patternId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/accounts/{account_id}/email-security/settings/url_ignore_patterns/{patternId}",
+    }),
+  ) as unknown as Schema.Schema<DeleteSettingUrlIgnorePatternRequest>;
+
+export interface DeleteSettingUrlIgnorePatternResponse {
+  /** URL ignore pattern identifier */
+  id: string;
+}
+
+export const DeleteSettingUrlIgnorePatternResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.String,
+  }).pipe(
+    T.ResponsePath("result"),
+  ) as unknown as Schema.Schema<DeleteSettingUrlIgnorePatternResponse>;
+
+export type DeleteSettingUrlIgnorePatternError = DefaultErrors;
+
+export const deleteSettingUrlIgnorePattern: API.OperationMethod<
+  DeleteSettingUrlIgnorePatternRequest,
+  DeleteSettingUrlIgnorePatternResponse,
+  DeleteSettingUrlIgnorePatternError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteSettingUrlIgnorePatternRequest,
+  output: DeleteSettingUrlIgnorePatternResponse,
+  errors: [],
 }));
 
 // =============================================================================

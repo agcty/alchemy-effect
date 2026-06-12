@@ -1565,6 +1565,8 @@ export interface ListSinksRequest {
   accountId: string;
   page?: number;
   perPage?: number;
+  /** Query param: Filters sinks by name (case-insensitive substring). */
+  name?: string;
   /** Query param */
   pipelineId?: string;
 }
@@ -1573,6 +1575,7 @@ export const ListSinksRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
   perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  name: Schema.optional(Schema.String).pipe(T.HttpQuery("name")),
   pipelineId: Schema.optional(Schema.String).pipe(T.HttpQuery("pipeline_id")),
 }).pipe(
   T.Http({ method: "GET", path: "/accounts/{account_id}/pipelines/v1/sinks" }),
@@ -4264,6 +4267,8 @@ export interface ListStreamsRequest {
   accountId: string;
   page?: number;
   perPage?: number;
+  /** Query param: Filters streams by name (case-insensitive substring). */
+  name?: string;
   /** Query param: Specifies the public ID of the pipeline. */
   pipelineId?: string;
 }
@@ -4272,6 +4277,7 @@ export const ListStreamsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
   perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  name: Schema.optional(Schema.String).pipe(T.HttpQuery("name")),
   pipelineId: Schema.optional(Schema.String).pipe(T.HttpQuery("pipeline_id")),
 }).pipe(
   T.Http({
@@ -6201,12 +6207,15 @@ export interface ListV1PipelineRequest {
   accountId: string;
   page?: number;
   perPage?: number;
+  /** Query param: Filters pipelines by name (case-insensitive substring). */
+  name?: string;
 }
 
 export const ListV1PipelineRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   accountId: Schema.String.pipe(T.HttpPath("account_id")),
   page: Schema.optional(Schema.Number).pipe(T.HttpQuery("page")),
   perPage: Schema.optional(Schema.Number).pipe(T.HttpQuery("per_page")),
+  name: Schema.optional(Schema.String).pipe(T.HttpQuery("name")),
 }).pipe(
   T.Http({
     method: "GET",

@@ -488,64 +488,6 @@ export const listDiscoveryOperations: API.PaginatedOperationMethod<
   } as const,
 }));
 
-export interface PatchDiscoveryOperationRequest {
-  operationId: string;
-  /** Path param: Identifier. */
-  zoneId: string;
-  /** Body param: Mark state of operation in API Discovery  - `review` - Mark operation as for review - `ignored` - Mark operation as ignored */
-  state?: "review" | "ignored" | (string & {});
-}
-
-export const PatchDiscoveryOperationRequest =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    operationId: Schema.String.pipe(T.HttpPath("operationId")),
-    zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
-    state: Schema.optional(
-      Schema.Union([Schema.Literals(["review", "ignored"]), Schema.String]),
-    ),
-  }).pipe(
-    T.Http({
-      method: "PATCH",
-      path: "/zones/{zone_id}/api_gateway/discovery/operations/{operationId}",
-    }),
-  ) as unknown as Schema.Schema<PatchDiscoveryOperationRequest>;
-
-export interface PatchDiscoveryOperationResponse {
-  /** State of operation in API Discovery  - `review` - Operation is not saved into API Shield Endpoint Management - `saved` - Operation is saved into API Shield Endpoint Management - `ignored` - Operation  */
-  state?: "review" | "saved" | "ignored" | (string & {}) | null;
-}
-
-export const PatchDiscoveryOperationResponse =
-  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
-    state: Schema.optional(
-      Schema.Union([
-        Schema.Union([
-          Schema.Literals(["review", "saved", "ignored"]),
-          Schema.String,
-        ]),
-        Schema.Null,
-      ]),
-    ),
-  }).pipe(
-    T.ResponsePath("result"),
-  ) as unknown as Schema.Schema<PatchDiscoveryOperationResponse>;
-
-export type PatchDiscoveryOperationError =
-  | DefaultErrors
-  | InvalidObjectIdentifier
-  | NotEntitled;
-
-export const patchDiscoveryOperation: API.OperationMethod<
-  PatchDiscoveryOperationRequest,
-  PatchDiscoveryOperationResponse,
-  PatchDiscoveryOperationError,
-  Credentials | HttpClient.HttpClient
-> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
-  input: PatchDiscoveryOperationRequest,
-  output: PatchDiscoveryOperationResponse,
-  errors: [InvalidObjectIdentifier, NotEntitled],
-}));
-
 export interface BulkPatchDiscoveryOperationsRequest {
   /** Path param: Identifier. */
   zoneId: string;

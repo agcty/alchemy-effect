@@ -1411,6 +1411,12 @@ paths:
           required: false
           schema:
             type: number
+        - name: name
+          in: query
+          required: false
+          description: "Query param: Filters sinks by name (case-insensitive substring)."
+          schema:
+            type: string
         - name: pipeline_id
           in: query
           required: false
@@ -3309,6 +3315,12 @@ paths:
           required: false
           schema:
             type: number
+        - name: name
+          in: query
+          required: false
+          description: "Query param: Filters streams by name (case-insensitive substring)."
+          schema:
+            type: string
         - name: pipeline_id
           in: query
           required: false
@@ -4437,6 +4449,13 @@ paths:
           required: false
           schema:
             type: number
+        - name: name
+          in: query
+          required: false
+          description: "Query param: Filters pipelines by name (case-insensitive
+            substring)."
+          schema:
+            type: string
       responses:
         "200":
           description: Success

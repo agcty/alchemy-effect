@@ -174,9 +174,9 @@ export interface GetAiGatewayResponse {
   logpushPublicKey?: string | null;
   otel?:
     | {
-        authorization: string;
         headers: Record<string, unknown>;
         url: string;
+        authorization?: string | null;
         contentType?: "json" | "protobuf" | (string & {}) | null;
       }[]
     | null;
@@ -187,6 +187,22 @@ export interface GetAiGatewayResponse {
   retryDelay?: number | null;
   /** Maximum number of retry attempts for failed requests (1-5) */
   retryMaxAttempts?: number | null;
+  spendLimits?: {
+    enabled?: boolean | null;
+    rules?:
+      | {
+          limit: number;
+          limitType: "cost";
+          window: number;
+          id?: string | null;
+          enabled?: boolean | null;
+          metadata?: Record<string, unknown> | null;
+          model?: { mode: "filter"; values: string[] } | null;
+          provider?: { mode: "filter"; values: string[] } | null;
+          technique?: "fixed" | "sliding" | (string & {}) | null;
+        }[]
+      | null;
+  } | null;
   storeId?: string | null;
   stripe?: { authorization: string; usageEvents: { payload: string }[] } | null;
   /** Controls how Workers AI inference calls routed through this gateway are billed. Only 'postpaid' is currently supported. */
@@ -467,9 +483,11 @@ export const GetAiGatewayResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     Schema.Union([
       Schema.Array(
         Schema.Struct({
-          authorization: Schema.String,
           headers: Schema.Record(Schema.String, Schema.Unknown),
           url: Schema.String,
+          authorization: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
           contentType: Schema.optional(
             Schema.Union([
               Schema.Union([
@@ -481,9 +499,9 @@ export const GetAiGatewayResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           ),
         }).pipe(
           Schema.encodeKeys({
-            authorization: "authorization",
             headers: "headers",
             url: "url",
+            authorization: "authorization",
             contentType: "content_type",
           }),
         ),
@@ -508,6 +526,63 @@ export const GetAiGatewayResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   ),
   retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
   retryMaxAttempts: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+  spendLimits: Schema.optional(
+    Schema.Union([
+      Schema.Struct({
+        enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+        rules: Schema.optional(
+          Schema.Union([
+            Schema.Array(
+              Schema.Struct({
+                limit: Schema.Number,
+                limitType: Schema.Literal("cost"),
+                window: Schema.Number,
+                id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+                enabled: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                metadata: Schema.optional(
+                  Schema.Union([
+                    Schema.Record(Schema.String, Schema.Unknown),
+                    Schema.Null,
+                  ]),
+                ),
+                model: Schema.optional(
+                  Schema.Union([
+                    Schema.Struct({
+                      mode: Schema.Literal("filter"),
+                      values: Schema.Array(Schema.String),
+                    }),
+                    Schema.Null,
+                  ]),
+                ),
+                provider: Schema.optional(
+                  Schema.Union([
+                    Schema.Struct({
+                      mode: Schema.Literal("filter"),
+                      values: Schema.Array(Schema.String),
+                    }),
+                    Schema.Null,
+                  ]),
+                ),
+                technique: Schema.optional(
+                  Schema.Union([
+                    Schema.Union([
+                      Schema.Literals(["fixed", "sliding"]),
+                      Schema.String,
+                    ]),
+                    Schema.Null,
+                  ]),
+                ),
+              }),
+            ),
+            Schema.Null,
+          ]),
+        ),
+      }),
+      Schema.Null,
+    ]),
+  ),
   storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
   stripe: Schema.optional(
     Schema.Union([
@@ -555,6 +630,7 @@ export const GetAiGatewayResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       retryBackoff: "retry_backoff",
       retryDelay: "retry_delay",
       retryMaxAttempts: "retry_max_attempts",
+      spendLimits: "spend_limits",
       storeId: "store_id",
       stripe: "stripe",
       workersAiBillingMode: "workers_ai_billing_mode",
@@ -665,9 +741,9 @@ export interface ListAiGatewaysResponse {
     logpushPublicKey?: string | null;
     otel?:
       | {
-          authorization: string;
           headers: Record<string, unknown>;
           url: string;
+          authorization?: string | null;
           contentType?: "json" | "protobuf" | (string & {}) | null;
         }[]
       | null;
@@ -675,6 +751,22 @@ export interface ListAiGatewaysResponse {
     retryBackoff?: "constant" | "linear" | "exponential" | null;
     retryDelay?: number | null;
     retryMaxAttempts?: number | null;
+    spendLimits?: {
+      enabled?: boolean | null;
+      rules?:
+        | {
+            limit: number;
+            limitType: "cost";
+            window: number;
+            id?: string | null;
+            enabled?: boolean | null;
+            metadata?: Record<string, unknown> | null;
+            model?: { mode: "filter"; values: string[] } | null;
+            provider?: { mode: "filter"; values: string[] } | null;
+            technique?: "fixed" | "sliding" | (string & {}) | null;
+          }[]
+        | null;
+    } | null;
     storeId?: string | null;
     stripe?: {
       authorization: string;
@@ -1057,9 +1149,11 @@ export const ListAiGatewaysResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
           Schema.Union([
             Schema.Array(
               Schema.Struct({
-                authorization: Schema.String,
                 headers: Schema.Record(Schema.String, Schema.Unknown),
                 url: Schema.String,
+                authorization: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
                 contentType: Schema.optional(
                   Schema.Union([
                     Schema.Union([
@@ -1071,9 +1165,9 @@ export const ListAiGatewaysResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
                 ),
               }).pipe(
                 Schema.encodeKeys({
-                  authorization: "authorization",
                   headers: "headers",
                   url: "url",
+                  authorization: "authorization",
                   contentType: "content_type",
                 }),
               ),
@@ -1099,6 +1193,67 @@ export const ListAiGatewaysResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
         retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
         retryMaxAttempts: Schema.optional(
           Schema.Union([Schema.Number, Schema.Null]),
+        ),
+        spendLimits: Schema.optional(
+          Schema.Union([
+            Schema.Struct({
+              enabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+              rules: Schema.optional(
+                Schema.Union([
+                  Schema.Array(
+                    Schema.Struct({
+                      limit: Schema.Number,
+                      limitType: Schema.Literal("cost"),
+                      window: Schema.Number,
+                      id: Schema.optional(
+                        Schema.Union([Schema.String, Schema.Null]),
+                      ),
+                      enabled: Schema.optional(
+                        Schema.Union([Schema.Boolean, Schema.Null]),
+                      ),
+                      metadata: Schema.optional(
+                        Schema.Union([
+                          Schema.Record(Schema.String, Schema.Unknown),
+                          Schema.Null,
+                        ]),
+                      ),
+                      model: Schema.optional(
+                        Schema.Union([
+                          Schema.Struct({
+                            mode: Schema.Literal("filter"),
+                            values: Schema.Array(Schema.String),
+                          }),
+                          Schema.Null,
+                        ]),
+                      ),
+                      provider: Schema.optional(
+                        Schema.Union([
+                          Schema.Struct({
+                            mode: Schema.Literal("filter"),
+                            values: Schema.Array(Schema.String),
+                          }),
+                          Schema.Null,
+                        ]),
+                      ),
+                      technique: Schema.optional(
+                        Schema.Union([
+                          Schema.Union([
+                            Schema.Literals(["fixed", "sliding"]),
+                            Schema.String,
+                          ]),
+                          Schema.Null,
+                        ]),
+                      ),
+                    }),
+                  ),
+                  Schema.Null,
+                ]),
+              ),
+            }),
+            Schema.Null,
+          ]),
         ),
         storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
         stripe: Schema.optional(
@@ -1146,6 +1301,7 @@ export const ListAiGatewaysResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
           retryBackoff: "retry_backoff",
           retryDelay: "retry_delay",
           retryMaxAttempts: "retry_max_attempts",
+          spendLimits: "spend_limits",
           storeId: "store_id",
           stripe: "stripe",
           workersAiBillingMode: "workers_ai_billing_mode",
@@ -1376,9 +1532,9 @@ export interface CreateAiGatewayResponse {
   logpushPublicKey?: string | null;
   otel?:
     | {
-        authorization: string;
         headers: Record<string, unknown>;
         url: string;
+        authorization?: string | null;
         contentType?: "json" | "protobuf" | (string & {}) | null;
       }[]
     | null;
@@ -1389,6 +1545,22 @@ export interface CreateAiGatewayResponse {
   retryDelay?: number | null;
   /** Maximum number of retry attempts for failed requests (1-5) */
   retryMaxAttempts?: number | null;
+  spendLimits?: {
+    enabled?: boolean | null;
+    rules?:
+      | {
+          limit: number;
+          limitType: "cost";
+          window: number;
+          id?: string | null;
+          enabled?: boolean | null;
+          metadata?: Record<string, unknown> | null;
+          model?: { mode: "filter"; values: string[] } | null;
+          provider?: { mode: "filter"; values: string[] } | null;
+          technique?: "fixed" | "sliding" | (string & {}) | null;
+        }[]
+      | null;
+  } | null;
   storeId?: string | null;
   stripe?: { authorization: string; usageEvents: { payload: string }[] } | null;
   /** Controls how Workers AI inference calls routed through this gateway are billed. Only 'postpaid' is currently supported. */
@@ -1758,9 +1930,11 @@ export const CreateAiGatewayResponse =
       Schema.Union([
         Schema.Array(
           Schema.Struct({
-            authorization: Schema.String,
             headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
+            authorization: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
             contentType: Schema.optional(
               Schema.Union([
                 Schema.Union([
@@ -1772,9 +1946,9 @@ export const CreateAiGatewayResponse =
             ),
           }).pipe(
             Schema.encodeKeys({
-              authorization: "authorization",
               headers: "headers",
               url: "url",
+              authorization: "authorization",
               contentType: "content_type",
             }),
           ),
@@ -1800,6 +1974,65 @@ export const CreateAiGatewayResponse =
     retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     retryMaxAttempts: Schema.optional(
       Schema.Union([Schema.Number, Schema.Null]),
+    ),
+    spendLimits: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          rules: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  limit: Schema.Number,
+                  limitType: Schema.Literal("cost"),
+                  window: Schema.Number,
+                  id: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  enabled: Schema.optional(
+                    Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  metadata: Schema.optional(
+                    Schema.Union([
+                      Schema.Record(Schema.String, Schema.Unknown),
+                      Schema.Null,
+                    ]),
+                  ),
+                  model: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  provider: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  technique: Schema.optional(
+                    Schema.Union([
+                      Schema.Union([
+                        Schema.Literals(["fixed", "sliding"]),
+                        Schema.String,
+                      ]),
+                      Schema.Null,
+                    ]),
+                  ),
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+        }),
+        Schema.Null,
+      ]),
     ),
     storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     stripe: Schema.optional(
@@ -1848,6 +2081,7 @@ export const CreateAiGatewayResponse =
         retryBackoff: "retry_backoff",
         retryDelay: "retry_delay",
         retryMaxAttempts: "retry_max_attempts",
+        spendLimits: "spend_limits",
         storeId: "store_id",
         stripe: "stripe",
         workersAiBillingMode: "workers_ai_billing_mode",
@@ -1950,9 +2184,9 @@ export interface UpdateAiGatewayRequest {
   /** Body param */
   otel?:
     | {
-        authorization: string;
         headers: Record<string, unknown>;
         url: string;
+        authorization?: string;
         contentType?: "json" | "protobuf" | (string & {});
       }[]
     | null;
@@ -1964,6 +2198,21 @@ export interface UpdateAiGatewayRequest {
   retryDelay?: number | null;
   /** Body param: Maximum number of retry attempts for failed requests (1-5) */
   retryMaxAttempts?: number | null;
+  /** Body param */
+  spendLimits?: {
+    enabled?: boolean;
+    rules?: {
+      limit: number;
+      limitType: "cost";
+      window: number;
+      id?: string;
+      enabled?: boolean;
+      metadata?: Record<string, unknown>;
+      model?: { mode: "filter"; values: string[] };
+      provider?: { mode: "filter"; values: string[] };
+      technique?: "fixed" | "sliding" | (string & {});
+    }[];
+  } | null;
   /** Body param */
   storeId?: string | null;
   /** Body param */
@@ -2161,9 +2410,9 @@ export const UpdateAiGatewayRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
       Schema.Union([
         Schema.Array(
           Schema.Struct({
-            authorization: Schema.String,
             headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
+            authorization: Schema.optional(Schema.String),
             contentType: Schema.optional(
               Schema.Union([
                 Schema.Literals(["json", "protobuf"]),
@@ -2172,9 +2421,9 @@ export const UpdateAiGatewayRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
             ),
           }).pipe(
             Schema.encodeKeys({
-              authorization: "authorization",
               headers: "headers",
               url: "url",
+              authorization: "authorization",
               contentType: "content_type",
             }),
           ),
@@ -2200,6 +2449,46 @@ export const UpdateAiGatewayRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     retryMaxAttempts: Schema.optional(
       Schema.Union([Schema.Number, Schema.Null]),
+    ),
+    spendLimits: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          enabled: Schema.optional(Schema.Boolean),
+          rules: Schema.optional(
+            Schema.Array(
+              Schema.Struct({
+                limit: Schema.Number,
+                limitType: Schema.Literal("cost"),
+                window: Schema.Number,
+                id: Schema.optional(Schema.String),
+                enabled: Schema.optional(Schema.Boolean),
+                metadata: Schema.optional(
+                  Schema.Record(Schema.String, Schema.Unknown),
+                ),
+                model: Schema.optional(
+                  Schema.Struct({
+                    mode: Schema.Literal("filter"),
+                    values: Schema.Array(Schema.String),
+                  }),
+                ),
+                provider: Schema.optional(
+                  Schema.Struct({
+                    mode: Schema.Literal("filter"),
+                    values: Schema.Array(Schema.String),
+                  }),
+                ),
+                technique: Schema.optional(
+                  Schema.Union([
+                    Schema.Literals(["fixed", "sliding"]),
+                    Schema.String,
+                  ]),
+                ),
+              }),
+            ),
+          ),
+        }),
+        Schema.Null,
+      ]),
     ),
     storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     stripe: Schema.optional(
@@ -2242,6 +2531,7 @@ export const UpdateAiGatewayRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
     retryBackoff: "retry_backoff",
     retryDelay: "retry_delay",
     retryMaxAttempts: "retry_max_attempts",
+    spendLimits: "spend_limits",
     storeId: "store_id",
     stripe: "stripe",
     workersAiBillingMode: "workers_ai_billing_mode",
@@ -2322,9 +2612,9 @@ export interface UpdateAiGatewayResponse {
   logpushPublicKey?: string | null;
   otel?:
     | {
-        authorization: string;
         headers: Record<string, unknown>;
         url: string;
+        authorization?: string | null;
         contentType?: "json" | "protobuf" | (string & {}) | null;
       }[]
     | null;
@@ -2335,6 +2625,22 @@ export interface UpdateAiGatewayResponse {
   retryDelay?: number | null;
   /** Maximum number of retry attempts for failed requests (1-5) */
   retryMaxAttempts?: number | null;
+  spendLimits?: {
+    enabled?: boolean | null;
+    rules?:
+      | {
+          limit: number;
+          limitType: "cost";
+          window: number;
+          id?: string | null;
+          enabled?: boolean | null;
+          metadata?: Record<string, unknown> | null;
+          model?: { mode: "filter"; values: string[] } | null;
+          provider?: { mode: "filter"; values: string[] } | null;
+          technique?: "fixed" | "sliding" | (string & {}) | null;
+        }[]
+      | null;
+  } | null;
   storeId?: string | null;
   stripe?: { authorization: string; usageEvents: { payload: string }[] } | null;
   /** Controls how Workers AI inference calls routed through this gateway are billed. Only 'postpaid' is currently supported. */
@@ -2704,9 +3010,11 @@ export const UpdateAiGatewayResponse =
       Schema.Union([
         Schema.Array(
           Schema.Struct({
-            authorization: Schema.String,
             headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
+            authorization: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
             contentType: Schema.optional(
               Schema.Union([
                 Schema.Union([
@@ -2718,9 +3026,9 @@ export const UpdateAiGatewayResponse =
             ),
           }).pipe(
             Schema.encodeKeys({
-              authorization: "authorization",
               headers: "headers",
               url: "url",
+              authorization: "authorization",
               contentType: "content_type",
             }),
           ),
@@ -2746,6 +3054,65 @@ export const UpdateAiGatewayResponse =
     retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     retryMaxAttempts: Schema.optional(
       Schema.Union([Schema.Number, Schema.Null]),
+    ),
+    spendLimits: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          rules: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  limit: Schema.Number,
+                  limitType: Schema.Literal("cost"),
+                  window: Schema.Number,
+                  id: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  enabled: Schema.optional(
+                    Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  metadata: Schema.optional(
+                    Schema.Union([
+                      Schema.Record(Schema.String, Schema.Unknown),
+                      Schema.Null,
+                    ]),
+                  ),
+                  model: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  provider: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  technique: Schema.optional(
+                    Schema.Union([
+                      Schema.Union([
+                        Schema.Literals(["fixed", "sliding"]),
+                        Schema.String,
+                      ]),
+                      Schema.Null,
+                    ]),
+                  ),
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+        }),
+        Schema.Null,
+      ]),
     ),
     storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     stripe: Schema.optional(
@@ -2794,6 +3161,7 @@ export const UpdateAiGatewayResponse =
         retryBackoff: "retry_backoff",
         retryDelay: "retry_delay",
         retryMaxAttempts: "retry_max_attempts",
+        spendLimits: "spend_limits",
         storeId: "store_id",
         stripe: "stripe",
         workersAiBillingMode: "workers_ai_billing_mode",
@@ -2903,9 +3271,9 @@ export interface DeleteAiGatewayResponse {
   logpushPublicKey?: string | null;
   otel?:
     | {
-        authorization: string;
         headers: Record<string, unknown>;
         url: string;
+        authorization?: string | null;
         contentType?: "json" | "protobuf" | (string & {}) | null;
       }[]
     | null;
@@ -2916,6 +3284,22 @@ export interface DeleteAiGatewayResponse {
   retryDelay?: number | null;
   /** Maximum number of retry attempts for failed requests (1-5) */
   retryMaxAttempts?: number | null;
+  spendLimits?: {
+    enabled?: boolean | null;
+    rules?:
+      | {
+          limit: number;
+          limitType: "cost";
+          window: number;
+          id?: string | null;
+          enabled?: boolean | null;
+          metadata?: Record<string, unknown> | null;
+          model?: { mode: "filter"; values: string[] } | null;
+          provider?: { mode: "filter"; values: string[] } | null;
+          technique?: "fixed" | "sliding" | (string & {}) | null;
+        }[]
+      | null;
+  } | null;
   storeId?: string | null;
   stripe?: { authorization: string; usageEvents: { payload: string }[] } | null;
   /** Controls how Workers AI inference calls routed through this gateway are billed. Only 'postpaid' is currently supported. */
@@ -3285,9 +3669,11 @@ export const DeleteAiGatewayResponse =
       Schema.Union([
         Schema.Array(
           Schema.Struct({
-            authorization: Schema.String,
             headers: Schema.Record(Schema.String, Schema.Unknown),
             url: Schema.String,
+            authorization: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
             contentType: Schema.optional(
               Schema.Union([
                 Schema.Union([
@@ -3299,9 +3685,9 @@ export const DeleteAiGatewayResponse =
             ),
           }).pipe(
             Schema.encodeKeys({
-              authorization: "authorization",
               headers: "headers",
               url: "url",
+              authorization: "authorization",
               contentType: "content_type",
             }),
           ),
@@ -3327,6 +3713,65 @@ export const DeleteAiGatewayResponse =
     retryDelay: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
     retryMaxAttempts: Schema.optional(
       Schema.Union([Schema.Number, Schema.Null]),
+    ),
+    spendLimits: Schema.optional(
+      Schema.Union([
+        Schema.Struct({
+          enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          rules: Schema.optional(
+            Schema.Union([
+              Schema.Array(
+                Schema.Struct({
+                  limit: Schema.Number,
+                  limitType: Schema.Literal("cost"),
+                  window: Schema.Number,
+                  id: Schema.optional(
+                    Schema.Union([Schema.String, Schema.Null]),
+                  ),
+                  enabled: Schema.optional(
+                    Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  metadata: Schema.optional(
+                    Schema.Union([
+                      Schema.Record(Schema.String, Schema.Unknown),
+                      Schema.Null,
+                    ]),
+                  ),
+                  model: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  provider: Schema.optional(
+                    Schema.Union([
+                      Schema.Struct({
+                        mode: Schema.Literal("filter"),
+                        values: Schema.Array(Schema.String),
+                      }),
+                      Schema.Null,
+                    ]),
+                  ),
+                  technique: Schema.optional(
+                    Schema.Union([
+                      Schema.Union([
+                        Schema.Literals(["fixed", "sliding"]),
+                        Schema.String,
+                      ]),
+                      Schema.Null,
+                    ]),
+                  ),
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+        }),
+        Schema.Null,
+      ]),
     ),
     storeId: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     stripe: Schema.optional(
@@ -3375,6 +3820,7 @@ export const DeleteAiGatewayResponse =
         retryBackoff: "retry_backoff",
         retryDelay: "retry_delay",
         retryMaxAttempts: "retry_max_attempts",
+        spendLimits: "spend_limits",
         storeId: "store_id",
         stripe: "stripe",
         workersAiBillingMode: "workers_ai_billing_mode",
@@ -7498,6 +7944,7 @@ export interface ListLogsRequest {
       | "wholesale"
       | "compatibilityMode"
       | "dlp_action"
+      | "user_agent"
       | (string & {});
     operator: "eq" | "neq" | "contains" | "lt" | "gt" | (string & {});
     value: (string | null | number | boolean)[];
@@ -7594,6 +8041,7 @@ export const ListLogsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             "wholesale",
             "compatibilityMode",
             "dlp_action",
+            "user_agent",
           ]),
           Schema.String,
         ]),
@@ -7870,6 +8318,7 @@ export interface DeleteLogRequest {
       | "wholesale"
       | "compatibilityMode"
       | "dlp_action"
+      | "user_agent"
       | (string & {});
     operator: "eq" | "neq" | "contains" | "lt" | "gt" | (string & {});
     value: (string | null | number | boolean)[];
@@ -7925,6 +8374,7 @@ export const DeleteLogRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
             "wholesale",
             "compatibilityMode",
             "dlp_action",
+            "user_agent",
           ]),
           Schema.String,
         ]),
@@ -8336,13 +8786,13 @@ export interface CreateProviderConfigRequest {
   /** Body param */
   providerSlug: string;
   /** Body param */
-  secret?: string;
-  /** Body param */
-  secretId?: string;
-  /** Body param */
   rateLimit?: number;
   /** Body param */
   rateLimitPeriod?: number;
+  /** Body param */
+  secret?: string;
+  /** Body param */
+  secretId?: string;
 }
 
 export const CreateProviderConfigRequest =
@@ -8352,19 +8802,19 @@ export const CreateProviderConfigRequest =
     alias: Schema.String,
     defaultConfig: Schema.Boolean,
     providerSlug: Schema.String,
-    secret: Schema.optional(Schema.String),
-    secretId: Schema.optional(Schema.String),
     rateLimit: Schema.optional(Schema.Number),
     rateLimitPeriod: Schema.optional(Schema.Number),
+    secret: Schema.optional(Schema.String),
+    secretId: Schema.optional(Schema.String),
   }).pipe(
     Schema.encodeKeys({
       alias: "alias",
       defaultConfig: "default_config",
       providerSlug: "provider_slug",
-      secret: "secret",
-      secretId: "secret_id",
       rateLimit: "rate_limit",
       rateLimitPeriod: "rate_limit_period",
+      secret: "secret",
+      secretId: "secret_id",
     }),
     T.Http({
       method: "POST",

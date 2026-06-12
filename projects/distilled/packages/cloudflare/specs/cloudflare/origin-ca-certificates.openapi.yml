@@ -147,7 +147,7 @@ paths:
         - name: offset
           in: query
           required: false
-          description: Offset the results
+          description: Offset the results.
           schema:
             type: number
       responses:

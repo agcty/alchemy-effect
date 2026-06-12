@@ -382,7 +382,7 @@ export interface GetDnsFirewallResponse {
   name: string;
   /** This setting controls how long DNS Firewall should cache negative responses (e.g., NXDOMAIN) from the upstream servers.  This setting does not affect the TTL value in the DNS response Cloudflare retur */
   negativeCacheTtl: number | null;
-  /** Ratelimit in queries per second per datacenter (applies to DNS queries sent to the upstream nameservers configured on the cluster) */
+  /** Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured value. The actua */
   ratelimit: number | null;
   /** Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
   retries: number;
@@ -616,6 +616,8 @@ export interface CreateDnsFirewallRequest {
   } | null;
   /** Body param: Whether to refuse to answer queries for the ANY type */
   deprecateAnyRequests?: boolean;
+  /** Body param: Number of IPv4 addresses to assign to the DNS Firewall cluster. Only used during cluster creation and cannot be changed later. */
+  dnsFirewallIpCount?: number;
   /** Body param: Whether to forward client IP (resolver) subnet if no EDNS Client Subnet is sent */
   ecsFallback?: boolean;
   /** Body param: By default, Cloudflare attempts to cache responses for as long as indicated by the TTL received from upstream nameservers. This setting sets an upper bound on this duration. For caching pu */
@@ -624,7 +626,7 @@ export interface CreateDnsFirewallRequest {
   minimumCacheTtl?: number;
   /** Body param: This setting controls how long DNS Firewall should cache negative responses (e.g., NXDOMAIN) from the upstream servers.  This setting does not affect the TTL value in the DNS response Clou */
   negativeCacheTtl?: number | null;
-  /** Body param: Ratelimit in queries per second per datacenter (applies to DNS queries sent to the upstream nameservers configured on the cluster) */
+  /** Body param: Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured valu */
   ratelimit?: number | null;
   /** Body param: Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
   retries?: number;
@@ -650,6 +652,7 @@ export const CreateDnsFirewallRequest =
       ]),
     ),
     deprecateAnyRequests: Schema.optional(Schema.Boolean),
+    dnsFirewallIpCount: Schema.optional(Schema.Number),
     ecsFallback: Schema.optional(Schema.Boolean),
     maximumCacheTtl: Schema.optional(Schema.Number),
     minimumCacheTtl: Schema.optional(Schema.Number),
@@ -664,6 +667,7 @@ export const CreateDnsFirewallRequest =
       upstreamIps: "upstream_ips",
       attackMitigation: "attack_mitigation",
       deprecateAnyRequests: "deprecate_any_requests",
+      dnsFirewallIpCount: "dns_firewall_ip_count",
       ecsFallback: "ecs_fallback",
       maximumCacheTtl: "maximum_cache_ttl",
       minimumCacheTtl: "minimum_cache_ttl",
@@ -692,7 +696,7 @@ export interface CreateDnsFirewallResponse {
   name: string;
   /** This setting controls how long DNS Firewall should cache negative responses (e.g., NXDOMAIN) from the upstream servers.  This setting does not affect the TTL value in the DNS response Cloudflare retur */
   negativeCacheTtl: number | null;
-  /** Ratelimit in queries per second per datacenter (applies to DNS queries sent to the upstream nameservers configured on the cluster) */
+  /** Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured value. The actua */
   ratelimit: number | null;
   /** Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
   retries: number;
@@ -793,7 +797,7 @@ export interface PatchDnsFirewallRequest {
   name?: string;
   /** Body param: This setting controls how long DNS Firewall should cache negative responses (e.g., NXDOMAIN) from the upstream servers.  This setting does not affect the TTL value in the DNS response Clou */
   negativeCacheTtl?: number | null;
-  /** Body param: Ratelimit in queries per second per datacenter (applies to DNS queries sent to the upstream nameservers configured on the cluster) */
+  /** Body param: Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured valu */
   ratelimit?: number | null;
   /** Body param: Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
   retries?: number;
@@ -867,7 +871,7 @@ export interface PatchDnsFirewallResponse {
   name: string;
   /** This setting controls how long DNS Firewall should cache negative responses (e.g., NXDOMAIN) from the upstream servers.  This setting does not affect the TTL value in the DNS response Cloudflare retur */
   negativeCacheTtl: number | null;
-  /** Ratelimit in queries per second per datacenter (applies to DNS queries sent to the upstream nameservers configured on the cluster) */
+  /** Maximum number of DNS queries per second that will be forwarded to your upstream nameservers. The limit is enforced per server, where each server receives a fraction of the configured value. The actua */
   ratelimit: number | null;
   /** Number of retries for fetching DNS responses from upstream nameservers (not counting the initial attempt) */
   retries: number;
