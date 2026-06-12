@@ -5458,8 +5458,10 @@ paths:
                         - colors
                         - spacing_base
                         - theme
+                    config_diff: {}
                   required:
                     - design_tokens
+                    - config_diff
                   description: Body param
               required:
                 - config
@@ -5902,6 +5904,7 @@ paths:
                               - colors
                               - spacing_base
                               - theme
+                          config_diff: {}
                         required:
                           - design_tokens
                       updated_at:
@@ -6276,6 +6279,7 @@ paths:
                             - darkest
                             - dark
                             - light
+                    config_diff: {}
                   description: Body param
       responses:
         "200":
@@ -6801,6 +6805,7 @@ paths:
                               - colors
                               - spacing_base
                               - theme
+                          config_diff: {}
                         required:
                           - design_tokens
                       updated_at:

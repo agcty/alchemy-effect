@@ -269,6 +269,31 @@ const loadServicePatches = (
       }
     }
 
+    // Orphan check: every patch file must correspond to a generated
+    // operation. A spec update that renames or removes an operation would
+    // otherwise silently drop the patch (and its typed errors) — and leave
+    // consumers compiled against an API surface that no longer exists.
+    const fs = yield* FileSystem.FileSystem;
+    const patchDir = path.join(PATCH_PATH, serviceName);
+    const patchFiles = yield* fs
+      .readDirectory(patchDir)
+      .pipe(Effect.catch(() => Effect.succeed([] as string[])));
+    const opNames = new Set(operations.map((op) => op.operationName));
+    const orphans = patchFiles
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => f.slice(0, -".json".length))
+      .filter((name) => !opNames.has(name));
+    if (orphans.length > 0) {
+      return yield* Effect.die(
+        `Orphaned patch file(s) in ${patchDir}: ${orphans
+          .map((o) => `${o}.json`)
+          .join(", ")} — no matching operation in the regenerated '${serviceName}' service. ` +
+          `The upstream spec likely renamed or removed the operation; ` +
+          `re-key the patch to the new operation name (available: ${[...opNames].sort().join(", ")}) ` +
+          `or delete it, and migrate consumers in packages/alchemy.`,
+      );
+    }
+
     return patches;
   });
 

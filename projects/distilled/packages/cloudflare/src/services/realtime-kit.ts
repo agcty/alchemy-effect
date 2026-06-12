@@ -6694,6 +6694,7 @@ export interface CreatePresetRequest {
       googleFont?: string;
       logo?: string;
     };
+    configDiff: unknown;
   };
 }
 
@@ -6966,7 +6967,13 @@ export const CreatePresetRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
         logo: "logo",
       }),
     ),
-  }).pipe(Schema.encodeKeys({ designTokens: "design_tokens" })),
+    configDiff: Schema.Unknown,
+  }).pipe(
+    Schema.encodeKeys({
+      designTokens: "design_tokens",
+      configDiff: "config_diff",
+    }),
+  ),
 }).pipe(
   T.Http({
     method: "POST",
@@ -7107,6 +7114,7 @@ export interface CreatePresetResponse {
         googleFont?: string | null;
         logo?: string | null;
       };
+      configDiff?: unknown | null;
     };
     updatedAt: string;
   };
@@ -7402,7 +7410,13 @@ export const CreatePresetResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           logo: "logo",
         }),
       ),
-    }).pipe(Schema.encodeKeys({ designTokens: "design_tokens" })),
+      configDiff: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
+    }).pipe(
+      Schema.encodeKeys({
+        designTokens: "design_tokens",
+        configDiff: "config_diff",
+      }),
+    ),
     updatedAt: Schema.String,
   }).pipe(
     Schema.encodeKeys({
@@ -7560,6 +7574,7 @@ export interface PatchPresetRequest {
       spacingBase?: number;
       theme?: "darkest" | "dark" | "light" | (string & {});
     };
+    configDiff?: unknown;
   };
 }
 
@@ -7913,7 +7928,13 @@ export const PatchPresetRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
           }),
         ),
       ),
-    }).pipe(Schema.encodeKeys({ designTokens: "design_tokens" })),
+      configDiff: Schema.optional(Schema.Unknown),
+    }).pipe(
+      Schema.encodeKeys({
+        designTokens: "design_tokens",
+        configDiff: "config_diff",
+      }),
+    ),
   ),
 }).pipe(
   T.Http({
@@ -8152,6 +8173,7 @@ export interface GetPresetByIdPresetResponse {
         googleFont?: string | null;
         logo?: string | null;
       };
+      configDiff?: unknown | null;
     };
     updatedAt: string;
   };
@@ -8463,7 +8485,15 @@ export const GetPresetByIdPresetResponse =
             logo: "logo",
           }),
         ),
-      }).pipe(Schema.encodeKeys({ designTokens: "design_tokens" })),
+        configDiff: Schema.optional(
+          Schema.Union([Schema.Unknown, Schema.Null]),
+        ),
+      }).pipe(
+        Schema.encodeKeys({
+          designTokens: "design_tokens",
+          configDiff: "config_diff",
+        }),
+      ),
       updatedAt: Schema.String,
     }).pipe(
       Schema.encodeKeys({
