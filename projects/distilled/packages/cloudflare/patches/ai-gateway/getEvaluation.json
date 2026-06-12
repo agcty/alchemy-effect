@@ -6,7 +6,9 @@
     "properties": {
       "datasets[].enable": { "type": "unknown" },
       "datasets[].account_id": { "optional": true },
-      "datasets[].account_tag": { "optional": true }
+      "datasets[].account_tag": { "optional": true },
+      "results[].status": { "type": "unknown" },
+      "results[].status_description": { "type": "unknown" }
     }
   }
 }

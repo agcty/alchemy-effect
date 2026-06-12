@@ -16,11 +16,27 @@ import { type DefaultErrors } from "../errors.ts";
 // Errors
 // =============================================================================
 
+export class DatasetNameAlreadyExists extends Schema.TaggedErrorClass<DatasetNameAlreadyExists>()(
+  "DatasetNameAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DatasetNameAlreadyExists, [
+  { status: 400, message: { includes: "already exists" } },
+]);
+
 export class DatasetNotFound extends Schema.TaggedErrorClass<DatasetNotFound>()(
   "DatasetNotFound",
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(DatasetNotFound, [{ code: 7002 }]);
+
+export class EvaluationNameAlreadyExists extends Schema.TaggedErrorClass<EvaluationNameAlreadyExists>()(
+  "EvaluationNameAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(EvaluationNameAlreadyExists, [
+  { status: 400, message: { includes: "already exists" } },
+]);
 
 export class EvaluationNotFound extends Schema.TaggedErrorClass<EvaluationNotFound>()(
   "EvaluationNotFound",
@@ -4746,7 +4762,10 @@ export const CreateDatasetResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
     T.ResponsePath("result"),
   ) as unknown as Schema.Schema<CreateDatasetResponse>;
 
-export type CreateDatasetError = DefaultErrors | GatewayNotFound;
+export type CreateDatasetError =
+  | DefaultErrors
+  | GatewayNotFound
+  | DatasetNameAlreadyExists;
 
 export const createDataset: API.OperationMethod<
   CreateDatasetRequest,
@@ -4756,7 +4775,7 @@ export const createDataset: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateDatasetRequest,
   output: CreateDatasetResponse,
-  errors: [GatewayNotFound],
+  errors: [GatewayNotFound, DatasetNameAlreadyExists],
 }));
 
 export interface UpdateDatasetRequest {
@@ -6690,8 +6709,8 @@ export interface GetEvaluationResponse {
     evaluationTypeId: string;
     modifiedAt: string;
     result: string;
-    status: number;
-    statusDescription: string;
+    status: unknown;
+    statusDescription: unknown;
     totalLogs: number;
   }[];
   totalLogs: number;
@@ -6765,8 +6784,8 @@ export const GetEvaluationResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
       evaluationTypeId: Schema.String,
       modifiedAt: Schema.String,
       result: Schema.String,
-      status: Schema.Number,
-      statusDescription: Schema.String,
+      status: Schema.Unknown,
+      statusDescription: Schema.Unknown,
       totalLogs: Schema.Number,
     }).pipe(
       Schema.encodeKeys({
@@ -6889,8 +6908,8 @@ export interface ListEvaluationsResponse {
       evaluationTypeId: string;
       modifiedAt: string;
       result: string;
-      status: number;
-      statusDescription: string;
+      status: unknown;
+      statusDescription: unknown;
       totalLogs: number;
     }[];
     totalLogs: number;
@@ -6978,8 +6997,8 @@ export const ListEvaluationsResponse =
             evaluationTypeId: Schema.String,
             modifiedAt: Schema.String,
             result: Schema.String,
-            status: Schema.Number,
-            statusDescription: Schema.String,
+            status: Schema.Unknown,
+            statusDescription: Schema.Unknown,
             totalLogs: Schema.Number,
           }).pipe(
             Schema.encodeKeys({
@@ -7129,8 +7148,8 @@ export interface CreateEvaluationResponse {
     evaluationTypeId: string;
     modifiedAt: string;
     result: string;
-    status: number;
-    statusDescription: string;
+    status: unknown;
+    statusDescription: unknown;
     totalLogs: number;
   }[];
   totalLogs: number;
@@ -7205,8 +7224,8 @@ export const CreateEvaluationResponse =
         evaluationTypeId: Schema.String,
         modifiedAt: Schema.String,
         result: Schema.String,
-        status: Schema.Number,
-        statusDescription: Schema.String,
+        status: Schema.Unknown,
+        statusDescription: Schema.Unknown,
         totalLogs: Schema.Number,
       }).pipe(
         Schema.encodeKeys({
@@ -7241,7 +7260,10 @@ export const CreateEvaluationResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<CreateEvaluationResponse>;
 
-export type CreateEvaluationError = DefaultErrors | GatewayNotFound;
+export type CreateEvaluationError =
+  | DefaultErrors
+  | GatewayNotFound
+  | EvaluationNameAlreadyExists;
 
 export const createEvaluation: API.OperationMethod<
   CreateEvaluationRequest,
@@ -7251,7 +7273,7 @@ export const createEvaluation: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateEvaluationRequest,
   output: CreateEvaluationResponse,
-  errors: [GatewayNotFound],
+  errors: [GatewayNotFound, EvaluationNameAlreadyExists],
 }));
 
 export interface DeleteEvaluationRequest {
@@ -7319,8 +7341,8 @@ export interface DeleteEvaluationResponse {
         evaluationTypeId: string;
         modifiedAt: string;
         result: string;
-        status: number;
-        statusDescription: string;
+        status: unknown;
+        statusDescription: unknown;
         totalLogs: number;
       }[]
     | null;
@@ -7407,8 +7429,8 @@ export const DeleteEvaluationResponse =
             evaluationTypeId: Schema.String,
             modifiedAt: Schema.String,
             result: Schema.String,
-            status: Schema.Number,
-            statusDescription: Schema.String,
+            status: Schema.Unknown,
+            statusDescription: Schema.Unknown,
             totalLogs: Schema.Number,
           }).pipe(
             Schema.encodeKeys({
