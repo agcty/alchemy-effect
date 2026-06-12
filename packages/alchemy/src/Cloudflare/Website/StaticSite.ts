@@ -4,9 +4,10 @@ import * as Redacted from "effect/Redacted";
 import { AlchemyContext } from "../../AlchemyContext.ts";
 import { Command, type CommandProps } from "../../Build/Command.ts";
 import { DevServer } from "../../Build/DevServer.ts";
-import type { InputProps } from "../../Input.ts";
+import type { Input, InputProps } from "../../Input.ts";
 import * as Namespace from "../../Namespace.ts";
 import { effectClass } from "../../Util/effect.ts";
+import { asEffect } from "../../Util/types.ts";
 import type { Providers } from "../Providers.ts";
 import type { AssetsConfig } from "../Workers/Assets.ts";
 import {
@@ -55,13 +56,11 @@ export interface StaticSiteProps<Bindings extends WorkerBindingProps = {}>
      */
     cwd?: string;
     /**
-     * Extra environment variables for {@link command}, on top of the
-     * inherited `process.env` and the top-level `env` (string and `Redacted`
-     * worker env values flow to the dev process automatically; entries here
-     * take precedence). `Redacted` values stay out of logs and state
-     * snapshots, so secrets (e.g. `WRANGLER_HYPERDRIVE_LOCAL_CONNECTION_STRING_*`
-     * overrides pointing the local dev server at a real database branch)
-     * belong here rather than interpolated into {@link command}.
+     * Environment variables for {@link command}, merged on top of
+     * `process.env`. When set, these replace the top-level `env` for the
+     * dev process; otherwise the top-level `env` is passed through.
+     * `Redacted` values stay out of logs and state, so put secrets here
+     * rather than interpolating them into {@link command}.
      */
     env?: Record<string, string | Redacted.Redacted<string>>;
     /**
@@ -218,90 +217,75 @@ const makeStaticSite = <
     | Effect.Effect<InputProps<StaticSiteProps<Bindings>, "dev">, never, Req>,
 ) =>
   Effect.gen(function* () {
-    const props = Effect.isEffect(propsEff)
-      ? propsEff
-      : Effect.succeed(propsEff);
-    const { dev: isDevPhase } = yield* AlchemyContext;
+    const ctx = yield* AlchemyContext;
+    const props = yield* asEffect(propsEff);
 
-    return yield* Effect.gen(function* () {
-      const resolved = yield* props;
-      const useDevServer = isDevPhase && resolved.dev !== undefined;
-
-      // The dev command stands in for the deployed worker, so the top-level
-      // `env` flows to its process too, with `dev.env` as overrides. Only
-      // process-env material crosses: strings and `Redacted` values. Binding
-      // objects aren't environment variables, and deferred values (`Config`,
-      // resource references) cannot be safely forced at construction time.
-      const inheritedDevEnv =
-        useDevServer && resolved.env
-          ? Object.fromEntries(
-              Object.entries(resolved.env).flatMap(([k, v]) =>
-                typeof v === "string" || Redacted.isRedacted(v) ? [[k, v]] : [],
-              ),
-            )
-          : undefined;
-
-      // In dev mode with a dev.command, declare a DevCommand resource so
-      // the sidecar owns the process lifecycle (survives user-code HMR),
-      // skip the build, and tell Worker not to start a local instance.
-      let devUrl = yield* useDevServer
-        ? DevServer("Dev", {
-            command: resolved.dev!.command,
+    // In dev mode with a dev.command, declare a DevCommand resource so
+    // the sidecar owns the process lifecycle (survives user-code HMR),
+    // skip the build, and tell Worker not to start a local instance.
+    const dev =
+      ctx.dev && props.dev
+        ? yield* DevServer("Dev", {
+            command: props.dev.command,
             cwd:
-              resolved.dev!.cwd ??
-              (typeof resolved.cwd === "string" ? resolved.cwd : undefined),
-            env:
-              inheritedDevEnv || resolved.dev!.env
-                ? { ...inheritedDevEnv, ...resolved.dev!.env }
-                : undefined,
+              props.dev.cwd ??
+              (typeof props.cwd === "string" ? props.cwd : undefined),
+            env: serializeEnv(props.dev.env ?? props.env),
           }).pipe(
             Effect.map((d) =>
-              Output.map(d.url, (url) => url ?? resolved.dev?.url ?? false),
+              Output.map(d.url, (url) => ({
+                url: url ?? props.dev?.url ?? (false as const),
+              })),
             ),
           )
-        : Effect.succeed(false as const);
+        : undefined;
 
-      const build = useDevServer
-        ? undefined
-        : yield* Command("Build", {
-            command: resolved.command,
-            cwd: resolved.cwd,
-            memo: resolved.memo,
-            outdir: resolved.outdir,
-            env: resolved.env
-              ? Object.fromEntries(
-                  Object.entries(resolved.env).flatMap(([k, v]) => {
-                    if (v === undefined) return [];
-                    if (typeof v === "string" || Redacted.isRedacted(v))
-                      return [[k, v]];
-                    return [[k, JSON.stringify(v)]];
-                  }),
-                )
-              : undefined,
-          });
+    const build = dev
+      ? undefined
+      : yield* Command("Build", {
+          command: props.command,
+          cwd: props.cwd,
+          memo: props.memo,
+          outdir: props.outdir,
+          env: serializeEnv(props.env),
+        });
 
-      // Pure-static sites don't need a custom Worker entrypoint —
-      // delegate every request straight to the ASSETS binding. Only
-      // injected when the user provided neither `main` nor `script`.
-      const fallbackScript =
-        resolved.main == null && resolved.script == null
-          ? `export default { fetch: (request, env) => env.ASSETS.fetch(request) };`
-          : undefined;
+    // Pure-static sites don't need a custom Worker entrypoint —
+    // delegate every request straight to the ASSETS binding. Only
+    // injected when the user provided neither `main` nor `script`.
+    const fallbackScript =
+      props.main == null && props.script == null
+        ? `export default { fetch: (request, env) => env.ASSETS.fetch(request) };`
+        : undefined;
 
-      return yield* Worker<Bindings, WorkerAssetsConfig, Req>("Worker", {
-        ...resolved,
-        assets: build
-          ? {
-              directory: build.outdir,
-              hash: build.hash,
-              ...resolved.assets,
-            }
-          : undefined,
-        // Opt out of the local Worker in dev when the external DevCommand
-        // is serving the content. The Worker resource still exists in
-        // state with a stub Attributes shape.
-        dev: useDevServer ? devUrl : undefined,
-        script: fallbackScript ?? resolved.script,
-      });
+    return yield* Worker<Bindings, WorkerAssetsConfig, Req>("Worker", {
+      ...props,
+      assets: build
+        ? {
+            directory: build.outdir,
+            hash: build.hash,
+            ...props.assets,
+          }
+        : undefined,
+      // Opt out of the local Worker in dev when the external DevCommand
+      // is serving the content. The Worker resource still exists in
+      // state with a stub Attributes shape.
+      dev: dev ? dev.url : undefined,
+      script: fallbackScript ?? props.script,
     });
   }).pipe(Namespace.push(id));
+
+const serializeEnv = (
+  env: Input<
+    | WorkerBindingProps
+    | Record<string, string | Redacted.Redacted<string>>
+    | undefined
+  >,
+) =>
+  Object.fromEntries(
+    Object.entries(env ?? {}).flatMap(([k, v]) => {
+      if (v === undefined) return [];
+      if (typeof v === "string" || Redacted.isRedacted(v)) return [[k, v]];
+      return [[k, JSON.stringify(v)]];
+    }),
+  );
