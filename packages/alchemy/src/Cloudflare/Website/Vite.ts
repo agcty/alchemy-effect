@@ -11,6 +11,7 @@ import {
   type WorkerBindingProps,
   type WorkerProps,
 } from "../Workers/Worker.ts";
+import type { CloudflareVitePluginOptionsWithAssets } from "../Workers/Vite.ts";
 export interface ViteProps<
   Bindings extends WorkerBindingProps = {},
 > extends Omit<WorkerProps<Bindings>, "vite" | "main" | "assets"> {
@@ -32,6 +33,11 @@ export interface ViteProps<
    * Supports `runWorkerFirst`, `htmlHandling`, `notFoundHandling`, etc.
    */
   assets?: AssetsConfig;
+  /**
+   * Advanced Vite environment topology for Worker builds. RSC apps usually
+   * run the Worker in the `rsc` environment and load `ssr` as a child.
+   */
+  viteEnvironment?: CloudflareVitePluginOptionsWithAssets["viteEnvironment"];
 }
 
 /**
@@ -79,7 +85,25 @@ export interface ViteProps<
  *     flags: ["nodejs_compat"],
  *   },
  *   assets: {
- *     config: { runWorkerFirst: true },
+ *     runWorkerFirst: true,
+ *   },
+ * });
+ * ```
+ *
+ * @section React Server Components
+ * For RSC frameworks that use Vite child environments, pass the Worker
+ * topology through `viteEnvironment`. Alchemy requires the distilled build
+ * manifest for this topology so it can upload the full Worker module set.
+ *
+ * @example RSC topology
+ * ```typescript
+ * const app = yield* Cloudflare.Vite("ReactRouter", {
+ *   compatibility: {
+ *     flags: ["nodejs_compat"],
+ *   },
+ *   viteEnvironment: {
+ *     name: "rsc",
+ *     childEnvironments: ["ssr"],
  *   },
  * });
  * ```
@@ -95,12 +119,55 @@ export interface ViteProps<
  *     flags: ["nodejs_compat"],
  *   },
  *   assets: {
- *     config: {
- *       htmlHandling: "auto-trailing-slash",
- *       notFoundHandling: "single-page-application",
- *     },
+ *     htmlHandling: "auto-trailing-slash",
+ *     notFoundHandling: "single-page-application",
  *   },
  * });
+ * ```
+ *
+ * @section Vite Worker With Durable Objects
+ * For Vite apps that own their Worker entrypoint, configure the entry in the
+ * Vite project (usually via the framework plugin, or `environments.ssr.build`
+ * for custom apps). Export the default Worker handler and any local Durable
+ * Object classes from that Vite entry. Alchemy deploys the Vite-built Worker
+ * module set and attaches the bindings, Durable Object metadata, migrations,
+ * compatibility settings, and assets to the same Worker script.
+ * Declare each local Durable Object with `Cloudflare.DurableObjectNamespace` in
+ * `env`; exporting the class from the Vite entry makes it available to the
+ * Worker module, while the `env` binding is what gives Alchemy ownership of the
+ * namespace and migrations.
+ *
+ * @example One Worker With A Local Durable Object
+ * ```typescript
+ * // alchemy.run.ts
+ * import type { Counter } from "./src/worker.ts";
+ *
+ * const app = yield* Cloudflare.Vite("App", {
+ *   env: {
+ *     Counter: Cloudflare.DurableObjectNamespace<Counter>("Counter", {
+ *       className: "Counter",
+ *     }),
+ *   },
+ *   assets: {
+ *     runWorkerFirst: ["/api/*"],
+ *   },
+ * });
+ *
+ * // src/worker.ts
+ * import { DurableObject } from "cloudflare:workers";
+ *
+ * export class Counter extends DurableObject {
+ *   async increment() {
+ *     return 1;
+ *   }
+ * }
+ *
+ * export default {
+ *   async fetch(request, env) {
+ *     const count = await env.Counter.getByName("main").increment();
+ *     return Response.json({ count });
+ *   },
+ * };
  * ```
  *
  * @section Custom Rebuild Scope
@@ -170,13 +237,17 @@ export const Vite: {
         id,
         Effect.map(
           Effect.isEffect(propsEff) ? propsEff : Effect.succeed(propsEff),
-          (props) => ({
-            ...props,
-            main: undefined!,
-            vite: {
-              rootDir: props?.rootDir,
-              memo: props?.memo,
-            },
-          }),
+          (props) => {
+            const viteEnvironment = props?.viteEnvironment;
+            return {
+              ...props,
+              main: undefined!,
+              vite: {
+                rootDir: props?.rootDir,
+                memo: props?.memo,
+                viteEnvironment,
+              },
+            };
+          },
         ),
       )) as any;

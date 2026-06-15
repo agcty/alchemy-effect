@@ -383,7 +383,7 @@ export const LocalWorkerProvider = () =>
 
       const runVite = Effect.fnUntraced(function* (
         worker: WorkerConfig,
-        rootDir: string | undefined,
+        vite: NonNullable<WorkerProps["vite"]>,
       ) {
         const proxy = yield* maybeStartProxy(worker.id, worker.dev);
         yield* proxy.unset().pipe(Effect.forkChild);
@@ -391,11 +391,12 @@ export const LocalWorkerProvider = () =>
         // (~0.5s); only needed when running a vite dev server.
         const Vite = yield* Effect.promise(() => import("./Vite.ts"));
         const devServer = yield* Vite.viteDev(
-          rootDir,
+          vite.rootDir,
           worker.env ?? {},
           {
             compatibilityDate: worker.compatibility.date,
             compatibilityFlags: worker.compatibility.flags,
+            viteEnvironment: vite.viteEnvironment,
             worker: {
               name: worker.name,
               bindings: worker.workerBindings,
@@ -439,7 +440,7 @@ export const LocalWorkerProvider = () =>
         const { props, bindings } = options;
         const config = yield* buildConfig(options);
         const url = yield* (
-          props.vite ? runVite(config, props.vite.rootDir) : runWorker(config)
+          props.vite ? runVite(config, props.vite) : runWorker(config)
         ).pipe(Effect.map((url) => url.toString()));
         return {
           workerId: config.name,
