@@ -428,18 +428,10 @@ const matchError = (
     );
   }
 
-  // Heuristic fallback: map by HTTP status, but only for non-retryable
-  // 4xx client errors. Envelope errors that didn't match any per-op or
-  // global error code still carry a meaningful HTTP status (400/404/etc.),
-  // so surface that as the typed status error instead of
-  // UnknownCloudflareError.
-  //
-  // We deliberately exclude 5xx and 429 here: the matching error classes
-  // (InternalServerError, ServiceUnavailable, TooManyRequests) carry
-  // retryable categories and the default `Retry.transient` policy will
-  // loop forever on an envelope-shaped 5xx that has no matching error
-  // code. For those, falling through to UnknownCloudflareError preserves
-  // the previous (non-retryable) behavior.
+  // Heuristic fallback: map by HTTP status. Envelope errors that didn't
+  // match any per-op or global error code still carry a meaningful HTTP
+  // status (400/404/etc.), so surface that as the typed status error
+  // instead of UnknownCloudflareError.
   if (status >= 400 && status < 500 && status !== 429) {
     const StatusErrorClass =
       HTTP_STATUS_MAP[status as keyof typeof HTTP_STATUS_MAP];
@@ -451,6 +443,20 @@ const matchError = (
         }),
       );
     }
+  }
+
+  // 5xx inside a Cloudflare envelope that matched no per-op or global
+  // error code is a genuine transient server-side failure (e.g. a bare
+  // `{ code: ..., message: "An internal server error occurred." }` 500).
+  // Map it to the typed, retryable error (InternalServerError for 500,
+  // the specific 5xx class via HTTP_STATUS_MAP otherwise) so the blanket
+  // retry policy rides it out instead of surfacing a non-retryable
+  // UnknownCloudflareError. The shipped policies are bounded
+  // (`makeDefault` caps at 5 attempts; alchemy caps at 8); only callers
+  // that explicitly opt into the indefinite `Retry.transient` accept an
+  // unbounded loop on a persistently-failing endpoint.
+  if (status >= 500) {
+    return Effect.fail(httpStatusError(status, errorMessage, headers));
   }
 
   // No match — return unknown Cloudflare error

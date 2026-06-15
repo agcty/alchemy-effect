@@ -1,6 +1,9 @@
 {
   "errors": {
     "InvalidRoute": [{ "code": 7003 }],
-    "ValidationError": [{ "code": 1001 }]
+    "ValidationError": [{ "code": 1001 }],
+    "AccountMemberAlreadyExists": [
+      { "status": 400, "message": { "includes": "already exists" } }
+    ]
   }
 }

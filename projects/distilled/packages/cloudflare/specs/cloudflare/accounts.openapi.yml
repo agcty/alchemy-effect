@@ -1899,6 +1899,10 @@ paths:
           - code: 7003
         ValidationError:
           - code: 1001
+        AccountMemberAlreadyExists:
+          - status: 400
+            message:
+              includes: already exists
   /accounts/{account_id}/roles/{roleId}:
     get:
       operationId: getRole

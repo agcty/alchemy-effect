@@ -17,6 +17,14 @@ import { SensitiveString } from "../sensitive.ts";
 // Errors
 // =============================================================================
 
+export class CertificateAlreadyDeleted extends Schema.TaggedErrorClass<CertificateAlreadyDeleted>()(
+  "CertificateAlreadyDeleted",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(CertificateAlreadyDeleted, [
+  { status: 400, message: { includes: "already deleted" } },
+]);
+
 export class CertificateAlreadyExists extends Schema.TaggedErrorClass<CertificateAlreadyExists>()(
   "CertificateAlreadyExists",
   { code: Schema.Number, message: Schema.String },
@@ -1294,7 +1302,8 @@ export const DeleteOriginTlsClientAuthResponse =
 export type DeleteOriginTlsClientAuthError =
   | DefaultErrors
   | CertificateNotFound
-  | Forbidden;
+  | Forbidden
+  | CertificateAlreadyDeleted;
 
 export const deleteOriginTlsClientAuth: API.OperationMethod<
   DeleteOriginTlsClientAuthRequest,
@@ -1304,7 +1313,7 @@ export const deleteOriginTlsClientAuth: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteOriginTlsClientAuthRequest,
   output: DeleteOriginTlsClientAuthResponse,
-  errors: [CertificateNotFound, Forbidden],
+  errors: [CertificateNotFound, Forbidden, CertificateAlreadyDeleted],
 }));
 
 // =============================================================================

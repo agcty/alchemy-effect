@@ -3,6 +3,9 @@
     "CertificateNotFound": [
       { "code": 1472, "message": { "includes": "Certificate not found" } },
       { "status": 404 }
+    ],
+    "CertificateAlreadyDeleted": [
+      { "status": 400, "message": { "includes": "already deleted" } }
     ]
   }
 }

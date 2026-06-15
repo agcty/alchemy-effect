@@ -4,6 +4,9 @@
       { "code": 1552, "message": { "includes": "certificate not found" } },
       { "status": 404 }
     ],
-    "Forbidden": [{ "status": 403 }]
+    "Forbidden": [{ "status": 403 }],
+    "CertificateAlreadyDeleted": [
+      { "status": 400, "message": { "includes": "already deleted" } }
+    ]
   }
 }

@@ -185,6 +185,10 @@ paths:
             message:
               includes: Certificate not found
           - status: 404
+        CertificateAlreadyDeleted:
+          - status: 400
+            message:
+              includes: already deleted
   /accounts/{account_id}/mtls_certificates:
     get:
       operationId: listMtlsCertificates

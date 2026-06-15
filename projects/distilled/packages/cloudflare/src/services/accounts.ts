@@ -22,6 +22,14 @@ export class AccountCreationForbidden extends Schema.TaggedErrorClass<AccountCre
 ) {}
 T.applyErrorMatchers(AccountCreationForbidden, [{ code: 1002 }]);
 
+export class AccountMemberAlreadyExists extends Schema.TaggedErrorClass<AccountMemberAlreadyExists>()(
+  "AccountMemberAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(AccountMemberAlreadyExists, [
+  { status: 400, message: { includes: "already exists" } },
+]);
+
 export class AccountNameTooLong extends Schema.TaggedErrorClass<AccountNameTooLong>()(
   "AccountNameTooLong",
   { code: Schema.Number, message: Schema.String },
@@ -2313,7 +2321,11 @@ export const CreateMemberResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
   T.ResponsePath("result"),
 ) as unknown as Schema.Schema<CreateMemberResponse>;
 
-export type CreateMemberError = DefaultErrors | InvalidRoute | ValidationError;
+export type CreateMemberError =
+  | DefaultErrors
+  | InvalidRoute
+  | ValidationError
+  | AccountMemberAlreadyExists;
 
 export const createMember: API.OperationMethod<
   CreateMemberRequest,
@@ -2323,7 +2335,7 @@ export const createMember: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateMemberRequest,
   output: CreateMemberResponse,
-  errors: [InvalidRoute, ValidationError],
+  errors: [InvalidRoute, ValidationError, AccountMemberAlreadyExists],
 }));
 
 export interface UpdateMemberRequest {

@@ -16,6 +16,14 @@ import { type DefaultErrors } from "../errors.ts";
 // Errors
 // =============================================================================
 
+export class CertificateAlreadyDeleted extends Schema.TaggedErrorClass<CertificateAlreadyDeleted>()(
+  "CertificateAlreadyDeleted",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(CertificateAlreadyDeleted, [
+  { status: 400, message: { includes: "already deleted" } },
+]);
+
 export class CertificateAlreadyExists extends Schema.TaggedErrorClass<CertificateAlreadyExists>()(
   "CertificateAlreadyExists",
   { code: Schema.Number, message: Schema.String },
@@ -476,7 +484,10 @@ export const DeleteMtlsCertificateResponse =
       T.ResponsePath("result"),
     ) as unknown as Schema.Schema<DeleteMtlsCertificateResponse>;
 
-export type DeleteMtlsCertificateError = DefaultErrors | CertificateNotFound;
+export type DeleteMtlsCertificateError =
+  | DefaultErrors
+  | CertificateNotFound
+  | CertificateAlreadyDeleted;
 
 export const deleteMtlsCertificate: API.OperationMethod<
   DeleteMtlsCertificateRequest,
@@ -486,5 +497,5 @@ export const deleteMtlsCertificate: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteMtlsCertificateRequest,
   output: DeleteMtlsCertificateResponse,
-  errors: [CertificateNotFound],
+  errors: [CertificateNotFound, CertificateAlreadyDeleted],
 }));
