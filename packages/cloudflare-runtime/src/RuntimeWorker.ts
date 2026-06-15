@@ -1,5 +1,6 @@
 import type { HyperdriveOrigin } from "./bindings/hyperdrive/HyperdriveOrigin.shared.ts";
 import type { QueueConsumer } from "./bindings/queue/QueueOptions.shared.ts";
+import type { ContainerImage } from "./Docker.ts";
 import type { BindingHook } from "./PluginContext.ts";
 
 export interface RuntimeWorker<B extends BindingHooks = BindingHooks> {
@@ -51,4 +52,10 @@ export interface DurableObjectNamespace {
   sql: boolean;
   uniqueKey?: string;
   ephemeralLocal?: true;
+  /**
+   * Attach a container to every Durable Object in this namespace. workerd
+   * starts one per DO instance via the worker's `containerEngine` and exposes
+   * it as `ctx.container`.
+   */
+  container?: ContainerImage;
 }
