@@ -30,6 +30,10 @@ const logLevel = Effect.provideService(
 
 const fixtureDir = pathe.resolve(import.meta.dirname, "vite-fixture");
 const doFixtureDir = pathe.resolve(import.meta.dirname, "vite-do-fixture");
+const reactRouterRscFixtureDir = pathe.resolve(
+  import.meta.dirname,
+  "react-router-rsc-fixture",
+);
 
 // Vite/Rollup's `vite:build-html` plugin chokes when the project root
 // is outside the current working directory because it tries to express
@@ -459,6 +463,120 @@ test.provider(
         `${site.url!}/api/count`,
       );
       expect(second.count).toBe(2);
+
+      yield* stack.destroy();
+      yield* waitForWorkerToBeDeleted(site.workerName, accountId);
+    }).pipe(logLevel),
+  { timeout: 360_000 },
+);
+
+test.provider(
+  "Vite: React Router RSC deploys from a distilled manifest",
+  (stack) =>
+    Effect.gen(function* () {
+      const { accountId } = yield* yield* CloudflareEnvironment;
+
+      yield* stack.destroy();
+
+      const rootDir = yield* cloneFixture(reactRouterRscFixtureDir, {
+        prefix: "alchemy-vite-rsc-",
+        tempRoot,
+        // Keep the fixture's stack file available for local `alchemy dev`
+        // smoke tests. The live deploy below uses an inline stack so cleanup
+        // stays under the provider test harness.
+        entries: [
+          "alchemy.run.ts",
+          "app",
+          "package.json",
+          "react-router-vite",
+          "tsconfig.json",
+          "vite.config.ts",
+        ],
+      });
+      const memoInclude = [
+        "app/**",
+        "react-router-vite/**",
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+      ];
+      const compatibility = {
+        date: "2026-03-10",
+        flags: ["nodejs_compat"],
+      };
+      const assets = {
+        runWorkerFirst: true,
+      };
+      const viteEnvironment = {
+        name: "rsc",
+        childEnvironments: ["ssr"],
+      } satisfies NonNullable<
+        Vite.CloudflareVitePluginOptionsWithAssets["viteEnvironment"]
+      >;
+
+      // Direct build assertion covers the RSC manifest shape: one Worker
+      // module set that folds both the rsc entry and ssr child chunks without
+      // leaking client assets into the uploaded Worker bundle.
+      const build = yield* Vite.viteBuild(
+        rootDir,
+        {},
+        {
+          compatibilityDate: compatibility.date,
+          compatibilityFlags: compatibility.flags,
+          assets,
+          viteEnvironment,
+        },
+      );
+      const distilled = build.distilled;
+      expect(distilled).toBeDefined();
+      const worker = distilled!.manifest.workers.app;
+      const modulePaths = worker.modules.map((module) => module.path);
+      expect(worker.main).toBe("server/entry.worker.js");
+      expect(worker.compatibilityDate).toBe(compatibility.date);
+      expect(worker.compatibilityFlags).toEqual(compatibility.flags);
+      expect(modulePaths).toContain(worker.main);
+      expect(modulePaths).toContain("ssr/worker-ssr.js");
+      expect(modulePaths.some((path) => path.startsWith("ssr/"))).toBe(true);
+      expect(modulePaths.some((path) => path.startsWith("client/"))).toBe(
+        false,
+      );
+      expect(distilled!.manifest.assets?.directory).toBe("client");
+      expect(distilled!.manifest.assets?.runWorkerFirst).toBe(true);
+      expect(distilled!.bundle.files).toContainEqual(
+        expect.objectContaining({
+          path: "server/entry.worker.js",
+          contentType: "application/javascript+module",
+        }),
+      );
+
+      const site = yield* stack.deploy(
+        Effect.gen(function* () {
+          return yield* Cloudflare.Vite("ReactRouterRsc", {
+            ...viteProps(rootDir, memoInclude),
+            assets,
+            compatibility,
+            viteEnvironment,
+          });
+        }),
+      );
+
+      expect(site.url).toBeDefined();
+      expect(site.hash?.bundle).toEqual(distilled!.bundle.hash);
+      yield* expectWorkerExists(site.workerName, accountId);
+      yield* expectUrlContains(`${site.url!}/`, "React Router Vite", {
+        timeout: "120 seconds",
+        label: "react router rsc home route",
+      });
+      yield* expectUrlContains(`${site.url!}/about`, "About", {
+        timeout: "60 seconds",
+        label: "react router rsc client route",
+      });
+
+      const render = yield* fetchJsonReady<{ ok: boolean; html: string }>(
+        `${site.url!}/worker-render`,
+      );
+      expect(render.ok).toBe(true);
+      expect(render.html).toContain("Worker render via the ssr environment.");
 
       yield* stack.destroy();
       yield* waitForWorkerToBeDeleted(site.workerName, accountId);
