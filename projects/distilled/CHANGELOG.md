@@ -1,3 +1,28 @@
+## v0.25.2
+
+### &nbsp;&nbsp;&nbsp;🚀 Features
+
+- **stripe**:
+  - Add per-call request options &nbsp;-&nbsp; by **Alex** in https://github.com/alchemy-run/distilled/issues/349 [<samp>(9babf)</samp>](https://github.com/alchemy-run/distilled/commit/9babfe727)
+  - Add webhook signature verification &nbsp;-&nbsp; by **Alex** in https://github.com/alchemy-run/distilled/issues/350 [<samp>(a06f8)</samp>](https://github.com/alchemy-run/distilled/commit/a06f8f867)
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **aws,cloudflare**:
+  - Patch broken list envelopes &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(cf48b)</samp>](https://github.com/alchemy-run/distilled/commit/cf48bb59c)
+- **cloudflare**:
+  - Patch listRegionalHostnames, listPipelines, getPhase, listWorkflows &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(d44c9)</samp>](https://github.com/alchemy-run/distilled/commit/d44c93ae1)
+  - EmailRoutingRuleNotFound &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(5d3b6)</samp>](https://github.com/alchemy-run/distilled/commit/5d3b6849b)
+  - Patch errors and core matcher logic &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(1c5fe)</samp>](https://github.com/alchemy-run/distilled/commit/1c5fec993)
+
+### &nbsp;&nbsp;&nbsp;🏎 Performance
+
+- **cloudflare,core**: Defer schema construction with Schema.suspend &nbsp;-&nbsp; by **Sam Goodwin** in https://github.com/alchemy-run/distilled/issues/348 [<samp>(d9471)</samp>](https://github.com/alchemy-run/distilled/commit/d9471f66d)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.25.1...HEAD)
+
+---
+
 ## v0.25.1
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
