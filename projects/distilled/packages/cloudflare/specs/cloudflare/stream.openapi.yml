@@ -1810,43 +1810,59 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  liveInputs:
-                    type: array
+                oneOf:
+                  - type: object
+                    properties:
+                      liveInputs:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            created:
+                              type: string
+                              description: The date and time the live input was created.
+                            deleteRecordingAfterDays:
+                              type: number
+                              description: Indicates the number of days after which the live inputs recordings
+                                will be deleted. When a stream completes and the
+                                recording is ready, the value is used to
+                                calculate a scheduled deletion date for that
+                                recording. Omit the field to indicate no change,
+                                or include with a `null` value to remove an
+                                existing scheduled deletion.
+                            enabled:
+                              type: boolean
+                              description: Indicates whether the live input is enabled and can accept streams.
+                            meta:
+                              description: A user modifiable key-value store used to reference other systems
+                                of record for managing live inputs.
+                            modified:
+                              type: string
+                              description: The date and time the live input was last modified.
+                            uid:
+                              type: string
+                              description: A unique identifier for a live input.
+                      range:
+                        type: number
+                        description: The total number of remaining live inputs based on cursor position.
+                      total:
+                        type: number
+                        description: The total number of live inputs that match the provided filters.
+                  - type: array
                     items:
                       type: object
                       properties:
-                        created:
-                          type: string
-                          description: The date and time the live input was created.
-                        deleteRecordingAfterDays:
-                          type: number
-                          description: Indicates the number of days after which the live inputs recordings
-                            will be deleted. When a stream completes and the
-                            recording is ready, the value is used to calculate a
-                            scheduled deletion date for that recording. Omit the
-                            field to indicate no change, or include with a
-                            `null` value to remove an existing scheduled
-                            deletion.
-                        enabled:
-                          type: boolean
-                          description: Indicates whether the live input is enabled and can accept streams.
-                        meta:
-                          description: A user modifiable key-value store used to reference other systems
-                            of record for managing live inputs.
-                        modified:
-                          type: string
-                          description: The date and time the live input was last modified.
                         uid:
                           type: string
-                          description: A unique identifier for a live input.
-                  range:
-                    type: number
-                    description: The total number of remaining live inputs based on cursor position.
-                  total:
-                    type: number
-                    description: The total number of live inputs that match the provided filters.
+                        created:
+                          type: string
+                        modified:
+                          type: string
+                        enabled:
+                          type: boolean
+                        deleteRecordingAfterDays:
+                          type: number
+                        meta: {}
       x-distilled-response-path: result
     post:
       operationId: createLiveInput

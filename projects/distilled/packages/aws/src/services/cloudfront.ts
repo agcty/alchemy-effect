@@ -1679,13 +1679,13 @@ export const KeyValueStoreAssociations = /*@__PURE__*/ /*#__PURE__*/ S.suspend(
   identifier: "KeyValueStoreAssociations",
 }) as any as S.Schema<KeyValueStoreAssociations>;
 export interface FunctionConfig {
-  Comment: string;
+  Comment?: string;
   Runtime: FunctionRuntime;
   KeyValueStoreAssociations?: KeyValueStoreAssociations;
 }
 export const FunctionConfig = /*@__PURE__*/ /*#__PURE__*/ S.suspend(() =>
   S.Struct({
-    Comment: S.String,
+    Comment: S.optional(S.String),
     Runtime: FunctionRuntime,
     KeyValueStoreAssociations: S.optional(KeyValueStoreAssociations),
   }),

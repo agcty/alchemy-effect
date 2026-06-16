@@ -135,7 +135,7 @@ export const ListRulesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
   () => Schema.Unknown.pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<ListRulesResponse>;
 
-export type ListRulesError = DefaultErrors | Forbidden;
+export type ListRulesError = DefaultErrors | SnippetRulesNotFound | Forbidden;
 
 export const listRules: API.OperationMethod<
   ListRulesRequest,
@@ -145,7 +145,7 @@ export const listRules: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: ListRulesRequest,
   output: ListRulesResponse,
-  errors: [Forbidden],
+  errors: [SnippetRulesNotFound, Forbidden],
 }));
 
 export interface PutRuleRequest {
@@ -317,11 +317,9 @@ export const ListSnippetsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
 ) as unknown as Schema.Schema<ListSnippetsRequest>;
 
 export interface ListSnippetsResponse {
-  result: {
-    createdOn: string;
-    snippetName: string;
-    modifiedOn?: string | null;
-  }[];
+  result:
+    | { createdOn: string; snippetName: string; modifiedOn?: string | null }[]
+    | null;
   resultInfo?: {
     count?: number | null;
     page?: number | null;
@@ -333,21 +331,24 @@ export interface ListSnippetsResponse {
 export const ListSnippetsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
   () =>
     Schema.Struct({
-      result: Schema.Array(
-        Schema.Struct({
-          createdOn: Schema.String,
-          snippetName: Schema.String,
-          modifiedOn: Schema.optional(
-            Schema.Union([Schema.String, Schema.Null]),
+      result: Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            createdOn: Schema.String,
+            snippetName: Schema.String,
+            modifiedOn: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              createdOn: "created_on",
+              snippetName: "snippet_name",
+              modifiedOn: "modified_on",
+            }),
           ),
-        }).pipe(
-          Schema.encodeKeys({
-            createdOn: "created_on",
-            snippetName: "snippet_name",
-            modifiedOn: "modified_on",
-          }),
         ),
-      ),
+        Schema.Null,
+      ]),
       resultInfo: Schema.optional(
         Schema.Union([
           Schema.Struct({

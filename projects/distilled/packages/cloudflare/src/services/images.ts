@@ -834,37 +834,50 @@ export const ListV1VariantsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
 ) as unknown as Schema.Schema<ListV1VariantsRequest>;
 
 export interface ListV1VariantsResponse {
-  id: string;
+  id?: string | null;
   /** Allows you to define image resizing sizes for different use cases. */
-  options: {
+  options?: {
     fit: "scale-down" | "contain" | "cover" | "crop" | "pad" | (string & {});
     height: number;
     metadata: "keep" | "copyright" | "none" | (string & {});
     width: number;
-  };
+  } | null;
   /** Indicates whether the variant can access an image without a signature, regardless of image access control. */
   neverRequireSignedURLs?: boolean | null;
+  variants?: unknown | null;
 }
 
 export const ListV1VariantsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
     Schema.Struct({
-      id: Schema.String,
-      options: Schema.Struct({
-        fit: Schema.Union([
-          Schema.Literals(["scale-down", "contain", "cover", "crop", "pad"]),
-          Schema.String,
+      id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      options: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            fit: Schema.Union([
+              Schema.Literals([
+                "scale-down",
+                "contain",
+                "cover",
+                "crop",
+                "pad",
+              ]),
+              Schema.String,
+            ]),
+            height: Schema.Number,
+            metadata: Schema.Union([
+              Schema.Literals(["keep", "copyright", "none"]),
+              Schema.String,
+            ]),
+            width: Schema.Number,
+          }),
+          Schema.Null,
         ]),
-        height: Schema.Number,
-        metadata: Schema.Union([
-          Schema.Literals(["keep", "copyright", "none"]),
-          Schema.String,
-        ]),
-        width: Schema.Number,
-      }),
+      ),
       neverRequireSignedURLs: Schema.optional(
         Schema.Union([Schema.Boolean, Schema.Null]),
       ),
+      variants: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
     }).pipe(T.ResponsePath("result")),
   ) as unknown as Schema.Schema<ListV1VariantsResponse>;
 

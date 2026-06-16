@@ -518,6 +518,14 @@ const _API = makeAPI<Credentials>({
   getAuthHeaders: formatHeaders as any,
   matchError,
   ParseError: CloudflareDecodeError as any,
+  // Cloudflare sometimes returns errors with HTTP 2xx + `success: false`
+  // (e.g. `could not find entrypoint ruleset`, code 10003). Flag those so the
+  // core client routes them through `matchError` instead of failing to decode.
+  isErrorEnvelope: (body: unknown) =>
+    typeof body === "object" &&
+    body !== null &&
+    "success" in body &&
+    (body as { success?: unknown }).success === false,
   transformRequestParts: ({ pathTemplate, parts }) =>
     transformCloudflareRequestParts({ pathTemplate, parts }),
   retry: Retry as any,

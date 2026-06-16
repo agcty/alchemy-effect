@@ -822,9 +822,9 @@ paths:
                     type: boolean
                     description: Indicates whether the variant can access an image without a
                       signature, regardless of image access control.
-                required:
-                  - id
-                  - options
+                  variants:
+                    type: object
+                    additionalProperties: true
       x-distilled-response-path: result
       x-distilled-errors:
         ImagesAccessNotEnabled:

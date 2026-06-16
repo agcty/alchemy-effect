@@ -74200,6 +74200,10 @@ export class InvalidLaunchTemplateIdMalformed extends S.TaggedErrorClass<Invalid
   "InvalidLaunchTemplateId.Malformed",
   {},
 ) {}
+export class InvalidLaunchTemplateIdNotFound extends S.TaggedErrorClass<InvalidLaunchTemplateIdNotFound>()(
+  "InvalidLaunchTemplateId.NotFound",
+  {},
+) {}
 export class FilterLimitExceeded extends S.TaggedErrorClass<FilterLimitExceeded>()(
   "FilterLimitExceeded",
   {},
@@ -84239,6 +84243,8 @@ export type DescribeLaunchTemplatesError =
   | RequestLimitExceeded
   | InvalidLaunchTemplateIdMalformed
   | ParseError
+  | InvalidLaunchTemplateIdNotFound
+  | InvalidLaunchTemplateNameNotFoundException
   | CommonErrors;
 /**
  * Describes one or more launch templates.
@@ -84266,7 +84272,13 @@ export const describeLaunchTemplates: API.OperationMethod<
 } = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: DescribeLaunchTemplatesRequest,
   output: DescribeLaunchTemplatesResult,
-  errors: [RequestLimitExceeded, InvalidLaunchTemplateIdMalformed, ParseError],
+  errors: [
+    RequestLimitExceeded,
+    InvalidLaunchTemplateIdMalformed,
+    ParseError,
+    InvalidLaunchTemplateIdNotFound,
+    InvalidLaunchTemplateNameNotFoundException,
+  ],
   pagination: {
     inputToken: "NextToken",
     outputToken: "NextToken",

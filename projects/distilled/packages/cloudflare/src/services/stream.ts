@@ -1880,54 +1880,77 @@ export const ListLiveInputsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     ),
 ) as unknown as Schema.Schema<ListLiveInputsRequest>;
 
-export interface ListLiveInputsResponse {
-  liveInputs?:
-    | {
-        created?: string | null;
-        deleteRecordingAfterDays?: number | null;
-        enabled?: boolean | null;
-        meta?: unknown | null;
-        modified?: string | null;
-        uid?: string | null;
-      }[]
-    | null;
-  /** The total number of remaining live inputs based on cursor position. */
-  range?: number | null;
-  /** The total number of live inputs that match the provided filters. */
-  total?: number | null;
-}
+export type ListLiveInputsResponse =
+  | {
+      liveInputs?:
+        | {
+            created?: string | null;
+            deleteRecordingAfterDays?: number | null;
+            enabled?: boolean | null;
+            meta?: unknown | null;
+            modified?: string | null;
+            uid?: string | null;
+          }[]
+        | null;
+      range?: number | null;
+      total?: number | null;
+    }
+  | {
+      uid?: string | null;
+      created?: string | null;
+      modified?: string | null;
+      enabled?: boolean | null;
+      deleteRecordingAfterDays?: number | null;
+      meta?: unknown | null;
+    }[];
 
 export const ListLiveInputsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
-    Schema.Struct({
-      liveInputs: Schema.optional(
-        Schema.Union([
-          Schema.Array(
-            Schema.Struct({
-              created: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
-              deleteRecordingAfterDays: Schema.optional(
-                Schema.Union([Schema.Number, Schema.Null]),
-              ),
-              enabled: Schema.optional(
-                Schema.Union([Schema.Boolean, Schema.Null]),
-              ),
-              meta: Schema.optional(
-                Schema.Union([Schema.Unknown, Schema.Null]),
-              ),
-              modified: Schema.optional(
-                Schema.Union([Schema.String, Schema.Null]),
-              ),
-              uid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-            }),
+    Schema.Union([
+      Schema.Struct({
+        liveInputs: Schema.optional(
+          Schema.Union([
+            Schema.Array(
+              Schema.Struct({
+                created: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                deleteRecordingAfterDays: Schema.optional(
+                  Schema.Union([Schema.Number, Schema.Null]),
+                ),
+                enabled: Schema.optional(
+                  Schema.Union([Schema.Boolean, Schema.Null]),
+                ),
+                meta: Schema.optional(
+                  Schema.Union([Schema.Unknown, Schema.Null]),
+                ),
+                modified: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                uid: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }),
+            ),
+            Schema.Null,
+          ]),
+        ),
+        range: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+        total: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
+      }),
+      Schema.Array(
+        Schema.Struct({
+          uid: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          created: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          modified: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
+          deleteRecordingAfterDays: Schema.optional(
+            Schema.Union([Schema.Number, Schema.Null]),
           ),
-          Schema.Null,
-        ]),
+          meta: Schema.optional(Schema.Union([Schema.Unknown, Schema.Null])),
+        }),
       ),
-      range: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-      total: Schema.optional(Schema.Union([Schema.Number, Schema.Null])),
-    }).pipe(T.ResponsePath("result")),
+    ]).pipe(T.ResponsePath("result")),
   ) as unknown as Schema.Schema<ListLiveInputsResponse>;
 
 export type ListLiveInputsError = DefaultErrors;

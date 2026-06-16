@@ -1047,7 +1047,9 @@
       "errors": [
         "RequestLimitExceeded",
         "InvalidLaunchTemplateId.Malformed",
-        "ParseError"
+        "ParseError",
+        "InvalidLaunchTemplateId.NotFound",
+        "InvalidLaunchTemplateName.NotFoundException"
       ]
     },
     "createTransitGateway": {

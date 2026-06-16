@@ -96,6 +96,13 @@
           "optional": true
         }
       }
+    },
+    "FunctionConfig": {
+      "members": {
+        "Comment": {
+          "optional": true
+        }
+      }
     }
   }
 }

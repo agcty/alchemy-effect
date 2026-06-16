@@ -44,6 +44,8 @@ paths:
               schema: {}
       x-distilled-response-path: result
       x-distilled-errors:
+        SnippetRulesNotFound:
+          - status: 404
         Forbidden:
           - status: 403
     put:

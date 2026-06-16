@@ -167,6 +167,17 @@ export interface ClientConfig<Creds> {
   transformResponse?: (body: unknown) => unknown;
 
   /**
+   * Optional predicate identifying a successful-status (2xx) response whose
+   * body is actually an error envelope. Some APIs (notably Cloudflare) return
+   * errors with HTTP 200 and a `success: false` flag instead of a 4xx status.
+   * When this returns `true`, the body is routed through {@link matchError}
+   * (with the operation's typed `errors`) exactly like a status>=400 response,
+   * so per-operation typed error matchers still apply. SDKs that always signal
+   * errors via status codes leave this unset (the default no-ops).
+   */
+  isErrorEnvelope?: (body: unknown) => boolean;
+
+  /**
    * Optional transform applied to encoded request parts before building the
    * outbound HTTP request.
    */
@@ -878,6 +889,20 @@ export const makeAPI = <Creds>(config: ClientConfig<Creds>) => {
             } catch {
               // leave as string for callers that expect raw text
             }
+          }
+
+          // Some APIs (Cloudflare) answer with a 2xx status but an error
+          // envelope (`success: false`) rather than a 4xx. Route those through
+          // `matchError` with the operation's typed `errors` so per-operation
+          // matchers fire — otherwise the envelope falls through to schema
+          // decoding and surfaces as an opaque ParseError.
+          if (config.isErrorEnvelope?.(responseBody)) {
+            return yield* config.matchError(
+              response.status,
+              responseBody,
+              opConfig.errors,
+              response.headers,
+            );
           }
 
           if (responsePath) {
