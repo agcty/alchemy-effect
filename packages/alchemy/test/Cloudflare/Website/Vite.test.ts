@@ -3,8 +3,11 @@ import * as Cloudflare from "@/Cloudflare/index.ts";
 import * as Vite from "@/Cloudflare/Workers/Vite.ts";
 import * as Test from "@/Test/Vitest";
 import { PlatformServices } from "@/Util/PlatformServices.ts";
+import * as r2 from "@distilled.cloud/cloudflare/r2";
 import { expect } from "@effect/vitest";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 import { MinimumLogLevel } from "effect/References";
@@ -22,6 +25,10 @@ import {
 import type { Counter as ViteDoCounter } from "./vite-do-fixture/src/worker.ts";
 
 const { test } = Test.make({ providers: Cloudflare.providers() });
+const { test: devTest } = Test.make({
+  providers: Cloudflare.providers(),
+  dev: true,
+});
 
 const logLevel = Effect.provideService(
   MinimumLogLevel,
@@ -33,6 +40,10 @@ const doFixtureDir = pathe.resolve(import.meta.dirname, "vite-do-fixture");
 const reactRouterRscFixtureDir = pathe.resolve(
   import.meta.dirname,
   "react-router-rsc-fixture",
+);
+const tanstackDevBindingsFixtureDir = pathe.resolve(
+  import.meta.dirname,
+  "tanstack-dev-bindings-fixture",
 );
 
 // Vite/Rollup's `vite:build-html` plugin chokes when the project root
@@ -584,6 +595,153 @@ test.provider(
   { timeout: 360_000 },
 );
 
+devTest.provider(
+  "Vite dev: TanStack Start keeps Alchemy-managed R2 bindings",
+  (stack) =>
+    Effect.gen(function* () {
+      const { accountId } = yield* yield* CloudflareEnvironment;
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const bucketNames = new Set<string>();
+
+      const cleanup = Effect.gen(function* () {
+        yield* stack.destroy();
+        for (const bucketName of bucketNames) {
+          yield* waitForBucketToBeDeleted(bucketName, accountId);
+        }
+      });
+
+      const body = Effect.gen(function* () {
+        yield* stack.destroy();
+
+        const rootDir = yield* cloneFixture(tanstackDevBindingsFixtureDir, {
+          prefix: "alchemy-tanstack-dev-bindings-",
+          tempRoot,
+          entries: [
+            "alchemy.run.ts",
+            "package.json",
+            "tsconfig.json",
+            "vite.config.ts",
+            "src",
+          ],
+        });
+        const indexRoutePath = path.join(rootDir, "src/routes/index.tsx");
+        const memoInclude = [
+          "src/**",
+          "package.json",
+          "tsconfig.json",
+          "vite.config.ts",
+          "alchemy.run.ts",
+        ];
+        const key = `dev-binding-${Date.now()}.txt`;
+
+        yield* fs.writeFileString(
+          indexRoutePath,
+          tanstackIndexRouteSource("hmr-marker-v1"),
+        );
+
+        const deploy = (bucketId: string, marker: string) =>
+          stack.deploy(
+            Effect.gen(function* () {
+              const bucket = yield* Cloudflare.R2Bucket(bucketId);
+              const worker = yield* Cloudflare.Vite("TanStackDevBindings", {
+                ...viteProps(rootDir, memoInclude),
+                assets: {
+                  runWorkerFirst: true,
+                },
+                dev: {
+                  port: 0,
+                },
+                env: {
+                  BUCKET: bucket,
+                  DEV_MARKER: marker,
+                },
+              });
+              return { bucket, worker };
+            }),
+          );
+
+        const first = yield* deploy("DevBucketA", "dev-marker-v1");
+        bucketNames.add(first.bucket.bucketName);
+        expect(first.worker.url).toBeDefined();
+        yield* expectUrlContains(`${first.worker.url!}/`, "hmr-marker-v1", {
+          timeout: "30 seconds",
+          label: "tanstack dev initial route",
+        });
+
+        const env1 = yield* fetchJsonReady<{ marker: string }>(
+          `${first.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+        );
+        expect(env1.marker).toBe("dev-marker-v1");
+
+        const put1 = yield* putTextJsonReady<{ ok: boolean }>(
+          `${first.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+          "from-a",
+        );
+        expect(put1.ok).toBe(true);
+
+        const get1 = yield* fetchJsonReady<{ value: string | null }>(
+          `${first.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+        );
+        expect(get1.value).toBe("from-a");
+
+        // Change only a TanStack route file. The stack is not re-applied; the
+        // local Vite server should render the updated route through the same
+        // Alchemy proxy.
+        yield* fs.writeFileString(
+          indexRoutePath,
+          tanstackIndexRouteSource("hmr-marker-v2"),
+        );
+        yield* expectUrlContains(`${first.worker.url!}/`, "hmr-marker-v2", {
+          timeout: "30 seconds",
+          label: "tanstack dev updated route",
+        });
+
+        const second = yield* deploy("DevBucketB", "dev-marker-v2");
+        bucketNames.add(second.bucket.bucketName);
+        expect(second.worker.url).toBe(first.worker.url);
+
+        const env2 = yield* fetchJsonReady<{ marker: string }>(
+          `${second.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+        );
+        expect(env2.marker).toBe("dev-marker-v2");
+
+        // The Worker was rebound to DevBucketB. The object written through
+        // DevBucketA should not be visible through the new binding.
+        const reboundRead = yield* fetchJsonReady<{ value: string | null }>(
+          `${second.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+        );
+        expect(reboundRead.value).toBeNull();
+
+        const put2 = yield* putTextJsonReady<{ ok: boolean }>(
+          `${second.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+          "from-b",
+        );
+        expect(put2.ok).toBe(true);
+
+        const get2 = yield* fetchJsonReady<{ value: string | null }>(
+          `${second.worker.url!}/api/r2?key=${encodeURIComponent(key)}`,
+        );
+        expect(get2.value).toBe("from-b");
+      });
+
+      const exit = yield* Effect.exit(body);
+      if (Exit.isSuccess(exit)) {
+        yield* cleanup;
+        return exit.value;
+      }
+
+      yield* cleanup.pipe(
+        Effect.tapError((error) =>
+          Effect.logError("Vite dev live test cleanup failed", error),
+        ),
+        Effect.ignore,
+      );
+      return yield* Effect.failCause(exit.cause);
+    }).pipe(logLevel),
+  { timeout: 360_000 },
+);
+
 const freshConn = HttpClient.mapRequest(
   HttpClientRequest.setHeader("connection", "close"),
 );
@@ -598,6 +756,30 @@ const fetchJsonReady = <T>(url: string) =>
               Effect.try({
                 try: () => JSON.parse(body) as T,
                 catch: () => new Error(`non-json body: ${body}`),
+              }),
+            )
+          : Effect.fail(new Error(`Worker not ready: ${res.status}`)),
+      ),
+      Effect.retry({
+        schedule: Schedule.exponential("500 millis"),
+        times: 15,
+      }),
+    );
+  });
+
+const putTextJsonReady = <T>(url: string, body: string) =>
+  Effect.gen(function* () {
+    return yield* HttpClient.execute(
+      HttpClientRequest.put(url).pipe(
+        HttpClientRequest.bodyText(body, "text/plain"),
+      ),
+    ).pipe(
+      Effect.flatMap((res) =>
+        res.status === 200
+          ? Effect.flatMap(res.text, (responseBody) =>
+              Effect.try({
+                try: () => JSON.parse(responseBody) as T,
+                catch: () => new Error(`non-json body: ${responseBody}`),
               }),
             )
           : Effect.fail(new Error(`Worker not ready: ${res.status}`)),
@@ -659,3 +841,43 @@ const htmlPage = (marker: string) => `<!doctype html>
   </body>
 </html>
 `;
+
+const tanstackIndexRouteSource = (marker: string) => `
+/** @jsxImportSource react */
+import { createFileRoute } from "@tanstack/react-router";
+
+const marker = ${JSON.stringify(marker)};
+
+export const Route = createFileRoute("/")({
+  component: Home,
+});
+
+function Home() {
+  return <main>{marker}</main>;
+}
+`;
+
+const waitForBucketToBeDeleted = Effect.fn(function* (
+  bucketName: string,
+  accountId: string,
+) {
+  yield* r2
+    .getBucket({
+      accountId,
+      bucketName,
+    })
+    .pipe(
+      Effect.flatMap(() => Effect.fail(new BucketStillExists())),
+      Effect.retry({
+        while: (error): error is BucketStillExists =>
+          error instanceof BucketStillExists,
+        schedule: Schedule.exponential("200 millis").pipe(
+          Schedule.either(Schedule.spaced("2 seconds")),
+          Schedule.both(Schedule.recurs(20)),
+        ),
+      }),
+      Effect.catchTag("NoSuchBucket", () => Effect.void),
+    );
+});
+
+class BucketStillExists extends Data.TaggedError("BucketStillExists") {}

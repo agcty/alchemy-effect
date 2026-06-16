@@ -117,6 +117,9 @@ export interface ViteProps<
  * framework's RSC entries still belong in `vite.config.ts`; `viteEnvironment`
  * tells Alchemy which Vite environment is the Cloudflare Worker and which child
  * environments must be available to it at runtime.
+ * Keep the app's `vite.config.ts` focused on framework plugins; do not add a
+ * Cloudflare Vite plugin there. `Cloudflare.Vite` injects the Cloudflare
+ * integration when it runs Vite for dev and deploy.
  *
  * @example RSC topology
  * ```typescript
@@ -191,6 +194,30 @@ export interface ViteProps<
  *     return Response.json({ count });
  *   },
  * };
+ * ```
+ *
+ * @section Local Development With Bindings
+ * During `alchemy dev`, Vite still owns the dev server and HMR loop.
+ * Alchemy starts the Worker locally through the Cloudflare runtime and
+ * resolves the `env` map into the runtime binding hooks used by the Vite
+ * Cloudflare plugin. Binding types with a local runtime implementation, such
+ * as Durable Objects, Queues, Workflows, service bindings, and static assets,
+ * run locally. Binding types that Cloudflare exposes through remote bindings,
+ * such as R2, KV, D1, AI, Images, Vectorize, and similar account resources,
+ * connect to the real Cloudflare resource.
+ *
+ * @example Vite Worker With R2 In Local Dev
+ * ```typescript
+ * const bucket = yield* Cloudflare.R2Bucket("Uploads");
+ *
+ * const app = yield* Cloudflare.Vite("App", {
+ *   env: {
+ *     BUCKET: bucket,
+ *   },
+ *   assets: {
+ *     runWorkerFirst: ["/api/*"],
+ *   },
+ * });
  * ```
  *
  * @section Custom Rebuild Scope
