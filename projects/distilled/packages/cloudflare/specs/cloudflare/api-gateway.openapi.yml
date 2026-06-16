@@ -636,8 +636,12 @@ paths:
                   - source
       x-distilled-pagination-class: LabelListResponsesV4PagePaginationArray
       x-distilled-errors:
+        ZonePurged:
+          - code: 10410
         Forbidden:
           - status: 403
+        NotFound:
+          - status: 404
   /zones/{zone_id}/api_gateway/labels/managed/{name}:
     get:
       operationId: getLabelManaged

@@ -215,99 +215,103 @@ paths:
                             type: string
                             description: Short Id (8 character) of the deployment.
                           source:
-                            type: object
-                            properties:
-                              config:
-                                type: object
+                            oneOf:
+                              - type: object
                                 properties:
-                                  deployments_enabled:
-                                    type: boolean
-                                    description: "@deprecated Use `production_deployments_enabled` and
-                                      `preview_deployment_setting` for more
-                                      granular control."
-                                  owner:
-                                    type: string
-                                    description: The owner of the repository.
-                                  owner_id:
-                                    type: string
-                                    description: The owner ID of the repository.
-                                  path_excludes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of paths that should be excluded from triggering a preview
-                                      deployment. Wildcard syntax (` `) is
-                                      supported.
-                                  path_includes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of paths that should be watched to trigger a preview
-                                      deployment. Wildcard syntax (` `) is
-                                      supported.
-                                  pr_comments_enabled:
-                                    type: boolean
-                                    description: Whether to enable PR comments.
-                                  preview_branch_excludes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of branches that should not trigger a preview deployment.
-                                      Wildcard syntax (` `) is supported. Must
-                                      be used with `preview_deployment_setting`
-                                      set to `custom`.
-                                  preview_branch_includes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of branches that should trigger a preview deployment.
-                                      Wildcard syntax (` `) is supported. Must
-                                      be used with `preview_deployment_setting`
-                                      set to `custom`.
-                                  preview_deployment_setting:
+                                  config:
+                                    type: object
+                                    properties:
+                                      deployments_enabled:
+                                        type: boolean
+                                        description: "@deprecated Use `production_deployments_enabled` and
+                                          `preview_deployment_setting` for more
+                                          granular control."
+                                      owner:
+                                        type: string
+                                        description: The owner of the repository.
+                                      owner_id:
+                                        type: string
+                                        description: The owner ID of the repository.
+                                      path_excludes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of paths that should be excluded from triggering a preview
+                                          deployment. Wildcard syntax (` `) is
+                                          supported.
+                                      path_includes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of paths that should be watched to trigger a preview
+                                          deployment. Wildcard syntax (` `) is
+                                          supported.
+                                      pr_comments_enabled:
+                                        type: boolean
+                                        description: Whether to enable PR comments.
+                                      preview_branch_excludes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of branches that should not trigger a preview deployment.
+                                          Wildcard syntax (` `) is supported.
+                                          Must be used with
+                                          `preview_deployment_setting` set to
+                                          `custom`.
+                                      preview_branch_includes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of branches that should trigger a preview deployment.
+                                          Wildcard syntax (` `) is supported.
+                                          Must be used with
+                                          `preview_deployment_setting` set to
+                                          `custom`.
+                                      preview_deployment_setting:
+                                        type: string
+                                        enum:
+                                          - all
+                                          - none
+                                          - custom
+                                        description: Controls whether commits to preview branches trigger a preview
+                                          deployment.
+                                      production_branch:
+                                        type: string
+                                        description: The production branch of the repository.
+                                      production_deployments_enabled:
+                                        type: boolean
+                                        description: Whether to trigger a production deployment on commits to the
+                                          production branch.
+                                      repo_id:
+                                        type: string
+                                        description: The ID of the repository.
+                                      repo_name:
+                                        type: string
+                                        description: The name of the repository.
+                                    required:
+                                      - deployments_enabled
+                                      - owner
+                                      - owner_id
+                                      - path_excludes
+                                      - path_includes
+                                      - pr_comments_enabled
+                                      - preview_branch_excludes
+                                      - preview_branch_includes
+                                      - preview_deployment_setting
+                                      - production_branch
+                                      - production_deployments_enabled
+                                      - repo_id
+                                      - repo_name
+                                  type:
                                     type: string
                                     enum:
-                                      - all
-                                      - none
-                                      - custom
-                                    description: Controls whether commits to preview branches trigger a preview
-                                      deployment.
-                                  production_branch:
-                                    type: string
-                                    description: The production branch of the repository.
-                                  production_deployments_enabled:
-                                    type: boolean
-                                    description: Whether to trigger a production deployment on commits to the
-                                      production branch.
-                                  repo_id:
-                                    type: string
-                                    description: The ID of the repository.
-                                  repo_name:
-                                    type: string
-                                    description: The name of the repository.
+                                      - github
+                                      - gitlab
+                                    description: The source control management provider.
                                 required:
-                                  - deployments_enabled
-                                  - owner
-                                  - owner_id
-                                  - path_excludes
-                                  - path_includes
-                                  - pr_comments_enabled
-                                  - preview_branch_excludes
-                                  - preview_branch_includes
-                                  - preview_deployment_setting
-                                  - production_branch
-                                  - production_deployments_enabled
-                                  - repo_id
-                                  - repo_name
-                              type:
-                                type: string
-                                enum:
-                                  - github
-                                  - gitlab
-                                description: The source control management provider.
-                            required:
-                              - config
-                              - type
+                                  - config
+                                  - type
+                            nullable: true
                             description: Configs for the project source control.
                           stages:
                             type: array
@@ -370,7 +374,6 @@ paths:
                           - project_id
                           - project_name
                           - short_id
-                          - source
                           - stages
                           - url
                     nullable: true
@@ -769,99 +772,103 @@ paths:
                             type: string
                             description: Short Id (8 character) of the deployment.
                           source:
-                            type: object
-                            properties:
-                              config:
-                                type: object
+                            oneOf:
+                              - type: object
                                 properties:
-                                  deployments_enabled:
-                                    type: boolean
-                                    description: "@deprecated Use `production_deployments_enabled` and
-                                      `preview_deployment_setting` for more
-                                      granular control."
-                                  owner:
-                                    type: string
-                                    description: The owner of the repository.
-                                  owner_id:
-                                    type: string
-                                    description: The owner ID of the repository.
-                                  path_excludes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of paths that should be excluded from triggering a preview
-                                      deployment. Wildcard syntax (` `) is
-                                      supported.
-                                  path_includes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of paths that should be watched to trigger a preview
-                                      deployment. Wildcard syntax (` `) is
-                                      supported.
-                                  pr_comments_enabled:
-                                    type: boolean
-                                    description: Whether to enable PR comments.
-                                  preview_branch_excludes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of branches that should not trigger a preview deployment.
-                                      Wildcard syntax (` `) is supported. Must
-                                      be used with `preview_deployment_setting`
-                                      set to `custom`.
-                                  preview_branch_includes:
-                                    type: array
-                                    items:
-                                      type: string
-                                    description: A list of branches that should trigger a preview deployment.
-                                      Wildcard syntax (` `) is supported. Must
-                                      be used with `preview_deployment_setting`
-                                      set to `custom`.
-                                  preview_deployment_setting:
+                                  config:
+                                    type: object
+                                    properties:
+                                      deployments_enabled:
+                                        type: boolean
+                                        description: "@deprecated Use `production_deployments_enabled` and
+                                          `preview_deployment_setting` for more
+                                          granular control."
+                                      owner:
+                                        type: string
+                                        description: The owner of the repository.
+                                      owner_id:
+                                        type: string
+                                        description: The owner ID of the repository.
+                                      path_excludes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of paths that should be excluded from triggering a preview
+                                          deployment. Wildcard syntax (` `) is
+                                          supported.
+                                      path_includes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of paths that should be watched to trigger a preview
+                                          deployment. Wildcard syntax (` `) is
+                                          supported.
+                                      pr_comments_enabled:
+                                        type: boolean
+                                        description: Whether to enable PR comments.
+                                      preview_branch_excludes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of branches that should not trigger a preview deployment.
+                                          Wildcard syntax (` `) is supported.
+                                          Must be used with
+                                          `preview_deployment_setting` set to
+                                          `custom`.
+                                      preview_branch_includes:
+                                        type: array
+                                        items:
+                                          type: string
+                                        description: A list of branches that should trigger a preview deployment.
+                                          Wildcard syntax (` `) is supported.
+                                          Must be used with
+                                          `preview_deployment_setting` set to
+                                          `custom`.
+                                      preview_deployment_setting:
+                                        type: string
+                                        enum:
+                                          - all
+                                          - none
+                                          - custom
+                                        description: Controls whether commits to preview branches trigger a preview
+                                          deployment.
+                                      production_branch:
+                                        type: string
+                                        description: The production branch of the repository.
+                                      production_deployments_enabled:
+                                        type: boolean
+                                        description: Whether to trigger a production deployment on commits to the
+                                          production branch.
+                                      repo_id:
+                                        type: string
+                                        description: The ID of the repository.
+                                      repo_name:
+                                        type: string
+                                        description: The name of the repository.
+                                    required:
+                                      - deployments_enabled
+                                      - owner
+                                      - owner_id
+                                      - path_excludes
+                                      - path_includes
+                                      - pr_comments_enabled
+                                      - preview_branch_excludes
+                                      - preview_branch_includes
+                                      - preview_deployment_setting
+                                      - production_branch
+                                      - production_deployments_enabled
+                                      - repo_id
+                                      - repo_name
+                                  type:
                                     type: string
                                     enum:
-                                      - all
-                                      - none
-                                      - custom
-                                    description: Controls whether commits to preview branches trigger a preview
-                                      deployment.
-                                  production_branch:
-                                    type: string
-                                    description: The production branch of the repository.
-                                  production_deployments_enabled:
-                                    type: boolean
-                                    description: Whether to trigger a production deployment on commits to the
-                                      production branch.
-                                  repo_id:
-                                    type: string
-                                    description: The ID of the repository.
-                                  repo_name:
-                                    type: string
-                                    description: The name of the repository.
+                                      - github
+                                      - gitlab
+                                    description: The source control management provider.
                                 required:
-                                  - deployments_enabled
-                                  - owner
-                                  - owner_id
-                                  - path_excludes
-                                  - path_includes
-                                  - pr_comments_enabled
-                                  - preview_branch_excludes
-                                  - preview_branch_includes
-                                  - preview_deployment_setting
-                                  - production_branch
-                                  - production_deployments_enabled
-                                  - repo_id
-                                  - repo_name
-                              type:
-                                type: string
-                                enum:
-                                  - github
-                                  - gitlab
-                                description: The source control management provider.
-                            required:
-                              - config
-                              - type
+                                  - config
+                                  - type
+                            nullable: true
                             description: Configs for the project source control.
                           stages:
                             type: array
@@ -924,7 +931,6 @@ paths:
                           - project_id
                           - project_name
                           - short_id
-                          - source
                           - stages
                           - url
                     nullable: true
@@ -6903,6 +6909,7 @@ paths:
                     enum:
                       - google
                       - lets_encrypt
+                    nullable: true
                   created_on:
                     type: string
                   domain_id:
@@ -6920,57 +6927,57 @@ paths:
                       - blocked
                       - error
                   validation_data:
-                    type: object
-                    properties:
-                      method:
-                        type: string
-                        enum:
-                          - http
-                          - txt
-                      status:
-                        type: string
-                        enum:
-                          - initializing
-                          - pending
-                          - active
-                          - deactivated
-                          - error
-                      error_message:
-                        type: string
-                      txt_name:
-                        type: string
-                      txt_value:
-                        type: string
-                    required:
-                      - method
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          method:
+                            type: string
+                            enum:
+                              - http
+                              - txt
+                            nullable: true
+                          status:
+                            type: string
+                            enum:
+                              - initializing
+                              - pending
+                              - active
+                              - deactivated
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                          txt_name:
+                            type: string
+                          txt_value:
+                            type: string
+                    nullable: true
                   verification_data:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        enum:
-                          - pending
-                          - active
-                          - deactivated
-                          - blocked
-                          - error
-                      error_message:
-                        type: string
-                    required:
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - pending
+                              - active
+                              - deactivated
+                              - blocked
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                    nullable: true
                   zone_tag:
-                    type: string
+                    oneOf:
+                      - type: string
+                    nullable: true
                 required:
                   - id
-                  - certificate_authority
                   - created_on
                   - domain_id
                   - name
                   - status
-                  - validation_data
-                  - verification_data
-                  - zone_tag
       x-distilled-response-path: result
       x-distilled-errors:
         ProjectNotFound:
@@ -7017,6 +7024,7 @@ paths:
                     enum:
                       - google
                       - lets_encrypt
+                    nullable: true
                   created_on:
                     type: string
                   domain_id:
@@ -7034,57 +7042,57 @@ paths:
                       - blocked
                       - error
                   validation_data:
-                    type: object
-                    properties:
-                      method:
-                        type: string
-                        enum:
-                          - http
-                          - txt
-                      status:
-                        type: string
-                        enum:
-                          - initializing
-                          - pending
-                          - active
-                          - deactivated
-                          - error
-                      error_message:
-                        type: string
-                      txt_name:
-                        type: string
-                      txt_value:
-                        type: string
-                    required:
-                      - method
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          method:
+                            type: string
+                            enum:
+                              - http
+                              - txt
+                            nullable: true
+                          status:
+                            type: string
+                            enum:
+                              - initializing
+                              - pending
+                              - active
+                              - deactivated
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                          txt_name:
+                            type: string
+                          txt_value:
+                            type: string
+                    nullable: true
                   verification_data:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        enum:
-                          - pending
-                          - active
-                          - deactivated
-                          - blocked
-                          - error
-                      error_message:
-                        type: string
-                    required:
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - pending
+                              - active
+                              - deactivated
+                              - blocked
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                    nullable: true
                   zone_tag:
-                    type: string
+                    oneOf:
+                      - type: string
+                    nullable: true
                 required:
                   - id
-                  - certificate_authority
                   - created_on
                   - domain_id
                   - name
                   - status
-                  - validation_data
-                  - verification_data
-                  - zone_tag
       x-distilled-response-path: result
       x-distilled-errors:
         ProjectNotFound:
@@ -7285,6 +7293,7 @@ paths:
                     enum:
                       - google
                       - lets_encrypt
+                    nullable: true
                   created_on:
                     type: string
                   domain_id:
@@ -7302,57 +7311,57 @@ paths:
                       - blocked
                       - error
                   validation_data:
-                    type: object
-                    properties:
-                      method:
-                        type: string
-                        enum:
-                          - http
-                          - txt
-                      status:
-                        type: string
-                        enum:
-                          - initializing
-                          - pending
-                          - active
-                          - deactivated
-                          - error
-                      error_message:
-                        type: string
-                      txt_name:
-                        type: string
-                      txt_value:
-                        type: string
-                    required:
-                      - method
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          method:
+                            type: string
+                            enum:
+                              - http
+                              - txt
+                            nullable: true
+                          status:
+                            type: string
+                            enum:
+                              - initializing
+                              - pending
+                              - active
+                              - deactivated
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                          txt_name:
+                            type: string
+                          txt_value:
+                            type: string
+                    nullable: true
                   verification_data:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                        enum:
-                          - pending
-                          - active
-                          - deactivated
-                          - blocked
-                          - error
-                      error_message:
-                        type: string
-                    required:
-                      - status
+                    oneOf:
+                      - type: object
+                        properties:
+                          status:
+                            type: string
+                            enum:
+                              - pending
+                              - active
+                              - deactivated
+                              - blocked
+                              - error
+                            nullable: true
+                          error_message:
+                            type: string
+                    nullable: true
                   zone_tag:
-                    type: string
+                    oneOf:
+                      - type: string
+                    nullable: true
                 required:
                   - id
-                  - certificate_authority
                   - created_on
                   - domain_id
                   - name
                   - status
-                  - validation_data
-                  - verification_data
-                  - zone_tag
       x-distilled-response-path: result
       x-distilled-errors:
         ProjectNotFound:

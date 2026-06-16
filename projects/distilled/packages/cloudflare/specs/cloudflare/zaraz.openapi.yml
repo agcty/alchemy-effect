@@ -196,6 +196,11 @@ paths:
                   - variables
                   - zarazVersion
       x-distilled-response-path: result
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
+        NotFound:
+          - status: 404
     put:
       operationId: putConfig
       description: "Updates Zaraz configuration for a zone.  @example ```ts const
@@ -1293,6 +1298,11 @@ paths:
                   - realtime
                   - preview
       x-distilled-response-path: result
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
+        NotFound:
+          - status: 404
     put:
       operationId: putZaraz
       description: "Updates Zaraz workflow for a zone.  @example ```ts const workflow

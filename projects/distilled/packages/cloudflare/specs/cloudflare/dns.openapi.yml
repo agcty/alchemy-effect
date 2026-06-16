@@ -18069,6 +18069,12 @@ paths:
                       - proxiable
       x-distilled-response-path: result
       x-distilled-errors:
+        DnsRecordAlreadyExists:
+          - code: 81057
+          - code: 81058
+          - status: 400
+            message:
+              includes: identical record already exists
         Forbidden:
           - status: 403
   /zones/{zone_id}/dns_records/batch:

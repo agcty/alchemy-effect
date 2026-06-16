@@ -175,7 +175,7 @@ export interface GetProjectResponse {
     projectId: string;
     projectName: string;
     shortId: string;
-    source: {
+    source?: {
       config: {
         deploymentsEnabled: boolean;
         owner: string;
@@ -192,7 +192,7 @@ export interface GetProjectResponse {
         repoName: string;
       };
       type: "github" | "gitlab" | (string & {});
-    };
+    } | null;
     stages: {
       endedOn: string | null;
       name:
@@ -318,7 +318,7 @@ export interface GetProjectResponse {
     projectId: string;
     projectName: string;
     shortId: string;
-    source: {
+    source?: {
       config: {
         deploymentsEnabled: boolean;
         owner: string;
@@ -335,7 +335,7 @@ export interface GetProjectResponse {
         repoName: string;
       };
       type: "github" | "gitlab" | (string & {});
-    };
+    } | null;
     stages: {
       endedOn: string | null;
       name:
@@ -498,46 +498,52 @@ export const GetProjectResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
           projectId: Schema.String,
           projectName: Schema.String,
           shortId: Schema.String,
-          source: Schema.Struct({
-            config: Schema.Struct({
-              deploymentsEnabled: Schema.Boolean,
-              owner: Schema.String,
-              ownerId: Schema.String,
-              pathExcludes: Schema.Array(Schema.String),
-              pathIncludes: Schema.Array(Schema.String),
-              prCommentsEnabled: Schema.Boolean,
-              previewBranchExcludes: Schema.Array(Schema.String),
-              previewBranchIncludes: Schema.Array(Schema.String),
-              previewDeploymentSetting: Schema.Union([
-                Schema.Literals(["all", "none", "custom"]),
-                Schema.String,
-              ]),
-              productionBranch: Schema.String,
-              productionDeploymentsEnabled: Schema.Boolean,
-              repoId: Schema.String,
-              repoName: Schema.String,
-            }).pipe(
-              Schema.encodeKeys({
-                deploymentsEnabled: "deployments_enabled",
-                owner: "owner",
-                ownerId: "owner_id",
-                pathExcludes: "path_excludes",
-                pathIncludes: "path_includes",
-                prCommentsEnabled: "pr_comments_enabled",
-                previewBranchExcludes: "preview_branch_excludes",
-                previewBranchIncludes: "preview_branch_includes",
-                previewDeploymentSetting: "preview_deployment_setting",
-                productionBranch: "production_branch",
-                productionDeploymentsEnabled: "production_deployments_enabled",
-                repoId: "repo_id",
-                repoName: "repo_name",
+          source: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                config: Schema.Struct({
+                  deploymentsEnabled: Schema.Boolean,
+                  owner: Schema.String,
+                  ownerId: Schema.String,
+                  pathExcludes: Schema.Array(Schema.String),
+                  pathIncludes: Schema.Array(Schema.String),
+                  prCommentsEnabled: Schema.Boolean,
+                  previewBranchExcludes: Schema.Array(Schema.String),
+                  previewBranchIncludes: Schema.Array(Schema.String),
+                  previewDeploymentSetting: Schema.Union([
+                    Schema.Literals(["all", "none", "custom"]),
+                    Schema.String,
+                  ]),
+                  productionBranch: Schema.String,
+                  productionDeploymentsEnabled: Schema.Boolean,
+                  repoId: Schema.String,
+                  repoName: Schema.String,
+                }).pipe(
+                  Schema.encodeKeys({
+                    deploymentsEnabled: "deployments_enabled",
+                    owner: "owner",
+                    ownerId: "owner_id",
+                    pathExcludes: "path_excludes",
+                    pathIncludes: "path_includes",
+                    prCommentsEnabled: "pr_comments_enabled",
+                    previewBranchExcludes: "preview_branch_excludes",
+                    previewBranchIncludes: "preview_branch_includes",
+                    previewDeploymentSetting: "preview_deployment_setting",
+                    productionBranch: "production_branch",
+                    productionDeploymentsEnabled:
+                      "production_deployments_enabled",
+                    repoId: "repo_id",
+                    repoName: "repo_name",
+                  }),
+                ),
+                type: Schema.Union([
+                  Schema.Literals(["github", "gitlab"]),
+                  Schema.String,
+                ]),
               }),
-            ),
-            type: Schema.Union([
-              Schema.Literals(["github", "gitlab"]),
-              Schema.String,
+              Schema.Null,
             ]),
-          }),
+          ),
           stages: Schema.Array(
             Schema.Struct({
               endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -960,46 +966,52 @@ export const GetProjectResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
           projectId: Schema.String,
           projectName: Schema.String,
           shortId: Schema.String,
-          source: Schema.Struct({
-            config: Schema.Struct({
-              deploymentsEnabled: Schema.Boolean,
-              owner: Schema.String,
-              ownerId: Schema.String,
-              pathExcludes: Schema.Array(Schema.String),
-              pathIncludes: Schema.Array(Schema.String),
-              prCommentsEnabled: Schema.Boolean,
-              previewBranchExcludes: Schema.Array(Schema.String),
-              previewBranchIncludes: Schema.Array(Schema.String),
-              previewDeploymentSetting: Schema.Union([
-                Schema.Literals(["all", "none", "custom"]),
-                Schema.String,
-              ]),
-              productionBranch: Schema.String,
-              productionDeploymentsEnabled: Schema.Boolean,
-              repoId: Schema.String,
-              repoName: Schema.String,
-            }).pipe(
-              Schema.encodeKeys({
-                deploymentsEnabled: "deployments_enabled",
-                owner: "owner",
-                ownerId: "owner_id",
-                pathExcludes: "path_excludes",
-                pathIncludes: "path_includes",
-                prCommentsEnabled: "pr_comments_enabled",
-                previewBranchExcludes: "preview_branch_excludes",
-                previewBranchIncludes: "preview_branch_includes",
-                previewDeploymentSetting: "preview_deployment_setting",
-                productionBranch: "production_branch",
-                productionDeploymentsEnabled: "production_deployments_enabled",
-                repoId: "repo_id",
-                repoName: "repo_name",
+          source: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                config: Schema.Struct({
+                  deploymentsEnabled: Schema.Boolean,
+                  owner: Schema.String,
+                  ownerId: Schema.String,
+                  pathExcludes: Schema.Array(Schema.String),
+                  pathIncludes: Schema.Array(Schema.String),
+                  prCommentsEnabled: Schema.Boolean,
+                  previewBranchExcludes: Schema.Array(Schema.String),
+                  previewBranchIncludes: Schema.Array(Schema.String),
+                  previewDeploymentSetting: Schema.Union([
+                    Schema.Literals(["all", "none", "custom"]),
+                    Schema.String,
+                  ]),
+                  productionBranch: Schema.String,
+                  productionDeploymentsEnabled: Schema.Boolean,
+                  repoId: Schema.String,
+                  repoName: Schema.String,
+                }).pipe(
+                  Schema.encodeKeys({
+                    deploymentsEnabled: "deployments_enabled",
+                    owner: "owner",
+                    ownerId: "owner_id",
+                    pathExcludes: "path_excludes",
+                    pathIncludes: "path_includes",
+                    prCommentsEnabled: "pr_comments_enabled",
+                    previewBranchExcludes: "preview_branch_excludes",
+                    previewBranchIncludes: "preview_branch_includes",
+                    previewDeploymentSetting: "preview_deployment_setting",
+                    productionBranch: "production_branch",
+                    productionDeploymentsEnabled:
+                      "production_deployments_enabled",
+                    repoId: "repo_id",
+                    repoName: "repo_name",
+                  }),
+                ),
+                type: Schema.Union([
+                  Schema.Literals(["github", "gitlab"]),
+                  Schema.String,
+                ]),
               }),
-            ),
-            type: Schema.Union([
-              Schema.Literals(["github", "gitlab"]),
-              Schema.String,
+              Schema.Null,
             ]),
-          }),
+          ),
           stages: Schema.Array(
             Schema.Struct({
               endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -1248,7 +1260,7 @@ export interface ListProjectsResponse {
       projectId: string;
       projectName: string;
       shortId: string;
-      source: {
+      source?: {
         config: {
           deploymentsEnabled: boolean;
           owner: string;
@@ -1265,7 +1277,7 @@ export interface ListProjectsResponse {
           repoName: string;
         };
         type: "github" | "gitlab" | (string & {});
-      };
+      } | null;
       stages: {
         endedOn: string | null;
         name:
@@ -1386,7 +1398,7 @@ export interface ListProjectsResponse {
       projectId: string;
       projectName: string;
       shortId: string;
-      source: {
+      source?: {
         config: {
           deploymentsEnabled: boolean;
           owner: string;
@@ -1403,7 +1415,7 @@ export interface ListProjectsResponse {
           repoName: string;
         };
         type: "github" | "gitlab" | (string & {});
-      };
+      } | null;
       stages: {
         endedOn: string | null;
         name:
@@ -1566,47 +1578,52 @@ export const ListProjectsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
               projectId: Schema.String,
               projectName: Schema.String,
               shortId: Schema.String,
-              source: Schema.Struct({
-                config: Schema.Struct({
-                  deploymentsEnabled: Schema.Boolean,
-                  owner: Schema.String,
-                  ownerId: Schema.String,
-                  pathExcludes: Schema.Array(Schema.String),
-                  pathIncludes: Schema.Array(Schema.String),
-                  prCommentsEnabled: Schema.Boolean,
-                  previewBranchExcludes: Schema.Array(Schema.String),
-                  previewBranchIncludes: Schema.Array(Schema.String),
-                  previewDeploymentSetting: Schema.Union([
-                    Schema.Literals(["all", "none", "custom"]),
-                    Schema.String,
-                  ]),
-                  productionBranch: Schema.String,
-                  productionDeploymentsEnabled: Schema.Boolean,
-                  repoId: Schema.String,
-                  repoName: Schema.String,
-                }).pipe(
-                  Schema.encodeKeys({
-                    deploymentsEnabled: "deployments_enabled",
-                    owner: "owner",
-                    ownerId: "owner_id",
-                    pathExcludes: "path_excludes",
-                    pathIncludes: "path_includes",
-                    prCommentsEnabled: "pr_comments_enabled",
-                    previewBranchExcludes: "preview_branch_excludes",
-                    previewBranchIncludes: "preview_branch_includes",
-                    previewDeploymentSetting: "preview_deployment_setting",
-                    productionBranch: "production_branch",
-                    productionDeploymentsEnabled:
-                      "production_deployments_enabled",
-                    repoId: "repo_id",
-                    repoName: "repo_name",
+              source: Schema.optional(
+                Schema.Union([
+                  Schema.Struct({
+                    config: Schema.Struct({
+                      deploymentsEnabled: Schema.Boolean,
+                      owner: Schema.String,
+                      ownerId: Schema.String,
+                      pathExcludes: Schema.Array(Schema.String),
+                      pathIncludes: Schema.Array(Schema.String),
+                      prCommentsEnabled: Schema.Boolean,
+                      previewBranchExcludes: Schema.Array(Schema.String),
+                      previewBranchIncludes: Schema.Array(Schema.String),
+                      previewDeploymentSetting: Schema.Union([
+                        Schema.Literals(["all", "none", "custom"]),
+                        Schema.String,
+                      ]),
+                      productionBranch: Schema.String,
+                      productionDeploymentsEnabled: Schema.Boolean,
+                      repoId: Schema.String,
+                      repoName: Schema.String,
+                    }).pipe(
+                      Schema.encodeKeys({
+                        deploymentsEnabled: "deployments_enabled",
+                        owner: "owner",
+                        ownerId: "owner_id",
+                        pathExcludes: "path_excludes",
+                        pathIncludes: "path_includes",
+                        prCommentsEnabled: "pr_comments_enabled",
+                        previewBranchExcludes: "preview_branch_excludes",
+                        previewBranchIncludes: "preview_branch_includes",
+                        previewDeploymentSetting: "preview_deployment_setting",
+                        productionBranch: "production_branch",
+                        productionDeploymentsEnabled:
+                          "production_deployments_enabled",
+                        repoId: "repo_id",
+                        repoName: "repo_name",
+                      }),
+                    ),
+                    type: Schema.Union([
+                      Schema.Literals(["github", "gitlab"]),
+                      Schema.String,
+                    ]),
                   }),
-                ),
-                type: Schema.Union([
-                  Schema.Literals(["github", "gitlab"]),
-                  Schema.String,
+                  Schema.Null,
                 ]),
-              }),
+              ),
               stages: Schema.Array(
                 Schema.Struct({
                   endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -2029,47 +2046,52 @@ export const ListProjectsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
               projectId: Schema.String,
               projectName: Schema.String,
               shortId: Schema.String,
-              source: Schema.Struct({
-                config: Schema.Struct({
-                  deploymentsEnabled: Schema.Boolean,
-                  owner: Schema.String,
-                  ownerId: Schema.String,
-                  pathExcludes: Schema.Array(Schema.String),
-                  pathIncludes: Schema.Array(Schema.String),
-                  prCommentsEnabled: Schema.Boolean,
-                  previewBranchExcludes: Schema.Array(Schema.String),
-                  previewBranchIncludes: Schema.Array(Schema.String),
-                  previewDeploymentSetting: Schema.Union([
-                    Schema.Literals(["all", "none", "custom"]),
-                    Schema.String,
-                  ]),
-                  productionBranch: Schema.String,
-                  productionDeploymentsEnabled: Schema.Boolean,
-                  repoId: Schema.String,
-                  repoName: Schema.String,
-                }).pipe(
-                  Schema.encodeKeys({
-                    deploymentsEnabled: "deployments_enabled",
-                    owner: "owner",
-                    ownerId: "owner_id",
-                    pathExcludes: "path_excludes",
-                    pathIncludes: "path_includes",
-                    prCommentsEnabled: "pr_comments_enabled",
-                    previewBranchExcludes: "preview_branch_excludes",
-                    previewBranchIncludes: "preview_branch_includes",
-                    previewDeploymentSetting: "preview_deployment_setting",
-                    productionBranch: "production_branch",
-                    productionDeploymentsEnabled:
-                      "production_deployments_enabled",
-                    repoId: "repo_id",
-                    repoName: "repo_name",
+              source: Schema.optional(
+                Schema.Union([
+                  Schema.Struct({
+                    config: Schema.Struct({
+                      deploymentsEnabled: Schema.Boolean,
+                      owner: Schema.String,
+                      ownerId: Schema.String,
+                      pathExcludes: Schema.Array(Schema.String),
+                      pathIncludes: Schema.Array(Schema.String),
+                      prCommentsEnabled: Schema.Boolean,
+                      previewBranchExcludes: Schema.Array(Schema.String),
+                      previewBranchIncludes: Schema.Array(Schema.String),
+                      previewDeploymentSetting: Schema.Union([
+                        Schema.Literals(["all", "none", "custom"]),
+                        Schema.String,
+                      ]),
+                      productionBranch: Schema.String,
+                      productionDeploymentsEnabled: Schema.Boolean,
+                      repoId: Schema.String,
+                      repoName: Schema.String,
+                    }).pipe(
+                      Schema.encodeKeys({
+                        deploymentsEnabled: "deployments_enabled",
+                        owner: "owner",
+                        ownerId: "owner_id",
+                        pathExcludes: "path_excludes",
+                        pathIncludes: "path_includes",
+                        prCommentsEnabled: "pr_comments_enabled",
+                        previewBranchExcludes: "preview_branch_excludes",
+                        previewBranchIncludes: "preview_branch_includes",
+                        previewDeploymentSetting: "preview_deployment_setting",
+                        productionBranch: "production_branch",
+                        productionDeploymentsEnabled:
+                          "production_deployments_enabled",
+                        repoId: "repo_id",
+                        repoName: "repo_name",
+                      }),
+                    ),
+                    type: Schema.Union([
+                      Schema.Literals(["github", "gitlab"]),
+                      Schema.String,
+                    ]),
                   }),
-                ),
-                type: Schema.Union([
-                  Schema.Literals(["github", "gitlab"]),
-                  Schema.String,
+                  Schema.Null,
                 ]),
-              }),
+              ),
               stages: Schema.Array(
                 Schema.Struct({
                   endedOn: Schema.Union([Schema.String, Schema.Null]),
@@ -7050,7 +7072,7 @@ export const GetProjectDomainRequest =
 
 export interface GetProjectDomainResponse {
   id: string;
-  certificateAuthority: "google" | "lets_encrypt" | (string & {});
+  certificateAuthority?: "google" | "lets_encrypt" | null;
   createdOn: string;
   domainId: string;
   /** The domain name. */
@@ -7063,40 +7085,37 @@ export interface GetProjectDomainResponse {
     | "blocked"
     | "error"
     | (string & {});
-  validationData: {
-    method: "http" | "txt" | (string & {});
-    status:
+  validationData?: {
+    method?: "http" | "txt" | null;
+    status?:
       | "initializing"
       | "pending"
       | "active"
       | "deactivated"
       | "error"
-      | (string & {});
+      | null;
     errorMessage?: string | null;
     txtName?: string | null;
     txtValue?: string | null;
-  };
-  verificationData: {
-    status:
-      | "pending"
-      | "active"
-      | "deactivated"
-      | "blocked"
-      | "error"
-      | (string & {});
+  } | null;
+  verificationData?: {
+    status?: "pending" | "active" | "deactivated" | "blocked" | "error" | null;
     errorMessage?: string | null;
-  };
-  zoneTag: string;
+  } | null;
+  zoneTag?: string | null;
 }
 
 export const GetProjectDomainResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
     Schema.Struct({
       id: Schema.String,
-      certificateAuthority: Schema.Union([
-        Schema.Literals(["google", "lets_encrypt"]),
-        Schema.String,
-      ]),
+      certificateAuthority: Schema.optional(
+        Schema.Union([
+          Schema.Literal("google"),
+          Schema.Literal("lets_encrypt"),
+          Schema.Null,
+        ]),
+      ),
       createdOn: Schema.String,
       domainId: Schema.String,
       name: Schema.String,
@@ -7111,50 +7130,73 @@ export const GetProjectDomainResponse =
         ]),
         Schema.String,
       ]),
-      validationData: Schema.Struct({
-        method: Schema.Union([Schema.Literals(["http", "txt"]), Schema.String]),
-        status: Schema.Union([
-          Schema.Literals([
-            "initializing",
-            "pending",
-            "active",
-            "deactivated",
-            "error",
-          ]),
-          Schema.String,
+      validationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            method: Schema.optional(
+              Schema.Union([
+                Schema.Literal("http"),
+                Schema.Literal("txt"),
+                Schema.Null,
+              ]),
+            ),
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("initializing"),
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtName: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtValue: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              method: "method",
+              status: "status",
+              errorMessage: "error_message",
+              txtName: "txt_name",
+              txtValue: "txt_value",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-        txtName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-        txtValue: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      }).pipe(
-        Schema.encodeKeys({
-          method: "method",
-          status: "status",
-          errorMessage: "error_message",
-          txtName: "txt_name",
-          txtValue: "txt_value",
-        }),
       ),
-      verificationData: Schema.Struct({
-        status: Schema.Union([
-          Schema.Literals([
-            "pending",
-            "active",
-            "deactivated",
-            "blocked",
-            "error",
-          ]),
-          Schema.String,
+      verificationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("blocked"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              status: "status",
+              errorMessage: "error_message",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-      }).pipe(
-        Schema.encodeKeys({ status: "status", errorMessage: "error_message" }),
       ),
-      zoneTag: Schema.String,
+      zoneTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     })
       .pipe(
         Schema.encodeKeys({
@@ -7211,7 +7253,7 @@ export const ListProjectDomainsRequest =
 export interface ListProjectDomainsResponse {
   result: {
     id: string;
-    certificateAuthority: "google" | "lets_encrypt" | (string & {});
+    certificateAuthority?: "google" | "lets_encrypt" | null;
     createdOn: string;
     domainId: string;
     name: string;
@@ -7223,30 +7265,30 @@ export interface ListProjectDomainsResponse {
       | "blocked"
       | "error"
       | (string & {});
-    validationData: {
-      method: "http" | "txt" | (string & {});
-      status:
+    validationData?: {
+      method?: "http" | "txt" | null;
+      status?:
         | "initializing"
         | "pending"
         | "active"
         | "deactivated"
         | "error"
-        | (string & {});
+        | null;
       errorMessage?: string | null;
       txtName?: string | null;
       txtValue?: string | null;
-    };
-    verificationData: {
-      status:
+    } | null;
+    verificationData?: {
+      status?:
         | "pending"
         | "active"
         | "deactivated"
         | "blocked"
         | "error"
-        | (string & {});
+        | null;
       errorMessage?: string | null;
-    };
-    zoneTag: string;
+    } | null;
+    zoneTag?: string | null;
   }[];
 }
 
@@ -7256,10 +7298,13 @@ export const ListProjectDomainsResponse =
       result: Schema.Array(
         Schema.Struct({
           id: Schema.String,
-          certificateAuthority: Schema.Union([
-            Schema.Literals(["google", "lets_encrypt"]),
-            Schema.String,
-          ]),
+          certificateAuthority: Schema.optional(
+            Schema.Union([
+              Schema.Literal("google"),
+              Schema.Literal("lets_encrypt"),
+              Schema.Null,
+            ]),
+          ),
           createdOn: Schema.String,
           domainId: Schema.String,
           name: Schema.String,
@@ -7274,60 +7319,73 @@ export const ListProjectDomainsResponse =
             ]),
             Schema.String,
           ]),
-          validationData: Schema.Struct({
-            method: Schema.Union([
-              Schema.Literals(["http", "txt"]),
-              Schema.String,
+          validationData: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                method: Schema.optional(
+                  Schema.Union([
+                    Schema.Literal("http"),
+                    Schema.Literal("txt"),
+                    Schema.Null,
+                  ]),
+                ),
+                status: Schema.optional(
+                  Schema.Union([
+                    Schema.Literal("initializing"),
+                    Schema.Literal("pending"),
+                    Schema.Literal("active"),
+                    Schema.Literal("deactivated"),
+                    Schema.Literal("error"),
+                    Schema.Null,
+                  ]),
+                ),
+                errorMessage: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                txtName: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                txtValue: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }).pipe(
+                Schema.encodeKeys({
+                  method: "method",
+                  status: "status",
+                  errorMessage: "error_message",
+                  txtName: "txt_name",
+                  txtValue: "txt_value",
+                }),
+              ),
+              Schema.Null,
             ]),
-            status: Schema.Union([
-              Schema.Literals([
-                "initializing",
-                "pending",
-                "active",
-                "deactivated",
-                "error",
-              ]),
-              Schema.String,
-            ]),
-            errorMessage: Schema.optional(
-              Schema.Union([Schema.String, Schema.Null]),
-            ),
-            txtName: Schema.optional(
-              Schema.Union([Schema.String, Schema.Null]),
-            ),
-            txtValue: Schema.optional(
-              Schema.Union([Schema.String, Schema.Null]),
-            ),
-          }).pipe(
-            Schema.encodeKeys({
-              method: "method",
-              status: "status",
-              errorMessage: "error_message",
-              txtName: "txt_name",
-              txtValue: "txt_value",
-            }),
           ),
-          verificationData: Schema.Struct({
-            status: Schema.Union([
-              Schema.Literals([
-                "pending",
-                "active",
-                "deactivated",
-                "blocked",
-                "error",
-              ]),
-              Schema.String,
+          verificationData: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                status: Schema.optional(
+                  Schema.Union([
+                    Schema.Literal("pending"),
+                    Schema.Literal("active"),
+                    Schema.Literal("deactivated"),
+                    Schema.Literal("blocked"),
+                    Schema.Literal("error"),
+                    Schema.Null,
+                  ]),
+                ),
+                errorMessage: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }).pipe(
+                Schema.encodeKeys({
+                  status: "status",
+                  errorMessage: "error_message",
+                }),
+              ),
+              Schema.Null,
             ]),
-            errorMessage: Schema.optional(
-              Schema.Union([Schema.String, Schema.Null]),
-            ),
-          }).pipe(
-            Schema.encodeKeys({
-              status: "status",
-              errorMessage: "error_message",
-            }),
           ),
-          zoneTag: Schema.String,
+          zoneTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
         }).pipe(
           Schema.encodeKeys({
             id: "id",
@@ -7389,7 +7447,7 @@ export const CreateProjectDomainRequest =
 
 export interface CreateProjectDomainResponse {
   id: string;
-  certificateAuthority: "google" | "lets_encrypt" | (string & {});
+  certificateAuthority?: "google" | "lets_encrypt" | null;
   createdOn: string;
   domainId: string;
   /** The domain name. */
@@ -7402,40 +7460,37 @@ export interface CreateProjectDomainResponse {
     | "blocked"
     | "error"
     | (string & {});
-  validationData: {
-    method: "http" | "txt" | (string & {});
-    status:
+  validationData?: {
+    method?: "http" | "txt" | null;
+    status?:
       | "initializing"
       | "pending"
       | "active"
       | "deactivated"
       | "error"
-      | (string & {});
+      | null;
     errorMessage?: string | null;
     txtName?: string | null;
     txtValue?: string | null;
-  };
-  verificationData: {
-    status:
-      | "pending"
-      | "active"
-      | "deactivated"
-      | "blocked"
-      | "error"
-      | (string & {});
+  } | null;
+  verificationData?: {
+    status?: "pending" | "active" | "deactivated" | "blocked" | "error" | null;
     errorMessage?: string | null;
-  };
-  zoneTag: string;
+  } | null;
+  zoneTag?: string | null;
 }
 
 export const CreateProjectDomainResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
     Schema.Struct({
       id: Schema.String,
-      certificateAuthority: Schema.Union([
-        Schema.Literals(["google", "lets_encrypt"]),
-        Schema.String,
-      ]),
+      certificateAuthority: Schema.optional(
+        Schema.Union([
+          Schema.Literal("google"),
+          Schema.Literal("lets_encrypt"),
+          Schema.Null,
+        ]),
+      ),
       createdOn: Schema.String,
       domainId: Schema.String,
       name: Schema.String,
@@ -7450,50 +7505,73 @@ export const CreateProjectDomainResponse =
         ]),
         Schema.String,
       ]),
-      validationData: Schema.Struct({
-        method: Schema.Union([Schema.Literals(["http", "txt"]), Schema.String]),
-        status: Schema.Union([
-          Schema.Literals([
-            "initializing",
-            "pending",
-            "active",
-            "deactivated",
-            "error",
-          ]),
-          Schema.String,
+      validationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            method: Schema.optional(
+              Schema.Union([
+                Schema.Literal("http"),
+                Schema.Literal("txt"),
+                Schema.Null,
+              ]),
+            ),
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("initializing"),
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtName: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtValue: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              method: "method",
+              status: "status",
+              errorMessage: "error_message",
+              txtName: "txt_name",
+              txtValue: "txt_value",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-        txtName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-        txtValue: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      }).pipe(
-        Schema.encodeKeys({
-          method: "method",
-          status: "status",
-          errorMessage: "error_message",
-          txtName: "txt_name",
-          txtValue: "txt_value",
-        }),
       ),
-      verificationData: Schema.Struct({
-        status: Schema.Union([
-          Schema.Literals([
-            "pending",
-            "active",
-            "deactivated",
-            "blocked",
-            "error",
-          ]),
-          Schema.String,
+      verificationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("blocked"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              status: "status",
+              errorMessage: "error_message",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-      }).pipe(
-        Schema.encodeKeys({ status: "status", errorMessage: "error_message" }),
       ),
-      zoneTag: Schema.String,
+      zoneTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     })
       .pipe(
         Schema.encodeKeys({
@@ -7551,7 +7629,7 @@ export const PatchProjectDomainRequest =
 
 export interface PatchProjectDomainResponse {
   id: string;
-  certificateAuthority: "google" | "lets_encrypt" | (string & {});
+  certificateAuthority?: "google" | "lets_encrypt" | null;
   createdOn: string;
   domainId: string;
   /** The domain name. */
@@ -7564,40 +7642,37 @@ export interface PatchProjectDomainResponse {
     | "blocked"
     | "error"
     | (string & {});
-  validationData: {
-    method: "http" | "txt" | (string & {});
-    status:
+  validationData?: {
+    method?: "http" | "txt" | null;
+    status?:
       | "initializing"
       | "pending"
       | "active"
       | "deactivated"
       | "error"
-      | (string & {});
+      | null;
     errorMessage?: string | null;
     txtName?: string | null;
     txtValue?: string | null;
-  };
-  verificationData: {
-    status:
-      | "pending"
-      | "active"
-      | "deactivated"
-      | "blocked"
-      | "error"
-      | (string & {});
+  } | null;
+  verificationData?: {
+    status?: "pending" | "active" | "deactivated" | "blocked" | "error" | null;
     errorMessage?: string | null;
-  };
-  zoneTag: string;
+  } | null;
+  zoneTag?: string | null;
 }
 
 export const PatchProjectDomainResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
     Schema.Struct({
       id: Schema.String,
-      certificateAuthority: Schema.Union([
-        Schema.Literals(["google", "lets_encrypt"]),
-        Schema.String,
-      ]),
+      certificateAuthority: Schema.optional(
+        Schema.Union([
+          Schema.Literal("google"),
+          Schema.Literal("lets_encrypt"),
+          Schema.Null,
+        ]),
+      ),
       createdOn: Schema.String,
       domainId: Schema.String,
       name: Schema.String,
@@ -7612,50 +7687,73 @@ export const PatchProjectDomainResponse =
         ]),
         Schema.String,
       ]),
-      validationData: Schema.Struct({
-        method: Schema.Union([Schema.Literals(["http", "txt"]), Schema.String]),
-        status: Schema.Union([
-          Schema.Literals([
-            "initializing",
-            "pending",
-            "active",
-            "deactivated",
-            "error",
-          ]),
-          Schema.String,
+      validationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            method: Schema.optional(
+              Schema.Union([
+                Schema.Literal("http"),
+                Schema.Literal("txt"),
+                Schema.Null,
+              ]),
+            ),
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("initializing"),
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtName: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            txtValue: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              method: "method",
+              status: "status",
+              errorMessage: "error_message",
+              txtName: "txt_name",
+              txtValue: "txt_value",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-        txtName: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-        txtValue: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-      }).pipe(
-        Schema.encodeKeys({
-          method: "method",
-          status: "status",
-          errorMessage: "error_message",
-          txtName: "txt_name",
-          txtValue: "txt_value",
-        }),
       ),
-      verificationData: Schema.Struct({
-        status: Schema.Union([
-          Schema.Literals([
-            "pending",
-            "active",
-            "deactivated",
-            "blocked",
-            "error",
-          ]),
-          Schema.String,
+      verificationData: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            status: Schema.optional(
+              Schema.Union([
+                Schema.Literal("pending"),
+                Schema.Literal("active"),
+                Schema.Literal("deactivated"),
+                Schema.Literal("blocked"),
+                Schema.Literal("error"),
+                Schema.Null,
+              ]),
+            ),
+            errorMessage: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              status: "status",
+              errorMessage: "error_message",
+            }),
+          ),
+          Schema.Null,
         ]),
-        errorMessage: Schema.optional(
-          Schema.Union([Schema.String, Schema.Null]),
-        ),
-      }).pipe(
-        Schema.encodeKeys({ status: "status", errorMessage: "error_message" }),
       ),
-      zoneTag: Schema.String,
+      zoneTag: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
     })
       .pipe(
         Schema.encodeKeys({

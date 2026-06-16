@@ -199,7 +199,17 @@ function matchesExpression(
   status: number,
   message: string,
 ): boolean {
-  if (matcher.code === undefined && matcher.status === undefined) return false;
+  // A matcher must constrain on *something*; a fully-empty matcher would
+  // match every error. A message-only matcher (no code, no status) is
+  // legitimate — Cloudflare sometimes returns a terse enveloped error whose
+  // `code` is absent/zero but whose message is distinctive (e.g. Vectorize's
+  // bare `index deleted`). Only reject the truly-empty matcher here.
+  if (
+    matcher.code === undefined &&
+    matcher.status === undefined &&
+    matcher.message === undefined
+  )
+    return false;
   if (matcher.code !== undefined && matcher.code !== code) return false;
   if (matcher.status !== undefined && matcher.status !== status) return false;
   if (matcher.message !== undefined) {

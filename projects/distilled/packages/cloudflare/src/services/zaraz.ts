@@ -13,6 +13,22 @@ import type { Credentials } from "../credentials.ts";
 import { type DefaultErrors } from "../errors.ts";
 
 // =============================================================================
+// Errors
+// =============================================================================
+
+export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
+  "Forbidden",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
+
+export class NotFound extends Schema.TaggedErrorClass<NotFound>()("NotFound", {
+  code: Schema.Number,
+  message: Schema.String,
+}) {}
+T.applyErrorMatchers(NotFound, [{ status: 404 }]);
+
+// =============================================================================
 // Config
 // =============================================================================
 
@@ -235,7 +251,7 @@ export const GetConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     }).pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<GetConfigResponse>;
 
-export type GetConfigError = DefaultErrors;
+export type GetConfigError = DefaultErrors | Forbidden | NotFound;
 
 export const getConfig: API.OperationMethod<
   GetConfigRequest,
@@ -245,7 +261,7 @@ export const getConfig: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetConfigRequest,
   output: GetConfigResponse,
-  errors: [],
+  errors: [Forbidden, NotFound],
 }));
 
 export interface PutConfigRequest {
@@ -1536,7 +1552,7 @@ export const GetWorkflowResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     ]).pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<GetWorkflowResponse>;
 
-export type GetWorkflowError = DefaultErrors;
+export type GetWorkflowError = DefaultErrors | Forbidden | NotFound;
 
 export const getWorkflow: API.OperationMethod<
   GetWorkflowRequest,
@@ -1546,7 +1562,7 @@ export const getWorkflow: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetWorkflowRequest,
   output: GetWorkflowResponse,
-  errors: [],
+  errors: [Forbidden, NotFound],
 }));
 
 // =============================================================================

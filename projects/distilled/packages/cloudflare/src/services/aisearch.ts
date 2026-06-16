@@ -41,7 +41,10 @@ export class InvalidTokenCredentials extends Schema.TaggedErrorClass<InvalidToke
   "InvalidTokenCredentials",
   { code: Schema.Number, message: Schema.String },
 ) {}
-T.applyErrorMatchers(InvalidTokenCredentials, [{ code: 7012 }]);
+T.applyErrorMatchers(InvalidTokenCredentials, [
+  { code: 7012 },
+  { status: 400, message: { includes: "invalid_token" } },
+]);
 
 export class NamespaceAlreadyExists extends Schema.TaggedErrorClass<NamespaceAlreadyExists>()(
   "NamespaceAlreadyExists",
@@ -3754,6 +3757,7 @@ export type CreateInstanceError =
   | NotFound
   | InvalidRoute
   | InstanceAlreadyExists
+  | InvalidTokenCredentials
   | Forbidden;
 
 export const createInstance: API.OperationMethod<
@@ -3769,6 +3773,7 @@ export const createInstance: API.OperationMethod<
     NotFound,
     InvalidRoute,
     InstanceAlreadyExists,
+    InvalidTokenCredentials,
     Forbidden,
   ],
 }));
@@ -5155,6 +5160,7 @@ export type UpdateInstanceError =
   | ValidationError
   | NotFound
   | InvalidRoute
+  | InvalidTokenCredentials
   | Forbidden;
 
 export const updateInstance: API.OperationMethod<
@@ -5165,7 +5171,13 @@ export const updateInstance: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: UpdateInstanceRequest,
   output: UpdateInstanceResponse,
-  errors: [ValidationError, NotFound, InvalidRoute, Forbidden],
+  errors: [
+    ValidationError,
+    NotFound,
+    InvalidRoute,
+    InvalidTokenCredentials,
+    Forbidden,
+  ],
 }));
 
 export interface DeleteInstanceRequest {

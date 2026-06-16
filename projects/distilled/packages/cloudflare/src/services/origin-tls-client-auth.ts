@@ -121,6 +121,12 @@ export class InvalidHostnameConfig extends Schema.TaggedErrorClass<InvalidHostna
 ) {}
 T.applyErrorMatchers(InvalidHostnameConfig, [{ code: 1415 }]);
 
+export class ZoneClientCertConflict extends Schema.TaggedErrorClass<ZoneClientCertConflict>()(
+  "ZoneClientCertConflict",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneClientCertConflict, [{ status: 409 }]);
+
 // =============================================================================
 // Hostname
 // =============================================================================
@@ -1056,82 +1062,89 @@ export const ListOriginTlsClientAuthsRequest =
   ) as unknown as Schema.Schema<ListOriginTlsClientAuthsRequest>;
 
 export interface ListOriginTlsClientAuthsResponse {
-  result: {
-    id?: string | null;
-    certificate?: string | null;
-    expiresOn?: string | null;
-    issuer?: string | null;
-    signature?: string | null;
-    status?:
-      | "initializing"
-      | "pending_deployment"
-      | "pending_deletion"
-      | "active"
-      | "deleted"
-      | "deployment_timed_out"
-      | "deletion_timed_out"
-      | (string & {})
-      | null;
-    uploadedOn?: string | null;
-    enabled?: boolean | null;
-    privateKey?: string | null;
-  }[];
+  result:
+    | {
+        id?: string | null;
+        certificate?: string | null;
+        expiresOn?: string | null;
+        issuer?: string | null;
+        signature?: string | null;
+        status?:
+          | "initializing"
+          | "pending_deployment"
+          | "pending_deletion"
+          | "active"
+          | "deleted"
+          | "deployment_timed_out"
+          | "deletion_timed_out"
+          | (string & {})
+          | null;
+        uploadedOn?: string | null;
+        enabled?: boolean | null;
+        privateKey?: string | null;
+      }[]
+    | null;
 }
 
 export const ListOriginTlsClientAuthsResponse =
   /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
     Schema.Struct({
-      result: Schema.Array(
-        Schema.Struct({
-          id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-          certificate: Schema.optional(
-            Schema.Union([Schema.String, Schema.Null]),
-          ),
-          expiresOn: Schema.optional(
-            Schema.Union([Schema.String, Schema.Null]),
-          ),
-          issuer: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
-          signature: Schema.optional(
-            Schema.Union([Schema.String, Schema.Null]),
-          ),
-          status: Schema.optional(
-            Schema.Union([
+      result: Schema.Union([
+        Schema.Array(
+          Schema.Struct({
+            id: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+            certificate: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            expiresOn: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            issuer: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+            signature: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            status: Schema.optional(
               Schema.Union([
-                Schema.Literals([
-                  "initializing",
-                  "pending_deployment",
-                  "pending_deletion",
-                  "active",
-                  "deleted",
-                  "deployment_timed_out",
-                  "deletion_timed_out",
+                Schema.Union([
+                  Schema.Literals([
+                    "initializing",
+                    "pending_deployment",
+                    "pending_deletion",
+                    "active",
+                    "deleted",
+                    "deployment_timed_out",
+                    "deletion_timed_out",
+                  ]),
+                  Schema.String,
                 ]),
-                Schema.String,
+                Schema.Null,
               ]),
-              Schema.Null,
-            ]),
+            ),
+            uploadedOn: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            enabled: Schema.optional(
+              Schema.Union([Schema.Boolean, Schema.Null]),
+            ),
+            privateKey: Schema.optional(
+              Schema.Union([SensitiveString, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              id: "id",
+              certificate: "certificate",
+              expiresOn: "expires_on",
+              issuer: "issuer",
+              signature: "signature",
+              status: "status",
+              uploadedOn: "uploaded_on",
+              enabled: "enabled",
+              privateKey: "private_key",
+            }),
           ),
-          uploadedOn: Schema.optional(
-            Schema.Union([Schema.String, Schema.Null]),
-          ),
-          enabled: Schema.optional(Schema.Union([Schema.Boolean, Schema.Null])),
-          privateKey: Schema.optional(
-            Schema.Union([SensitiveString, Schema.Null]),
-          ),
-        }).pipe(
-          Schema.encodeKeys({
-            id: "id",
-            certificate: "certificate",
-            expiresOn: "expires_on",
-            issuer: "issuer",
-            signature: "signature",
-            status: "status",
-            uploadedOn: "uploaded_on",
-            enabled: "enabled",
-            privateKey: "private_key",
-          }),
         ),
-      ),
+        Schema.Null,
+      ]),
     }),
   ) as unknown as Schema.Schema<ListOriginTlsClientAuthsResponse>;
 
@@ -1258,6 +1271,7 @@ export type CreateOriginTlsClientAuthError =
   | DefaultErrors
   | CertificateAlreadyExists
   | InvalidCertificate
+  | ZoneClientCertConflict
   | Forbidden;
 
 export const createOriginTlsClientAuth: API.OperationMethod<
@@ -1268,7 +1282,12 @@ export const createOriginTlsClientAuth: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateOriginTlsClientAuthRequest,
   output: CreateOriginTlsClientAuthResponse,
-  errors: [CertificateAlreadyExists, InvalidCertificate, Forbidden],
+  errors: [
+    CertificateAlreadyExists,
+    InvalidCertificate,
+    ZoneClientCertConflict,
+    Forbidden,
+  ],
 }));
 
 export interface DeleteOriginTlsClientAuthRequest {
@@ -1369,7 +1388,9 @@ export type DeleteOriginTlsClientAuthError =
   | DefaultErrors
   | CertificateNotFound
   | Forbidden
-  | CertificateAlreadyDeleted;
+  | CertificateAlreadyDeleted
+  | CertificatePendingDeployment
+  | ZoneClientCertConflict;
 
 export const deleteOriginTlsClientAuth: API.OperationMethod<
   DeleteOriginTlsClientAuthRequest,
@@ -1379,7 +1400,13 @@ export const deleteOriginTlsClientAuth: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteOriginTlsClientAuthRequest,
   output: DeleteOriginTlsClientAuthResponse,
-  errors: [CertificateNotFound, Forbidden, CertificateAlreadyDeleted],
+  errors: [
+    CertificateNotFound,
+    Forbidden,
+    CertificateAlreadyDeleted,
+    CertificatePendingDeployment,
+    ZoneClientCertConflict,
+  ],
 }));
 
 // =============================================================================

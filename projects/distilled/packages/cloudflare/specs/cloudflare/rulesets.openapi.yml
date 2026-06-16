@@ -3476,7 +3476,6 @@ paths:
                   - last_updated
                   - name
                   - phase
-                  - rules
                   - version
       x-distilled-response-path: result
       x-distilled-errors:

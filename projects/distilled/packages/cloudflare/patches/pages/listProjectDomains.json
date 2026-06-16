@@ -2,5 +2,16 @@
   "errors": {
     "ProjectNotFound": [{ "code": 8000007 }],
     "Forbidden": [{ "status": 403 }]
+  },
+  "response": {
+    "properties": {
+      "result[].certificate_authority": { "optional": true, "nullable": true },
+      "result[].zone_tag": { "optional": true, "nullable": true },
+      "result[].validation_data": { "optional": true, "nullable": true },
+      "result[].validation_data.method": { "optional": true, "nullable": true },
+      "result[].validation_data.status": { "optional": true, "nullable": true },
+      "result[].verification_data": { "optional": true, "nullable": true },
+      "result[].verification_data.status": { "optional": true, "nullable": true }
+    }
   }
 }

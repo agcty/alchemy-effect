@@ -28,6 +28,12 @@ export class CertificateNotFound extends Schema.TaggedErrorClass<CertificateNotF
 ) {}
 T.applyErrorMatchers(CertificateNotFound, [{ code: 1101 }]);
 
+export class CertificateRevocationFailed extends Schema.TaggedErrorClass<CertificateRevocationFailed>()(
+  "CertificateRevocationFailed",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(CertificateRevocationFailed, [{ code: 1000 }]);
+
 export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
   "Forbidden",
   { code: Schema.Number, message: Schema.String },
@@ -392,6 +398,7 @@ export type DeleteOriginCaCertificateError =
   | DefaultErrors
   | CertificateNotFound
   | CertificateAlreadyRevoked
+  | CertificateRevocationFailed
   | Forbidden;
 
 export const deleteOriginCaCertificate: API.OperationMethod<
@@ -402,5 +409,10 @@ export const deleteOriginCaCertificate: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteOriginCaCertificateRequest,
   output: DeleteOriginCaCertificateResponse,
-  errors: [CertificateNotFound, CertificateAlreadyRevoked, Forbidden],
+  errors: [
+    CertificateNotFound,
+    CertificateAlreadyRevoked,
+    CertificateRevocationFailed,
+    Forbidden,
+  ],
 }));

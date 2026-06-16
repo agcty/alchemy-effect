@@ -47,6 +47,12 @@ export class NotEntitled extends Schema.TaggedErrorClass<NotEntitled>()(
 ) {}
 T.applyErrorMatchers(NotEntitled, [{ code: 10403 }, { code: 10404 }]);
 
+export class NotFound extends Schema.TaggedErrorClass<NotFound>()("NotFound", {
+  code: Schema.Number,
+  message: Schema.String,
+}) {}
+T.applyErrorMatchers(NotFound, [{ status: 404 }]);
+
 export class OperationNotFound extends Schema.TaggedErrorClass<OperationNotFound>()(
   "OperationNotFound",
   { code: Schema.Number, message: Schema.String },
@@ -58,6 +64,12 @@ export class SchemaNotFound extends Schema.TaggedErrorClass<SchemaNotFound>()(
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(SchemaNotFound, [{ code: 19400 }]);
+
+export class ZonePurged extends Schema.TaggedErrorClass<ZonePurged>()(
+  "ZonePurged",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZonePurged, [{ code: 10410 }]);
 
 // =============================================================================
 // Configuration
@@ -729,7 +741,7 @@ export const ListLabelsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     }).pipe(Schema.encodeKeys({ result: "result", resultInfo: "result_info" })),
 ) as unknown as Schema.Schema<ListLabelsResponse>;
 
-export type ListLabelsError = DefaultErrors | Forbidden;
+export type ListLabelsError = DefaultErrors | ZonePurged | Forbidden | NotFound;
 
 export const listLabels: API.PaginatedOperationMethod<
   ListLabelsRequest,
@@ -739,7 +751,7 @@ export const listLabels: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListLabelsRequest,
   output: ListLabelsResponse,
-  errors: [Forbidden],
+  errors: [ZonePurged, Forbidden, NotFound],
   pagination: {
     mode: "page",
     inputToken: "page",
