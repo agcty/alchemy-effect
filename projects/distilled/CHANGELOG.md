@@ -1,3 +1,13 @@
+## v0.25.1
+
+### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
+
+- **cloudflare**: Allow missing edge preview tail url &nbsp;-&nbsp; by **Ryan Brown** in https://github.com/alchemy-run/distilled/issues/347 [<samp>(74404)</samp>](https://github.com/alchemy-run/distilled/commit/7440428ac)
+
+##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/distilled/compare/v0.25.0...HEAD)
+
+---
+
 ## v0.25.0
 
 ### &nbsp;&nbsp;&nbsp;🚀 Features
