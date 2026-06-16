@@ -23,6 +23,15 @@ export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
 ) {}
 T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
 
+export class SnippetInUse extends Schema.TaggedErrorClass<SnippetInUse>()(
+  "SnippetInUse",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(SnippetInUse, [
+  { status: 400, message: { includes: "still used" } },
+  { status: 409, message: { includes: "still used" } },
+]);
+
 export class SnippetNotFound extends Schema.TaggedErrorClass<SnippetNotFound>()(
   "SnippetNotFound",
   { code: Schema.Number, message: Schema.String },
@@ -485,7 +494,7 @@ export const DeleteSnippetResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
   () => Schema.Unknown.pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<DeleteSnippetResponse>;
 
-export type DeleteSnippetError = DefaultErrors | SnippetNotFound;
+export type DeleteSnippetError = DefaultErrors | SnippetNotFound | SnippetInUse;
 
 export const deleteSnippet: API.OperationMethod<
   DeleteSnippetRequest,
@@ -495,5 +504,5 @@ export const deleteSnippet: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: DeleteSnippetRequest,
   output: DeleteSnippetResponse,
-  errors: [SnippetNotFound],
+  errors: [SnippetNotFound, SnippetInUse],
 }));

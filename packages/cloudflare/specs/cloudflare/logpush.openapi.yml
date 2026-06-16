@@ -1573,6 +1573,11 @@ paths:
                           ignored.
                 nullable: true
       x-distilled-pagination-class: LogpushJobsSinglePage
+      x-distilled-errors:
+        Forbidden:
+          - status: 403
+        NotFound:
+          - status: 404
     post:
       operationId: createJob
       description: "Creates a new Logpush job for an account or zone.  @example ```ts

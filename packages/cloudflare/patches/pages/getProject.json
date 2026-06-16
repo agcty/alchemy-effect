@@ -2,5 +2,11 @@
   "errors": {
     "ProjectNotFound": [{ "code": 8000007 }],
     "Forbidden": [{ "status": 403 }]
+  },
+  "response": {
+    "properties": {
+      "latest_deployment.source": { "optional": true, "nullable": true },
+      "canonical_deployment.source": { "optional": true, "nullable": true }
+    }
   }
 }

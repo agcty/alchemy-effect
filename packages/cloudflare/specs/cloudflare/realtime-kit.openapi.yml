@@ -5926,6 +5926,8 @@ paths:
                   - data
                   - success
       x-distilled-errors:
+        RealtimeKitPresetExists:
+          - status: 409
         Forbidden:
           - status: 403
   /accounts/{account_id}/realtime/kit/{appId}/presets/{presetId}:
@@ -9098,5 +9100,7 @@ paths:
                   - data
                   - success
       x-distilled-errors:
+        RealtimeKitWebhookExists:
+          - status: 409
         Forbidden:
           - status: 403

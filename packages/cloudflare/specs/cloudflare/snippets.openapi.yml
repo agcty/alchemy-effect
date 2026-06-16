@@ -247,6 +247,13 @@ paths:
             message:
               includes: snippet not found
           - status: 404
+        SnippetInUse:
+          - status: 400
+            message:
+              includes: still used
+          - status: 409
+            message:
+              includes: still used
   /zones/{zone_id}/snippets:
     get:
       operationId: listSnippets

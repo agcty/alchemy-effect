@@ -37,6 +37,14 @@ export class PlanLevelNotAllowed extends Schema.TaggedErrorClass<PlanLevelNotAll
 ) {}
 T.applyErrorMatchers(PlanLevelNotAllowed, [{ code: 1011 }]);
 
+export class ZoneNotFound extends Schema.TaggedErrorClass<ZoneNotFound>()(
+  "ZoneNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneNotFound, [
+  { status: 400, message: { includes: "Cannot find a valid zone" } },
+]);
+
 // =============================================================================
 // CustomCertificate
 // =============================================================================
@@ -510,6 +518,7 @@ export const ListCustomCertificatesResponse =
 export type ListCustomCertificatesError =
   | DefaultErrors
   | PlanLevelNotAllowed
+  | ZoneNotFound
   | Forbidden;
 
 export const listCustomCertificates: API.PaginatedOperationMethod<
@@ -520,7 +529,7 @@ export const listCustomCertificates: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListCustomCertificatesRequest,
   output: ListCustomCertificatesResponse,
-  errors: [PlanLevelNotAllowed, Forbidden],
+  errors: [PlanLevelNotAllowed, ZoneNotFound, Forbidden],
   pagination: {
     mode: "page",
     inputToken: "page",

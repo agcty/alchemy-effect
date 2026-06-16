@@ -5,6 +5,9 @@
   },
   "response": {
     "properties": {
+      "rules": {
+        "optional": true
+      },
       "rules[].action_parameters.from_value.status_code": {
         "appendUnion": [{ "kind": "primitive", "value": "number" }]
       }

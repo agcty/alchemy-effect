@@ -21,7 +21,10 @@ export class Gone extends Schema.TaggedErrorClass<Gone>()("Gone", {
   code: Schema.Number,
   message: Schema.String,
 }) {}
-T.applyErrorMatchers(Gone, [{ code: 3005 }]);
+T.applyErrorMatchers(Gone, [
+  { code: 3005 },
+  { message: { includes: "index deleted" } },
+]);
 
 export class IndexAlreadyExists extends Schema.TaggedErrorClass<IndexAlreadyExists>()(
   "IndexAlreadyExists",
@@ -307,7 +310,7 @@ export const ListIndexesResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     }),
 ) as unknown as Schema.Schema<ListIndexesResponse>;
 
-export type ListIndexesError = DefaultErrors;
+export type ListIndexesError = DefaultErrors | NotFound | Gone;
 
 export const listIndexes: API.PaginatedOperationMethod<
   ListIndexesRequest,
@@ -317,7 +320,7 @@ export const listIndexes: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListIndexesRequest,
   output: ListIndexesResponse,
-  errors: [],
+  errors: [NotFound, Gone],
   pagination: {
     mode: "single",
     items: "result",

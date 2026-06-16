@@ -15,6 +15,17 @@
         "code": 7003
       }
     ],
+    "InvalidTokenCredentials": [
+      {
+        "code": 7012
+      },
+      {
+        "status": 400,
+        "message": {
+          "includes": "invalid_token"
+        }
+      }
+    ],
     "Forbidden": [
       {
         "status": 403

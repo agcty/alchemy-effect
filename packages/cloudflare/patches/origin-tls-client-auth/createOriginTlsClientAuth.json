@@ -6,6 +6,7 @@
     "InvalidCertificate": [
       { "code": 1408, "message": { "includes": "Unable to parse certificate" } }
     ],
+    "ZoneClientCertConflict": [{ "status": 409 }],
     "Forbidden": [{ "status": 403 }]
   }
 }

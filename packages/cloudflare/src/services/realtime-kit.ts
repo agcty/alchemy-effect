@@ -23,11 +23,23 @@ export class Forbidden extends Schema.TaggedErrorClass<Forbidden>()(
 ) {}
 T.applyErrorMatchers(Forbidden, [{ status: 403 }]);
 
+export class RealtimeKitPresetExists extends Schema.TaggedErrorClass<RealtimeKitPresetExists>()(
+  "RealtimeKitPresetExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(RealtimeKitPresetExists, [{ status: 409 }]);
+
 export class RealtimeKitPresetNotFound extends Schema.TaggedErrorClass<RealtimeKitPresetNotFound>()(
   "RealtimeKitPresetNotFound",
   { code: Schema.Number, message: Schema.String },
 ) {}
 T.applyErrorMatchers(RealtimeKitPresetNotFound, [{ status: 404 }]);
+
+export class RealtimeKitWebhookExists extends Schema.TaggedErrorClass<RealtimeKitWebhookExists>()(
+  "RealtimeKitWebhookExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(RealtimeKitWebhookExists, [{ status: 409 }]);
 
 export class RealtimeKitWebhookNotFound extends Schema.TaggedErrorClass<RealtimeKitWebhookNotFound>()(
   "RealtimeKitWebhookNotFound",
@@ -7694,7 +7706,10 @@ export const CreatePresetResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     }),
 ) as unknown as Schema.Schema<CreatePresetResponse>;
 
-export type CreatePresetError = DefaultErrors | Forbidden;
+export type CreatePresetError =
+  | DefaultErrors
+  | RealtimeKitPresetExists
+  | Forbidden;
 
 export const createPreset: API.OperationMethod<
   CreatePresetRequest,
@@ -7704,7 +7719,7 @@ export const createPreset: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreatePresetRequest,
   output: CreatePresetResponse,
-  errors: [Forbidden],
+  errors: [RealtimeKitPresetExists, Forbidden],
 }));
 
 export interface PatchPresetRequest {
@@ -11590,7 +11605,10 @@ export const CreateWebhookWebhookResponse =
     }),
   ) as unknown as Schema.Schema<CreateWebhookWebhookResponse>;
 
-export type CreateWebhookWebhookError = DefaultErrors | Forbidden;
+export type CreateWebhookWebhookError =
+  | DefaultErrors
+  | RealtimeKitWebhookExists
+  | Forbidden;
 
 export const createWebhookWebhook: API.OperationMethod<
   CreateWebhookWebhookRequest,
@@ -11600,7 +11618,7 @@ export const createWebhookWebhook: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateWebhookWebhookRequest,
   output: CreateWebhookWebhookResponse,
-  errors: [Forbidden],
+  errors: [RealtimeKitWebhookExists, Forbidden],
 }));
 
 export interface DeleteWebhookWebhookRequest {

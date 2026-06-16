@@ -28,6 +28,12 @@ export class TagPreconditionFailed extends Schema.TaggedErrorClass<TagPreconditi
 ) {}
 T.applyErrorMatchers(TagPreconditionFailed, [{ status: 412 }]);
 
+export class ZoneTagResourceNotFound extends Schema.TaggedErrorClass<ZoneTagResourceNotFound>()(
+  "ZoneTagResourceNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneTagResourceNotFound, [{ status: 404 }]);
+
 // =============================================================================
 // AccountTag
 // =============================================================================
@@ -2546,7 +2552,10 @@ export const GetZoneTagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     ]).pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<GetZoneTagResponse>;
 
-export type GetZoneTagError = DefaultErrors | Forbidden;
+export type GetZoneTagError =
+  | DefaultErrors
+  | ZoneTagResourceNotFound
+  | Forbidden;
 
 export const getZoneTag: API.OperationMethod<
   GetZoneTagRequest,
@@ -2556,7 +2565,7 @@ export const getZoneTag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetZoneTagRequest,
   output: GetZoneTagResponse,
-  errors: [Forbidden],
+  errors: [ZoneTagResourceNotFound, Forbidden],
 }));
 
 export interface PutZoneTagRequest {
@@ -3090,7 +3099,11 @@ export const PutZoneTagResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     ]).pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<PutZoneTagResponse>;
 
-export type PutZoneTagError = DefaultErrors | Forbidden | TagPreconditionFailed;
+export type PutZoneTagError =
+  | DefaultErrors
+  | ZoneTagResourceNotFound
+  | Forbidden
+  | TagPreconditionFailed;
 
 export const putZoneTag: API.OperationMethod<
   PutZoneTagRequest,
@@ -3100,7 +3113,7 @@ export const putZoneTag: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: PutZoneTagRequest,
   output: PutZoneTagResponse,
-  errors: [Forbidden, TagPreconditionFailed],
+  errors: [ZoneTagResourceNotFound, Forbidden, TagPreconditionFailed],
 }));
 
 export interface DeleteZoneTagRequest {

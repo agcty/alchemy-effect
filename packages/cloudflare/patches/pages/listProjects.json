@@ -1,5 +1,14 @@
 {
   "errors": {
     "Forbidden": [{ "status": 403 }]
+  },
+  "response": {
+    "properties": {
+      "result[].latest_deployment.source": { "optional": true, "nullable": true },
+      "result[].canonical_deployment.source": {
+        "optional": true,
+        "nullable": true
+      }
+    }
   }
 }

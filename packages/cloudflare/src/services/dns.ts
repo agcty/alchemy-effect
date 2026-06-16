@@ -23,6 +23,16 @@ export class AclNotFound extends Schema.TaggedErrorClass<AclNotFound>()(
 ) {}
 T.applyErrorMatchers(AclNotFound, [{ status: 404 }]);
 
+export class DnsRecordAlreadyExists extends Schema.TaggedErrorClass<DnsRecordAlreadyExists>()(
+  "DnsRecordAlreadyExists",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(DnsRecordAlreadyExists, [
+  { code: 81057 },
+  { code: 81058 },
+  { status: 400, message: { includes: "identical record already exists" } },
+]);
+
 export class DnsSettingNotAvailable extends Schema.TaggedErrorClass<DnsSettingNotAvailable>()(
   "DnsSettingNotAvailable",
   { code: Schema.Number, message: Schema.String },
@@ -9764,7 +9774,10 @@ export const CreateRecordResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
     ]).pipe(T.ResponsePath("result")),
 ) as unknown as Schema.Schema<CreateRecordResponse>;
 
-export type CreateRecordError = DefaultErrors | Forbidden;
+export type CreateRecordError =
+  | DefaultErrors
+  | DnsRecordAlreadyExists
+  | Forbidden;
 
 export const createRecord: API.OperationMethod<
   CreateRecordRequest,
@@ -9774,7 +9787,7 @@ export const createRecord: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: CreateRecordRequest,
   output: CreateRecordResponse,
-  errors: [Forbidden],
+  errors: [DnsRecordAlreadyExists, Forbidden],
 }));
 
 export interface UpdateRecordRequest {

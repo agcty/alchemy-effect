@@ -3906,6 +3906,8 @@ paths:
                       - zone_id
       x-distilled-response-path: result
       x-distilled-errors:
+        ZoneTagResourceNotFound:
+          - status: 404
         Forbidden:
           - status: 403
     put:
@@ -4848,6 +4850,8 @@ paths:
                       - zone_id
       x-distilled-response-path: result
       x-distilled-errors:
+        ZoneTagResourceNotFound:
+          - status: 404
         Forbidden:
           - status: 403
         TagPreconditionFailed:

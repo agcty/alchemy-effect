@@ -110,6 +110,8 @@ paths:
           - code: 1101
         CertificateAlreadyRevoked:
           - code: 1014
+        CertificateRevocationFailed:
+          - code: 1000
         Forbidden:
           - status: 403
   /certificates:

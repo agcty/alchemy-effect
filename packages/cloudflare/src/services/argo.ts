@@ -34,6 +34,14 @@ export class NotAuthorized extends Schema.TaggedErrorClass<NotAuthorized>()(
 ) {}
 T.applyErrorMatchers(NotAuthorized, [{ code: 1015 }]);
 
+export class ZoneNotFound extends Schema.TaggedErrorClass<ZoneNotFound>()(
+  "ZoneNotFound",
+  { code: Schema.Number, message: Schema.String },
+) {}
+T.applyErrorMatchers(ZoneNotFound, [
+  { status: 404, message: { includes: "Invalid or missing zone" } },
+]);
+
 // =============================================================================
 // SmartRouting
 // =============================================================================
@@ -214,6 +222,7 @@ export const GetTieredCachingResponse =
 export type GetTieredCachingError =
   | DefaultErrors
   | InvalidObjectIdentifier
+  | ZoneNotFound
   | Forbidden;
 
 export const getTieredCaching: API.OperationMethod<
@@ -224,7 +233,7 @@ export const getTieredCaching: API.OperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
   input: GetTieredCachingRequest,
   output: GetTieredCachingResponse,
-  errors: [InvalidObjectIdentifier, Forbidden],
+  errors: [InvalidObjectIdentifier, ZoneNotFound, Forbidden],
 }));
 
 export interface PatchTieredCachingRequest {

@@ -31,6 +31,12 @@ T.applyErrorMatchers(JobNotFound, [
   { status: 404 },
 ]);
 
+export class NotFound extends Schema.TaggedErrorClass<NotFound>()("NotFound", {
+  code: Schema.Number,
+  message: Schema.String,
+}) {}
+T.applyErrorMatchers(NotFound, [{ status: 404 }]);
+
 // =============================================================================
 // DatasetField
 // =============================================================================
@@ -1323,7 +1329,7 @@ export const ListJobsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
   }),
 ) as unknown as Schema.Schema<ListJobsResponse>;
 
-export type ListJobsError = DefaultErrors;
+export type ListJobsError = DefaultErrors | Forbidden | NotFound;
 
 export const listJobsForAccount: API.PaginatedOperationMethod<
   ListJobsForAccountRequest,
@@ -1333,7 +1339,7 @@ export const listJobsForAccount: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListJobsForAccountRequest,
   output: ListJobsResponse,
-  errors: [],
+  errors: [Forbidden, NotFound],
   pagination: {
     mode: "single",
     items: "result",
@@ -1348,7 +1354,7 @@ export const listJobsForZone: API.PaginatedOperationMethod<
 > = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
   input: ListJobsForZoneRequest,
   output: ListJobsResponse,
-  errors: [],
+  errors: [Forbidden, NotFound],
   pagination: {
     mode: "single",
     items: "result",

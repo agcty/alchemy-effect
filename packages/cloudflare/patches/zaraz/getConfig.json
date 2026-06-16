@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "Forbidden": [{ "status": 403 }],
+    "NotFound": [{ "status": 404 }]
+  }
+}
