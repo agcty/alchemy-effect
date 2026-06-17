@@ -55,6 +55,26 @@ export interface ViteProps<
  * @product Website
  * @category Workers & Compute
  *
+ * @section Vite Config vs Cloudflare.Vite
+ * Keep framework configuration in `vite.config.ts`: React, Vue, Tailwind,
+ * React Router/RSC plugins, framework entries, and extra Vite build inputs
+ * belong there.
+ *
+ * Keep Cloudflare and Alchemy configuration in `Cloudflare.Vite`: resource
+ * bindings, compatibility flags, asset routing, and Worker environment
+ * topology belong here.
+ *
+ * Do not add `@distilled.cloud/cloudflare-vite-plugin` manually to your Vite
+ * config when using `Cloudflare.Vite`. Alchemy loads the app's normal Vite
+ * config and injects the distilled Cloudflare Vite plugin programmatically so
+ * its options stay aligned with Alchemy's resources, bindings, asset settings,
+ * compatibility settings, deploy diffs, and local dev runtime.
+ *
+ * Plain `vite dev` can still be useful for framework-only work, but it does
+ * not provide Alchemy-managed Cloudflare bindings. Use `alchemy dev` for the
+ * authoritative local Worker dev path when the app depends on Alchemy
+ * resources.
+ *
  * @section Deploying a Static Site
  * For a pure static site (no SSR), a single call is all you need.
  * Vite builds the project and Alchemy deploys the output as a
@@ -93,7 +113,10 @@ export interface ViteProps<
  * @section React Server Components
  * For RSC frameworks that use Vite child environments, pass the Worker
  * topology through `viteEnvironment`. Alchemy requires the distilled build
- * manifest for this topology so it can upload the full Worker module set.
+ * manifest for this topology so it can upload the full Worker module set. The
+ * framework's RSC entries still belong in `vite.config.ts`; `viteEnvironment`
+ * tells Alchemy which Vite environment is the Cloudflare Worker and which child
+ * environments must be available to it at runtime.
  *
  * @example RSC topology
  * ```typescript
