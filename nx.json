@@ -170,8 +170,8 @@
       "plugin": "@alchemy.run/nx-tsdown-plugin",
       "exclude": [
         ".vendor/**",
-        "cloudflare-tools/workers-sdk/**",
-        "distilled/packages/*/specs/**"
+        "projects/cloudflare-tools/workers-sdk/**",
+        "projects/distilled/packages/*/specs/**"
       ],
       "options": {
         "buildTargetName": "build"
@@ -181,11 +181,11 @@
       "plugin": "@alchemy.run/nx-tsgo-plugin",
       "exclude": [
         ".vendor/**",
-        "examples/**",
-        "website/**",
-        "cloudflare-tools/fixtures/**",
-        "cloudflare-tools/workers-sdk/**",
-        "distilled/packages/*/specs/**"
+        "projects/alchemy/apps/website/**",
+        "projects/alchemy/examples/**",
+        "projects/cloudflare-tools/fixtures/**",
+        "projects/cloudflare-tools/workers-sdk/**",
+        "projects/distilled/packages/*/specs/**"
       ],
       "options": {
         "typecheckTargetName": "typecheck"
@@ -195,8 +195,8 @@
       "plugin": "@alchemy.run/nx-alchemy-plugin",
       "exclude": [
         ".vendor/**",
-        "cloudflare-tools/workers-sdk/**",
-        "distilled/packages/*/specs/**"
+        "projects/cloudflare-tools/workers-sdk/**",
+        "projects/distilled/packages/*/specs/**"
       ],
       "options": {
         "devTargetName": "dev",
@@ -209,8 +209,8 @@
       "plugin": "@alchemy.run/nx-oxlint-plugin",
       "exclude": [
         ".vendor/**",
-        "cloudflare-tools/workers-sdk/**",
-        "distilled/packages/*/specs/**"
+        "projects/cloudflare-tools/workers-sdk/**",
+        "projects/distilled/packages/*/specs/**"
       ],
       "options": {
         "lintTargetName": "lint",

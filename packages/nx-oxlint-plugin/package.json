@@ -3,11 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers lint targets for packages with oxlint config files.",
-  "keywords": ["linting", "nx", "oxlint", "plugin"],
+  "keywords": [
+    "linting",
+    "nx",
+    "oxlint",
+    "plugin"
+  ],
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -25,13 +32,17 @@
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@alchemy.run/typescript-config": "workspace:*"
   },
   "peerDependencies": {
     "@nx/devkit": "catalog:"
   },
   "nx": {
     "name": "nx-oxlint-plugin",
-    "tags": ["type:tooling", "scope:repo"]
+    "tags": [
+      "type:tooling",
+      "scope:repo"
+    ]
   }
 }

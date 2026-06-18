@@ -1,53 +1,25 @@
 # Monorepo Migration
 
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
-without forcing a directory rename during the first production migration. It is intentionally split
-into two concerns:
-
-1. make the merged graph, CI, cache, and release model production-credible;
-2. leave a later mechanical directory move to `projects/*` as a small, reviewable follow-up.
+using the same high-level shape as the Oddlynew monorepo: shared repository infrastructure remains
+at the root, while product-owned code lives under `projects/<product>/...`.
 
 ## Source Layout
 
-The imported repositories keep their recognizable roots:
+The root `packages/` directory is reserved for shared monorepo infrastructure:
 
 ```text
-packages/                         # Existing alchemy-effect packages
-distilled/packages/*              # Imported distilled packages
-cloudflare-tools/packages/*       # Imported Cloudflare tooling packages
-cloudflare-tools/packages/vendor/* # Private vendored support packages
-cloudflare-tools/packages/tools/*  # Private build/test support packages
-```
-
-Nx does not require a `projects/` directory to understand project boundaries. Each package root is
-an Nx project through its `package.json`. For example:
-
-| Package root                                           | Nx project name                                | Release group       |
-| ------------------------------------------------------ | ---------------------------------------------- | ------------------- |
-| `packages/alchemy`                                     | `alchemy`                                      | `alchemy`           |
-| `distilled/packages/stripe`                            | `@distilled.cloud/stripe`                      | `distilled`         |
-| `cloudflare-tools/packages/cloudflare-vite-plugin`     | `@distilled.cloud/cloudflare-vite-plugin`      | `cloudflare-tools`  |
-| `cloudflare-tools/packages/tools/test`                 | `@distilled.cloud/test-utils`                  | private, no release |
-
-This keeps historical paths stable while still allowing Nx to answer the important questions:
-
-- which packages are affected by a PR;
-- which dependencies must build before a target package;
-- which tasks can reuse local or remote cache artifacts;
-- which package versions and changelogs must change together.
-
-If the maintainers later want a uniform `projects/<repo>/...` hierarchy, that can be a second
-mechanical move after the graph, CI, and release workflow are accepted.
-
-The recommended final layout is:
-
-```text
-packages/                         # Shared repo infrastructure packages
+packages/
 ├── nx-alchemy-plugin
 ├── nx-oxlint-plugin
 ├── nx-tsdown-plugin
 ├── nx-tsgo-plugin
-└── oxlint-config
+├── oxlint-config
+└── typescript-config
+```
+
+Product code is grouped by product/repo:
+
 projects/
 ├── alchemy/
 │   ├── apps/
@@ -65,15 +37,28 @@ projects/
 └── cloudflare-tools/
     ├── fixtures/
     └── packages/
+        ├── tools/
+        ├── vendor/
         ├── cloudflare-runtime
         ├── cloudflare-vite-plugin
         └── cloudflare-rolldown-plugin
 ```
 
-That mirrors the Oddlynew shape: root-level packages are shared monorepo infrastructure, and
-product-owned code lives under `projects/<product>`. The current branch keeps the original paths
-because it is easier for maintainers to review the actual Nx/cache/release behavior before a large
-rename commit moves files.
+Each package root remains an Nx project through its `package.json`. For example:
+
+| Package root                                                     | Nx project name                                | Release group       |
+| ---------------------------------------------------------------- | ---------------------------------------------- | ------------------- |
+| `projects/alchemy/packages/alchemy`                              | `alchemy`                                      | `alchemy`           |
+| `projects/distilled/packages/stripe`                             | `@distilled.cloud/stripe`                      | `distilled`         |
+| `projects/cloudflare-tools/packages/cloudflare-vite-plugin`       | `@distilled.cloud/cloudflare-vite-plugin`      | `cloudflare-tools`  |
+| `projects/cloudflare-tools/packages/tools/test`                  | `@distilled.cloud/test-utils`                  | private, no release |
+
+This lets Nx answer the important questions while the filesystem also communicates ownership:
+
+- which packages are affected by a PR;
+- which dependencies must build before a target package;
+- which tasks can reuse local or remote cache artifacts;
+- which package versions and changelogs must change together.
 
 ## Inferred Targets
 
@@ -97,22 +82,32 @@ Useful commands:
 ```bash
 bun nx show projects
 bun nx graph
-bun nx show projects --affected --files=distilled/packages/stripe/src/index.ts
+bun nx show projects --affected --files=projects/distilled/packages/stripe/src/index.ts
 bun nx run @distilled.cloud/cloudflare-vite-plugin:build
 ```
 
 ## Shared Config
 
-The branch follows the Oddlynew config pattern by putting shared lint rules in
-`@alchemy.run/oxlint-config` and importing them from TypeScript oxlint config files:
+The branch follows the Oddlynew config pattern by putting shared lint and TypeScript presets in
+root infrastructure packages:
+
+- `@alchemy.run/oxlint-config`
+- `@alchemy.run/typescript-config`
+
+Product/package TypeScript configs extend named package presets such as
+`@alchemy.run/typescript-config/node.json` or `@alchemy.run/typescript-config/bun.json`. The root
+`tsconfig.base.json`, `tsconfig.scripts.json`, product-local `tsconfig.base.json` files, and
+example-local config bases are intentionally removed. Package-local `tsconfig*.json` files own their
+runtime and project-reference boundaries directly.
+
+Shared lint rules are imported from TypeScript oxlint config files:
 
 - `oxlint.config.ts`
-- `distilled/oxlint.config.ts`
-- `cloudflare-tools/oxlint.config.ts`
+- `projects/distilled/oxlint.config.ts`
+- `projects/cloudflare-tools/oxlint.config.ts`
 
 That replaces the previous scattered `.oxlintrc.json` files and makes project-specific exceptions
-explicit in code. A later `projects/*` move should keep this pattern and place product overrides at
-`projects/<product>/oxlint.config.ts`.
+explicit in code. Product-specific overrides live at `projects/<product>/oxlint.config.ts`.
 
 The shared package intentionally exposes two presets:
 
@@ -132,12 +127,12 @@ CI runs Nx affected checks for production/package projects, not every demo surfa
 non-hermetic demo roots:
 
 - `.`
-- `distilled`
-- `cloudflare-tools`
-- `examples/`
-- `website`
-- `cloudflare-tools/fixtures/`
-- `packages/alchemy/test/`
+- `projects/distilled`
+- `projects/cloudflare-tools`
+- `projects/alchemy/examples/`
+- `projects/alchemy/apps/website`
+- `projects/cloudflare-tools/fixtures/`
+- `projects/alchemy/packages/alchemy/test/`
 - nested `test/fixtures/` package roots
 
 Those projects still appear in the Nx graph and can be run directly, but they currently depend on

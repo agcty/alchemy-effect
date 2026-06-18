@@ -1,0 +1,96 @@
+{
+  "name": "@distilled.cloud/core",
+  "version": "0.25.2",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alchemy-run/distilled",
+    "directory": "projects/distilled/packages/core"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./category": {
+      "types": "./lib/category.d.ts",
+      "bun": "./src/category.ts",
+      "default": "./lib/category.js"
+    },
+    "./client": {
+      "types": "./lib/client.d.ts",
+      "bun": "./src/client.ts",
+      "default": "./lib/client.js"
+    },
+    "./errors": {
+      "types": "./lib/errors.d.ts",
+      "bun": "./src/errors.ts",
+      "default": "./lib/errors.js"
+    },
+    "./json-patch": {
+      "types": "./lib/json-patch.d.ts",
+      "bun": "./src/json-patch.ts",
+      "default": "./lib/json-patch.js"
+    },
+    "./pagination": {
+      "types": "./lib/pagination.d.ts",
+      "bun": "./src/pagination.ts",
+      "default": "./lib/pagination.js"
+    },
+    "./retry": {
+      "types": "./lib/retry.d.ts",
+      "bun": "./src/retry.ts",
+      "default": "./lib/retry.js"
+    },
+    "./retry-after": {
+      "types": "./lib/retry-after.d.ts",
+      "bun": "./src/retry-after.ts",
+      "default": "./lib/retry-after.js"
+    },
+    "./schemas": {
+      "types": "./lib/schemas.d.ts",
+      "bun": "./src/schemas.ts",
+      "default": "./lib/schemas.js"
+    },
+    "./sensitive": {
+      "types": "./lib/sensitive.d.ts",
+      "bun": "./src/sensitive.ts",
+      "default": "./lib/sensitive.js"
+    },
+    "./traits": {
+      "types": "./lib/traits.d.ts",
+      "bun": "./src/traits.ts",
+      "default": "./lib/traits.js"
+    },
+    "./openapi/generate": {
+      "bun": "./scripts/generate-openapi.ts",
+      "default": "./scripts/generate-openapi.ts"
+    },
+    "./graphql/generate": {
+      "bun": "./scripts/generate-graphql.ts",
+      "default": "./scripts/generate-graphql.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsgo",
+    "build": "tsgo -b",
+    "fmt": "oxfmt --write src",
+    "lint": "oxlint --type-aware src",
+    "lint:fix": "oxlint --fix src",
+    "check": "tsgo && oxlint src && oxfmt --check src",
+    "test": "bunx vitest run test --exclude specs --passWithNoTests",
+    "publish:npm": "bun run build && bun publish --access public"
+  },
+  "devDependencies": {
+    "@alchemy.run/typescript-config": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
+  }
+}

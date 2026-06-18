@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "DnsRecordAlreadyExists": [
+      { "code": 81057 },
+      { "code": 81058 },
+      {
+        "status": 400,
+        "message": { "includes": "identical record already exists" }
+      }
+    ],
+    "Forbidden": [{ "status": 403 }]
+  }
+}

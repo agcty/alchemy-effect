@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "AdvancedTcpProtectionNotEntitled": [{ "code": 8888 }],
+    "Forbidden": [{ "status": 403 }]
+  }
+}

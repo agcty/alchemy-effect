@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "StreamNotFound": [{ "code": 1016 }],
+    "InvalidStreamId": [{ "code": 2 }]
+  }
+}

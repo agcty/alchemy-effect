@@ -1,0 +1,27 @@
+{
+  "extends": "@alchemy.run/typescript-config/bun.json",
+  "include": [
+    "alchemy.run.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "test/**/*.ts",
+    "vite.config.ts"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "types": ["bun", "vite/client", "@cloudflare/workers-types"]
+  },
+  "references": [
+    {
+      "path": "../../packages/alchemy/tsconfig.json"
+    }
+  ]
+}

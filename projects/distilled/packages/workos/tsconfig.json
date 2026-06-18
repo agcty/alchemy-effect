@@ -1,0 +1,17 @@
+{
+  "extends": "@alchemy.run/typescript-config/node.json",
+  "include": ["src/**/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./lib",
+    "rootDir": "./src",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "references": [
+    {
+      "path": "../core"
+    }
+  ]
+}

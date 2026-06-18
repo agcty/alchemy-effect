@@ -3,12 +3,21 @@ import * as path from "node:path";
 
 import { Node, Project, type SourceFile } from "ts-morph";
 
-const websiteRoot = path.join(import.meta.dir, "../website");
+const websiteRoot = path.join(
+  import.meta.dir,
+  "../projects/alchemy/apps/website",
+);
 
 const config = {
-  srcRoot: path.join(import.meta.dir, "../packages/alchemy/src"),
+  srcRoot: path.join(
+    import.meta.dir,
+    "../projects/alchemy/packages/alchemy/src",
+  ),
   outRoot: path.join(websiteRoot, "src/content/docs/providers"),
-  tsConfig: path.join(import.meta.dir, "../packages/alchemy/tsconfig.json"),
+  tsConfig: path.join(
+    import.meta.dir,
+    "../projects/alchemy/packages/alchemy/tsconfig.json",
+  ),
 };
 
 interface FileEntry {
@@ -426,8 +435,7 @@ function buildServiceItems(pages: PageEntry[]): SidebarItem[] {
   const items: SidebarItem[] = [];
   for (const [service, servicePages] of byService) {
     // Prefer the human product name from `@product`; fall back to the dir name.
-    const label =
-      servicePages.find((p) => p.product)?.product || service;
+    const label = servicePages.find((p) => p.product)?.product || service;
     items.push({
       label,
       collapsed: true,
@@ -556,9 +564,16 @@ async function main() {
   }
 
   const sidebar = buildProvidersSidebar(pageEntries);
-  const sidebarPath = path.join(websiteRoot, "src/generated/providers-sidebar.json");
+  const sidebarPath = path.join(
+    websiteRoot,
+    "src/generated/providers-sidebar.json",
+  );
   await fs.mkdir(path.dirname(sidebarPath), { recursive: true });
-  await fs.writeFile(sidebarPath, `${JSON.stringify(sidebar, null, 2)}\n`, "utf8");
+  await fs.writeFile(
+    sidebarPath,
+    `${JSON.stringify(sidebar, null, 2)}\n`,
+    "utf8",
+  );
 
   console.log(
     `Done. Wrote ${written} resource pages (skipped ${skipped} untagged) to ${normalizeSlashes(

@@ -49,19 +49,19 @@ import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import { AuthProviders } from "../packages/alchemy/src/Auth/AuthProvider.ts";
-import { CredentialsStoreLive } from "../packages/alchemy/src/Auth/Credentials.ts";
-import { ProfileLive } from "../packages/alchemy/src/Auth/Profile.ts";
-import { CloudflareAuth } from "../packages/alchemy/src/Cloudflare/Auth/AuthProvider.ts";
+import { AuthProviders } from "../projects/alchemy/packages/alchemy/src/Auth/AuthProvider.ts";
+import { CredentialsStoreLive } from "../projects/alchemy/packages/alchemy/src/Auth/Credentials.ts";
+import { ProfileLive } from "../projects/alchemy/packages/alchemy/src/Auth/Profile.ts";
+import { CloudflareAuth } from "../projects/alchemy/packages/alchemy/src/Cloudflare/Auth/AuthProvider.ts";
 import {
   CloudflareEnvironment,
   fromProfile,
-} from "../packages/alchemy/src/Cloudflare/CloudflareEnvironment.ts";
-import { fromAuthProvider } from "../packages/alchemy/src/Cloudflare/Credentials.ts";
+} from "../projects/alchemy/packages/alchemy/src/Cloudflare/CloudflareEnvironment.ts";
+import { fromAuthProvider } from "../projects/alchemy/packages/alchemy/src/Cloudflare/Credentials.ts";
 import {
   PlatformServices,
   runMain,
-} from "../packages/alchemy/src/Util/PlatformServices.ts";
+} from "../projects/alchemy/packages/alchemy/src/Util/PlatformServices.ts";
 
 const KEEP = (process.env.KEEP ?? "alchemy-").toLowerCase();
 const DELETE_PATTERNS = (process.env.DELETE_MATCH ?? "")

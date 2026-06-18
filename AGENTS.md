@@ -13,7 +13,7 @@ It includes a core IaC engine built with Effect. Effect provides the foundation 
 - **Output Attributes** - the attributes produced by a Resource. Otherwise known as the "current state" of the Resource.
 - **Stable Properties** - properties that are not affected by an Update, e.g. the ID or ARN of a Resource.
 - **Function** (aka. **Runtime**) - a special kind of Resource that includes a runtime implementation expressed as a Function producing an `Effect<A, Err, Req>`. The `Req` type captures runtime dependencies, from which Infrastructure Dependencies are inferred.
-- **Resource Provider** (see [Provider](./packages/alchemy/src/Provider.ts))
+- **Resource Provider** (see [Provider](./projects/alchemy/packages/alchemy/src/Provider.ts))
 
 A Resource Provider implements the following Lifecycle Operations:
 
@@ -23,10 +23,10 @@ A Resource Provider implements the following Lifecycle Operations:
 - **Reconcile** - converges a Resource's actual cloud state to the desired state described by the new Input Properties. Called for both first-time provisioning and subsequent updates. The provider receives `output` (current Attributes) and `olds` (previous Props) which may both be `undefined` on a greenfield create, both defined on an update, or `output !== undefined && olds === undefined` on an adoption. See the **Reconciler doctrine** section below for the required shape.
 - **Delete** - deletes an existing Resource. It must be designed as idempotent because it is always possible for state persistence to fail after the delete operation is called. If the resource doesn't exist during deletion, it should not be considered an error.
 - **Capability** - a runtime requirement of a Function (e.g. require `SQS.SendMessage` on a `SQS.Queue`). Each Capability is split into two parts: a `Binding.Service` (runtime SDK wrapper) and a `Binding.Policy` (deploy-time IAM/binding attachment).
-- **Binding.Service** - an Effect Service that wraps an SDK client and exposes a `.bind(resource)` method returning a typed callable for runtime use. Provided as a Layer on the **Function** Effect so it gets bundled into the Lambda/Worker. See [Binding](./packages/alchemy/src/Binding.ts).
+- **Binding.Service** - an Effect Service that wraps an SDK client and exposes a `.bind(resource)` method returning a typed callable for runtime use. Provided as a Layer on the **Function** Effect so it gets bundled into the Lambda/Worker. See [Binding](./projects/alchemy/packages/alchemy/src/Binding.ts).
 - **Binding.Policy** - an Effect Service that runs only at deploy time to attach IAM policies (AWS) or bindings (Cloudflare) to a Function's role/config. At runtime, `Binding.Policy` uses `Effect.serviceOption` so it gracefully becomes a no-op when the layer is not provided. Policy layers are provided on the **Stack** via `AWS.providers()()`, not on the Function.
 - **Binding** - data attached to a Resource via `resource.bind(data)`. A Binding is a `{ context: PolicyContext, data: BindingData }` tuple that is collected on the Stack during plan/deploy. Bindings enable circular references between Resources — the `Binding.Policy` calls `ctx.bind({ policyStatements: [...] })` on the target Function, which records the binding data on the Stack. The Resource Provider then receives the resolved binding data in its `reconcile` lifecycle operation via the `bindings` parameter.
-- **Binding Contract** - the shape of data a Resource accepts from Bindings. For example, a Lambda Function accepts `{ env?: Record<string, any>, policyStatements?: PolicyStatement[] }` because it needs environment variables and IAM policies. A Cloudflare Worker accepts `{ bindings: Worker.Binding[] }` for its native binding system. The Binding Contract is declared as the fourth type parameter on the `Resource` interface. See [Lambda Function](./packages/alchemy/src/AWS/Lambda/Function.ts) and [Cloudflare Worker](./packages/alchemy/src/Cloudflare/Workers/Worker.ts).
+- **Binding Contract** - the shape of data a Resource accepts from Bindings. For example, a Lambda Function accepts `{ env?: Record<string, any>, policyStatements?: PolicyStatement[] }` because it needs environment variables and IAM policies. A Cloudflare Worker accepts `{ bindings: Worker.Binding[] }` for its native binding system. The Binding Contract is declared as the fourth type parameter on the `Resource` interface. See [Lambda Function](./projects/alchemy/packages/alchemy/src/AWS/Lambda/Function.ts) and [Cloudflare Worker](./projects/alchemy/packages/alchemy/src/Cloudflare/Workers/Worker.ts).
 - **Dependency** - Resources depend on other Resources through two mechanisms:
   - Output Properties of one Resource passed as Input Properties to another Resource (non-circular, directed acyclic graph)
   - Bindings that attach data (IAM policies, env vars, Cloudflare bindings) from one Resource to another, enabling circular references between Resources.
@@ -53,30 +53,30 @@ Each Service's Resources follow the same pattern. Resource contract and provider
 
 ```sh
 # source files
-packages/alchemy/src/{Cloud}/{Service}/index.ts         # re-exports all resources and capabilities
-packages/alchemy/src/{Cloud}/{Service}/{Resource}.ts    # resource contract + resource provider
-packages/alchemy/src/{Cloud}/{Service}/{Capability}.ts  # Binding.Service + Binding.Policy for a capability
+projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/index.ts         # re-exports all resources and capabilities
+projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/{Resource}.ts    # resource contract + resource provider
+projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/{Capability}.ts  # Binding.Service + Binding.Policy for a capability
 # test files
-packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts
+projects/alchemy/packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts
 # docs (auto-generated from source-code JSDoc - DO NOT manually edit)
-website/src/content/docs/providers/{Cloud}/{Resource}.md  # API reference, generated by `bun generate:api-reference`
+projects/alchemy/apps/website/src/content/docs/providers/{Cloud}/{Resource}.md  # API reference, generated by `bun generate:api-reference`
 ```
 
 Examples of actual paths:
 
 ```sh
-packages/alchemy/src/AWS/S3/Bucket.ts          # S3 Bucket resource + provider
-packages/alchemy/src/AWS/S3/GetObject.ts       # S3 GetObject Binding.Service + Binding.Policy
-packages/alchemy/src/AWS/S3/PutObject.ts       # S3 PutObject Binding.Service + Binding.Policy
-packages/alchemy/src/AWS/SQS/Queue.ts          # SQS Queue resource + provider
-packages/alchemy/src/AWS/SQS/SendMessage.ts    # SQS SendMessage capability
-packages/alchemy/src/AWS/Kinesis/Stream.ts     # Kinesis Stream resource + provider
-packages/alchemy/src/AWS/Kinesis/PutRecord.ts  # Kinesis PutRecord capability
-packages/alchemy/src/AWS/Lambda/Function.ts    # Lambda Function resource + provider
-packages/alchemy/src/AWS/DynamoDB/Table.ts     # DynamoDB Table resource + provider
-packages/alchemy/src/AWS/DynamoDB/GetItem.ts   # DynamoDB GetItem capability
-packages/alchemy/src/AWS/EC2/Vpc.ts            # VPC resource + provider
-packages/alchemy/src/AWS/EC2/Subnet.ts         # Subnet resource + provider
+projects/alchemy/packages/alchemy/src/AWS/S3/Bucket.ts          # S3 Bucket resource + provider
+projects/alchemy/packages/alchemy/src/AWS/S3/GetObject.ts       # S3 GetObject Binding.Service + Binding.Policy
+projects/alchemy/packages/alchemy/src/AWS/S3/PutObject.ts       # S3 PutObject Binding.Service + Binding.Policy
+projects/alchemy/packages/alchemy/src/AWS/SQS/Queue.ts          # SQS Queue resource + provider
+projects/alchemy/packages/alchemy/src/AWS/SQS/SendMessage.ts    # SQS SendMessage capability
+projects/alchemy/packages/alchemy/src/AWS/Kinesis/Stream.ts     # Kinesis Stream resource + provider
+projects/alchemy/packages/alchemy/src/AWS/Kinesis/PutRecord.ts  # Kinesis PutRecord capability
+projects/alchemy/packages/alchemy/src/AWS/Lambda/Function.ts    # Lambda Function resource + provider
+projects/alchemy/packages/alchemy/src/AWS/DynamoDB/Table.ts     # DynamoDB Table resource + provider
+projects/alchemy/packages/alchemy/src/AWS/DynamoDB/GetItem.ts   # DynamoDB GetItem capability
+projects/alchemy/packages/alchemy/src/AWS/EC2/Vpc.ts            # VPC resource + provider
+projects/alchemy/packages/alchemy/src/AWS/EC2/Subnet.ts         # Subnet resource + provider
 ```
 
 # The Resource Factory Process
@@ -92,9 +92,9 @@ Alchemy resource coverage is produced as a **software factory**: fleets of agent
  update statuses <── regenerate service <── patch distilled
 ```
 
-1. **Catalog** — fan out research agents over the provider's distilled service modules (one batch per thematic group). Each agent reads the generated SDK (`distilled/packages/{cloud}/src/services/{service}.ts`), cross-references the vendor API docs, and writes a self-contained design spec to `processes/{Cloud}/catalog/{service}.md`: resources, namespaces, props/attrs with replacement rules, lifecycle-to-operation mapping, scope (account/zone), testability, priority. The coordinator aggregates a machine-readable `summary.json` + human `INDEX.md` that tracks `implemented | partial | missing` per resource — this is the factory's order book.
+1. **Catalog** — fan out research agents over the provider's distilled service modules (one batch per thematic group). Each agent reads the generated SDK (`projects/distilled/packages/{cloud}/src/services/{service}.ts`), cross-references the vendor API docs, and writes a self-contained design spec to `processes/{Cloud}/catalog/{service}.md`: resources, namespaces, props/attrs with replacement rules, lifecycle-to-operation mapping, scope (account/zone), testability, priority. The coordinator aggregates a machine-readable `summary.json` + human `INDEX.md` that tracks `implemented | partial | missing` per resource — this is the factory's order book.
 2. **Implement + test** in waves (below). Tests run against the real cloud (`ALCHEMY_PROFILE=testing`); zone-scoped tests use the standing test zone (`alchemy-test-2.us` via `findZoneByName`).
-3. **Patch the SDK, never the consumer** — every `UnknownCloudflareError`, out-of-union status error, or wrong request/response schema found by a test becomes a patch under `distilled/packages/{cloud}/patches/{service}/{op}.json` (see the Typed Error Doctrine section). Regenerate only that service. The typed union improves for every future consumer of the SDK — that is the flywheel's output.
+3. **Patch the SDK, never the consumer** — every `UnknownCloudflareError`, out-of-union status error, or wrong request/response schema found by a test becomes a patch under `projects/distilled/packages/{cloud}/patches/{service}/{op}.json` (see the Typed Error Doctrine section). Regenerate only that service. The typed union improves for every future consumer of the SDK — that is the flywheel's output.
 4. **Update the catalog** statuses after each wave and pick the next batch from the order book. Repeat until everything left is documented as out of scope (deprecated APIs, billing/data-only endpoints, closed-beta, needs-external-systems).
 
 ## Orchestration rules (the coordinator)
@@ -112,11 +112,11 @@ Alchemy resource coverage is produced as a **software factory**: fleets of agent
 `tsgo -b` over the workspace is expensive; dozens of agents running it concurrently thrashes the machine (and concurrent `tsbuildinfo` writes race). Instead:
 
 - **Agents are banned** from running `tsgo`, `tsc`, or `bun run build` (root or distilled) in any form. The coordinator owns type-checking and runs a one-shot `bun tsgo -b` at wave boundaries.
-- **vitest resolves distilled from `src/*.ts` directly, NOT the built `lib/`** (the `bun` export condition; see `packages/alchemy/vitest.config.ts`). So a regenerated service is **immediately test-visible** the moment `bun scripts/generate.ts --service {service}` (+ oxlint/oxfmt) finishes — there is nothing to rebuild and **nothing to wait for**. Do NOT sleep and do NOT gate a test re-run on a build after regenerating. This applies to response-schema patches as well as error-tag-only patches.
+- **vitest resolves distilled from `src/*.ts` directly, NOT the built `lib/`** (the `bun` export condition; see `projects/alchemy/packages/alchemy/vitest.config.ts`). So a regenerated service is **immediately test-visible** the moment `bun scripts/generate.ts --service {service}` (+ oxlint/oxfmt) finishes — there is nothing to rebuild and **nothing to wait for**. Do NOT sleep and do NOT gate a test re-run on a build after regenerating. This applies to response-schema patches as well as error-tag-only patches.
 
 ## Speed doctrine: never wait on a hang
 
-- Run tests from `packages/alchemy` (suite paths are relative to it, e.g. `test/Cloudflare/...`). Wrap **every** test invocation in a hard kill: `cd packages/alchemy && timeout 240 ALCHEMY_PROFILE=testing bun vitest run <suite>`. Hitting the wall **is** the failure — read the partial output, find the hang (unbounded retry, infinite pagination, the engine deadlock below), fix the root cause. Never just re-run hoping.
+- Run tests from `projects/alchemy/packages/alchemy` (suite paths are relative to it, e.g. `test/Cloudflare/...`). Wrap **every** test invocation in a hard kill: `cd projects/alchemy/packages/alchemy && timeout 240 ALCHEMY_PROFILE=testing bun vitest run <suite>`. Hitting the wall **is** the failure — read the partial output, find the hang (unbounded retry, infinite pagination, the engine deadlock below), fix the root cause. Never just re-run hoping.
 - Per-test vitest timeout ≤ 90–120s. A suite needing more than ~3–5 minutes total is a bug.
 - Every `Effect.retry`/`Effect.repeat` is bounded: `times ≤ 8–10`, total backoff under ~45–60s. Never poll for asynchronous provisioning slower than ~90s — skipIf-gate instead.
 - **Known engine bug**: a deploy that *replaces* a resource while simultaneously *removing* its old dependency deadlocks. Keep both dependencies deployed across replacement steps in tests (see `test/Cloudflare/R2/BucketEventNotification.test.ts`).
@@ -150,10 +150,10 @@ A wave task prompt is a contract. Include, every time:
 
 # Documentation Generation
 
-**Source of truth:** The source code is the single source of truth for all API documentation. JSDoc comments in `packages/alchemy/src/**/*.ts` are extracted and used to generate the public API reference markdown.
+**Source of truth:** The source code is the single source of truth for all API documentation. JSDoc comments in `projects/alchemy/packages/alchemy/src/**/*.ts` are extracted and used to generate the public API reference markdown.
 
 :::warning
-**Never edit the generated markdown files** under `website/src/content/docs/providers/{Cloud}/`. They are overwritten on every regeneration.
+**Never edit the generated markdown files** under `projects/alchemy/apps/website/src/content/docs/providers/{Cloud}/`. They are overwritten on every regeneration.
 
 To "update the docs", edit the JSDoc on the source `.ts` file (resource-level JSDoc on the exported `const`, plus field-level JSDoc on each prop/attribute) and re-run the generator. There is no separate doc file to update.
 :::
@@ -161,15 +161,15 @@ To "update the docs", edit the JSDoc on the source `.ts` file (resource-level JS
 **How to generate docs:**
 
 ```sh
-bun generate:api-reference   # -> website/src/content/docs/providers/{Cloud}/{Resource}.md
+bun generate:api-reference   # -> projects/alchemy/apps/website/src/content/docs/providers/{Cloud}/{Resource}.md
 ```
 
 This is the only doc generator that produces user-facing output. ([scripts/generate-api-reference.ts](./scripts/generate-api-reference.ts)) does the following:
 
-1. Discovers resource files in `packages/alchemy/src/{Cloud}/{Service}/`
+1. Discovers resource files in `projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/`
 2. Parses TypeScript with `ts-morph`
 3. Extracts the resource-level summary plus `@section` / `@example` blocks from JSDoc
-4. Writes one markdown file per resource at `website/src/content/docs/providers/{Cloud}/{Resource}.md`
+4. Writes one markdown file per resource at `projects/alchemy/apps/website/src/content/docs/providers/{Cloud}/{Resource}.md`
 
 After editing JSDoc on a resource, run `bun generate:api-reference` to refresh the website docs.
 
@@ -358,30 +358,30 @@ Key invariants:
 
 The canonical reference reconcilers cover the common shapes:
 
-- [S3 Bucket](./packages/alchemy/src/AWS/S3/Bucket.ts) — uses `ensureBucketExists` + `syncBucketTags` + `syncBucketPolicy` helpers; each helper is itself a tiny reconciler.
-- [SQS Queue](./packages/alchemy/src/AWS/SQS/Queue.ts) — observe via `getQueueUrl`, ensure via `createQueue` (tolerates `QueueNameExists` race), sync attributes by diffing `getQueueAttributes` against desired, sync tags.
-- [Kinesis Stream](./packages/alchemy/src/AWS/Kinesis/Stream.ts) — many mutable aspects (mode, shards, retention, encryption, metrics), each its own observed-vs-desired sync block.
-- [DynamoDB Table](./packages/alchemy/src/AWS/DynamoDB/Table.ts) — multi-API observation (table + tags + PITR + TTL), per-aspect diffing, GSI delta application.
-- [EC2 Vpc](./packages/alchemy/src/AWS/EC2/Vpc.ts) — auto-assigned id, observe via `describeVpcs([output.vpcId])` with NotFound fallback to create, sync DNS attrs by reading `describeVpcAttribute`, sync tags from observed `vpc.Tags`.
-- [Lambda Function](./packages/alchemy/src/AWS/Lambda/Function.ts) — uses `createOrUpdateFunction` / `createOrUpdateFunctionUrl` / `attachBindings` helpers, each idempotent.
-- [Cloudflare Worker](./packages/alchemy/src/Cloudflare/Workers/Worker.ts) — non-AWS API; the underlying `putWorker` is a true upsert, so reconcile observes existing settings and delegates.
+- [S3 Bucket](./projects/alchemy/packages/alchemy/src/AWS/S3/Bucket.ts) — uses `ensureBucketExists` + `syncBucketTags` + `syncBucketPolicy` helpers; each helper is itself a tiny reconciler.
+- [SQS Queue](./projects/alchemy/packages/alchemy/src/AWS/SQS/Queue.ts) — observe via `getQueueUrl`, ensure via `createQueue` (tolerates `QueueNameExists` race), sync attributes by diffing `getQueueAttributes` against desired, sync tags.
+- [Kinesis Stream](./projects/alchemy/packages/alchemy/src/AWS/Kinesis/Stream.ts) — many mutable aspects (mode, shards, retention, encryption, metrics), each its own observed-vs-desired sync block.
+- [DynamoDB Table](./projects/alchemy/packages/alchemy/src/AWS/DynamoDB/Table.ts) — multi-API observation (table + tags + PITR + TTL), per-aspect diffing, GSI delta application.
+- [EC2 Vpc](./projects/alchemy/packages/alchemy/src/AWS/EC2/Vpc.ts) — auto-assigned id, observe via `describeVpcs([output.vpcId])` with NotFound fallback to create, sync DNS attrs by reading `describeVpcAttribute`, sync tags from observed `vpc.Tags`.
+- [Lambda Function](./projects/alchemy/packages/alchemy/src/AWS/Lambda/Function.ts) — uses `createOrUpdateFunction` / `createOrUpdateFunctionUrl` / `attachBindings` helpers, each idempotent.
+- [Cloudflare Worker](./projects/alchemy/packages/alchemy/src/Cloudflare/Workers/Worker.ts) — non-AWS API; the underlying `putWorker` is a true upsert, so reconcile observes existing settings and delegates.
 
 Existence-only resources (Lambda Permission, EC2 Route, EC2 RouteTableAssociation, IAM AccessKey, etc.) have nothing mutable beyond their identity. Their reconciler is just observe → if missing, create. There is no sync step.
 
 5. Research and design the test cases for each resource. Test cases can be single or multi-step. Single-step test cases are just testing a single create success or failure mode. Multi-step cases are testing a sequence of operations, starting with create and then updating or replacing the resource multiple times. Test cases should be designed to be exhaustive and cover all possible success and failure modes, starting from simple happy paths to long, complicated aggregate (including other resources) smoke tests.
-6. Implement the Resource contract and Provider in `packages/alchemy/src/{Cloud}/{Service}/{Resource}.ts`.
+6. Implement the Resource contract and Provider in `projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/{Resource}.ts`.
 
 The Resource contract (Props, Attributes, Binding Contract) and the Resource Provider (lifecycle operations) are co-located in the same file.
 
 Read through the established examples to understand the pattern:
 
-- [S3 Bucket](./packages/alchemy/src/AWS/S3/Bucket.ts)
-- [SQS Queue](./packages/alchemy/src/AWS/SQS/Queue.ts)
-- [DynamoDB Table](./packages/alchemy/src/AWS/DynamoDB/Table.ts)
-- [Kinesis Stream](./packages/alchemy/src/AWS/Kinesis/Stream.ts)
-- [Lambda Function](./packages/alchemy/src/AWS/Lambda/Function.ts)
-- [VPC](./packages/alchemy/src/AWS/EC2/Vpc.ts)
-- [Subnet](./packages/alchemy/src/AWS/EC2/Subnet.ts)
+- [S3 Bucket](./projects/alchemy/packages/alchemy/src/AWS/S3/Bucket.ts)
+- [SQS Queue](./projects/alchemy/packages/alchemy/src/AWS/SQS/Queue.ts)
+- [DynamoDB Table](./projects/alchemy/packages/alchemy/src/AWS/DynamoDB/Table.ts)
+- [Kinesis Stream](./projects/alchemy/packages/alchemy/src/AWS/Kinesis/Stream.ts)
+- [Lambda Function](./projects/alchemy/packages/alchemy/src/AWS/Lambda/Function.ts)
+- [VPC](./projects/alchemy/packages/alchemy/src/AWS/EC2/Vpc.ts)
+- [Subnet](./projects/alchemy/packages/alchemy/src/AWS/EC2/Subnet.ts)
 
 The Resource interface takes four type parameters: `Resource<Type, Props, Attributes, BindingContract>`.
 
@@ -437,7 +437,7 @@ export interface LoadBalancerProps {
 `Input<T>` in a *function signature* is still legitimate when the function genuinely receives unresolved values at runtime (e.g. helpers that resolve tag maps, or `DurableObjectNamespace.from(scriptName: Input<string>)`).
 :::
 
-7. Implement the Capabilities as `Binding.Service` + `Binding.Policy` pairs in `packages/alchemy/src/{Cloud}/{Service}/{Capability}.ts`.
+7. Implement the Capabilities as `Binding.Service` + `Binding.Policy` pairs in `projects/alchemy/packages/alchemy/src/{Cloud}/{Service}/{Capability}.ts`.
 
 Each capability has two parts:
 
@@ -446,17 +446,17 @@ Each capability has two parts:
 
 Read through the established capabilities to understand the pattern:
 
-- [S3 GetObject](./packages/alchemy/src/AWS/S3/GetObject.ts) — `Binding.Service` + `Binding.Policy`
-- [S3 PutObject](./packages/alchemy/src/AWS/S3/PutObject.ts) — `Binding.Service` + `Binding.Policy`
-- [SQS SendMessage](./packages/alchemy/src/AWS/SQS/SendMessage.ts) — `Binding.Service` + `Binding.Policy`
-- [DynamoDB GetItem](./packages/alchemy/src/AWS/DynamoDB/GetItem.ts) — `Binding.Service` + `Binding.Policy`
-- [Kinesis PutRecord](./packages/alchemy/src/AWS/Kinesis/PutRecord.ts) — `Binding.Service` + `Binding.Policy`
-- [Lambda InvokeFunction](./packages/alchemy/src/AWS/Lambda/InvokeFunction.ts) — `Binding.Service` + `Binding.Policy`
+- [S3 GetObject](./projects/alchemy/packages/alchemy/src/AWS/S3/GetObject.ts) — `Binding.Service` + `Binding.Policy`
+- [S3 PutObject](./projects/alchemy/packages/alchemy/src/AWS/S3/PutObject.ts) — `Binding.Service` + `Binding.Policy`
+- [SQS SendMessage](./projects/alchemy/packages/alchemy/src/AWS/SQS/SendMessage.ts) — `Binding.Service` + `Binding.Policy`
+- [DynamoDB GetItem](./projects/alchemy/packages/alchemy/src/AWS/DynamoDB/GetItem.ts) — `Binding.Service` + `Binding.Policy`
+- [Kinesis PutRecord](./projects/alchemy/packages/alchemy/src/AWS/Kinesis/PutRecord.ts) — `Binding.Service` + `Binding.Policy`
+- [Lambda InvokeFunction](./projects/alchemy/packages/alchemy/src/AWS/Lambda/InvokeFunction.ts) — `Binding.Service` + `Binding.Policy`
 
 For Event Sources, see:
 
-- [SQS QueueEventSource](./packages/alchemy/src/AWS/SQS/QueueEventSource.ts)
-- [S3 BucketEventSource](./packages/alchemy/src/AWS/S3/BucketEventSource.ts)
+- [SQS QueueEventSource](./projects/alchemy/packages/alchemy/src/AWS/SQS/QueueEventSource.ts)
+- [S3 BucketEventSource](./projects/alchemy/packages/alchemy/src/AWS/S3/BucketEventSource.ts)
 
 The `Binding.Policy` implementation calls `ctx.bind({ policyStatements: [...] })` on the target Function, which records binding data on the Stack. The `Binding.Service` implementation resolves the Policy via `yield* Policy(resource)`, then returns a typed callable that wraps the SDK client. At runtime, the Policy is not provided and becomes a no-op.
 
@@ -506,11 +506,11 @@ Rules:
 - Resolve cloud-environment services (`WorkerEnvironment`, AWS SDK clients, etc.) once during Layer construction and close over them. Do NOT leak `WorkerEnvironment` / `Lambda.FunctionEnvironment` onto the runtime callable — that couples downstream service code to a specific cloud and breaks Layer encapsulation. The Function/Worker runtime satisfies `RuntimeContext` automatically.
 - The implementation can return `Effect.Effect<A, E>` without explicitly providing `RuntimeContext` (it's contravariant in `R`); just declare it on the interface.
 
-Why this matters: consumers can build cloud-agnostic services on top of bindings using `Layer.effect(Tag, ...)` without polluting their service interface with `WorkerEnvironment`. See [Layers concept](./website/src/content/docs/concepts/layers.mdx).
+Why this matters: consumers can build cloud-agnostic services on top of bindings using `Layer.effect(Tag, ...)` without polluting their service interface with `WorkerEnvironment`. See [Layers concept](./projects/alchemy/apps/website/src/content/docs/concepts/layers.mdx).
 
 After implementing, register the Policy in `AWS.providers()()`:
 
-- Add the `*PolicyLive` layer to `bindings()` in [Providers.ts](./packages/alchemy/src/AWS/Providers.ts)
+- Add the `*PolicyLive` layer to `bindings()` in [Providers.ts](./projects/alchemy/packages/alchemy/src/AWS/Providers.ts)
 - Re-export from the service's `index.ts`
 
 :::tip
@@ -560,7 +560,7 @@ const hash = yield* Effect.sync(() =>
 const cwd = yield* Effect.sync(() => process.cwd());
 ```
 
-This applies to **lifecycle operations, helpers, AND tests**. Tests must use `FileSystem.FileSystem`/`Path.Path` for any file/path access (see [Database.test.ts](./packages/alchemy/test/Cloudflare/D1/Database.test.ts) for the pattern).
+This applies to **lifecycle operations, helpers, AND tests**. Tests must use `FileSystem.FileSystem`/`Path.Path` for any file/path access (see [Database.test.ts](./projects/alchemy/packages/alchemy/test/Cloudflare/D1/Database.test.ts) for the pattern).
 :::
 
 :::tip
@@ -577,7 +577,7 @@ reconcile: Effect.fn(function* ({ id, news, output, session }) {
 :::
 
 :::warning
-Do not roll your own tag diffing logic, always use `diffTags` from [Tags.ts](./packages/alchemy/src/Tags.ts), and diff against **observed cloud tags** (not `olds.tags` or `output.tags`). Adoption can hand you a resource whose tags don't match what we last persisted.
+Do not roll your own tag diffing logic, always use `diffTags` from [Tags.ts](./projects/alchemy/packages/alchemy/src/Tags.ts), and diff against **observed cloud tags** (not `olds.tags` or `output.tags`). Adoption can hand you a resource whose tags don't match what we last persisted.
 
 ```ts
 reconcile: Effect.fn(function* ({ id, news, output, session }) {
@@ -596,7 +596,7 @@ reconcile: Effect.fn(function* ({ id, news, output, session }) {
 
 :::
 
-9. Implement the test cases in `packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts`.
+9. Implement the test cases in `projects/alchemy/packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts`.
 
 Read through the established test cases before continuing so that you understand the pattern and structure of the test cases.
 
@@ -619,7 +619,7 @@ Never use `Date.now()` when constructing the physical name of a resource. You sh
 
 See the [VPC Smoke Test](./test/AWS/EC2/Vpc.smoke.test.ts) for an example.
 
-11. Add the resource-level JSDoc (`@section` + `@example` blocks) and field-level JSDoc on each prop/attribute on the source `.ts` file. Then run `bun generate:api-reference` to refresh `website/src/content/docs/providers/{Cloud}/{Resource}.md`. Do NOT manually edit the generated markdown.
+11. Add the resource-level JSDoc (`@section` + `@example` blocks) and field-level JSDoc on each prop/attribute on the source `.ts` file. Then run `bun generate:api-reference` to refresh `projects/alchemy/apps/website/src/content/docs/providers/{Cloud}/{Resource}.md`. Do NOT manually edit the generated markdown.
 
 # Typed Error Doctrine (distilled)
 
@@ -628,7 +628,7 @@ Every error a distilled operation can produce in practice MUST be a tagged error
 **When you hit an unmatched error** (an `UnknownCloudflareError`, or you find yourself wanting to check `CloudflareHttpError.status` or an out-of-union `NotFound`), the fix is ALWAYS a distilled patch, never a catch in alchemy:
 
 1. Note the error's code / status / message from the failure output.
-2. Add or extend `distilled/packages/cloudflare/patches/{service}/{operation}.json` with a **meaningful, resource-specific tag** (e.g. `WidgetNotFound`, not a bare `NotFound`):
+2. Add or extend `projects/distilled/packages/cloudflare/patches/{service}/{operation}.json` with a **meaningful, resource-specific tag** (e.g. `WidgetNotFound`, not a bare `NotFound`):
 
    ```json
    { "errors": { "WidgetNotFound": [{ "code": 1234 }] } }
@@ -636,7 +636,7 @@ Every error a distilled operation can produce in practice MUST be a tagged error
 
    Matchers may combine `code`, `status`, and `message` (`{ "includes": "..." }` / `{ "matches": "..." }`) — e.g. `[{ "status": 400, "message": { "includes": "snippet not found" } }]` when Cloudflare misuses 400 for a missing resource. Prefer matching the Cloudflare error `code` when one exists; fall back to `status` + `message` otherwise.
 
-3. Regenerate ONLY that service: `cd distilled/packages/cloudflare && bun scripts/generate.ts --service {service}` (then `bun oxlint --fix src/services/{service}.ts && bun oxfmt --write src/services/{service}.ts`).
+3. Regenerate ONLY that service: `cd projects/distilled/packages/cloudflare && bun scripts/generate.ts --service {service}` (then `bun oxlint --fix src/services/{service}.ts && bun oxfmt --write src/services/{service}.ts`).
 4. Handle the now-typed tag in alchemy code and re-run the tests.
 
 **Forbidden patterns** — these defeat the type system and must never appear in alchemy code or tests:
@@ -677,8 +677,8 @@ To test runtime behavior of an Effect-native Worker, Workflow, Lambda, etc., wri
 Put fixtures in a `fixtures/` directory next to the test file. Each test suite owns its own fixtures — never reach across suites:
 
 ```sh
-packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts
-packages/alchemy/test/{Cloud}/{Service}/fixtures/{worker|workflow|handler}.ts
+projects/alchemy/packages/alchemy/test/{Cloud}/{Service}/{Resource}.test.ts
+projects/alchemy/packages/alchemy/test/{Cloud}/{Service}/fixtures/{worker|workflow|handler}.ts
 ```
 
 ## Fixture shape
@@ -792,16 +792,16 @@ Notes:
   }
   ```
 
-  See [CronEventSource.test.ts](./packages/alchemy/test/Cloudflare/Workers/CronEventSource.test.ts) for a real-world example (polling a DO via the worker's `/times` route until the cron handler fires).
+  See [CronEventSource.test.ts](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/CronEventSource.test.ts) for a real-world example (polling a DO via the worker's `/times` route until the cron handler fires).
 
 ## Reference implementations
 
-- Cloudflare AiGateway — [worker fixture](./packages/alchemy/test/Cloudflare/AiGateway/worker.ts) + [test](./packages/alchemy/test/Cloudflare/AiGateway/AiGateway.test.ts) (the deploy+fetch case lives at the bottom of the file)
-- Cloudflare D1Connection — [worker fixture](./packages/alchemy/test/Cloudflare/D1/d1-worker.ts) + [test](./packages/alchemy/test/Cloudflare/D1/D1Binding.test.ts)
-- Cloudflare Workflow — [workflow fixture](./packages/alchemy/test/Cloudflare/Workers/fixtures/test-workflow.ts) + [worker fixture](./packages/alchemy/test/Cloudflare/Workers/fixtures/workflow-worker.ts) + [test](./packages/alchemy/test/Cloudflare/Workers/Workflow.test.ts)
-- Cloudflare Cron Trigger — [worker + DO fixture](./packages/alchemy/test/Cloudflare/Workers/fixtures/cron-worker.ts) + [test](./packages/alchemy/test/Cloudflare/Workers/CronEventSource.test.ts) (cron handler writes to a DO; test polls a fetch route with `Effect.repeat` until the scheduled handler fires)
-- Cloudflare Images — [effect fixture](./packages/alchemy/test/Cloudflare/Images/fixtures/effect-worker.ts) + [async fixture](./packages/alchemy/test/Cloudflare/Images/fixtures/async-worker.ts) + [test](./packages/alchemy/test/Cloudflare/Images/Images.test.ts)
-- AWS Lambda (DynamoDB bindings) — [Lambda fixture](./packages/alchemy/test/AWS/DynamoDB/handler.ts) + [test](./packages/alchemy/test/AWS/DynamoDB/Bindings.test.ts) (one `describe("<BindingName>")` per binding, all driving the same deployed Lambda)
+- Cloudflare AiGateway — [worker fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/AiGateway/worker.ts) + [test](./projects/alchemy/packages/alchemy/test/Cloudflare/AiGateway/AiGateway.test.ts) (the deploy+fetch case lives at the bottom of the file)
+- Cloudflare D1Connection — [worker fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/D1/d1-worker.ts) + [test](./projects/alchemy/packages/alchemy/test/Cloudflare/D1/D1Binding.test.ts)
+- Cloudflare Workflow — [workflow fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/fixtures/test-workflow.ts) + [worker fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/fixtures/workflow-worker.ts) + [test](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/Workflow.test.ts)
+- Cloudflare Cron Trigger — [worker + DO fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/fixtures/cron-worker.ts) + [test](./projects/alchemy/packages/alchemy/test/Cloudflare/Workers/CronEventSource.test.ts) (cron handler writes to a DO; test polls a fetch route with `Effect.repeat` until the scheduled handler fires)
+- Cloudflare Images — [effect fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/Images/fixtures/effect-worker.ts) + [async fixture](./projects/alchemy/packages/alchemy/test/Cloudflare/Images/fixtures/async-worker.ts) + [test](./projects/alchemy/packages/alchemy/test/Cloudflare/Images/Images.test.ts)
+- AWS Lambda (DynamoDB bindings) — [Lambda fixture](./projects/alchemy/packages/alchemy/test/AWS/DynamoDB/handler.ts) + [test](./projects/alchemy/packages/alchemy/test/AWS/DynamoDB/Bindings.test.ts) (one `describe("<BindingName>")` per binding, all driving the same deployed Lambda)
 
 # Spec-Driven Service Bring-Up
 
@@ -831,13 +831,13 @@ This runs the TypeScript compiler in build mode, which checks all projects in th
 
 ## Running tests
 
-Run tests from `packages/alchemy` — suite paths are relative to it:
+Run tests from `projects/alchemy/packages/alchemy` — suite paths are relative to it:
 
 ```bash
-cd packages/alchemy && ALCHEMY_PROFILE=testing bun vitest run test/Cloudflare/{Service}/{Resource}.test.ts
+cd projects/alchemy/packages/alchemy && ALCHEMY_PROFILE=testing bun vitest run test/Cloudflare/{Service}/{Resource}.test.ts
 ```
 
-vitest resolves distilled from `src/*.ts` directly (the `bun` export condition; see `packages/alchemy/vitest.config.ts`), so a regenerated service is test-visible immediately — no `lib/` rebuild is ever required before re-running tests.
+vitest resolves distilled from `src/*.ts` directly (the `bun` export condition; see `projects/alchemy/packages/alchemy/vitest.config.ts`), so a regenerated service is test-visible immediately — no `lib/` rebuild is ever required before re-running tests.
 
 ## Multi-agent sessions: the coordinator owns type-checking
 
@@ -860,7 +860,7 @@ Use `bun build:clean` when you encounter stale build artifacts or dependency iss
 
 # Tutorial Documentation Standard
 
-Tutorials under `website/src/content/docs/tutorial/` are **step-by-step and granular**: every code snippet introduces exactly **one** new thing, followed by a short prose explanation of just that thing. Each step gets its own `##` heading.
+Tutorials under `projects/alchemy/apps/website/src/content/docs/tutorial/` are **step-by-step and granular**: every code snippet introduces exactly **one** new thing, followed by a short prose explanation of just that thing. Each step gets its own `##` heading.
 
 **Anti-pattern** — one snippet that adds multiple distinct changes, followed by a numbered list or bullet list explaining each:
 
@@ -996,7 +996,7 @@ Persist the user's theme...
 
 # Blog / Release Notes Conventions
 
-Release blog posts live in `website/src/content/docs/blog/` named
+Release blog posts live in `projects/alchemy/apps/website/src/content/docs/blog/` named
 `YYYY-MM-DD-beta-NN.md` (date = the release date).
 
 **Frontmatter `title` format:** `<version> - <short title>`, e.g.
@@ -1006,8 +1006,8 @@ words that fit neatly on one line. Lead with the version so the
 list stays sorted and scannable.
 
 Writing style (match the existing beta posts, e.g.
-[beta.41](./website/src/content/docs/blog/2026-05-20-beta-41.md),
-[beta.44](./website/src/content/docs/blog/2026-05-22-beta-44.md)):
+[beta.41](./projects/alchemy/apps/website/src/content/docs/blog/2026-05-20-beta-41.md),
+[beta.44](./projects/alchemy/apps/website/src/content/docs/blog/2026-05-22-beta-44.md)):
 
 - **Lean, concise, zero-fluff.** Illustrate each new
   feature/fix and link to the relevant docs/tutorials/guides.

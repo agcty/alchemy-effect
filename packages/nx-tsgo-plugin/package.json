@@ -3,11 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers typecheck targets using tsgo.",
-  "keywords": ["nx", "plugin", "tsgo", "typecheck", "typescript"],
+  "keywords": [
+    "nx",
+    "plugin",
+    "tsgo",
+    "typecheck",
+    "typescript"
+  ],
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.mts",
@@ -24,13 +32,17 @@
     "@nx/devkit": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@alchemy.run/typescript-config": "workspace:*"
   },
   "peerDependencies": {
     "@nx/devkit": "catalog:"
   },
   "nx": {
     "name": "nx-tsgo-plugin",
-    "tags": ["type:tooling", "scope:repo"]
+    "tags": [
+      "type:tooling",
+      "scope:repo"
+    ]
   }
 }

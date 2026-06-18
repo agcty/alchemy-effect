@@ -38,11 +38,11 @@ jobs:
       # before the build so `bun pm pack` picks it up. Same trick the
       # legacy `publish:npm` script used (`|| true` keeps it harmless
       # elsewhere).
-      build-command: "cp ../../README.md . 2>/dev/null || true; bun run build"
+      build-command: "cp ../../../../README.md . 2>/dev/null || true; bun run build"
       packages: |
         [
-          { "dir": "packages/alchemy",     "name": "alchemy",                   "runner": "ubuntu-22-large" },
-          { "dir": "packages/better-auth", "name": "@alchemy.run/better-auth",  "runner": "ubuntu-22-large" },
-          { "dir": "packages/pr-package",  "name": "@alchemy.run/pr-package",   "runner": "ubuntu-22-large" }
+          { "dir": "projects/alchemy/packages/alchemy",     "name": "alchemy",                   "runner": "ubuntu-22-large" },
+          { "dir": "projects/alchemy/packages/better-auth", "name": "@alchemy.run/better-auth",  "runner": "ubuntu-22-large" },
+          { "dir": "projects/alchemy/packages/pr-package",  "name": "@alchemy.run/pr-package",   "runner": "ubuntu-22-large" }
         ]
     secrets: inherit

@@ -1,0 +1,8 @@
+{
+  "extends": "@alchemy.run/typescript-config/bun.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "types": ["@cloudflare/workers-types", "node"]
+  }
+}

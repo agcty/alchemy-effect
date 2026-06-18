@@ -5,8 +5,8 @@ export default defineConfig({
   ...sharedConfig,
   ignorePatterns: [
     ...(sharedConfig.ignorePatterns ?? []),
-    "cloudflare-tools/workers-sdk/**",
-    "distilled/packages/*/specs/**",
+    "projects/cloudflare-tools/workers-sdk/**",
+    "projects/distilled/packages/*/specs/**",
   ],
   rules: {
     ...sharedConfig.rules,

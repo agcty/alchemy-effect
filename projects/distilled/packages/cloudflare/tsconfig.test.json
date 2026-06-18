@@ -1,0 +1,13 @@
+{
+  "extends": "@alchemy.run/typescript-config/node.json",
+  "include": ["src/**/*.ts", "test/**/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "@distilled.cloud/cloudflare",
+  "version": "0.25.2",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alchemy-run/distilled",
+    "directory": "projects/distilled/packages/cloudflare"
+  },
+  "files": [
+    "lib",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    "./*": {
+      "types": "./lib/services/*.d.ts",
+      "bun": "./src/services/*.ts",
+      "default": "./lib/services/*.js"
+    },
+    "./Auth": {
+      "types": "./lib/auth.d.ts",
+      "bun": "./src/auth.ts",
+      "default": "./lib/auth.js"
+    },
+    "./Category": {
+      "types": "./lib/category.d.ts",
+      "bun": "./src/category.ts",
+      "default": "./lib/category.js"
+    },
+    "./Credentials": {
+      "types": "./lib/credentials.d.ts",
+      "bun": "./src/credentials.ts",
+      "default": "./lib/credentials.js"
+    },
+    "./Errors": {
+      "types": "./lib/errors.d.ts",
+      "bun": "./src/errors.ts",
+      "default": "./lib/errors.js"
+    },
+    "./Traits": {
+      "types": "./lib/traits.d.ts",
+      "bun": "./src/traits.ts",
+      "default": "./lib/traits.js"
+    },
+    ".": {
+      "types": "./lib/index.d.ts",
+      "bun": "./src/index.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsgo",
+    "build": "tsgo -b",
+    "download:env": "doppler secrets download --no-file --format env > .env",
+    "fmt": "oxfmt --write src",
+    "lint": "oxlint --type-aware src",
+    "lint:fix": "oxlint --fix src",
+    "check": "tsgo && oxlint src && oxfmt --check src",
+    "test": "vitest run --exclude specs --passWithNoTests",
+    "publish:npm": "bun run build && bun publish --access public",
+    "generate": "bun run scripts/generate.ts && oxlint --fix src && oxfmt --write src && oxfmt --write src",
+    "specs:fetch": "git submodule update --force --init --recursive --depth=1 specs/cloudflare-typescript && git -C specs/cloudflare-typescript checkout -- .",
+    "specs:update": "git -C specs/cloudflare-typescript fetch && git -C specs/cloudflare-typescript checkout main && git -C specs/cloudflare-typescript pull"
+  },
+  "dependencies": {
+    "@distilled.cloud/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@alchemy.run/typescript-config": "workspace:*",
+    "@effect/platform-node": "catalog:",
+    "@effect/vitest": "catalog:",
+    "@types/bun": "catalog:",
+    "@types/node": "catalog:",
+    "dotenv": "catalog:",
+    "typescript": "^5.9.3",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:"
+  }
+}

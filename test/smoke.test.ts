@@ -29,6 +29,9 @@ import * as os from "node:os";
 import * as path from "node:path";
 
 const ROOT = path.resolve(import.meta.dir, "..");
+const ALCHEMY_ROOT = path.join(ROOT, "projects/alchemy");
+const ALCHEMY_PACKAGES_ROOT = path.join(ALCHEMY_ROOT, "packages");
+const ALCHEMY_EXAMPLES_ROOT = path.join(ALCHEMY_ROOT, "examples");
 const TIMEOUT = 10 * 60 * 1000;
 
 const examples = [
@@ -125,7 +128,7 @@ const installAll = async (): Promise<void> => {
 
 const ROOT_PKG_PATH = path.join(ROOT, "package.json");
 const examplePkgPath = (e: string) =>
-  path.join(ROOT, "examples", e, "package.json");
+  path.join(ALCHEMY_EXAMPLES_ROOT, e, "package.json");
 
 type Pkg = {
   workspaces?: { catalog?: Record<string, string> };
@@ -211,7 +214,7 @@ if (canary) {
     expect(await run(["bun", "run", "build:packages"], ROOT)).toBe(0);
 
     for (const { dir, name } of PUBLISHED) {
-      const pkgDir = path.join(ROOT, "packages", dir);
+      const pkgDir = path.join(ALCHEMY_PACKAGES_ROOT, dir);
       for (const f of await fs.readdir(pkgDir)) {
         if (f.endsWith(".tgz")) await fs.rm(path.join(pkgDir, f));
       }
@@ -330,7 +333,7 @@ for (const sig of ["SIGINT", "SIGTERM"] as const) {
 // own `workspace:*` graphs.
 //
 // For each (monorepo, runtime) pair we:
-//   1. `bun pm pack` `packages/alchemy` once → tarball
+//   1. `bun pm pack` `projects/alchemy/packages/alchemy` once → tarball
 //   2. copy the example to a fresh temp dir (skipping build artifacts)
 //   3. rename `_package.json` → `package.json`
 //   4. rewrite every `alchemy: workspace:*` ref to `file:<tarball>`
@@ -359,7 +362,7 @@ const monorepos: readonly Monorepo[] = [
 let alchemyTarball: string | undefined;
 
 beforeAll(async () => {
-  const pkgDir = path.join(ROOT, "packages", "alchemy");
+  const pkgDir = path.join(ALCHEMY_PACKAGES_ROOT, "alchemy");
   for (const f of await fs.readdir(pkgDir)) {
     if (f.endsWith(".tgz")) await fs.rm(path.join(pkgDir, f));
   }
@@ -463,7 +466,7 @@ const setupMonorepo = async (
 ): Promise<string> => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), `alchemy-${m.name}-`));
   const dst = path.join(tmp, m.name);
-  await copyMonorepo(path.join(ROOT, "examples", m.name), dst);
+  await copyMonorepo(path.join(ALCHEMY_EXAMPLES_ROOT, m.name), dst);
 
   // _package.json → package.json at root
   const tmpRootPkg = path.join(dst, "_package.json");
@@ -474,7 +477,7 @@ const setupMonorepo = async (
   // the source of truth — `examples/monorepo-*/_package.json#workspaces.catalog`),
   // falling back to the repo-root catalog for anything the example doesn't
   // pin. Drop the example's `alchemy` catalog entry — it points at
-  // `file:../packages/alchemy` which doesn't exist in the temp checkout.
+  // the repo-local Alchemy package, which doesn't exist in the temp checkout.
   // `resolveCatalog` then rewrites `alchemy` (and other PUBLISHED refs)
   // to either the canary pkg.ing URL (canary mode) or the locally-packed
   // tarball (default).
@@ -617,7 +620,7 @@ const PRE_DEPLOY_STAGES: Record<string, (stage: string) => string[]> = {
 };
 
 for (const example of examples) {
-  const cwd = path.join(ROOT, "examples", example);
+  const cwd = path.join(ALCHEMY_EXAMPLES_ROOT, example);
   let prev: Promise<unknown> = Promise.resolve();
   for (const runtime of RUNTIMES) {
     // Prefix the stage with $SMOKE_STAGE when provided so PR runs

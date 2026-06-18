@@ -1,0 +1,26 @@
+{
+  "errors": {
+    "NotFound": [
+      {
+        "code": 3000
+      }
+    ],
+    "Gone": [
+      {
+        "code": 3005
+      },
+      {
+        "message": {
+          "includes": "index deleted"
+        }
+      }
+    ]
+  },
+  "response": {
+    "properties": {
+      "metadataIndexes[].indexType": {
+        "addValues": ["String", "Number", "Boolean"]
+      }
+    }
+  }
+}

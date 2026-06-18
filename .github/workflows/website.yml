@@ -6,8 +6,8 @@ on:
     branches:
       - main
     paths:
-      - "website/**"
-      - "packages/alchemy/**"
+      - "projects/alchemy/apps/website/**"
+      - "projects/alchemy/packages/alchemy/**"
       - "bun.lock"
       - ".github/workflows/deploy.yml"
   pull_request:
@@ -20,8 +20,8 @@ on:
       - labeled
       - closed
     paths:
-      - "website/**"
-      - "packages/alchemy/**"
+      - "projects/alchemy/apps/website/**"
+      - "projects/alchemy/packages/alchemy/**"
       - "bun.lock"
       - ".github/workflows/deploy.yml"
 
@@ -80,14 +80,14 @@ jobs:
       # a NotFound on a fresh CI checkout. Building here makes the
       # workflow correct under both create and update plans.
       - name: Build website
-        working-directory: website
+        working-directory: projects/alchemy/apps/website
         run: bun run build
 
       # Secrets (Cloudflare credentials, etc.) are injected by
       # `doppler run` from the `alchemy-v2` project — `prod` config on
       # main, `dev` config everywhere else.
       - name: Deploy
-        working-directory: website
+        working-directory: projects/alchemy/apps/website
         run: bun alchemy deploy --stage "$STAGE" --yes
         env:
           PULL_REQUEST: ${{ github.event.number }}
@@ -131,7 +131,7 @@ jobs:
           fi
 
       - name: Destroy Preview Environment
-        working-directory: website
+        working-directory: projects/alchemy/apps/website
         run: >-
           doppler run --project "$DOPPLER_PROJECT" --config "$DOPPLER_CONFIG"
           -- bun alchemy destroy --stage "$STAGE" --yes

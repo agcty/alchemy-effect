@@ -1,0 +1,14 @@
+{
+  "extends": "@alchemy.run/typescript-config/bun.json",
+  "include": [],
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "tsBuildInfoFile": ".cache/tsconfig.tsbuildinfo"
+  },
+  "references": [
+    { "path": "./tsconfig.workers.json" },
+    { "path": "./tsconfig.shared.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}

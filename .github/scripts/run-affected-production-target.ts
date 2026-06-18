@@ -14,12 +14,17 @@ if (!target) {
   process.exit(1);
 }
 
-const excludedExactRoots = [".", "distilled", "cloudflare-tools", "website"];
+const excludedExactRoots = [
+  ".",
+  "projects/distilled",
+  "projects/cloudflare-tools",
+  "projects/alchemy/apps/website",
+];
 
 const excludedRootPrefixes = [
-  "examples/",
-  "cloudflare-tools/fixtures/",
-  "packages/alchemy/test/",
+  "projects/alchemy/examples/",
+  "projects/cloudflare-tools/fixtures/",
+  "projects/alchemy/packages/alchemy/test/",
 ];
 
 const run = (args: string[], options?: { inherit?: boolean }) => {

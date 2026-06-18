@@ -1,0 +1,11 @@
+{
+  "extends": "@alchemy.run/typescript-config/bun.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "types": ["bun"],
+    "composite": true,
+    "noEmit": false,
+    "outDir": "./lib",
+    "rootDir": "./src"
+  }
+}
