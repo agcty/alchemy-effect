@@ -1,4 +1,5 @@
 node_modules/
+.nx/
 dist/
 /lib/
 /alchemy/lib/
@@ -18,6 +19,7 @@ wrangler.jsonc
 # Husky - ignore generated files but keep hooks
 .husky/_
 !.husky/pre-commit
+!.husky/commit-msg
 
 .smoke
 .smoke.logs

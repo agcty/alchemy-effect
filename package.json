@@ -64,19 +64,39 @@
       "examples/*",
       "examples/monorepo-single-stack/*",
       "examples/monorepo-multi-stack/*",
-      "distilled/packages/*"
+      "distilled/packages/*",
+      "cloudflare-tools/packages/*",
+      "cloudflare-tools/packages/vendor/*",
+      "cloudflare-tools/packages/tools/*",
+      "cloudflare-tools/fixtures/*"
     ],
+    "catalogs": {
+      "effect": {
+        "@effect/platform-bun": ">=4.0.0-beta.78 || >=4.0.0",
+        "@effect/platform-node": ">=4.0.0-beta.78 || >=4.0.0",
+        "@effect/platform-node-shared": ">=4.0.0-beta.78 || >=4.0.0",
+        "@effect/sql-pg": ">=4.0.0-beta.78 || >=4.0.0",
+        "@effect/vitest": ">=4.0.0-beta.78 || >=4.0.0",
+        "effect": ">=4.0.0-beta.78 || >=4.0.0"
+      },
+      "workers": {
+        "@cloudflare/workers-types": "^4.20260310.1",
+        "miniflare": "^4.20260329.0",
+        "workerd": "1.20260526.1"
+      }
+    },
     "catalog": {
       "@alchemy.run/node-utils": "0.0.5",
+      "@playwright/test": "^1.52.0",
       "@aws-sdk/credential-providers": "^3.0.0",
       "@cloudflare/containers": "^0.1.1",
       "@cloudflare/vite-plugin": "^1.13.12",
       "@cloudflare/workers-types": "^4.20250805.0",
       "@distilled.cloud/aws": "workspace:*",
       "@distilled.cloud/axiom": "workspace:*",
-      "@distilled.cloud/cloudflare-rolldown-plugin": "0.11.0",
-      "@distilled.cloud/cloudflare-runtime": "0.11.0",
-      "@distilled.cloud/cloudflare-vite-plugin": "0.11.0",
+      "@distilled.cloud/cloudflare-rolldown-plugin": "workspace:*",
+      "@distilled.cloud/cloudflare-runtime": "workspace:*",
+      "@distilled.cloud/cloudflare-vite-plugin": "workspace:*",
       "@distilled.cloud/cloudflare": "workspace:*",
       "@distilled.cloud/core": "workspace:*",
       "@distilled.cloud/neon": "workspace:*",
@@ -107,6 +127,7 @@
       "rolldown": "1.0.1",
       "solid-js": "latest",
       "sonda": "^0.11.1",
+      "tsdown": "^0.22.0",
       "typescript": "^6.0.3",
       "vite": "^8.0.7",
       "vitest": "^4.1.8",
@@ -123,7 +144,11 @@
       "dotenv": "^16.5.0",
       "oxfmt": "^0.36.0",
       "oxlint": "^1.51.0",
-      "pathe": "^2.0.3"
+      "pathe": "^2.0.3",
+      "@commitlint/cli": "^20.4.2",
+      "@commitlint/config-conventional": "^20.4.2",
+      "@nx/devkit": "23.0.0-rc.3",
+      "@nx/js": "23.0.0-rc.3"
     }
   },
   "devDependencies": {
@@ -149,6 +174,21 @@
     "pkg-pr-new": "^0.0.62",
     "ts-morph": "^27.0.2",
     "typescript": "latest",
-    "yaml": "^2.8.2"
-  }
+    "yaml": "^2.8.2",
+    "nx": "23.0.0-rc.3",
+    "@alchemy.run/nx-alchemy-plugin": "workspace:*",
+    "@alchemy.run/nx-oxlint-plugin": "workspace:*",
+    "@alchemy.run/nx-tsdown-plugin": "workspace:*",
+    "@alchemy.run/nx-tsgo-plugin": "workspace:*",
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "@nx/devkit": "catalog:",
+    "@nx/js": "catalog:"
+  },
+  "trustedDependencies": [
+    "@alchemy.run/nx-alchemy-plugin",
+    "@alchemy.run/nx-oxlint-plugin",
+    "@alchemy.run/nx-tsdown-plugin",
+    "@alchemy.run/nx-tsgo-plugin"
+  ]
 }

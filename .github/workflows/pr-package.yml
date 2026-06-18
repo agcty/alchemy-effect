@@ -19,11 +19,8 @@ jobs:
   pr-package:
     uses: alchemy-run/actions/.github/workflows/pr-package.yml@a18b368e044cb380a8c4904d5cfbccbc2798e768 # main
     with:
-      # The bun workspace includes `distilled/packages/*` from the
-      # distilled submodule, so the publish jobs must check it out.
-      submodules: "true"
-      # A submodule-pointer bump doesn't fall under any package dir, but
-      # it changes what gets bundled — republish everything.
+      # Distilled is source in this repository now. Changes under it still
+      # affect what alchemy bundles, so republish the preview packages.
       rebuild-all-paths: distilled
       # `|| true` keeps the cp harmless in packages whose pkg dir is
       # nested differently or that don't need the root README.
