@@ -157,6 +157,11 @@
       "dependsOn": ["build"]
     },
     {
+      "target": "nx-release-publish",
+      "cache": false,
+      "dependsOn": ["build", "^build"]
+    },
+    {
       "target": "destroy",
       "cache": false
     },

@@ -176,8 +176,18 @@ Nx release is configured for conventional commits and per-project changelogs:
 
 ```bash
 bun nx release --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release --groups=distilled --dry-run --first-release --preid beta --skip-publish
 bun nx release --groups=cloudflare-tools --dry-run --first-release --preid beta --skip-publish
 ```
+
+Those commands already preview package version bumps and changelog entries from the merged commit
+history. Removing `--dry-run` and `--skip-publish` is the production publish step once npm/GitHub
+release credentials are intentionally wired for the monorepo.
+
+The `release` GitHub workflow exposes the same release groups as a manual workflow dispatch. It
+defaults to dry-run; disabling dry-run is the explicit approval for the workflow to pass `--yes` to
+Nx release and publish through each package's `nx-release-publish` target after its `build` target
+has produced publishable `lib` / `dist` artifacts.
 
 ## Remote Cache
 
@@ -232,7 +242,8 @@ The Worker requires `NX_R2_CACHE_TRUSTED_TOKEN` and `NX_R2_CACHE_BRANCH_TOKEN` i
 3. Deploy `nx-r2-cache-worker`, add cache variables and secrets, then confirm PR runs use branch
    cache and `main` uses trusted cache.
 4. Run affected builds on integration PRs that touch both `alchemy` and `distilled`.
-5. Dry-run Nx release until the generated version plan and changelogs match the existing release
-   policy.
-6. Move package publishing from repo-specific workflows to Nx release groups.
-7. Archive or redirect the old standalone repos after release automation is proven.
+5. Run the Nx release dry-runs for all three groups and approve the generated version/changelog
+   plan.
+6. Remove `--dry-run` / `--skip-publish` from the chosen release command when npm/GitHub
+   credentials are intentionally wired for the monorepo.
+7. Archive or redirect the old standalone repos after the first monorepo release succeeds.
