@@ -639,6 +639,7 @@ export const OverrideStablesResource = Resource<OverrideStablesResource>(
 
 export const overrideStablesResourceProvider = () =>
   Provider.succeed(OverrideStablesResource, {
+    list: () => Effect.succeed([]),
     stables: ["providerStable", "sharedStable"],
     diff: Effect.fn(function* ({ news = {}, olds = {} }) {
       if (!isResolved(news)) return undefined;

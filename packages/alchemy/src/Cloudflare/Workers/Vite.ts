@@ -62,9 +62,15 @@ export interface ViteBuildOutput {
   distilled: DistilledBuildOutput | undefined;
 }
 
+export interface ViteEnvironmentOptions {
+  name?: string;
+  childEnvironments?: Array<string>;
+}
+
 export type CloudflareVitePluginOptionsWithAssets =
   CloudflareVitePluginOptions & {
     assets?: Omit<NonNullable<DistilledBuildManifest["assets"]>, "directory">;
+    viteEnvironment?: ViteEnvironmentOptions;
   };
 
 export const viteDev = (
