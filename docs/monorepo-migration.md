@@ -12,6 +12,7 @@ The root `packages/` directory is reserved for shared monorepo infrastructure:
 packages/
 ├── nx-alchemy-plugin
 ├── nx-oxlint-plugin
+├── nx-r2-cache-worker
 ├── nx-tsdown-plugin
 ├── nx-tsgo-plugin
 ├── oxlint-config
@@ -175,7 +176,16 @@ bun nx release --groups=cloudflare-tools --dry-run --first-release --preid beta 
 Local Nx caching works with no secrets. Remote cache is opt-in through environment variables so
 fork PRs and local checkouts remain safe by default.
 
-This branch includes `.github/scripts/configure-nx-r2-cache.sh`, which expects:
+This branch includes a self-hosted Worker/R2 implementation at `packages/nx-r2-cache-worker` and
+the CI wiring in `.github/scripts/configure-nx-r2-cache.sh`. The Worker is intentionally a root
+infrastructure package, uses the local `alchemy` workspace package, and can be managed through Nx:
+
+```bash
+bun nx plan nx-r2-cache-worker
+bun nx deploy nx-r2-cache-worker
+```
+
+The CI cache wiring expects:
 
 - `NX_R2_CACHE_SERVER_URL` as a repository variable;
 - `NX_R2_CACHE_BRANCH_TOKEN` as a repository secret available to PR/branch CI;
@@ -197,16 +207,22 @@ This avoids the dangerous shape where untrusted PRs can poison the same cache na
 production builds. If cache credentials are missing, CI prints a notice and uses only local Nx
 cache.
 
-The self-hosted Worker/R2 cache implementation from the Oddlynew monorepo can be brought over as a
-follow-up package, or this same contract can be backed by Nx Cloud/Enterprise. The key production
-requirement is the trust boundary, not the storage provider.
+The Worker owns two EU R2 buckets:
+
+- `alchemy-run-nx-cache-trusted`, with a 90 day lifecycle.
+- `alchemy-run-nx-cache-branches`, with a 30 day lifecycle.
+
+The Worker requires `NX_R2_CACHE_TRUSTED_TOKEN` and `NX_R2_CACHE_BRANCH_TOKEN` in the Doppler
+`alchemy-v2` production config before deployment. After deployment, set
+`NX_R2_CACHE_SERVER_URL` to the Worker URL. The branch token can write only under
+`/branches/<namespace>`; the trusted token can write only under `/trusted`.
 
 ## Cutover Plan
 
 1. Land the monorepo branch without changing publish ownership.
 2. Run `bun install` and verify `bun nx show projects` in CI.
-3. Add cache variables and secrets, then confirm PR runs use branch cache and `main` uses trusted
-   cache.
+3. Deploy `nx-r2-cache-worker`, add cache variables and secrets, then confirm PR runs use branch
+   cache and `main` uses trusted cache.
 4. Run affected builds on integration PRs that touch both `alchemy` and `distilled`.
 5. Dry-run Nx release until the generated version plan and changelogs match the existing release
    policy.

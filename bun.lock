@@ -72,6 +72,25 @@
         "@nx/devkit": "catalog:",
       },
     },
+    "packages/nx-r2-cache-worker": {
+      "name": "@alchemy.run/nx-r2-cache-worker",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@alchemy.run/oxlint-config": "workspace:*",
+        "@alchemy.run/typescript-config": "workspace:*",
+        "@cloudflare/workers-types": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
+        "alchemy": "workspace:*",
+        "effect": "catalog:",
+        "tsdown": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+      "peerDependencies": {
+        "effect": "catalog:",
+      },
+    },
     "packages/nx-tsdown-plugin": {
       "name": "@alchemy.run/nx-tsdown-plugin",
       "version": "0.0.0",
@@ -1462,6 +1481,8 @@
     "@alchemy.run/nx-alchemy-plugin": ["@alchemy.run/nx-alchemy-plugin@workspace:packages/nx-alchemy-plugin"],
 
     "@alchemy.run/nx-oxlint-plugin": ["@alchemy.run/nx-oxlint-plugin@workspace:packages/nx-oxlint-plugin"],
+
+    "@alchemy.run/nx-r2-cache-worker": ["@alchemy.run/nx-r2-cache-worker@workspace:packages/nx-r2-cache-worker"],
 
     "@alchemy.run/nx-tsdown-plugin": ["@alchemy.run/nx-tsdown-plugin@workspace:packages/nx-tsdown-plugin"],
 
