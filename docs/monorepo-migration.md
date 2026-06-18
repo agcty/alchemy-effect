@@ -185,7 +185,7 @@ bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-
 Those commands already preview package version bumps and changelog entries from the merged commit
 history. They intentionally mirror the current release lines: `alchemy` continues from
 `2.0.0-beta.56` to `2.0.0-beta.57`, `distilled` continues from `0.25.2` to `0.25.3`, and
-`cloudflare-tools` continues from `0.11.0` to `0.11.1`. Removing `--dry-run` and `--skip-publish` is
+`cloudflare-tools` continues from `0.11.1` to `0.11.2`. Removing `--dry-run` and `--skip-publish` is
 the production publish step once npm/GitHub release credentials are intentionally wired for the
 monorepo.
 

@@ -153,7 +153,7 @@ The replacement repository should preserve current release lines:
 ```text
 alchemy:          2.0.0-beta.56 -> 2.0.0-beta.57
 distilled:        0.25.2        -> 0.25.3
-cloudflare-tools: 0.11.0        -> 0.11.1
+cloudflare-tools: 0.11.1        -> 0.11.2
 ```
 
 The cutover branch should either import or create baseline tags that match the new release groups:
@@ -161,7 +161,7 @@ The cutover branch should either import or create baseline tags that match the n
 ```text
 v2.0.0-beta.56
 distilled-v0.25.2
-cloudflare-tools-v0.11.0
+cloudflare-tools-v0.11.1
 ```
 
 With those baselines in place, Nx release should no longer need `--first-release` for normal
