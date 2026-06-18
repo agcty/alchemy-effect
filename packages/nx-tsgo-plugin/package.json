@@ -30,10 +30,11 @@
   },
   "devDependencies": {
     "@nx/devkit": "catalog:",
+    "@alchemy.run/oxlint-config": "workspace:*",
+    "@alchemy.run/typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
-    "typescript": "catalog:",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "@nx/devkit": "catalog:"

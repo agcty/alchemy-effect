@@ -21,8 +21,8 @@ interface ProjectJson {
 }
 
 /**
- * Nx plugin that infers lint targets for projects with oxlint config files in
- * their root or an ancestor directory.
+ * Nx plugin that infers lint targets for projects with local oxlint config
+ * files.
  */
 const createNodesFunction: CreateNodes<OxlintPluginOptions> = [
   "**/{package,project}.json",
@@ -43,17 +43,24 @@ async function createNodesInternal(
   context: CreateNodesContext,
 ) {
   const projectRoot = dirname(configFilePath);
+  const absoluteProjectRoot = join(context.workspaceRoot, projectRoot);
 
-  if (!findOxlintConfigRoot(context.workspaceRoot, projectRoot)) {
+  const hasOxlintConfig =
+    existsSync(join(absoluteProjectRoot, ".oxlintrc.json")) ||
+    existsSync(join(absoluteProjectRoot, "oxlint.config.ts"));
+
+  if (!hasOxlintConfig) {
     return {};
   }
 
   const lintTargetName = options.lintTargetName || "lint";
   const typeAware = options.typeAware !== false; // Default to true
 
-  if (
-    hasDeclaredTarget(join(context.workspaceRoot, projectRoot), lintTargetName)
-  ) {
+  if (typeAware && !existsSync(join(absoluteProjectRoot, "tsconfig.json"))) {
+    return {};
+  }
+
+  if (hasDeclaredTarget(absoluteProjectRoot, lintTargetName)) {
     return {};
   }
 
@@ -86,31 +93,6 @@ async function createNodesInternal(
       [projectRoot]: projectConfiguration,
     },
   };
-}
-
-function findOxlintConfigRoot(workspaceRoot: string, projectRoot: string) {
-  let current = projectRoot;
-
-  while (true) {
-    if (
-      existsSync(join(workspaceRoot, current, ".oxlintrc.json")) ||
-      existsSync(join(workspaceRoot, current, "oxlint.config.ts"))
-    ) {
-      return current;
-    }
-
-    if (current === "." || current === "") {
-      return undefined;
-    }
-
-    const parent = dirname(current);
-
-    if (parent === current) {
-      return undefined;
-    }
-
-    current = parent === "" ? "." : parent;
-  }
 }
 
 function hasDeclaredTarget(absoluteProjectRoot: string, targetName: string) {

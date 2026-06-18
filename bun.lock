@@ -46,6 +46,7 @@
       "name": "@alchemy.run/nx-alchemy-plugin",
       "version": "0.0.0",
       "devDependencies": {
+        "@alchemy.run/oxlint-config": "workspace:*",
         "@alchemy.run/typescript-config": "workspace:*",
         "@nx/devkit": "catalog:",
         "@types/bun": "catalog:",
@@ -61,6 +62,7 @@
       "name": "@alchemy.run/nx-oxlint-plugin",
       "version": "0.0.0",
       "devDependencies": {
+        "@alchemy.run/oxlint-config": "workspace:*",
         "@alchemy.run/typescript-config": "workspace:*",
         "@nx/devkit": "catalog:",
         "@types/bun": "catalog:",
@@ -95,6 +97,7 @@
       "name": "@alchemy.run/nx-tsdown-plugin",
       "version": "0.0.0",
       "devDependencies": {
+        "@alchemy.run/oxlint-config": "workspace:*",
         "@alchemy.run/typescript-config": "workspace:*",
         "@nx/devkit": "catalog:",
         "@types/bun": "catalog:",
@@ -110,6 +113,7 @@
       "name": "@alchemy.run/nx-tsgo-plugin",
       "version": "0.0.0",
       "devDependencies": {
+        "@alchemy.run/oxlint-config": "workspace:*",
         "@alchemy.run/typescript-config": "workspace:*",
         "@nx/devkit": "catalog:",
         "@types/node": "catalog:",
