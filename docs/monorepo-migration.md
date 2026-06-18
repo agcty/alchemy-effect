@@ -175,19 +175,23 @@ tag policy is finalized or the resolver issue is fixed.
 Nx release is configured for conventional commits and per-project changelogs:
 
 ```bash
-bun nx release --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release --groups=distilled --dry-run --first-release --preid beta --skip-publish
-bun nx release --groups=cloudflare-tools --dry-run --first-release --preid beta --skip-publish
+bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
 ```
 
 Those commands already preview package version bumps and changelog entries from the merged commit
-history. Removing `--dry-run` and `--skip-publish` is the production publish step once npm/GitHub
-release credentials are intentionally wired for the monorepo.
+history. They intentionally mirror the current release lines: `alchemy` continues from
+`2.0.0-beta.56` to `2.0.0-beta.57`, `distilled` continues from `0.25.2` to `0.25.3`, and
+`cloudflare-tools` continues from `0.11.0` to `0.11.1`. Removing `--dry-run` and `--skip-publish` is
+the production publish step once npm/GitHub release credentials are intentionally wired for the
+monorepo.
 
 The `release` GitHub workflow exposes the same release groups as a manual workflow dispatch. It
-defaults to dry-run; disabling dry-run is the explicit approval for the workflow to pass `--yes` to
-Nx release and publish through each package's `nx-release-publish` target after its `build` target
-has produced publishable `lib` / `dist` artifacts.
+defaults to dry-run and chooses the same continuation specifier by group unless maintainers override
+it. Disabling dry-run is the explicit approval for the workflow to pass `--yes` to Nx release and
+publish through each package's `nx-release-publish` target after its `build` target has produced
+publishable `lib` / `dist` artifacts.
 
 ## Remote Cache
 

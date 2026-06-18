@@ -43,16 +43,17 @@ bun nx show projects --affected \
 .github/scripts/run-affected-production-target.ts typecheck --parallel=6
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 
-bun nx release --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release --groups=distilled --dry-run --first-release --preid beta --skip-publish
+bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
 ```
 
 That gives a concrete before/after story for the old multi-repo workflow: one PR, one affected
 graph, one cached validation path, and one release plan.
 
-The GitHub `release` workflow uses the same release groups. It defaults to dry-run so maintainers
-can inspect the version/changelog/publish plan before allowing a real npm publish; disabling dry-run
-is the explicit approval for the workflow to publish.
+The GitHub `release` workflow uses the same release groups. It defaults to dry-run and uses
+continuation defaults by group: `alchemy` continues the beta prerelease line, while `distilled` and
+`cloudflare-tools` continue stable patch releases. Disabling dry-run is the explicit approval for
+the workflow to publish.
 
 ## Source Layout
 
@@ -123,9 +124,9 @@ bun nx lint nx-r2-cache-worker
 .github/scripts/run-affected-production-target.ts typecheck --parallel=6
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 git diff --check
-bun nx release --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release --groups=distilled --dry-run --first-release --preid beta --skip-publish
-bun nx release --groups=cloudflare-tools --dry-run --first-release --preid beta --skip-publish
+bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
 ```
 
 The release dry-runs complete without writing files. The imported release groups currently fall back

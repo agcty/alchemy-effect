@@ -12,6 +12,11 @@ on:
           - alchemy
           - distilled
           - cloudflare-tools
+      specifier:
+        description: Release specifier. Empty uses the group default.
+        required: false
+        type: string
+        default: ""
       dry-run:
         description: Preview version, changelog, and publish plan without writing.
         required: true
@@ -62,13 +67,25 @@ jobs:
         shell: bash
         env:
           RELEASE_GROUP: ${{ inputs.group }}
+          SPECIFIER: ${{ inputs.specifier }}
           DRY_RUN: ${{ inputs['dry-run'] }}
           FIRST_RELEASE: ${{ inputs['first-release'] }}
           PREID: ${{ inputs.preid }}
         run: |
           set -euo pipefail
 
-          args=(release "--groups=${RELEASE_GROUP}")
+          if [ -z "${SPECIFIER}" ]; then
+            case "${RELEASE_GROUP}" in
+              alchemy)
+                SPECIFIER="prerelease"
+                ;;
+              distilled | cloudflare-tools)
+                SPECIFIER="patch"
+                ;;
+            esac
+          fi
+
+          args=(release "${SPECIFIER}" "--groups=${RELEASE_GROUP}")
 
           if [ "${DRY_RUN}" = "true" ]; then
             args+=(--dry-run --skip-publish)

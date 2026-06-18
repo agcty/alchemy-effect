@@ -17,7 +17,7 @@
     "@types/bun": "catalog:"
   },
   "nx": {
-    "name": "typescript-config",
+    "name": "@alchemy.run/typescript-config",
     "tags": [
       "type:config",
       "scope:alchemy"
