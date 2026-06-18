@@ -18,6 +18,7 @@
     "**/*.md",
     "**/.vendor/**",
     "**/package.json",
-    "./distilled"
+    "projects/cloudflare-tools/workers-sdk/**",
+    "projects/distilled/packages/*/specs/**"
   ]
 }
