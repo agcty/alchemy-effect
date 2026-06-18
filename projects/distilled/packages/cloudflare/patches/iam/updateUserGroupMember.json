@@ -1,0 +1,13 @@
+{
+  "errors": {
+    "InvalidMember": [{ "code": 400 }],
+    "UserGroupNotFound": [
+      { "code": 404, "message": { "includes": "User group" } }
+    ]
+  },
+  "request": {
+    "properties": {
+      "members": { "wireKey": "body" }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "PlanLevelNotAllowed": [{ "code": 1011 }],
+    "ZoneNotFound": [
+      { "status": 400, "message": { "includes": "Cannot find a valid zone" } }
+    ],
+    "Forbidden": [{ "status": 403 }]
+  }
+}

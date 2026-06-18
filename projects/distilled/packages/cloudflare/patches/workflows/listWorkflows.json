@@ -1,0 +1,8 @@
+{
+  "response": {
+    "properties": {
+      "result[].class_name": { "optional": true, "nullable": true },
+      "result[].instances": { "optional": true }
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "errors": {
+    "WorkerNotFound": [{ "code": 10007 }]
+  },
+  "response": {
+    "properties": {
+      "placement": { "type": "unknown" },
+      "observability.traces": {
+        "optional": true,
+        "definition": {
+          "kind": "object",
+          "properties": [
+            {
+              "name": "enabled",
+              "required": true,
+              "type": { "kind": "primitive", "value": "boolean" }
+            },
+            {
+              "name": "head_sampling_rate",
+              "required": false,
+              "type": { "kind": "primitive", "value": "number" }
+            },
+            {
+              "name": "destinations",
+              "required": false,
+              "type": {
+                "kind": "array",
+                "elementType": { "kind": "primitive", "value": "string" }
+              }
+            },
+            {
+              "name": "persist",
+              "required": false,
+              "type": { "kind": "primitive", "value": "boolean" }
+            }
+          ]
+        }
+      },
+      "bindings[].json": { "type": "unknown" },
+      "bindings[]": {
+        "appendUnion": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "worker_loader" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "artifacts" }
+              },
+              {
+                "name": "namespace",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

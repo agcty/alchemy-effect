@@ -1,0 +1,10 @@
+{
+  "errors": {
+    "FlagshipFlagAlreadyExists": [
+      { "status": 409, "message": { "includes": "Flag already exists" } }
+    ],
+    "FlagshipAppNotFound": [
+      { "status": 404, "message": { "includes": "App not found" } }
+    ]
+  }
+}
