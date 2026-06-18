@@ -70,9 +70,10 @@ The repo includes private Nx plugins under `packages/nx-*-plugin`:
 
 - `@alchemy.run/nx-tsdown-plugin` adds `build` when a project has `tsdown.config.ts`.
 - `@alchemy.run/nx-tsgo-plugin` adds `typecheck` when a project has `tsconfig.json` and no existing
-  `typecheck` package script.
-- `@alchemy.run/nx-oxlint-plugin` adds `lint` when a project has oxlint config in its root or an
-  ancestor directory and no existing `lint` package script.
+  `typecheck` package script or project target.
+- `@alchemy.run/nx-oxlint-plugin` adds `lint` when a project has local oxlint config, has
+  `tsconfig.json` for the default type-aware mode, and has no existing `lint` package script or
+  project target.
 - `@alchemy.run/nx-alchemy-plugin` adds `dev`, `deploy`, `destroy`, and `plan` when a project has
   `alchemy.run.ts`.
 
@@ -126,9 +127,9 @@ when they want stricter linting across the merged workspace.
 
 ## Validation Scope
 
-CI runs Nx affected checks for production/package projects, not every demo surface. Build and
-`lint` validation use `.github/scripts/run-affected-production-target.ts` to skip aggregate and
-non-hermetic demo roots:
+CI runs Nx affected checks for production/package projects, not every demo surface. `build`,
+`typecheck`, and `lint` validation use `.github/scripts/run-affected-production-target.ts` to skip
+aggregate and non-hermetic demo roots:
 
 - `.`
 - `projects/distilled`
@@ -141,7 +142,11 @@ non-hermetic demo roots:
 
 Those projects still appear in the Nx graph and can be run directly, but they currently depend on
 extra local tools or runtime-specific bundler behavior that should not block the first monorepo
-cutover. They can be promoted into the required CI gate once each target is hermetic.
+cutover. Test suites are also not promoted wholesale yet: several imported package tests exercise
+live external services and require provider secrets. Distilled's test syntax has been updated for
+Vitest 4, and the branch explicitly runs the new `nx-r2-cache-worker` tests in CI because that
+package is new repo infrastructure. Broader package tests can be promoted into the required CI gate
+once each target is hermetic.
 
 Distilled's existing `check` scripts still include `oxfmt --check src`, but the imported generated
 AWS/GCP clients have pre-existing formatter drift. The migration CI therefore runs `lint`

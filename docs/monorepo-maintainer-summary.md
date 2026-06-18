@@ -88,6 +88,7 @@ bun nx build nx-r2-cache-worker
 bun nx typecheck nx-r2-cache-worker
 bun nx test nx-r2-cache-worker
 bun nx lint nx-r2-cache-worker
+.github/scripts/run-affected-production-target.ts typecheck --parallel=6
 bun nx release --groups=alchemy --dry-run --preid beta --skip-publish
 bun nx release --groups=distilled --dry-run --first-release --preid beta --skip-publish
 bun nx release --groups=cloudflare-tools --dry-run --first-release --preid beta --skip-publish
@@ -114,4 +115,7 @@ real CI run yet. The production rollout still needs:
 - one protected `main` run proving trusted cache writes.
 
 The branch also intentionally keeps non-hermetic demo and generated surfaces out of required CI.
-Those can be promoted later after each target is made hermetic.
+Imported package tests are not enabled wholesale yet either: many exercise live external services and
+require provider secrets. The migration updates Distilled tests for Vitest 4 syntax, but the new
+`nx-r2-cache-worker` tests are the only required test gate because that package is new repo
+infrastructure. Broader package tests can be promoted later after each target is made hermetic.
