@@ -1,5 +1,8 @@
 # Monorepo Migration
 
+For the short maintainer-facing case, see
+[`monorepo-maintainer-summary.md`](./monorepo-maintainer-summary.md).
+
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
 using the same high-level shape as the Oddlynew monorepo: shared repository infrastructure remains
 at the root, while product-owned code lives under `projects/<product>/...`.
