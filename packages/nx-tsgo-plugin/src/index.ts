@@ -1,4 +1,4 @@
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   createNodesFromFiles,
@@ -9,6 +9,14 @@ import {
 
 export interface TsgoPluginOptions {
   typecheckTargetName?: string;
+}
+
+interface PackageJson {
+  scripts?: Record<string, string>;
+}
+
+interface ProjectJson {
+  targets?: Record<string, unknown>;
 }
 
 /**
@@ -50,6 +58,9 @@ async function createNodesInternal(
   }
 
   const typecheckTargetName = options.typecheckTargetName || "typecheck";
+  if (hasDeclaredTarget(absoluteProjectRoot, typecheckTargetName)) {
+    return {};
+  }
 
   const targets: Record<string, any> = {
     [typecheckTargetName]: {
@@ -74,6 +85,24 @@ async function createNodesInternal(
       [projectRoot]: projectConfiguration,
     },
   };
+}
+
+function hasDeclaredTarget(projectRoot: string, targetName: string) {
+  const packageJson = readJson<PackageJson>(join(projectRoot, "package.json"));
+  if (Object.hasOwn(packageJson?.scripts ?? {}, targetName)) {
+    return true;
+  }
+
+  const projectJson = readJson<ProjectJson>(join(projectRoot, "project.json"));
+  return Object.hasOwn(projectJson?.targets ?? {}, targetName);
+}
+
+function readJson<T>(path: string): T | undefined {
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 export default {

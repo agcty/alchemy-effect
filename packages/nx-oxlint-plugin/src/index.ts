@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   createNodesFromFiles,
@@ -12,8 +12,17 @@ export interface OxlintPluginOptions {
   typeAware?: boolean;
 }
 
+interface PackageJson {
+  scripts?: Record<string, string>;
+}
+
+interface ProjectJson {
+  targets?: Record<string, unknown>;
+}
+
 /**
- * Nx plugin that infers lint targets for projects with oxlint config files.
+ * Nx plugin that infers lint targets for projects with oxlint config files in
+ * their root or an ancestor directory.
  */
 const createNodesFunction: CreateNodes<OxlintPluginOptions> = [
   "**/{package,project}.json",
@@ -35,18 +44,19 @@ async function createNodesInternal(
 ) {
   const projectRoot = dirname(configFilePath);
 
-  const hasOxlintConfig =
-    existsSync(join(context.workspaceRoot, projectRoot, ".oxlintrc.json")) ||
-    existsSync(join(context.workspaceRoot, projectRoot, "oxlint.config.ts"));
-
-  if (!hasOxlintConfig) {
+  if (!findOxlintConfigRoot(context.workspaceRoot, projectRoot)) {
     return {};
   }
 
   const lintTargetName = options.lintTargetName || "lint";
   const typeAware = options.typeAware !== false; // Default to true
 
-  // Build the oxlint command
+  if (
+    hasDeclaredTarget(join(context.workspaceRoot, projectRoot), lintTargetName)
+  ) {
+    return {};
+  }
+
   const oxlintCommand = typeAware ? "oxlint --type-aware ." : "oxlint .";
   const command = oxlintCommand;
 
@@ -76,6 +86,53 @@ async function createNodesInternal(
       [projectRoot]: projectConfiguration,
     },
   };
+}
+
+function findOxlintConfigRoot(workspaceRoot: string, projectRoot: string) {
+  let current = projectRoot;
+
+  while (true) {
+    if (
+      existsSync(join(workspaceRoot, current, ".oxlintrc.json")) ||
+      existsSync(join(workspaceRoot, current, "oxlint.config.ts"))
+    ) {
+      return current;
+    }
+
+    if (current === "." || current === "") {
+      return undefined;
+    }
+
+    const parent = dirname(current);
+
+    if (parent === current) {
+      return undefined;
+    }
+
+    current = parent === "" ? "." : parent;
+  }
+}
+
+function hasDeclaredTarget(absoluteProjectRoot: string, targetName: string) {
+  const packageJson = readJson<PackageJson>(
+    join(absoluteProjectRoot, "package.json"),
+  );
+  if (Object.hasOwn(packageJson?.scripts ?? {}, targetName)) {
+    return true;
+  }
+
+  const projectJson = readJson<ProjectJson>(
+    join(absoluteProjectRoot, "project.json"),
+  );
+  return Object.hasOwn(projectJson?.targets ?? {}, targetName);
+}
+
+function readJson<T>(path: string): T | undefined {
+  try {
+    return JSON.parse(readFileSync(path, "utf8")) as T;
+  } catch {
+    return undefined;
+  }
 }
 
 // Export as default plugin object

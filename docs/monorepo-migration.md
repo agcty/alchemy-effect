@@ -1,7 +1,11 @@
 # Monorepo Migration
 
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
-without forcing a directory rename during the first production migration.
+without forcing a directory rename during the first production migration. It is intentionally split
+into two concerns:
+
+1. make the merged graph, CI, cache, and release model production-credible;
+2. leave a later mechanical directory move to `projects/*` as a small, reviewable follow-up.
 
 ## Source Layout
 
@@ -35,13 +39,51 @@ This keeps historical paths stable while still allowing Nx to answer the importa
 If the maintainers later want a uniform `projects/<repo>/...` hierarchy, that can be a second
 mechanical move after the graph, CI, and release workflow are accepted.
 
+The recommended final layout is:
+
+```text
+packages/                         # Shared repo infrastructure packages
+├── nx-alchemy-plugin
+├── nx-oxlint-plugin
+├── nx-tsdown-plugin
+├── nx-tsgo-plugin
+└── oxlint-config
+projects/
+├── alchemy/
+│   ├── apps/
+│   │   └── website
+│   ├── examples/
+│   └── packages/
+│       ├── alchemy
+│       ├── better-auth
+│       └── pr-package
+├── distilled/
+│   ├── apps/
+│   │   └── website
+│   └── packages/
+│       └── ...
+└── cloudflare-tools/
+    ├── fixtures/
+    └── packages/
+        ├── cloudflare-runtime
+        ├── cloudflare-vite-plugin
+        └── cloudflare-rolldown-plugin
+```
+
+That mirrors the Oddlynew shape: root-level packages are shared monorepo infrastructure, and
+product-owned code lives under `projects/<product>`. The current branch keeps the original paths
+because it is easier for maintainers to review the actual Nx/cache/release behavior before a large
+rename commit moves files.
+
 ## Inferred Targets
 
 The repo includes private Nx plugins under `packages/nx-*-plugin`:
 
 - `@alchemy.run/nx-tsdown-plugin` adds `build` when a project has `tsdown.config.ts`.
-- `@alchemy.run/nx-tsgo-plugin` adds `typecheck` when a project has `tsconfig.json`.
-- `@alchemy.run/nx-oxlint-plugin` adds `lint` when a project has oxlint config.
+- `@alchemy.run/nx-tsgo-plugin` adds `typecheck` when a project has `tsconfig.json` and no existing
+  `typecheck` package script.
+- `@alchemy.run/nx-oxlint-plugin` adds `lint` when a project has oxlint config in its root or an
+  ancestor directory and no existing `lint` package script.
 - `@alchemy.run/nx-alchemy-plugin` adds `dev`, `deploy`, `destroy`, and `plan` when a project has
   `alchemy.run.ts`.
 
@@ -58,6 +100,54 @@ bun nx graph
 bun nx show projects --affected --files=distilled/packages/stripe/src/index.ts
 bun nx run @distilled.cloud/cloudflare-vite-plugin:build
 ```
+
+## Shared Config
+
+The branch follows the Oddlynew config pattern by putting shared lint rules in
+`@alchemy.run/oxlint-config` and importing them from TypeScript oxlint config files:
+
+- `oxlint.config.ts`
+- `distilled/oxlint.config.ts`
+- `cloudflare-tools/oxlint.config.ts`
+
+That replaces the previous scattered `.oxlintrc.json` files and makes project-specific exceptions
+explicit in code. A later `projects/*` move should keep this pattern and place product overrides at
+`projects/<product>/oxlint.config.ts`.
+
+The shared package intentionally exposes two presets:
+
+- `@alchemy.run/oxlint-config/base-config` mirrors the minimal root/Distilled rules from the
+  standalone repos.
+- `@alchemy.run/oxlint-config/effect-config` mirrors the stricter Cloudflare-tools Effect-style
+  rules, while keeping category-level type-aware checks as warnings/off by default like Oddlynew's
+  baseline.
+
+That preserves current generated-code behavior while still giving maintainers one package to evolve
+when they want stricter linting across the merged workspace.
+
+## Validation Scope
+
+CI runs Nx affected checks for production/package projects, not every demo surface. Build and
+`lint` validation use `.github/scripts/run-affected-production-target.ts` to skip aggregate and
+non-hermetic demo roots:
+
+- `.`
+- `distilled`
+- `cloudflare-tools`
+- `examples/`
+- `website`
+- `cloudflare-tools/fixtures/`
+- `packages/alchemy/test/`
+- nested `test/fixtures/` package roots
+
+Those projects still appear in the Nx graph and can be run directly, but they currently depend on
+extra local tools or runtime-specific bundler behavior that should not block the first monorepo
+cutover. They can be promoted into the required CI gate once each target is hermetic.
+
+Distilled's existing `check` scripts still include `oxfmt --check src`, but the imported generated
+AWS/GCP clients have pre-existing formatter drift. The migration CI therefore runs `lint`
+instead of `check`; a future baseline cleanup can format generated clients and promote `check` once
+that diff is reviewed separately.
 
 ## Release Groups
 

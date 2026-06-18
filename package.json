@@ -144,6 +144,7 @@
       "dotenv": "^16.5.0",
       "oxfmt": "^0.36.0",
       "oxlint": "^1.51.0",
+      "oxlint-tsgolint": "^0.23.0",
       "pathe": "^2.0.3",
       "@commitlint/cli": "^20.4.2",
       "@commitlint/config-conventional": "^20.4.2",
@@ -171,6 +172,7 @@
     "husky": "^9.1.7",
     "oxfmt": "latest",
     "oxlint": "latest",
+    "oxlint-tsgolint": "catalog:",
     "pkg-pr-new": "^0.0.62",
     "ts-morph": "^27.0.2",
     "typescript": "latest",
@@ -180,6 +182,7 @@
     "@alchemy.run/nx-oxlint-plugin": "workspace:*",
     "@alchemy.run/nx-tsdown-plugin": "workspace:*",
     "@alchemy.run/nx-tsgo-plugin": "workspace:*",
+    "@alchemy.run/oxlint-config": "workspace:*",
     "@commitlint/cli": "catalog:",
     "@commitlint/config-conventional": "catalog:",
     "@nx/devkit": "catalog:",
@@ -189,6 +192,7 @@
     "@alchemy.run/nx-alchemy-plugin",
     "@alchemy.run/nx-oxlint-plugin",
     "@alchemy.run/nx-tsdown-plugin",
-    "@alchemy.run/nx-tsgo-plugin"
+    "@alchemy.run/nx-tsgo-plugin",
+    "@alchemy.run/oxlint-config"
   ]
 }

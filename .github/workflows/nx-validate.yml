@@ -59,8 +59,8 @@ jobs:
 
       - name: Lint PR commits
         if: github.event_name == 'pull_request'
-        run: bunx --bun commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: .github/scripts/lint-pr-commits.sh ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }}
 
-      - run: bun nx affected -t build --parallel=6
+      - run: .github/scripts/run-affected-production-target.ts build --parallel=6
       - run: bun nx affected -t typecheck --parallel=6
-      - run: bun nx affected -t check --parallel=6
+      - run: .github/scripts/run-affected-production-target.ts lint --parallel=6
