@@ -7,6 +7,7 @@ import { runEffect, testRunId } from "./setup";
 describe("createKey", () => {
   it(
     "creates an API key and returns its id, value_prefix and the secret value",
+    { timeout: 30_000 },
     async () => {
       let createdId: number | undefined;
       const effect = Effect.gen(function* () {
@@ -39,11 +40,11 @@ describe("createKey", () => {
 
       await runEffect(effect);
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with BadRequest when an action name is not a recognized action",
+    { timeout: 30_000 },
     async () => {
       // Typesense rejects unrecognised action strings (the action grammar
       // is `<resource>:<verb>`; `bogus:nope` is not a valid action) with
@@ -58,11 +59,11 @@ describe("createKey", () => {
 
       expect((error as { _tag: string })._tag).toBe("BadRequest");
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with Conflict when creating a key with a value that already exists",
+    { timeout: 30_000 },
     async () => {
       // Reuse the same custom `value` for two key-creation requests. The
       // second creation collides with the first and Typesense returns 409.
@@ -99,6 +100,5 @@ describe("createKey", () => {
       const error = await runEffect(effect);
       expect((error as { _tag: string })._tag).toBe("Conflict");
     },
-    { timeout: 30_000 },
   );
 });

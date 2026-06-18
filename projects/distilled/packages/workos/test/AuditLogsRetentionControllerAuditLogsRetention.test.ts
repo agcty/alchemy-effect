@@ -6,36 +6,44 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuditLogsRetentionControllerAuditLogsRetention", () => {
-  it("gets the audit log retention for an organization", async () => {
-    const result = await runEffect(
-      Effect.gen(function* () {
-        const created = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-audit-retention-${testRunId}`,
-        });
-        return yield* AuditLogsRetentionControllerAuditLogsRetention({
-          id: created.id,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: created.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }),
-    );
-    expect(result).toBeDefined();
-    expect(
-      result.retention_period_in_days === null ||
-        typeof result.retention_period_in_days === "number",
-    ).toBe(true);
-  }, 60_000);
+  it(
+    "gets the audit log retention for an organization",
+    { timeout: 60_000 },
+    async () => {
+      const result = await runEffect(
+        Effect.gen(function* () {
+          const created = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-audit-retention-${testRunId}`,
+          });
+          return yield* AuditLogsRetentionControllerAuditLogsRetention({
+            id: created.id,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: created.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }),
+      );
+      expect(result).toBeDefined();
+      expect(
+        result.retention_period_in_days === null ||
+          typeof result.retention_period_in_days === "number",
+      ).toBe(true);
+    },
+  );
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      AuditLogsRetentionControllerAuditLogsRetention({
-        id: `organization_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuditLogsRetentionControllerAuditLogsRetention({
+          id: `organization_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

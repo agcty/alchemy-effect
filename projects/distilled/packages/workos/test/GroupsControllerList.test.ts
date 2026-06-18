@@ -6,7 +6,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupsControllerList", () => {
-  it("lists groups for an organization", async () => {
+  it("lists groups for an organization", { timeout: 60_000 }, async () => {
     const result = await runEffect(
       Effect.gen(function* () {
         const created = yield* OrganizationsControllerCreate({
@@ -36,23 +36,31 @@ describe("GroupsControllerList", () => {
       expect(typeof group.created_at).toBe("string");
       expect(typeof group.updated_at).toBe("string");
     }
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      GroupsControllerList({
-        organizationId: `organization_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerList({
+          organizationId: `organization_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when listing groups in a different tenant", async () => {
-    const error = await runEffect(
-      GroupsControllerList({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+  it(
+    "fails with Forbidden when listing groups in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerList({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

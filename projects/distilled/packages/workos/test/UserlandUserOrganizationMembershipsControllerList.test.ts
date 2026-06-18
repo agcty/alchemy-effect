@@ -6,7 +6,7 @@ import { UserlandUserOrganizationMembershipsControllerList } from "../src/operat
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserOrganizationMembershipsControllerList", () => {
-  it("lists memberships for an organization", async () => {
+  it("lists memberships for an organization", { timeout: 60_000 }, async () => {
     const name = `distilled-memberships-list-${testRunId}`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -35,22 +35,30 @@ describe("UserlandUserOrganizationMembershipsControllerList", () => {
         expect(["active", "inactive", "pending"]).toContain(membership.status);
       }
     }
-  }, 60_000);
+  });
 
-  it("fails with BadRequest when neither user_id nor organization_id is provided", async () => {
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerList({}).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("BadRequest");
-  }, 30_000);
+  it(
+    "fails with BadRequest when neither user_id nor organization_id is provided",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserOrganizationMembershipsControllerList({}).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("BadRequest");
+    },
+  );
 
-  it("fails with UnprocessableEntity when limit exceeds the allowed range", async () => {
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerList({
-        user_id: `user_does_not_exist_${testRunId}`,
-        limit: 1000,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+  it(
+    "fails with UnprocessableEntity when limit exceeds the allowed range",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserOrganizationMembershipsControllerList({
+          user_id: `user_does_not_exist_${testRunId}`,
+          limit: 1000,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

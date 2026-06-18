@@ -4,7 +4,7 @@ import { DirectoriesControllerList } from "../src/operations/DirectoriesControll
 import { runEffect } from "./setup.ts";
 
 describe("DirectoriesControllerList", () => {
-  it("lists directories", async () => {
+  it("lists directories", { timeout: 30_000 }, async () => {
     const result = await runEffect(DirectoriesControllerList({ limit: 10 }));
 
     expect(result).toBeDefined();
@@ -28,5 +28,5 @@ describe("DirectoriesControllerList", () => {
       expect(typeof dir.created_at).toBe("string");
       expect(typeof dir.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 });

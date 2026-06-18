@@ -5,7 +5,7 @@ import { ConnectionsControllerList } from "../src/operations/ConnectionsControll
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ConnectionsControllerFind", () => {
-  it("retrieves a connection by id", async () => {
+  it("retrieves a connection by id", { timeout: 30_000 }, async () => {
     const list = await runEffect(ConnectionsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -39,25 +39,33 @@ describe("ConnectionsControllerFind", () => {
     expect(Array.isArray(conn.domains)).toBe(true);
     expect(typeof conn.created_at).toBe("string");
     expect(typeof conn.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent connection id", async () => {
-    const error = await runEffect(
-      ConnectionsControllerFind({
-        id: `conn_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent connection id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ConnectionsControllerFind({
+          id: `conn_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when reading a connection in a different tenant", async () => {
-    const error = await runEffect(
-      ConnectionsControllerFind({
-        id: "conn_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when reading a connection in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ConnectionsControllerFind({
+          id: "conn_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

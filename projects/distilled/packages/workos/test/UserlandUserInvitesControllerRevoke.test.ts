@@ -5,7 +5,7 @@ import { UserlandUserInvitesControllerRevoke } from "../src/operations/UserlandU
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserInvitesControllerRevoke", () => {
-  it("revokes a pending invitation", async () => {
+  it("revokes a pending invitation", { timeout: 30_000 }, async () => {
     const email = `distilled-invite-revoke-${testRunId}@example.com`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -24,14 +24,18 @@ describe("UserlandUserInvitesControllerRevoke", () => {
     expect(result.email).toBe(email);
     expect(result.state).toBe("revoked");
     expect(typeof result.revoked_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with BadRequest for a non-existent invitation id", async () => {
-    const error = await runEffect(
-      UserlandUserInvitesControllerRevoke({
-        id: `invitation_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["BadRequest", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+  it(
+    "fails with BadRequest for a non-existent invitation id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserInvitesControllerRevoke({
+          id: `invitation_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["BadRequest", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

@@ -81,6 +81,7 @@ describe("getAnalyticsEvents", () => {
 
   it(
     "retrieves recent analytics events for a user + rule",
+    { timeout: 30_000 },
     async () => {
       const result = await runEffect(
         getAnalyticsEvents({
@@ -92,11 +93,11 @@ describe("getAnalyticsEvents", () => {
 
       expect(Array.isArray(result.events)).toBe(true);
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with BadRequest when the analytics rule name does not exist",
+    { timeout: 30_000 },
     async () => {
       // Typesense returns 400 with { message: "No analytics rule named ..." }
       // when the rule does not exist.
@@ -110,6 +111,5 @@ describe("getAnalyticsEvents", () => {
 
       expect((error as { _tag: string })._tag).toBe("BadRequest");
     },
-    { timeout: 30_000 },
   );
 });

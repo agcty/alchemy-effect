@@ -7,110 +7,130 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthorizationOrganizationRolesControllerCreate", () => {
-  it("fails with BadRequest when name is empty", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-roles-400-${testRunId}`,
-        });
+  it(
+    "fails with BadRequest when name is empty",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-roles-400-${testRunId}`,
+          });
 
-        return yield* AuthorizationOrganizationRolesControllerCreate({
-          organizationId: org.id,
-          name: "",
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
+          return yield* AuthorizationOrganizationRolesControllerCreate({
+            organizationId: org.id,
+            name: "",
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
+          );
+        }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      AuthorizationOrganizationRolesControllerCreate({
-        organizationId: `org_does_not_exist_${testRunId}`,
-        name: `Role ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
-
-  it("fails with Forbidden when the organization belongs to a different tenant", async () => {
-    const error = await runEffect(
-      AuthorizationOrganizationRolesControllerCreate({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        name: `Role ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
-
-  it("fails with Conflict when creating a role with a duplicate slug", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-roles-409-${testRunId}`,
-        });
-
-        const slug = `dup_role_${testRunId}`;
-
-        yield* AuthorizationOrganizationRolesControllerCreate({
-          organizationId: org.id,
-          slug,
-          name: `First ${testRunId}`,
-        });
-
-        return yield* AuthorizationOrganizationRolesControllerCreate({
-          organizationId: org.id,
-          slug,
-          name: `Second ${testRunId}`,
-        }).pipe(
-          Effect.ensuring(
-            AuthorizationOrganizationRolesControllerDelete({
-              organizationId: org.id,
-              slug,
-            }).pipe(Effect.ignore),
-          ),
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
-            ),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-
-    expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
-
-  it("fails with UnprocessableEntity when slug has invalid format", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-roles-422-${testRunId}`,
-        });
-
-        return yield* AuthorizationOrganizationRolesControllerCreate({
-          organizationId: org.id,
-          slug: "Invalid Slug With Spaces!!!",
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationOrganizationRolesControllerCreate({
+          organizationId: `org_does_not_exist_${testRunId}`,
           name: `Role ${testRunId}`,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
-            ),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 60_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
+
+  it(
+    "fails with Forbidden when the organization belongs to a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationOrganizationRolesControllerCreate({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
+          name: `Role ${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
+
+  it(
+    "fails with Conflict when creating a role with a duplicate slug",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-roles-409-${testRunId}`,
+          });
+
+          const slug = `dup_role_${testRunId}`;
+
+          yield* AuthorizationOrganizationRolesControllerCreate({
+            organizationId: org.id,
+            slug,
+            name: `First ${testRunId}`,
+          });
+
+          return yield* AuthorizationOrganizationRolesControllerCreate({
+            organizationId: org.id,
+            slug,
+            name: `Second ${testRunId}`,
+          }).pipe(
+            Effect.ensuring(
+              AuthorizationOrganizationRolesControllerDelete({
+                organizationId: org.id,
+                slug,
+              }).pipe(Effect.ignore),
+            ),
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+
+      expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
+
+  it(
+    "fails with UnprocessableEntity when slug has invalid format",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-roles-422-${testRunId}`,
+          });
+
+          return yield* AuthorizationOrganizationRolesControllerCreate({
+            organizationId: org.id,
+            slug: "Invalid Slug With Spaces!!!",
+            name: `Role ${testRunId}`,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

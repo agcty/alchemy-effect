@@ -5,7 +5,7 @@ import { ApplicationsControllerUpdate } from "../src/operations/ApplicationsCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ApplicationsControllerUpdate", () => {
-  it("updates a Connect Application", async () => {
+  it("updates a Connect Application", { timeout: 30_000 }, async () => {
     const list = await runEffect(ApplicationsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -36,27 +36,35 @@ describe("ApplicationsControllerUpdate", () => {
     expect(Array.isArray(updated.scopes)).toBe(true);
     expect(typeof updated.created_at).toBe("string");
     expect(typeof updated.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent application id", async () => {
-    const error = await runEffect(
-      ApplicationsControllerUpdate({
-        id: `app_does_not_exist_${testRunId}`,
-        name: `Updated ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent application id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ApplicationsControllerUpdate({
+          id: `app_does_not_exist_${testRunId}`,
+          name: `Updated ${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with UnprocessableEntity when a redirect_uri is malformed", async () => {
-    const error = await runEffect(
-      ApplicationsControllerUpdate({
-        id: `app_invalid_${testRunId}`,
-        redirect_uris: [{ uri: "not a valid url!!", default: true }],
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity when a redirect_uri is malformed",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ApplicationsControllerUpdate({
+          id: `app_invalid_${testRunId}`,
+          redirect_uris: [{ uri: "not a valid url!!", default: true }],
+        }).pipe(Effect.flip),
+      );
 
-    expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+      expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

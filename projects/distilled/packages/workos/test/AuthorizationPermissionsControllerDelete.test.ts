@@ -7,7 +7,7 @@ import { AuthorizationPermissionsControllerList } from "../src/operations/Author
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthorizationPermissionsControllerDelete", () => {
-  it("deletes a permission", async () => {
+  it("deletes a permission", { timeout: 30_000 }, async () => {
     const slug = `delete_perm_${testRunId}`;
 
     const error = await runEffect(
@@ -26,40 +26,48 @@ describe("AuthorizationPermissionsControllerDelete", () => {
     );
 
     expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent permission slug", async () => {
-    const error = await runEffect(
-      AuthorizationPermissionsControllerDelete({
-        slug: `does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent permission slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationPermissionsControllerDelete({
+          slug: `does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when deleting a system permission", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const list = yield* AuthorizationPermissionsControllerList({
-          limit: 100,
-        });
-
-        const systemPermission = list.data.find((p) => p.system === true);
-
-        if (!systemPermission) {
-          return yield* Effect.fail({
-            _tag: "Forbidden" as const,
-            message: "no system permission found in environment",
+  it(
+    "fails with Forbidden when deleting a system permission",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const list = yield* AuthorizationPermissionsControllerList({
+            limit: 100,
           });
-        }
 
-        return yield* AuthorizationPermissionsControllerDelete({
-          slug: systemPermission.slug,
-        });
-      }).pipe(Effect.flip),
-    );
+          const systemPermission = list.data.find((p) => p.system === true);
 
-    expect(error._tag).toBe("Forbidden");
-  }, 30_000);
+          if (!systemPermission) {
+            return yield* Effect.fail({
+              _tag: "Forbidden" as const,
+              message: "no system permission found in environment",
+            });
+          }
+
+          return yield* AuthorizationPermissionsControllerDelete({
+            slug: systemPermission.slug,
+          });
+        }).pipe(Effect.flip),
+      );
+
+      expect(error._tag).toBe("Forbidden");
+    },
+  );
 });

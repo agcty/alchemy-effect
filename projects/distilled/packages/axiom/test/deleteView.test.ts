@@ -10,6 +10,7 @@ import { runEffect, testRunId } from "./setup";
 describe("deleteView", () => {
   it(
     "deletes an existing view and subsequent fetches return NotFound",
+    { timeout: 60_000 },
     async () => {
       const datasetName = `distilled-ax-dvds-${testRunId}`;
       const viewName = `distilled-ax-dvview-${testRunId}`;
@@ -46,11 +47,11 @@ describe("deleteView", () => {
 
       await runEffect(effect);
     },
-    { timeout: 60_000 },
   );
 
   it(
     "returns NotFound for a view id that does not exist",
+    { timeout: 30_000 },
     async () => {
       const error = await runEffect(
         deleteView({ id: `doesnotexist-${testRunId}` }).pipe(Effect.flip),
@@ -58,6 +59,5 @@ describe("deleteView", () => {
 
       expect((error as { _tag: string })._tag).toBe("NotFound");
     },
-    { timeout: 30_000 },
   );
 });

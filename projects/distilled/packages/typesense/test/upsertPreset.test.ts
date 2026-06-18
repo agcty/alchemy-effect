@@ -7,6 +7,7 @@ import { runEffect, testRunId } from "./setup";
 describe("upsertPreset", () => {
   it(
     "creates a preset with a multi-search value",
+    { timeout: 30_000 },
     async () => {
       const presetId = `distilled-typesense-upspreset-${testRunId}`;
 
@@ -24,11 +25,11 @@ describe("upsertPreset", () => {
 
       await runEffect(effect);
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with BadRequest when the preset value is not an object",
+    { timeout: 30_000 },
     async () => {
       const presetId = `distilled-typesense-upspreset-bad-${testRunId}`;
 
@@ -45,6 +46,5 @@ describe("upsertPreset", () => {
       const error = await runEffect(effect);
       expect((error as { _tag: string })._tag).toBe("BadRequest");
     },
-    { timeout: 30_000 },
   );
 });

@@ -5,31 +5,39 @@ import { WebhookEndpointsControllerDelete } from "../src/operations/WebhookEndpo
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("WebhookEndpointsControllerDelete", () => {
-  it("deletes a webhook endpoint, then a follow-up delete returns NotFound", async () => {
-    const created = await runEffect(
-      WebhookEndpointsControllerCreate({
-        endpoint_url: `https://distilled-${testRunId}-delete.distilled.test/webhooks`,
-        events: ["user.created"],
-      }),
-    );
+  it(
+    "deletes a webhook endpoint, then a follow-up delete returns NotFound",
+    { timeout: 60_000 },
+    async () => {
+      const created = await runEffect(
+        WebhookEndpointsControllerCreate({
+          endpoint_url: `https://distilled-${testRunId}-delete.distilled.test/webhooks`,
+          events: ["user.created"],
+        }),
+      );
 
-    const result = await runEffect(
-      WebhookEndpointsControllerDelete({ id: created.id }),
-    );
-    expect(result).toBeUndefined();
+      const result = await runEffect(
+        WebhookEndpointsControllerDelete({ id: created.id }),
+      );
+      expect(result).toBeUndefined();
 
-    const followUp = await runEffect(
-      WebhookEndpointsControllerDelete({ id: created.id }).pipe(Effect.flip),
-    );
-    expect(followUp._tag).toBe("NotFound");
-  }, 60_000);
+      const followUp = await runEffect(
+        WebhookEndpointsControllerDelete({ id: created.id }).pipe(Effect.flip),
+      );
+      expect(followUp._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with NotFound for a non-existent webhook endpoint id", async () => {
-    const error = await runEffect(
-      WebhookEndpointsControllerDelete({
-        id: `we_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent webhook endpoint id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        WebhookEndpointsControllerDelete({
+          id: `we_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

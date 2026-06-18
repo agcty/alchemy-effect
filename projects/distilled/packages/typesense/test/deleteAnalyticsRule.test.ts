@@ -65,6 +65,7 @@ describe("deleteAnalyticsRule", () => {
 
   it(
     "deletes an existing analytics rule and returns its full record",
+    { timeout: 30_000 },
     async () => {
       const result = await runEffect(deleteAnalyticsRule({ ruleName }));
 
@@ -73,11 +74,11 @@ describe("deleteAnalyticsRule", () => {
       expect(result.collection).toBe(collectionName);
       expect(result.event_type).toBe("click");
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with NotFound when the analytics rule does not exist",
+    { timeout: 30_000 },
     async () => {
       const error = await runEffect(
         deleteAnalyticsRule({
@@ -87,6 +88,5 @@ describe("deleteAnalyticsRule", () => {
 
       expect((error as { _tag: string })._tag).toBe("NotFound");
     },
-    { timeout: 30_000 },
   );
 });

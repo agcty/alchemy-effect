@@ -5,56 +5,68 @@ import { AuditLogValidatorVersionsControllerSchemas } from "../src/operations/Au
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuditLogValidatorVersionsControllerSchemas", () => {
-  it("lists schemas for an existing audit log action", async () => {
-    const actionName = `distilled.workos.list_schemas.${testRunId}`;
+  it(
+    "lists schemas for an existing audit log action",
+    { timeout: 60_000 },
+    async () => {
+      const actionName = `distilled.workos.list_schemas.${testRunId}`;
 
-    const result = await runEffect(
-      Effect.gen(function* () {
-        yield* AuditLogValidatorVersionsControllerCreate({
-          actionName,
-          targets: [{ type: "user" }],
-        });
+      const result = await runEffect(
+        Effect.gen(function* () {
+          yield* AuditLogValidatorVersionsControllerCreate({
+            actionName,
+            targets: [{ type: "user" }],
+          });
 
-        return yield* AuditLogValidatorVersionsControllerSchemas({
-          actionName,
-          limit: 10,
-        });
-      }),
-    );
+          return yield* AuditLogValidatorVersionsControllerSchemas({
+            actionName,
+            limit: 10,
+          });
+        }),
+      );
 
-    expect(result).toBeDefined();
-    expect(result.data).toBeDefined();
-    expect(Array.isArray(result.data)).toBe(true);
-    expect(result.data!.length).toBeGreaterThan(0);
-  }, 60_000);
+      expect(result).toBeDefined();
+      expect(result.data).toBeDefined();
+      expect(Array.isArray(result.data)).toBe(true);
+      expect(result.data!.length).toBeGreaterThan(0);
+    },
+  );
 
-  it("fails with NotFound when listing schemas for a non-existent action", async () => {
-    const error = await runEffect(
-      AuditLogValidatorVersionsControllerSchemas({
-        actionName: `distilled.workos.does_not_exist.${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound when listing schemas for a non-existent action",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuditLogValidatorVersionsControllerSchemas({
+          actionName: `distilled.workos.does_not_exist.${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with UnprocessableEntity when limit is out of range", async () => {
-    const actionName = `distilled.workos.list_schemas_invalid.${testRunId}`;
+  it(
+    "fails with UnprocessableEntity when limit is out of range",
+    { timeout: 60_000 },
+    async () => {
+      const actionName = `distilled.workos.list_schemas_invalid.${testRunId}`;
 
-    const error = await runEffect(
-      Effect.gen(function* () {
-        yield* AuditLogValidatorVersionsControllerCreate({
-          actionName,
-          targets: [{ type: "user" }],
-        });
+      const error = await runEffect(
+        Effect.gen(function* () {
+          yield* AuditLogValidatorVersionsControllerCreate({
+            actionName,
+            targets: [{ type: "user" }],
+          });
 
-        return yield* AuditLogValidatorVersionsControllerSchemas({
-          actionName,
-          limit: 9999,
-        });
-      }).pipe(Effect.flip),
-    );
+          return yield* AuditLogValidatorVersionsControllerSchemas({
+            actionName,
+            limit: 9999,
+          });
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 60_000);
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

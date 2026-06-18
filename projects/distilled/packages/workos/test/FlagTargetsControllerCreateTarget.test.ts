@@ -7,7 +7,7 @@ import { OrganizationsControllerList } from "../src/operations/OrganizationsCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("FlagTargetsControllerCreateTarget", () => {
-  it("creates a feature flag target", async () => {
+  it("creates a feature flag target", { timeout: 30_000 }, async () => {
     const flags = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
     const orgs = await runEffect(OrganizationsControllerList({ limit: 1 }));
 
@@ -40,50 +40,62 @@ describe("FlagTargetsControllerCreateTarget", () => {
         ),
       ),
     );
-  }, 30_000);
+  });
 
-  it("fails with BadRequest when resourceId has no recognized prefix", async () => {
-    const flags = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
-    const slug =
-      flags.data.length > 0
-        ? (flags.data[0] as { slug: string }).slug
-        : `feature-flag-does-not-exist-${testRunId}`;
+  it(
+    "fails with BadRequest when resourceId has no recognized prefix",
+    { timeout: 30_000 },
+    async () => {
+      const flags = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
+      const slug =
+        flags.data.length > 0
+          ? (flags.data[0] as { slug: string }).slug
+          : `feature-flag-does-not-exist-${testRunId}`;
 
-    const error = await runEffect(
-      FlagTargetsControllerCreateTarget({
-        slug,
-        resourceId: `not-a-valid-resource-id-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+      const error = await runEffect(
+        FlagTargetsControllerCreateTarget({
+          slug,
+          resourceId: `not-a-valid-resource-id-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["BadRequest", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with NotFound for a non-existent feature flag slug", async () => {
-    const error = await runEffect(
-      FlagTargetsControllerCreateTarget({
-        slug: `feature-flag-does-not-exist-${testRunId}`,
-        resourceId: `org_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent feature flag slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        FlagTargetsControllerCreateTarget({
+          slug: `feature-flag-does-not-exist-${testRunId}`,
+          resourceId: `org_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when targeting an organization in a different tenant", async () => {
-    const flags = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
-    const slug =
-      flags.data.length > 0
-        ? (flags.data[0] as { slug: string }).slug
-        : `feature-flag-does-not-exist-${testRunId}`;
+  it(
+    "fails with Forbidden when targeting an organization in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const flags = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
+      const slug =
+        flags.data.length > 0
+          ? (flags.data[0] as { slug: string }).slug
+          : `feature-flag-does-not-exist-${testRunId}`;
 
-    const error = await runEffect(
-      FlagTargetsControllerCreateTarget({
-        slug,
-        resourceId: "org_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
+      const error = await runEffect(
+        FlagTargetsControllerCreateTarget({
+          slug,
+          resourceId: "org_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

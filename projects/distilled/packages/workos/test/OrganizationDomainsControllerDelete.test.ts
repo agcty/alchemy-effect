@@ -8,7 +8,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("OrganizationDomainsControllerDelete", () => {
-  it("deletes an organization domain", async () => {
+  it("deletes an organization domain", { timeout: 60_000 }, async () => {
     await runEffect(
       Effect.gen(function* () {
         const org = yield* OrganizationsControllerCreate({
@@ -38,15 +38,19 @@ describe("OrganizationDomainsControllerDelete", () => {
         expect(error._tag).toBe("NotFound");
       }),
     );
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent organization domain id", async () => {
-    const error = await runEffect(
-      OrganizationDomainsControllerDelete({
-        id: `org_domain_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent organization domain id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        OrganizationDomainsControllerDelete({
+          id: `org_domain_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

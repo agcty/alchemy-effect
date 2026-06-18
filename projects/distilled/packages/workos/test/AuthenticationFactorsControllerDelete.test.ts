@@ -6,7 +6,7 @@ import { AuthenticationFactorsControllerGet } from "../src/operations/Authentica
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthenticationFactorsControllerDelete", () => {
-  it("deletes an authentication factor", async () => {
+  it("deletes an authentication factor", { timeout: 30_000 }, async () => {
     const error = await runEffect(
       Effect.gen(function* () {
         const factor = yield* AuthenticationFactorsControllerCreate({
@@ -24,15 +24,19 @@ describe("AuthenticationFactorsControllerDelete", () => {
     );
 
     expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  });
 
-  it("fails with NotFound when deleting a non-existent factor id", async () => {
-    const error = await runEffect(
-      AuthenticationFactorsControllerDelete({
-        id: `auth_factor_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound when deleting a non-existent factor id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthenticationFactorsControllerDelete({
+          id: `auth_factor_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

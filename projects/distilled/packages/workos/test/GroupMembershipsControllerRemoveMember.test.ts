@@ -12,7 +12,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupMembershipsControllerRemoveMember", () => {
-  it("removes a member from a group", async () => {
+  it("removes a member from a group", { timeout: 90_000 }, async () => {
     const users = await runEffect(UserlandUsersControllerList({ limit: 1 }));
 
     if (users.data.length === 0) {
@@ -105,51 +105,61 @@ describe("GroupMembershipsControllerRemoveMember", () => {
     expect(remainingMembers).toBeDefined();
     expect(Array.isArray(remainingMembers.data)).toBe(true);
     expect(remainingMembers.data.some((m) => m.id === member.id)).toBe(false);
-  }, 90_000);
+  });
 
-  it("fails with NotFound for a non-existent membership id", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-remove-member-404-${testRunId}`,
-        });
-        return yield* Effect.gen(function* () {
-          const group = yield* GroupsControllerCreate({
-            organizationId: org.id,
-            name: `distilled-remove-member-404-${testRunId}`,
+  it(
+    "fails with NotFound for a non-existent membership id",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-remove-member-404-${testRunId}`,
           });
-          return yield* GroupMembershipsControllerRemoveMember({
-            organizationId: org.id,
-            groupId: group.id,
-            omId: `om_does_not_exist_${testRunId}`,
+          return yield* Effect.gen(function* () {
+            const group = yield* GroupsControllerCreate({
+              organizationId: org.id,
+              name: `distilled-remove-member-404-${testRunId}`,
+            });
+            return yield* GroupMembershipsControllerRemoveMember({
+              organizationId: org.id,
+              groupId: group.id,
+              omId: `om_does_not_exist_${testRunId}`,
+            }).pipe(
+              Effect.ensuring(
+                GroupsControllerDelete({
+                  organizationId: org.id,
+                  groupId: group.id,
+                }).pipe(Effect.ignore),
+              ),
+            );
           }).pipe(
             Effect.ensuring(
-              GroupsControllerDelete({
-                organizationId: org.id,
-                groupId: group.id,
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
               }).pipe(Effect.ignore),
             ),
           );
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 60_000);
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when removing a member in a different tenant", async () => {
-    const error = await runEffect(
-      GroupMembershipsControllerRemoveMember({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        groupId: `group_does_not_exist_${testRunId}`,
-        omId: `om_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound", "TooManyRequests"]).toContain(error._tag);
-  }, 30_000);
+  it(
+    "fails with Forbidden when removing a member in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupMembershipsControllerRemoveMember({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
+          groupId: `group_does_not_exist_${testRunId}`,
+          omId: `om_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound", "TooManyRequests"]).toContain(
+        error._tag,
+      );
+    },
+  );
 });

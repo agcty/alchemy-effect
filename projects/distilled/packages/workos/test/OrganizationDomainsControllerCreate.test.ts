@@ -7,7 +7,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("OrganizationDomainsControllerCreate", () => {
-  it("creates an organization domain", async () => {
+  it("creates an organization domain", { timeout: 60_000 }, async () => {
     const result = await runEffect(
       Effect.gen(function* () {
         const org = yield* OrganizationsControllerCreate({
@@ -38,40 +38,44 @@ describe("OrganizationDomainsControllerCreate", () => {
     expect(result.domain).toBe(`distilled-${testRunId}.example.com`);
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with Conflict when creating a domain that already exists on the organization", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-domains-409-${testRunId}`,
-        });
+  it(
+    "fails with Conflict when creating a domain that already exists on the organization",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-domains-409-${testRunId}`,
+          });
 
-        const domain = `distilled-dup-${testRunId}.example.com`;
+          const domain = `distilled-dup-${testRunId}.example.com`;
 
-        const first = yield* OrganizationDomainsControllerCreate({
-          organization_id: org.id,
-          domain,
-        });
+          const first = yield* OrganizationDomainsControllerCreate({
+            organization_id: org.id,
+            domain,
+          });
 
-        return yield* OrganizationDomainsControllerCreate({
-          organization_id: org.id,
-          domain,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationDomainsControllerDelete({ id: first.id }).pipe(
-              Effect.ignore,
+          return yield* OrganizationDomainsControllerCreate({
+            organization_id: org.id,
+            domain,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationDomainsControllerDelete({ id: first.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
+          );
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("Conflict");
-  }, 60_000);
+      expect(error._tag).toBe("Conflict");
+    },
+  );
 });

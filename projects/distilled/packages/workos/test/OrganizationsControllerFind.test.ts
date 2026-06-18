@@ -6,7 +6,7 @@ import { OrganizationsControllerFind } from "../src/operations/OrganizationsCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("OrganizationsControllerFind", () => {
-  it("gets an organization by id", async () => {
+  it("gets an organization by id", { timeout: 60_000 }, async () => {
     const name = `distilled-workos-orgs-find-${testRunId}`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -26,14 +26,18 @@ describe("OrganizationsControllerFind", () => {
     expect(Array.isArray(result.domains)).toBe(true);
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      OrganizationsControllerFind({
-        id: `organization_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        OrganizationsControllerFind({
+          id: `organization_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

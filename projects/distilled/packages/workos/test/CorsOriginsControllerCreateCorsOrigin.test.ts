@@ -4,7 +4,7 @@ import { CorsOriginsControllerCreateCorsOrigin } from "../src/operations/CorsOri
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("CorsOriginsControllerCreateCorsOrigin", () => {
-  it("creates a CORS origin", async () => {
+  it("creates a CORS origin", { timeout: 30_000 }, async () => {
     const origin = `https://distilled-cors-${testRunId}.example.com`;
     const result = await runEffect(
       CorsOriginsControllerCreateCorsOrigin({ origin }),
@@ -15,24 +15,32 @@ describe("CorsOriginsControllerCreateCorsOrigin", () => {
     expect(typeof result.object).toBe("string");
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with Conflict when the origin already exists", async () => {
-    const origin = `https://distilled-cors-conflict-${testRunId}.example.com`;
-    await runEffect(CorsOriginsControllerCreateCorsOrigin({ origin }));
+  it(
+    "fails with Conflict when the origin already exists",
+    { timeout: 30_000 },
+    async () => {
+      const origin = `https://distilled-cors-conflict-${testRunId}.example.com`;
+      await runEffect(CorsOriginsControllerCreateCorsOrigin({ origin }));
 
-    const error = await runEffect(
-      CorsOriginsControllerCreateCorsOrigin({ origin }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("Conflict");
-  }, 30_000);
+      const error = await runEffect(
+        CorsOriginsControllerCreateCorsOrigin({ origin }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("Conflict");
+    },
+  );
 
-  it("fails with UnprocessableEntity for a malformed origin", async () => {
-    const error = await runEffect(
-      CorsOriginsControllerCreateCorsOrigin({
-        origin: `not a url ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+  it(
+    "fails with UnprocessableEntity for a malformed origin",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        CorsOriginsControllerCreateCorsOrigin({
+          origin: `not a url ${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

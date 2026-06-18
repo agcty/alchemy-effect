@@ -4,7 +4,7 @@ import { FeatureFlagsControllerList } from "../src/operations/FeatureFlagsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("FeatureFlagsControllerList", () => {
-  it("lists feature flags", async () => {
+  it("lists feature flags", { timeout: 30_000 }, async () => {
     const result = await runEffect(FeatureFlagsControllerList({ limit: 10 }));
 
     expect(result).toBeDefined();
@@ -22,13 +22,17 @@ describe("FeatureFlagsControllerList", () => {
       expect(typeof flag.created_at).toBe("string");
       expect(typeof flag.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 
-  it("fails with UnprocessableEntity when limit exceeds the allowed range", async () => {
-    const error = await runEffect(
-      FeatureFlagsControllerList({ limit: 1000 }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity when limit exceeds the allowed range",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        FeatureFlagsControllerList({ limit: 1000 }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

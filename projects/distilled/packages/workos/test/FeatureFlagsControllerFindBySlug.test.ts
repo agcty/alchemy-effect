@@ -5,7 +5,7 @@ import { FeatureFlagsControllerList } from "../src/operations/FeatureFlagsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("FeatureFlagsControllerFindBySlug", () => {
-  it("retrieves a feature flag by slug", async () => {
+  it("retrieves a feature flag by slug", { timeout: 30_000 }, async () => {
     const list = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -34,15 +34,19 @@ describe("FeatureFlagsControllerFindBySlug", () => {
     expect(typeof flag.default_value).toBe("boolean");
     expect(typeof flag.created_at).toBe("string");
     expect(typeof flag.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent feature flag slug", async () => {
-    const error = await runEffect(
-      FeatureFlagsControllerFindBySlug({
-        slug: `feature-flag-does-not-exist-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent feature flag slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        FeatureFlagsControllerFindBySlug({
+          slug: `feature-flag-does-not-exist-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

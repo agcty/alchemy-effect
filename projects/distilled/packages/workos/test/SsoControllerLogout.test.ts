@@ -6,7 +6,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, runOrSkipOnEnvLimitation, testRunId } from "./setup.ts";
 
 describe("SsoControllerLogout", () => {
-  it("logs out using a logout token", async (ctx) => {
+  it("logs out using a logout token", { timeout: 60_000 }, async (ctx) => {
     const users = await runOrSkipOnEnvLimitation(
       ctx,
       UserlandUsersControllerList({ limit: 1 }),
@@ -36,14 +36,18 @@ describe("SsoControllerLogout", () => {
       ctx,
       SsoControllerLogout({ token: authorize.logout_token }),
     );
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent logout token", async () => {
-    const error = await runEffect(
-      SsoControllerLogout({
-        token: `logout_token_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent logout token",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        SsoControllerLogout({
+          token: `logout_token_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

@@ -66,6 +66,7 @@ describe("createAnalyticsEvent", () => {
 
   it(
     "submits an analytics event for an existing rule and returns ok: true",
+    { timeout: 30_000 },
     async () => {
       const result = await runEffect(
         createAnalyticsEvent({
@@ -81,11 +82,11 @@ describe("createAnalyticsEvent", () => {
 
       expect(result.ok).toBe(true);
     },
-    { timeout: 30_000 },
   );
 
   it(
     "fails with BadRequest when the analytics rule name does not exist",
+    { timeout: 30_000 },
     async () => {
       // Typesense returns 400 with { message: "No analytics rule found ..." }
       // when the event's `name` does not correspond to a registered rule.
@@ -102,6 +103,5 @@ describe("createAnalyticsEvent", () => {
 
       expect((error as { _tag: string })._tag).toBe("BadRequest");
     },
-    { timeout: 30_000 },
   );
 });

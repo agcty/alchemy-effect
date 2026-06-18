@@ -8,7 +8,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupsControllerUpdate", () => {
-  it("updates a group's name", async () => {
+  it("updates a group's name", { timeout: 60_000 }, async () => {
     const initialName = `distilled-group-update-${testRunId}`;
     const updatedName = `distilled-group-updated-${testRunId}`;
     const result = await runEffect(
@@ -48,119 +48,135 @@ describe("GroupsControllerUpdate", () => {
     expect(result.description).toBe("updated description");
     expect(typeof result.id).toBe("string");
     expect(typeof result.organization_id).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent group id", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-update-404-${testRunId}`,
-        });
-        return yield* GroupsControllerUpdate({
-          organizationId: org.id,
+  it(
+    "fails with NotFound for a non-existent group id",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-update-404-${testRunId}`,
+          });
+          return yield* GroupsControllerUpdate({
+            organizationId: org.id,
+            groupId: `group_does_not_exist_${testRunId}`,
+            name: `distilled-group-404-${testRunId}`,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
+
+  it(
+    "fails with Forbidden when updating a group in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerUpdate({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
           groupId: `group_does_not_exist_${testRunId}`,
-          name: `distilled-group-404-${testRunId}`,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 60_000);
+          name: `distilled-group-403-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with Forbidden when updating a group in a different tenant", async () => {
-    const error = await runEffect(
-      GroupsControllerUpdate({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        groupId: `group_does_not_exist_${testRunId}`,
-        name: `distilled-group-403-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
-
-  it("fails with BadRequest for an empty group name", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-update-400-${testRunId}`,
-        });
-        return yield* Effect.gen(function* () {
-          const created = yield* GroupsControllerCreate({
-            organizationId: org.id,
-            name: `distilled-group-update-400-${testRunId}`,
+  it(
+    "fails with BadRequest for an empty group name",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-update-400-${testRunId}`,
           });
-          return yield* GroupsControllerUpdate({
-            organizationId: org.id,
-            groupId: created.id,
-            name: "",
+          return yield* Effect.gen(function* () {
+            const created = yield* GroupsControllerCreate({
+              organizationId: org.id,
+              name: `distilled-group-update-400-${testRunId}`,
+            });
+            return yield* GroupsControllerUpdate({
+              organizationId: org.id,
+              groupId: created.id,
+              name: "",
+            }).pipe(
+              Effect.ensuring(
+                GroupsControllerDelete({
+                  organizationId: org.id,
+                  groupId: created.id,
+                }).pipe(Effect.ignore),
+              ),
+            );
           }).pipe(
             Effect.ensuring(
-              GroupsControllerDelete({
-                organizationId: org.id,
-                groupId: created.id,
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
               }).pipe(Effect.ignore),
             ),
           );
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
+        }).pipe(Effect.flip),
+      );
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with UnprocessableEntity when updating to an already-used name", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-update-422-${testRunId}`,
-        });
-        return yield* Effect.gen(function* () {
-          const sharedName = `distilled-shared-${testRunId}`;
-          const first = yield* GroupsControllerCreate({
-            organizationId: org.id,
-            name: sharedName,
+  it(
+    "fails with UnprocessableEntity when updating to an already-used name",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-update-422-${testRunId}`,
           });
-          const second = yield* GroupsControllerCreate({
-            organizationId: org.id,
-            name: `distilled-other-${testRunId}`,
-          });
-          return yield* GroupsControllerUpdate({
-            organizationId: org.id,
-            groupId: second.id,
-            name: sharedName,
+          return yield* Effect.gen(function* () {
+            const sharedName = `distilled-shared-${testRunId}`;
+            const first = yield* GroupsControllerCreate({
+              organizationId: org.id,
+              name: sharedName,
+            });
+            const second = yield* GroupsControllerCreate({
+              organizationId: org.id,
+              name: `distilled-other-${testRunId}`,
+            });
+            return yield* GroupsControllerUpdate({
+              organizationId: org.id,
+              groupId: second.id,
+              name: sharedName,
+            }).pipe(
+              Effect.ensuring(
+                GroupsControllerDelete({
+                  organizationId: org.id,
+                  groupId: second.id,
+                }).pipe(Effect.ignore),
+              ),
+              Effect.ensuring(
+                GroupsControllerDelete({
+                  organizationId: org.id,
+                  groupId: first.id,
+                }).pipe(Effect.ignore),
+              ),
+            );
           }).pipe(
             Effect.ensuring(
-              GroupsControllerDelete({
-                organizationId: org.id,
-                groupId: second.id,
-              }).pipe(Effect.ignore),
-            ),
-            Effect.ensuring(
-              GroupsControllerDelete({
-                organizationId: org.id,
-                groupId: first.id,
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
               }).pipe(Effect.ignore),
             ),
           );
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
+        }).pipe(Effect.flip),
+      );
+      expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

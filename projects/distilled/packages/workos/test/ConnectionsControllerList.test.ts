@@ -4,7 +4,7 @@ import { ConnectionsControllerList } from "../src/operations/ConnectionsControll
 import { runEffect } from "./setup.ts";
 
 describe("ConnectionsControllerList", () => {
-  it("lists connections", async () => {
+  it("lists connections", { timeout: 30_000 }, async () => {
     const result = await runEffect(ConnectionsControllerList({ limit: 10 }));
 
     expect(result).toBeDefined();
@@ -29,5 +29,5 @@ describe("ConnectionsControllerList", () => {
       expect(typeof conn.created_at).toBe("string");
       expect(typeof conn.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 });

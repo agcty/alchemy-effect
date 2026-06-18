@@ -5,7 +5,7 @@ import { AuthorizationRolesControllerList } from "../src/operations/Authorizatio
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthorizationRolesControllerGet", () => {
-  it("retrieves an environment role by slug", async () => {
+  it("retrieves an environment role by slug", { timeout: 30_000 }, async () => {
     const list = await runEffect(AuthorizationRolesControllerList({}));
 
     if (list.data.length === 0) {
@@ -34,25 +34,33 @@ describe("AuthorizationRolesControllerGet", () => {
     expect(Array.isArray(role.permissions)).toBe(true);
     expect(typeof role.created_at).toBe("string");
     expect(typeof role.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent role slug", async () => {
-    const error = await runEffect(
-      AuthorizationRolesControllerGet({
-        slug: `role_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent role slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationRolesControllerGet({
+          slug: `role_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when the caller is not allowed to read the role", async () => {
-    const error = await runEffect(
-      AuthorizationRolesControllerGet({
-        slug: `role_forbidden_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when the caller is not allowed to read the role",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationRolesControllerGet({
+          slug: `role_forbidden_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

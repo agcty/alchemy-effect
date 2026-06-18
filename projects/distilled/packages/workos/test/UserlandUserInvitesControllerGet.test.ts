@@ -6,7 +6,7 @@ import { UserlandUserInvitesControllerRevoke } from "../src/operations/UserlandU
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserInvitesControllerGet", () => {
-  it("fetches an invitation by id", async () => {
+  it("fetches an invitation by id", { timeout: 30_000 }, async () => {
     const email = `distilled-invite-get-${testRunId}@example.com`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -33,14 +33,18 @@ describe("UserlandUserInvitesControllerGet", () => {
     expect(["pending", "accepted", "expired", "revoked"]).toContain(
       result.state,
     );
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent invitation id", async () => {
-    const error = await runEffect(
-      UserlandUserInvitesControllerGet({
-        id: `invitation_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent invitation id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserInvitesControllerGet({
+          id: `invitation_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

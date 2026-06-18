@@ -5,7 +5,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUsersControllerGet", () => {
-  it("fetches a user by id", async () => {
+  it("fetches a user by id", { timeout: 60_000 }, async () => {
     const users = await runEffect(UserlandUsersControllerList({ limit: 1 }));
 
     if (users.data.length === 0) {
@@ -26,14 +26,18 @@ describe("UserlandUsersControllerGet", () => {
     expect(typeof result.email_verified).toBe("boolean");
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent user id", async () => {
-    const error = await runEffect(
-      UserlandUsersControllerGet({
-        id: `user_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent user id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUsersControllerGet({
+          id: `user_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

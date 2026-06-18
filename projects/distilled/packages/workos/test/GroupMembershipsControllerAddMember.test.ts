@@ -11,7 +11,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupMembershipsControllerAddMember", () => {
-  it("adds a member to a group", async () => {
+  it("adds a member to a group", { timeout: 90_000 }, async () => {
     const users = await runEffect(UserlandUsersControllerList({ limit: 1 }));
 
     if (users.data.length === 0) {
@@ -103,73 +103,85 @@ describe("GroupMembershipsControllerAddMember", () => {
     expect(typeof result.name).toBe("string");
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 90_000);
+  });
 
-  it("fails with NotFound for a non-existent group id", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-add-member-404-${testRunId}`,
-        });
-        return yield* GroupMembershipsControllerAddMember({
-          organizationId: org.id,
-          groupId: `group_does_not_exist_${testRunId}`,
-          organization_membership_id: `om_does_not_exist_${testRunId}`,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 60_000);
-
-  it("fails with Forbidden when adding a member in a different tenant", async () => {
-    const error = await runEffect(
-      GroupMembershipsControllerAddMember({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        groupId: `group_does_not_exist_${testRunId}`,
-        organization_membership_id: `om_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
-
-  it("fails with UnprocessableEntity for a malformed organization_membership_id", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-add-member-422-${testRunId}`,
-        });
-        return yield* Effect.gen(function* () {
-          const group = yield* GroupsControllerCreate({
-            organizationId: org.id,
-            name: `distilled-add-member-422-${testRunId}`,
+  it(
+    "fails with NotFound for a non-existent group id",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-add-member-404-${testRunId}`,
           });
           return yield* GroupMembershipsControllerAddMember({
             organizationId: org.id,
-            groupId: group.id,
-            organization_membership_id: "",
+            groupId: `group_does_not_exist_${testRunId}`,
+            organization_membership_id: `om_does_not_exist_${testRunId}`,
           }).pipe(
             Effect.ensuring(
-              GroupsControllerDelete({
-                organizationId: org.id,
-                groupId: group.id,
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
               }).pipe(Effect.ignore),
             ),
           );
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 60_000);
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
+
+  it(
+    "fails with Forbidden when adding a member in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupMembershipsControllerAddMember({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
+          groupId: `group_does_not_exist_${testRunId}`,
+          organization_membership_id: `om_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
+
+  it(
+    "fails with UnprocessableEntity for a malformed organization_membership_id",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-add-member-422-${testRunId}`,
+          });
+          return yield* Effect.gen(function* () {
+            const group = yield* GroupsControllerCreate({
+              organizationId: org.id,
+              name: `distilled-add-member-422-${testRunId}`,
+            });
+            return yield* GroupMembershipsControllerAddMember({
+              organizationId: org.id,
+              groupId: group.id,
+              organization_membership_id: "",
+            }).pipe(
+              Effect.ensuring(
+                GroupsControllerDelete({
+                  organizationId: org.id,
+                  groupId: group.id,
+                }).pipe(Effect.ignore),
+              ),
+            );
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

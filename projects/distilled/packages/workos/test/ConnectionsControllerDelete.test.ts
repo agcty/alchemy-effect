@@ -5,7 +5,7 @@ import { ConnectionsControllerList } from "../src/operations/ConnectionsControll
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ConnectionsControllerDelete", () => {
-  it("deletes a connection", async () => {
+  it("deletes a connection", { timeout: 30_000 }, async () => {
     const list = await runEffect(ConnectionsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -28,25 +28,33 @@ describe("ConnectionsControllerDelete", () => {
       ConnectionsControllerDelete({ id: seed.id }).pipe(Effect.flip),
     );
     expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent connection id", async () => {
-    const error = await runEffect(
-      ConnectionsControllerDelete({
-        id: `conn_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent connection id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ConnectionsControllerDelete({
+          id: `conn_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when deleting a connection in a different tenant", async () => {
-    const error = await runEffect(
-      ConnectionsControllerDelete({
-        id: "conn_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when deleting a connection in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ConnectionsControllerDelete({
+          id: "conn_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

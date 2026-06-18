@@ -5,7 +5,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUsersControllerGetByExternalId", () => {
-  it("fetches a user by external id", async () => {
+  it("fetches a user by external id", { timeout: 60_000 }, async () => {
     // Find a seed user that has an external_id set. If none exist in the
     // test environment, fall back to asserting the typed NotFound for an
     // arbitrary external id. This still verifies the SDK maps the response
@@ -38,14 +38,18 @@ describe("UserlandUsersControllerGetByExternalId", () => {
     expect(typeof result.email_verified).toBe("boolean");
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent external id", async () => {
-    const error = await runEffect(
-      UserlandUsersControllerGetByExternalId({
-        external_id: `ext_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent external id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUsersControllerGetByExternalId({
+          external_id: `ext_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

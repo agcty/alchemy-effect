@@ -5,7 +5,7 @@ import { AuthorizationResourcesControllerUpdate } from "../src/operations/Author
 import { runEffect, runOrSkipOnEnvLimitation, testRunId } from "./setup.ts";
 
 describe("AuthorizationResourcesControllerUpdate", () => {
-  it("updates an authorization resource", async (ctx) => {
+  it("updates an authorization resource", { timeout: 30_000 }, async (ctx) => {
     const list = await runOrSkipOnEnvLimitation(
       ctx,
       AuthorizationResourcesControllerList({ limit: 1 }),
@@ -36,55 +36,75 @@ describe("AuthorizationResourcesControllerUpdate", () => {
     expect(typeof updated.resource_type_slug).toBe("string");
     expect(typeof updated.created_at).toBe("string");
     expect(typeof updated.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with BadRequest when the request body is malformed", async () => {
-    const error = await runEffect(
-      AuthorizationResourcesControllerUpdate({
-        resource_id: `resource_bad_request_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with BadRequest when the request body is malformed",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationResourcesControllerUpdate({
+          resource_id: `resource_bad_request_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["BadRequest", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with NotFound for a non-existent resource id", async () => {
-    const error = await runEffect(
-      AuthorizationResourcesControllerUpdate({
-        resource_id: `resource_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent resource id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationResourcesControllerUpdate({
+          resource_id: `resource_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when updating a resource in a different tenant", async () => {
-    const error = await runEffect(
-      AuthorizationResourcesControllerUpdate({
-        resource_id: "resource_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when updating a resource in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationResourcesControllerUpdate({
+          resource_id: "resource_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with Conflict when the update collides with an existing resource", async () => {
-    const error = await runEffect(
-      AuthorizationResourcesControllerUpdate({
-        resource_id: `resource_conflict_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Conflict when the update collides with an existing resource",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationResourcesControllerUpdate({
+          resource_id: `resource_conflict_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Conflict", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Conflict", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with UnprocessableEntity when the resource id is malformed", async () => {
-    const error = await runEffect(
-      AuthorizationResourcesControllerUpdate({
-        resource_id: "not a valid id!!",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity when the resource id is malformed",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationResourcesControllerUpdate({
+          resource_id: "not a valid id!!",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+      expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

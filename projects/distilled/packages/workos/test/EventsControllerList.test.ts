@@ -4,7 +4,7 @@ import { EventsControllerList } from "../src/operations/EventsControllerList.ts"
 import { runEffect } from "./setup.ts";
 
 describe("EventsControllerList", () => {
-  it("lists events filtered by event type", async () => {
+  it("lists events filtered by event type", { timeout: 30_000 }, async () => {
     const result = await runEffect(
       EventsControllerList({
         events: "dsync.user.created",
@@ -23,23 +23,31 @@ describe("EventsControllerList", () => {
       expect(typeof event.created_at).toBe("string");
       expect(typeof event.data).toBe("object");
     }
-  }, 30_000);
+  });
 
-  it("fails with BadRequest when no events filter is provided", async () => {
-    const error = await runEffect(
-      EventsControllerList({ limit: 10 }).pipe(Effect.flip),
-    );
+  it(
+    "fails with BadRequest when no events filter is provided",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        EventsControllerList({ limit: 10 }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("BadRequest");
-  }, 30_000);
+      expect(error._tag).toBe("BadRequest");
+    },
+  );
 
-  it("fails with UnprocessableEntity for an unknown event type", async () => {
-    const error = await runEffect(
-      EventsControllerList({
-        events: "not.a.real.event.type",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity for an unknown event type",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        EventsControllerList({
+          events: "not.a.real.event.type",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

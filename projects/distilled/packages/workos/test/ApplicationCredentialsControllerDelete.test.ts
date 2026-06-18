@@ -6,7 +6,7 @@ import { ApplicationsControllerList } from "../src/operations/ApplicationsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ApplicationCredentialsControllerDelete", () => {
-  it("deletes a client secret", async () => {
+  it("deletes a client secret", { timeout: 30_000 }, async () => {
     const list = await runEffect(ApplicationsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -39,15 +39,19 @@ describe("ApplicationCredentialsControllerDelete", () => {
       }).pipe(Effect.flip),
     );
     expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent client secret id", async () => {
-    const error = await runEffect(
-      ApplicationCredentialsControllerDelete({
-        id: `client_secret_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent client secret id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ApplicationCredentialsControllerDelete({
+          id: `client_secret_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

@@ -4,7 +4,7 @@ import { ApplicationsControllerList } from "../src/operations/ApplicationsContro
 import { runEffect } from "./setup.ts";
 
 describe("ApplicationsControllerList", () => {
-  it("lists Connect Applications", async () => {
+  it("lists Connect Applications", { timeout: 30_000 }, async () => {
     const result = await runEffect(ApplicationsControllerList({ limit: 10 }));
 
     expect(result).toBeDefined();
@@ -20,5 +20,5 @@ describe("ApplicationsControllerList", () => {
       expect(typeof app.created_at).toBe("string");
       expect(typeof app.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 });

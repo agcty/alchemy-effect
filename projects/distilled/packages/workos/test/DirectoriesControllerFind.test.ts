@@ -5,7 +5,7 @@ import { DirectoriesControllerList } from "../src/operations/DirectoriesControll
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("DirectoriesControllerFind", () => {
-  it("retrieves a directory by id", async () => {
+  it("retrieves a directory by id", { timeout: 30_000 }, async () => {
     const list = await runEffect(DirectoriesControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -38,25 +38,33 @@ describe("DirectoriesControllerFind", () => {
     expect(typeof dir.name).toBe("string");
     expect(typeof dir.created_at).toBe("string");
     expect(typeof dir.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent directory id", async () => {
-    const error = await runEffect(
-      DirectoriesControllerFind({
-        id: `directory_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent directory id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        DirectoriesControllerFind({
+          id: `directory_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when reading a directory in a different tenant", async () => {
-    const error = await runEffect(
-      DirectoriesControllerFind({
-        id: "directory_01HFGZ6QYV0000000000000000",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when reading a directory in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        DirectoriesControllerFind({
+          id: "directory_01HFGZ6QYV0000000000000000",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

@@ -5,7 +5,7 @@ import { ApplicationsControllerList } from "../src/operations/ApplicationsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ApplicationsControllerFind", () => {
-  it("retrieves a Connect Application by id", async () => {
+  it("retrieves a Connect Application by id", { timeout: 30_000 }, async () => {
     const list = await runEffect(ApplicationsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -30,15 +30,19 @@ describe("ApplicationsControllerFind", () => {
     expect(Array.isArray(app.scopes)).toBe(true);
     expect(typeof app.created_at).toBe("string");
     expect(typeof app.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent application id", async () => {
-    const error = await runEffect(
-      ApplicationsControllerFind({
-        id: `app_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent application id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ApplicationsControllerFind({
+          id: `app_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

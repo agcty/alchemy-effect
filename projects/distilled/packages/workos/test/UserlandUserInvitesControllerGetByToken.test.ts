@@ -6,7 +6,7 @@ import { UserlandUserInvitesControllerRevoke } from "../src/operations/UserlandU
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserInvitesControllerGetByToken", () => {
-  it("fetches an invitation by its token", async () => {
+  it("fetches an invitation by its token", { timeout: 30_000 }, async () => {
     const email = `distilled-invite-by-token-${testRunId}@example.com`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -33,14 +33,18 @@ describe("UserlandUserInvitesControllerGetByToken", () => {
     expect(["pending", "accepted", "expired", "revoked"]).toContain(
       result.state,
     );
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent token", async () => {
-    const error = await runEffect(
-      UserlandUserInvitesControllerGetByToken({
-        token: `invitation_token_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent token",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserInvitesControllerGetByToken({
+          token: `invitation_token_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

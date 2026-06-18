@@ -5,7 +5,7 @@ import { FeatureFlagsControllerList } from "../src/operations/FeatureFlagsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("FeatureFlagsControllerDisableFlag", () => {
-  it("disables a feature flag", async () => {
+  it("disables a feature flag", { timeout: 30_000 }, async () => {
     const list = await runEffect(FeatureFlagsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -34,15 +34,19 @@ describe("FeatureFlagsControllerDisableFlag", () => {
     expect(typeof flag.default_value).toBe("boolean");
     expect(typeof flag.created_at).toBe("string");
     expect(typeof flag.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent feature flag slug", async () => {
-    const error = await runEffect(
-      FeatureFlagsControllerDisableFlag({
-        slug: `feature-flag-does-not-exist-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent feature flag slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        FeatureFlagsControllerDisableFlag({
+          slug: `feature-flag-does-not-exist-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

@@ -5,34 +5,42 @@ import { AuthenticationFactorsControllerCreate } from "../src/operations/Authent
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthenticationFactorsControllerChallenge", () => {
-  it("creates a challenge for an authentication factor", async () => {
-    const challenge = await runEffect(
-      Effect.gen(function* () {
-        const factor = yield* AuthenticationFactorsControllerCreate({
-          type: "totp",
-          totp_issuer: `distilled-workos-${testRunId}`,
-          totp_user: `challenge-user-${testRunId}`,
-        });
+  it(
+    "creates a challenge for an authentication factor",
+    { timeout: 30_000 },
+    async () => {
+      const challenge = await runEffect(
+        Effect.gen(function* () {
+          const factor = yield* AuthenticationFactorsControllerCreate({
+            type: "totp",
+            totp_issuer: `distilled-workos-${testRunId}`,
+            totp_user: `challenge-user-${testRunId}`,
+          });
 
-        return yield* AuthenticationFactorsControllerChallenge({
-          id: factor.id,
-        });
-      }),
-    );
+          return yield* AuthenticationFactorsControllerChallenge({
+            id: factor.id,
+          });
+        }),
+      );
 
-    expect(challenge).toBeDefined();
-    expect(typeof challenge.id).toBe("string");
-    expect(typeof challenge.authentication_factor_id).toBe("string");
-    expect(typeof challenge.created_at).toBe("string");
-  }, 30_000);
+      expect(challenge).toBeDefined();
+      expect(typeof challenge.id).toBe("string");
+      expect(typeof challenge.authentication_factor_id).toBe("string");
+      expect(typeof challenge.created_at).toBe("string");
+    },
+  );
 
-  it("fails with NotFound for a non-existent factor id", async () => {
-    const error = await runEffect(
-      AuthenticationFactorsControllerChallenge({
-        id: `auth_factor_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent factor id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthenticationFactorsControllerChallenge({
+          id: `auth_factor_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

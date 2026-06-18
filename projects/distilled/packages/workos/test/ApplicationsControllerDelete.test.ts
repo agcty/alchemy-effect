@@ -5,7 +5,7 @@ import { ApplicationsControllerList } from "../src/operations/ApplicationsContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ApplicationsControllerDelete", () => {
-  it("deletes a Connect Application", async () => {
+  it("deletes a Connect Application", { timeout: 30_000 }, async () => {
     const list = await runEffect(ApplicationsControllerList({ limit: 1 }));
 
     if (list.data.length === 0) {
@@ -28,15 +28,19 @@ describe("ApplicationsControllerDelete", () => {
       ApplicationsControllerDelete({ id: seed.id }).pipe(Effect.flip),
     );
     expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent application id", async () => {
-    const error = await runEffect(
-      ApplicationsControllerDelete({
-        id: `app_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent application id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        ApplicationsControllerDelete({
+          id: `app_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

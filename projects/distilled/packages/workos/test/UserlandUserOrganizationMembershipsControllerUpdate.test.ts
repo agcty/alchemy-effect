@@ -6,7 +6,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserOrganizationMembershipsControllerUpdate", () => {
-  it("updates an organization membership", async () => {
+  it("updates an organization membership", { timeout: 60_000 }, async () => {
     const users = await runEffect(UserlandUsersControllerList({ limit: 1 }));
 
     if (users.data.length === 0) {
@@ -46,23 +46,31 @@ describe("UserlandUserOrganizationMembershipsControllerUpdate", () => {
     expect(typeof result.organization_id).toBe("string");
     expect(["active", "inactive", "pending"]).toContain(result.status);
     expect(typeof result.role.slug).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent membership id", async () => {
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerUpdate({
-        id: `om_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent membership id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserOrganizationMembershipsControllerUpdate({
+          id: `om_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with UnprocessableEntity for a malformed membership id", async () => {
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerUpdate({
-        id: `not-a-valid-id-${"x".repeat(300)}-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+  it(
+    "fails with UnprocessableEntity for a malformed membership id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandUserOrganizationMembershipsControllerUpdate({
+          id: `not-a-valid-id-${"x".repeat(300)}-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["NotFound", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

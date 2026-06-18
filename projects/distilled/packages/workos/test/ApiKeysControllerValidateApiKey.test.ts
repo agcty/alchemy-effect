@@ -5,16 +5,20 @@ import { ApiKeysControllerValidateApiKey } from "../src/operations/ApiKeysContro
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("ApiKeysControllerValidateApiKey", () => {
-  it("validates the current API key and returns the api_key object", async () => {
-    const result = await runEffect(
-      Effect.gen(function* () {
-        const creds = yield* Credentials;
-        const apiKey = Redacted.value(creds.apiKey);
-        return yield* ApiKeysControllerValidateApiKey({ value: apiKey });
-      }),
-    );
+  it(
+    "validates the current API key and returns the api_key object",
+    { timeout: 30_000 },
+    async () => {
+      const result = await runEffect(
+        Effect.gen(function* () {
+          const creds = yield* Credentials;
+          const apiKey = Redacted.value(creds.apiKey);
+          return yield* ApiKeysControllerValidateApiKey({ value: apiKey });
+        }),
+      );
 
-    expect(result).toBeDefined();
-    expect(result.api_key).toBeDefined();
-  }, 30_000);
+      expect(result).toBeDefined();
+      expect(result.api_key).toBeDefined();
+    },
+  );
 });

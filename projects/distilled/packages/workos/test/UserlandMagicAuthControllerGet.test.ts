@@ -5,7 +5,7 @@ import { UserlandMagicAuthControllerSendMagicAuthCodeAndReturn } from "../src/op
 import { runEffect, runOrSkipOnEnvLimitation, testRunId } from "./setup.ts";
 
 describe("UserlandMagicAuthControllerGet", () => {
-  it("fetches a magic auth code by id", async (ctx) => {
+  it("fetches a magic auth code by id", { timeout: 30_000 }, async (ctx) => {
     const email = `distilled-magic-get-${testRunId}@example.com`;
     const result = await runOrSkipOnEnvLimitation(
       ctx,
@@ -24,14 +24,18 @@ describe("UserlandMagicAuthControllerGet", () => {
     expect(typeof result.user_id).toBe("string");
     expect(typeof result.code).toBe("string");
     expect(typeof result.expires_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent magic auth code id", async () => {
-    const error = await runEffect(
-      UserlandMagicAuthControllerGet({
-        id: `magic_auth_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent magic auth code id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        UserlandMagicAuthControllerGet({
+          id: `magic_auth_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

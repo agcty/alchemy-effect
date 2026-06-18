@@ -8,7 +8,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupsControllerGet", () => {
-  it("gets a group by id", async () => {
+  it("gets a group by id", { timeout: 60_000 }, async () => {
     const groupName = `distilled-group-get-${testRunId}`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -46,36 +46,44 @@ describe("GroupsControllerGet", () => {
     expect(result.name).toBe(groupName);
     expect(typeof result.created_at).toBe("string");
     expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent group id", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-get-404-${testRunId}`,
-        });
-        return yield* GroupsControllerGet({
-          organizationId: org.id,
+  it(
+    "fails with NotFound for a non-existent group id",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-get-404-${testRunId}`,
+          });
+          return yield* GroupsControllerGet({
+            organizationId: org.id,
+            groupId: `group_does_not_exist_${testRunId}`,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
+
+  it(
+    "fails with Forbidden when getting a group in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerGet({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
           groupId: `group_does_not_exist_${testRunId}`,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 60_000);
-
-  it("fails with Forbidden when getting a group in a different tenant", async () => {
-    const error = await runEffect(
-      GroupsControllerGet({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        groupId: `group_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

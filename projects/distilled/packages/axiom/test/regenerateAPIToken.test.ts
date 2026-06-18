@@ -8,6 +8,7 @@ import { runEffect, testRunId } from "./setup";
 describe("regenerateAPIToken", () => {
   it(
     "regenerates an existing API token and returns the new token configuration",
+    { timeout: 60_000 },
     async () => {
       const tokenName = `distilled-axiom-regen-token-${testRunId}`;
       let createdId: string | undefined;
@@ -57,11 +58,11 @@ describe("regenerateAPIToken", () => {
 
       await runEffect(effect);
     },
-    { timeout: 60_000 },
   );
 
   it(
     "returns NotFound for an API token id that does not exist",
+    { timeout: 30_000 },
     async () => {
       const error = await runEffect(
         regenerateAPIToken({
@@ -74,11 +75,11 @@ describe("regenerateAPIToken", () => {
 
       expect((error as { _tag: string })._tag).toBe("NotFound");
     },
-    { timeout: 30_000 },
   );
 
   it(
     "returns BadRequest when existingTokenExpiresAt is not a valid ISO timestamp",
+    { timeout: 60_000 },
     async () => {
       const tokenName = `distilled-axiom-regen-422-${testRunId}`;
       let createdId: string | undefined;
@@ -112,6 +113,5 @@ describe("regenerateAPIToken", () => {
 
       await runEffect(effect);
     },
-    { timeout: 60_000 },
   );
 });

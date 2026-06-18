@@ -7,54 +7,62 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("UserlandUserOrganizationMembershipsControllerDelete", () => {
-  it("permanently deletes an organization membership", async () => {
-    const users = await runEffect(UserlandUsersControllerList({ limit: 5 }));
+  it(
+    "permanently deletes an organization membership",
+    { timeout: 90_000 },
+    async () => {
+      const users = await runEffect(UserlandUsersControllerList({ limit: 5 }));
 
-    let target: { id: string } | undefined;
-    for (const user of users.data) {
-      const memberships = await runEffect(
-        UserlandUserOrganizationMembershipsControllerList({
-          user_id: user.id,
-          limit: 5,
-          statuses: "active,inactive,pending",
-        }),
-      );
-      const found = memberships.data?.[0];
-      if (found) {
-        target = { id: found.id };
-        break;
+      let target: { id: string } | undefined;
+      for (const user of users.data) {
+        const memberships = await runEffect(
+          UserlandUserOrganizationMembershipsControllerList({
+            user_id: user.id,
+            limit: 5,
+            statuses: "active,inactive,pending",
+          }),
+        );
+        const found = memberships.data?.[0];
+        if (found) {
+          target = { id: found.id };
+          break;
+        }
       }
-    }
 
-    if (!target) {
+      if (!target) {
+        const error = await runEffect(
+          UserlandUserOrganizationMembershipsControllerDelete({
+            id: `om_does_not_exist_${testRunId}`,
+          }).pipe(Effect.flip),
+        );
+        expect(error._tag).toBe("NotFound");
+        return;
+      }
+
+      const result = await runEffect(
+        UserlandUserOrganizationMembershipsControllerDelete({ id: target.id }),
+      );
+      expect(result).toBeUndefined();
+
+      const error = await runEffect(
+        UserlandUserOrganizationMembershipsControllerGet({
+          id: target.id,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
+
+  it(
+    "fails with NotFound for a non-existent membership id",
+    { timeout: 30_000 },
+    async () => {
       const error = await runEffect(
         UserlandUserOrganizationMembershipsControllerDelete({
           id: `om_does_not_exist_${testRunId}`,
         }).pipe(Effect.flip),
       );
       expect(error._tag).toBe("NotFound");
-      return;
-    }
-
-    const result = await runEffect(
-      UserlandUserOrganizationMembershipsControllerDelete({ id: target.id }),
-    );
-    expect(result).toBeUndefined();
-
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerGet({
-        id: target.id,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 90_000);
-
-  it("fails with NotFound for a non-existent membership id", async () => {
-    const error = await runEffect(
-      UserlandUserOrganizationMembershipsControllerDelete({
-        id: `om_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+    },
+  );
 });

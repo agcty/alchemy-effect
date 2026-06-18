@@ -4,24 +4,32 @@ import { JwtTemplatesControllerUpdateJwtTemplate } from "../src/operations/JwtTe
 import { runEffect } from "./setup.ts";
 
 describe("JwtTemplatesControllerUpdateJwtTemplate", () => {
-  it("updates the JWT template for the current environment", async () => {
-    const content = JSON.stringify({});
-    const result = await runEffect(
-      JwtTemplatesControllerUpdateJwtTemplate({ content }),
-    );
-    expect(result).toBeDefined();
-    expect(typeof result.object).toBe("string");
-    expect(typeof result.content).toBe("string");
-    expect(typeof result.created_at).toBe("string");
-    expect(typeof result.updated_at).toBe("string");
-  }, 30_000);
+  it(
+    "updates the JWT template for the current environment",
+    { timeout: 30_000 },
+    async () => {
+      const content = JSON.stringify({});
+      const result = await runEffect(
+        JwtTemplatesControllerUpdateJwtTemplate({ content }),
+      );
+      expect(result).toBeDefined();
+      expect(typeof result.object).toBe("string");
+      expect(typeof result.content).toBe("string");
+      expect(typeof result.created_at).toBe("string");
+      expect(typeof result.updated_at).toBe("string");
+    },
+  );
 
-  it("fails with UnprocessableEntity for malformed template content", async () => {
-    const error = await runEffect(
-      JwtTemplatesControllerUpdateJwtTemplate({
-        content: "not valid json {",
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+  it(
+    "fails with UnprocessableEntity for malformed template content",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        JwtTemplatesControllerUpdateJwtTemplate({
+          content: "not valid json {",
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

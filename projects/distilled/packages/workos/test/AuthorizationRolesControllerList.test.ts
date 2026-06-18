@@ -4,7 +4,7 @@ import { AuthorizationRolesControllerList } from "../src/operations/Authorizatio
 import { runEffect } from "./setup.ts";
 
 describe("AuthorizationRolesControllerList", () => {
-  it("lists environment roles", async () => {
+  it("lists environment roles", { timeout: 30_000 }, async () => {
     const result = await runEffect(AuthorizationRolesControllerList({}));
 
     expect(result).toBeDefined();
@@ -21,5 +21,5 @@ describe("AuthorizationRolesControllerList", () => {
       expect(typeof role.created_at).toBe("string");
       expect(typeof role.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 });

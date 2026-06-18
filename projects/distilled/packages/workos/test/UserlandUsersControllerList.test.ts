@@ -4,7 +4,7 @@ import { UserlandUsersControllerList } from "../src/operations/UserlandUsersCont
 import { runEffect } from "./setup.ts";
 
 describe("UserlandUsersControllerList", () => {
-  it("lists users with a small limit", async () => {
+  it("lists users with a small limit", { timeout: 30_000 }, async () => {
     const result = await runEffect(UserlandUsersControllerList({ limit: 5 }));
 
     expect(result).toBeDefined();
@@ -19,13 +19,17 @@ describe("UserlandUsersControllerList", () => {
       expect(typeof user.created_at).toBe("string");
       expect(typeof user.updated_at).toBe("string");
     }
-  }, 30_000);
+  });
 
-  it("fails with UnprocessableEntity when limit exceeds the allowed maximum", async () => {
-    // The API documents limit as between 1 and 100; 1000 violates that bound.
-    const error = await runEffect(
-      UserlandUsersControllerList({ limit: 1000 }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+  it(
+    "fails with UnprocessableEntity when limit exceeds the allowed maximum",
+    { timeout: 30_000 },
+    async () => {
+      // The API documents limit as between 1 and 100; 1000 violates that bound.
+      const error = await runEffect(
+        UserlandUsersControllerList({ limit: 1000 }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

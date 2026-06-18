@@ -6,35 +6,43 @@ import { OrganizationsControllerGetAuditLogConfiguration } from "../src/operatio
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("OrganizationsControllerGetAuditLogConfiguration", () => {
-  it("gets the audit log configuration for an organization", async () => {
-    const result = await runEffect(
-      Effect.gen(function* () {
-        const created = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-orgs-audit-${testRunId}`,
-        });
-        return yield* OrganizationsControllerGetAuditLogConfiguration({
-          id: created.id,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: created.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }),
-    );
-    expect(result).toBeDefined();
-    expect(typeof result.organization_id).toBe("string");
-    expect(typeof result.retention_period_in_days).toBe("number");
-    expect(["active", "inactive", "disabled"]).toContain(result.state);
-  }, 60_000);
+  it(
+    "gets the audit log configuration for an organization",
+    { timeout: 60_000 },
+    async () => {
+      const result = await runEffect(
+        Effect.gen(function* () {
+          const created = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-orgs-audit-${testRunId}`,
+          });
+          return yield* OrganizationsControllerGetAuditLogConfiguration({
+            id: created.id,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: created.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }),
+      );
+      expect(result).toBeDefined();
+      expect(typeof result.organization_id).toBe("string");
+      expect(typeof result.retention_period_in_days).toBe("number");
+      expect(["active", "inactive", "disabled"]).toContain(result.state);
+    },
+  );
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      OrganizationsControllerGetAuditLogConfiguration({
-        id: `organization_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        OrganizationsControllerGetAuditLogConfiguration({
+          id: `organization_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

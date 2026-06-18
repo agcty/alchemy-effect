@@ -4,7 +4,7 @@ import { AuthenticationFactorsControllerCreate } from "../src/operations/Authent
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthenticationFactorsControllerCreate", () => {
-  it("enrolls a TOTP authentication factor", async () => {
+  it("enrolls a TOTP authentication factor", { timeout: 30_000 }, async () => {
     const factor = await runEffect(
       AuthenticationFactorsControllerCreate({
         type: "totp",
@@ -20,15 +20,19 @@ describe("AuthenticationFactorsControllerCreate", () => {
     expect(factor.totp?.secret).toBeDefined();
     expect(typeof factor.totp?.qr_code).toBe("string");
     expect(typeof factor.totp?.uri).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with UnprocessableEntity when enrolling SMS factor without a phone number", async () => {
-    const error = await runEffect(
-      AuthenticationFactorsControllerCreate({
-        type: "sms",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity when enrolling SMS factor without a phone number",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthenticationFactorsControllerCreate({
+          type: "sms",
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });

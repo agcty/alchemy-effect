@@ -7,48 +7,56 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, runOrSkipOnEnvLimitation, testRunId } from "./setup.ts";
 
 describe("AuditLogExportsControllerExport", () => {
-  it("gets an existing audit log export by id", async (ctx) => {
-    const rangeEnd = new Date();
-    const rangeStart = new Date(rangeEnd.getTime() - 24 * 60 * 60 * 1000);
+  it(
+    "gets an existing audit log export by id",
+    { timeout: 60_000 },
+    async (ctx) => {
+      const rangeEnd = new Date();
+      const rangeStart = new Date(rangeEnd.getTime() - 24 * 60 * 60 * 1000);
 
-    await runOrSkipOnEnvLimitation(
-      ctx,
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-export-get-${testRunId}`,
-        });
-
-        return yield* Effect.gen(function* () {
-          const created = yield* AuditLogExportsControllerExports({
-            organization_id: org.id,
-            range_start: rangeStart.toISOString(),
-            range_end: rangeEnd.toISOString(),
+      await runOrSkipOnEnvLimitation(
+        ctx,
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-export-get-${testRunId}`,
           });
 
-          const result = yield* AuditLogExportsControllerExport({
-            auditLogExportId: created.id,
-          });
+          return yield* Effect.gen(function* () {
+            const created = yield* AuditLogExportsControllerExports({
+              organization_id: org.id,
+              range_start: rangeStart.toISOString(),
+              range_end: rangeEnd.toISOString(),
+            });
 
-          expect(result.id).toBe(created.id);
-          expect(["pending", "ready", "error"]).toContain(result.state);
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
+            const result = yield* AuditLogExportsControllerExport({
+              auditLogExportId: created.id,
+            });
+
+            expect(result.id).toBe(created.id);
+            expect(["pending", "ready", "error"]).toContain(result.state);
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-        );
-      }),
-    );
-  }, 60_000);
+          );
+        }),
+      );
+    },
+  );
 
-  it("fails with NotFound for a non-existent audit log export id", async () => {
-    const error = await runEffect(
-      AuditLogExportsControllerExport({
-        auditLogExportId: `audit_log_export_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent audit log export id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuditLogExportsControllerExport({
+          auditLogExportId: `audit_log_export_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

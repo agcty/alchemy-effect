@@ -5,7 +5,7 @@ import { AuthorizationRolesControllerUpdate } from "../src/operations/Authorizat
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthorizationRolesControllerUpdate", () => {
-  it("updates an environment role", async () => {
+  it("updates an environment role", { timeout: 30_000 }, async () => {
     const slug = `role_update_${testRunId}`;
 
     // Seed: create the role.
@@ -33,38 +33,50 @@ describe("AuthorizationRolesControllerUpdate", () => {
     expect(Array.isArray(updated.permissions)).toBe(true);
     expect(typeof updated.created_at).toBe("string");
     expect(typeof updated.updated_at).toBe("string");
-  }, 30_000);
+  });
 
-  it("fails with BadRequest when the request body is malformed", async () => {
-    const error = await runEffect(
-      AuthorizationRolesControllerUpdate({
-        slug: `role_bad_request_${testRunId}`,
-        name: "",
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with BadRequest when the request body is malformed",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationRolesControllerUpdate({
+          slug: `role_bad_request_${testRunId}`,
+          name: "",
+        }).pipe(Effect.flip),
+      );
 
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 30_000);
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with NotFound for a non-existent role slug", async () => {
-    const error = await runEffect(
-      AuthorizationRolesControllerUpdate({
-        slug: `role_does_not_exist_${testRunId}`,
-        name: `Whatever ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent role slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationRolesControllerUpdate({
+          slug: `role_does_not_exist_${testRunId}`,
+          name: `Whatever ${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when updating a role the caller cannot modify", async () => {
-    const error = await runEffect(
-      AuthorizationRolesControllerUpdate({
-        slug: `role_forbidden_${testRunId}`,
-        name: `Forbidden ${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with Forbidden when updating a role the caller cannot modify",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationRolesControllerUpdate({
+          slug: `role_forbidden_${testRunId}`,
+          name: `Forbidden ${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 });

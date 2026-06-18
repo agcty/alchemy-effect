@@ -7,7 +7,7 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("GroupsControllerCreate", () => {
-  it("creates a group in an organization", async () => {
+  it("creates a group in an organization", { timeout: 60_000 }, async () => {
     const groupName = `distilled-group-${testRunId}`;
     const result = await runEffect(
       Effect.gen(function* () {
@@ -41,78 +41,94 @@ describe("GroupsControllerCreate", () => {
     expect(result.created.description).toBe("test group");
     expect(typeof result.created.created_at).toBe("string");
     expect(typeof result.created.updated_at).toBe("string");
-  }, 60_000);
+  });
 
-  it("fails with NotFound for a non-existent organization id", async () => {
-    const error = await runEffect(
-      GroupsControllerCreate({
-        organizationId: `organization_does_not_exist_${testRunId}`,
-        name: `distilled-group-404-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+  it(
+    "fails with NotFound for a non-existent organization id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerCreate({
+          organizationId: `organization_does_not_exist_${testRunId}`,
+          name: `distilled-group-404-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 
-  it("fails with Forbidden when creating a group in a different tenant", async () => {
-    const error = await runEffect(
-      GroupsControllerCreate({
-        organizationId: "org_01HFGZ6QYV0000000000000000",
-        name: `distilled-group-403-${testRunId}`,
-      }).pipe(Effect.flip),
-    );
-    expect(["Forbidden", "NotFound"]).toContain(error._tag);
-  }, 30_000);
+  it(
+    "fails with Forbidden when creating a group in a different tenant",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        GroupsControllerCreate({
+          organizationId: "org_01HFGZ6QYV0000000000000000",
+          name: `distilled-group-403-${testRunId}`,
+        }).pipe(Effect.flip),
+      );
+      expect(["Forbidden", "NotFound"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with BadRequest for an empty group name", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-400-${testRunId}`,
-        });
-        return yield* GroupsControllerCreate({
-          organizationId: org.id,
-          name: "",
-        }).pipe(
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
+  it(
+    "fails with BadRequest for an empty group name",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-400-${testRunId}`,
+          });
+          return yield* GroupsControllerCreate({
+            organizationId: org.id,
+            name: "",
+          }).pipe(
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+      expect(["BadRequest", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 
-  it("fails with UnprocessableEntity when creating a duplicate group name", async () => {
-    const error = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-groups-422-${testRunId}`,
-        });
-        const groupName = `distilled-dup-group-${testRunId}`;
-        const first = yield* GroupsControllerCreate({
-          organizationId: org.id,
-          name: groupName,
-        });
-        return yield* GroupsControllerCreate({
-          organizationId: org.id,
-          name: groupName,
-        }).pipe(
-          Effect.ensuring(
-            GroupsControllerDelete({
-              organizationId: org.id,
-              groupId: first.id,
-            }).pipe(Effect.ignore),
-          ),
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({
-              id: org.id,
-            }).pipe(Effect.ignore),
-          ),
-        );
-      }).pipe(Effect.flip),
-    );
-    expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
-  }, 60_000);
+  it(
+    "fails with UnprocessableEntity when creating a duplicate group name",
+    { timeout: 60_000 },
+    async () => {
+      const error = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-groups-422-${testRunId}`,
+          });
+          const groupName = `distilled-dup-group-${testRunId}`;
+          const first = yield* GroupsControllerCreate({
+            organizationId: org.id,
+            name: groupName,
+          });
+          return yield* GroupsControllerCreate({
+            organizationId: org.id,
+            name: groupName,
+          }).pipe(
+            Effect.ensuring(
+              GroupsControllerDelete({
+                organizationId: org.id,
+                groupId: first.id,
+              }).pipe(Effect.ignore),
+            ),
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({
+                id: org.id,
+              }).pipe(Effect.ignore),
+            ),
+          );
+        }).pipe(Effect.flip),
+      );
+      expect(["Conflict", "UnprocessableEntity"]).toContain(error._tag);
+    },
+  );
 });

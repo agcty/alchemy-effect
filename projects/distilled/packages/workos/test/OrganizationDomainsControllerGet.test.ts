@@ -8,52 +8,60 @@ import { OrganizationsControllerDeleteOrganization } from "../src/operations/Org
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("OrganizationDomainsControllerGet", () => {
-  it("retrieves an organization domain by id", async () => {
-    const result = await runEffect(
-      Effect.gen(function* () {
-        const org = yield* OrganizationsControllerCreate({
-          name: `distilled-workos-domains-get-${testRunId}`,
-        });
+  it(
+    "retrieves an organization domain by id",
+    { timeout: 60_000 },
+    async () => {
+      const result = await runEffect(
+        Effect.gen(function* () {
+          const org = yield* OrganizationsControllerCreate({
+            name: `distilled-workos-domains-get-${testRunId}`,
+          });
 
-        const domain = `distilled-get-${testRunId}.example.com`;
+          const domain = `distilled-get-${testRunId}.example.com`;
 
-        const created = yield* OrganizationDomainsControllerCreate({
-          organization_id: org.id,
-          domain,
-        });
+          const created = yield* OrganizationDomainsControllerCreate({
+            organization_id: org.id,
+            domain,
+          });
 
-        return yield* OrganizationDomainsControllerGet({
-          id: created.id,
-        }).pipe(
-          Effect.ensuring(
-            OrganizationDomainsControllerDelete({ id: created.id }).pipe(
-              Effect.ignore,
+          return yield* OrganizationDomainsControllerGet({
+            id: created.id,
+          }).pipe(
+            Effect.ensuring(
+              OrganizationDomainsControllerDelete({ id: created.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-          Effect.ensuring(
-            OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
-              Effect.ignore,
+            Effect.ensuring(
+              OrganizationsControllerDeleteOrganization({ id: org.id }).pipe(
+                Effect.ignore,
+              ),
             ),
-          ),
-        );
-      }),
-    );
+          );
+        }),
+      );
 
-    expect(result).toBeDefined();
-    expect(typeof result.id).toBe("string");
-    expect(typeof result.organization_id).toBe("string");
-    expect(result.domain).toBe(`distilled-get-${testRunId}.example.com`);
-    expect(typeof result.created_at).toBe("string");
-    expect(typeof result.updated_at).toBe("string");
-  }, 60_000);
+      expect(result).toBeDefined();
+      expect(typeof result.id).toBe("string");
+      expect(typeof result.organization_id).toBe("string");
+      expect(result.domain).toBe(`distilled-get-${testRunId}.example.com`);
+      expect(typeof result.created_at).toBe("string");
+      expect(typeof result.updated_at).toBe("string");
+    },
+  );
 
-  it("fails with NotFound for a non-existent organization domain id", async () => {
-    const error = await runEffect(
-      OrganizationDomainsControllerGet({
-        id: `org_domain_does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent organization domain id",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        OrganizationDomainsControllerGet({
+          id: `org_domain_does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

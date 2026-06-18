@@ -6,7 +6,7 @@ import { AuthorizationPermissionsControllerFind } from "../src/operations/Author
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuthorizationPermissionsControllerFind", () => {
-  it("retrieves a permission by slug", async () => {
+  it("retrieves a permission by slug", { timeout: 30_000 }, async () => {
     const slug = `find_perm_${testRunId}`;
 
     const permission = await runEffect(
@@ -30,15 +30,19 @@ describe("AuthorizationPermissionsControllerFind", () => {
     expect(permission.slug).toBe(slug);
     expect(permission.name).toBe(`Find Permission ${testRunId}`);
     expect(typeof permission.system).toBe("boolean");
-  }, 30_000);
+  });
 
-  it("fails with NotFound for a non-existent permission slug", async () => {
-    const error = await runEffect(
-      AuthorizationPermissionsControllerFind({
-        slug: `does_not_exist_${testRunId}`,
-      }).pipe(Effect.flip),
-    );
+  it(
+    "fails with NotFound for a non-existent permission slug",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuthorizationPermissionsControllerFind({
+          slug: `does_not_exist_${testRunId}`,
+        }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("NotFound");
-  }, 30_000);
+      expect(error._tag).toBe("NotFound");
+    },
+  );
 });

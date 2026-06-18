@@ -4,7 +4,7 @@ import { AuditLogValidatorsControllerList } from "../src/operations/AuditLogVali
 import { runEffect, testRunId } from "./setup.ts";
 
 describe("AuditLogValidatorsControllerList", () => {
-  it("lists audit log actions", async () => {
+  it("lists audit log actions", { timeout: 30_000 }, async () => {
     const result = await runEffect(
       AuditLogValidatorsControllerList({ limit: 10 }),
     );
@@ -13,13 +13,17 @@ describe("AuditLogValidatorsControllerList", () => {
     if (result.data !== undefined) {
       expect(Array.isArray(result.data)).toBe(true);
     }
-  }, 30_000);
+  });
 
-  it("fails with UnprocessableEntity when limit is out of range", async () => {
-    const error = await runEffect(
-      AuditLogValidatorsControllerList({ limit: 9999 }).pipe(Effect.flip),
-    );
+  it(
+    "fails with UnprocessableEntity when limit is out of range",
+    { timeout: 30_000 },
+    async () => {
+      const error = await runEffect(
+        AuditLogValidatorsControllerList({ limit: 9999 }).pipe(Effect.flip),
+      );
 
-    expect(error._tag).toBe("UnprocessableEntity");
-  }, 30_000);
+      expect(error._tag).toBe("UnprocessableEntity");
+    },
+  );
 });
