@@ -1,0 +1,18 @@
+{
+  "errors": {
+    "ProjectNotFound": [{ "code": 8000007 }],
+    "PagesDomainNotFound": [{ "code": 8000021 }],
+    "Forbidden": [{ "status": 403 }]
+  },
+  "response": {
+    "properties": {
+      "certificate_authority": { "optional": true, "nullable": true },
+      "zone_tag": { "optional": true, "nullable": true },
+      "validation_data": { "optional": true, "nullable": true },
+      "validation_data.method": { "optional": true, "nullable": true },
+      "validation_data.status": { "optional": true, "nullable": true },
+      "verification_data": { "optional": true, "nullable": true },
+      "verification_data.status": { "optional": true, "nullable": true }
+    }
+  }
+}

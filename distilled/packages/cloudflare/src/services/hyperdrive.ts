@@ -1,0 +1,1532 @@
+/**
+ * Cloudflare HYPERDRIVE API
+ *
+ * Generated from Cloudflare TypeScript SDK.
+ * DO NOT EDIT - regenerate with: bun scripts/generate.ts --service hyperdrive
+ */
+
+import * as Schema from "effect/Schema";
+import type * as HttpClient from "effect/unstable/http/HttpClient";
+import * as API from "../client/api.ts";
+import * as T from "../traits.ts";
+import type { Credentials } from "../credentials.ts";
+import { type DefaultErrors } from "../errors.ts";
+import { SensitiveString } from "../sensitive.ts";
+
+// =============================================================================
+// Errors
+// =============================================================================
+
+export class HyperdriveConfigNotFound extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<HyperdriveConfigNotFound>()(
+    "HyperdriveConfigNotFound",
+    { code: Schema.Number, message: Schema.String },
+  ),
+  [{ code: 2006 }, { status: 404 }],
+) {}
+
+export class InvalidHyperdriveConfig extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<InvalidHyperdriveConfig>()(
+    "InvalidHyperdriveConfig",
+    { code: Schema.Number, message: Schema.String },
+  ),
+  [{ code: 2007 }],
+) {}
+
+export class InvalidObjectIdentifier extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<InvalidObjectIdentifier>()(
+    "InvalidObjectIdentifier",
+    { code: Schema.Number, message: Schema.String },
+  ),
+  [{ code: 7003 }],
+) {}
+
+export class MethodNotAllowed extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<MethodNotAllowed>()("MethodNotAllowed", {
+    code: Schema.Number,
+    message: Schema.String,
+  }),
+  [
+    { code: 10000, message: { includes: "method not allowed" } },
+    { code: 10405, message: { includes: "Method not allowed" } },
+  ],
+) {}
+
+export class PrivateHostNotAllowed extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<PrivateHostNotAllowed>()("PrivateHostNotAllowed", {
+    code: Schema.Number,
+    message: Schema.String,
+  }),
+  [{ code: 2009 }],
+) {}
+
+// =============================================================================
+// Config
+// =============================================================================
+
+export interface GetConfigRequest {
+  hyperdriveId: string;
+  /** Define configurations using a unique string identifier. */
+  accountId: string;
+}
+
+export const GetConfigRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
+  Schema.Struct({
+    hyperdriveId: Schema.String.pipe(T.HttpPath("hyperdriveId")),
+    accountId: Schema.String.pipe(T.HttpPath("account_id")),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/accounts/{account_id}/hyperdrive/configs/{hyperdriveId}",
+    }),
+  ),
+) as unknown as Schema.Schema<GetConfigRequest>;
+
+export interface GetConfigResponse {
+  /** Define configurations using a unique string identifier. */
+  id: string;
+  /** The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  origin:
+    | {
+        database: string;
+        host: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        database: string;
+        host: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  caching?:
+    | { disabled?: boolean | null }
+    | {
+        disabled?: boolean | null;
+        maxAge?: number | null;
+        staleWhileRevalidate?: number | null;
+      }
+    | null;
+  /** Defines the creation time of the Hyperdrive configuration. */
+  createdOn?: string | null;
+  /** Defines the last modified time of the Hyperdrive configuration. */
+  modifiedOn?: string | null;
+  /** mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string | null;
+    mtlsCertificateId?: string | null;
+    sslmode?: string | null;
+  } | null;
+  /** The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified, defaults t */
+  originConnectionLimit?: number | null;
+}
+
+export const GetConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      id: Schema.String,
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          accessClientId: Schema.String,
+          database: Schema.String,
+          host: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            database: "database",
+            host: "host",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+              maxAge: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              staleWhileRevalidate: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }).pipe(
+              Schema.encodeKeys({
+                disabled: "disabled",
+                maxAge: "max_age",
+                staleWhileRevalidate: "stale_while_revalidate",
+              }),
+            ),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+      createdOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      modifiedOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      mtls: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            caCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            mtlsCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            sslmode: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              caCertificateId: "ca_certificate_id",
+              mtlsCertificateId: "mtls_certificate_id",
+              sslmode: "sslmode",
+            }),
+          ),
+          Schema.Null,
+        ]),
+      ),
+      originConnectionLimit: Schema.optional(
+        Schema.Union([Schema.Number, Schema.Null]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          id: "id",
+          name: "name",
+          origin: "origin",
+          caching: "caching",
+          createdOn: "created_on",
+          modifiedOn: "modified_on",
+          mtls: "mtls",
+          originConnectionLimit: "origin_connection_limit",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<GetConfigResponse>;
+
+export type GetConfigError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | HyperdriveConfigNotFound
+  | InvalidObjectIdentifier;
+
+export const getConfig: API.OperationMethod<
+  GetConfigRequest,
+  GetConfigResponse,
+  GetConfigError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: GetConfigRequest,
+  output: GetConfigResponse,
+  errors: [
+    PrivateHostNotAllowed,
+    HyperdriveConfigNotFound,
+    InvalidObjectIdentifier,
+  ],
+}));
+
+export interface ListConfigsRequest {
+  /** Define configurations using a unique string identifier. */
+  accountId: string;
+}
+
+export const ListConfigsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    }).pipe(
+      T.Http({
+        method: "GET",
+        path: "/accounts/{account_id}/hyperdrive/configs",
+      }),
+    ),
+) as unknown as Schema.Schema<ListConfigsRequest>;
+
+export interface ListConfigsResponse {
+  result: {
+    id: string;
+    name: string;
+    origin:
+      | {
+          database: string;
+          host: string;
+          port: number;
+          scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+          user: string;
+        }
+      | {
+          accessClientId: string;
+          database: string;
+          host: string;
+          scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+          user: string;
+        }
+      | {
+          database: string;
+          scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+          serviceId: string;
+          user: string;
+        };
+    caching?:
+      | { disabled?: boolean | null }
+      | {
+          disabled?: boolean | null;
+          maxAge?: number | null;
+          staleWhileRevalidate?: number | null;
+        }
+      | null;
+    createdOn?: string | null;
+    modifiedOn?: string | null;
+    mtls?: {
+      caCertificateId?: string | null;
+      mtlsCertificateId?: string | null;
+      sslmode?: string | null;
+    } | null;
+    originConnectionLimit?: number | null;
+  }[];
+}
+
+export const ListConfigsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      result: Schema.Array(
+        Schema.Struct({
+          id: Schema.String,
+          name: Schema.String,
+          origin: Schema.Union([
+            Schema.Struct({
+              database: Schema.String,
+              host: Schema.String,
+              port: Schema.Number,
+              scheme: Schema.Union([
+                Schema.Literals(["postgres", "postgresql", "mysql"]),
+                Schema.String,
+              ]),
+              user: Schema.String,
+            }),
+            Schema.Struct({
+              accessClientId: Schema.String,
+              database: Schema.String,
+              host: Schema.String,
+              scheme: Schema.Union([
+                Schema.Literals(["postgres", "postgresql", "mysql"]),
+                Schema.String,
+              ]),
+              user: Schema.String,
+            }).pipe(
+              Schema.encodeKeys({
+                accessClientId: "access_client_id",
+                database: "database",
+                host: "host",
+                scheme: "scheme",
+                user: "user",
+              }),
+            ),
+            Schema.Struct({
+              database: Schema.String,
+              scheme: Schema.Union([
+                Schema.Literals(["postgres", "postgresql", "mysql"]),
+                Schema.String,
+              ]),
+              serviceId: Schema.String,
+              user: Schema.String,
+            }).pipe(
+              Schema.encodeKeys({
+                database: "database",
+                scheme: "scheme",
+                serviceId: "service_id",
+                user: "user",
+              }),
+            ),
+          ]),
+          caching: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Struct({
+                  disabled: Schema.optional(
+                    Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                }),
+                Schema.Struct({
+                  disabled: Schema.optional(
+                    Schema.Union([Schema.Boolean, Schema.Null]),
+                  ),
+                  maxAge: Schema.optional(
+                    Schema.Union([Schema.Number, Schema.Null]),
+                  ),
+                  staleWhileRevalidate: Schema.optional(
+                    Schema.Union([Schema.Number, Schema.Null]),
+                  ),
+                }).pipe(
+                  Schema.encodeKeys({
+                    disabled: "disabled",
+                    maxAge: "max_age",
+                    staleWhileRevalidate: "stale_while_revalidate",
+                  }),
+                ),
+              ]),
+              Schema.Null,
+            ]),
+          ),
+          createdOn: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          modifiedOn: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          mtls: Schema.optional(
+            Schema.Union([
+              Schema.Struct({
+                caCertificateId: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                mtlsCertificateId: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+                sslmode: Schema.optional(
+                  Schema.Union([Schema.String, Schema.Null]),
+                ),
+              }).pipe(
+                Schema.encodeKeys({
+                  caCertificateId: "ca_certificate_id",
+                  mtlsCertificateId: "mtls_certificate_id",
+                  sslmode: "sslmode",
+                }),
+              ),
+              Schema.Null,
+            ]),
+          ),
+          originConnectionLimit: Schema.optional(
+            Schema.Union([Schema.Number, Schema.Null]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            id: "id",
+            name: "name",
+            origin: "origin",
+            caching: "caching",
+            createdOn: "created_on",
+            modifiedOn: "modified_on",
+            mtls: "mtls",
+            originConnectionLimit: "origin_connection_limit",
+          }),
+        ),
+      ),
+    }),
+) as unknown as Schema.Schema<ListConfigsResponse>;
+
+export type ListConfigsError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | InvalidObjectIdentifier;
+
+export const listConfigs: API.PaginatedOperationMethod<
+  ListConfigsRequest,
+  ListConfigsResponse,
+  ListConfigsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: ListConfigsRequest,
+  output: ListConfigsResponse,
+  errors: [PrivateHostNotAllowed, InvalidObjectIdentifier],
+  pagination: {
+    mode: "single",
+    items: "result",
+  } as const,
+}));
+
+export interface CreateConfigRequest {
+  /** Path param: Define configurations using a unique string identifier. */
+  accountId: string;
+  /** Body param: The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  /** Body param */
+  origin:
+    | {
+        database: string;
+        host: string;
+        password: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        accessClientSecret: string;
+        database: string;
+        host: string;
+        password: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        password: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  /** Body param */
+  caching?:
+    | { disabled?: boolean }
+    | { disabled?: boolean; maxAge?: number; staleWhileRevalidate?: number };
+  /** Body param: mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string;
+    mtlsCertificateId?: string;
+    sslmode?: string;
+  };
+  /** Body param: The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified */
+  originConnectionLimit?: number;
+}
+
+export const CreateConfigRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      accountId: Schema.String.pipe(T.HttpPath("account_id")),
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          accessClientId: Schema.String,
+          accessClientSecret: SensitiveString,
+          database: Schema.String,
+          host: Schema.String,
+          password: SensitiveString,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            accessClientSecret: "access_client_secret",
+            database: "database",
+            host: "host",
+            password: "password",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          password: SensitiveString,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          database: Schema.String,
+          password: SensitiveString,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            password: "password",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+          }),
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+            maxAge: Schema.optional(Schema.Number),
+            staleWhileRevalidate: Schema.optional(Schema.Number),
+          }).pipe(
+            Schema.encodeKeys({
+              disabled: "disabled",
+              maxAge: "max_age",
+              staleWhileRevalidate: "stale_while_revalidate",
+            }),
+          ),
+        ]),
+      ),
+      mtls: Schema.optional(
+        Schema.Struct({
+          caCertificateId: Schema.optional(Schema.String),
+          mtlsCertificateId: Schema.optional(Schema.String),
+          sslmode: Schema.optional(Schema.String),
+        }).pipe(
+          Schema.encodeKeys({
+            caCertificateId: "ca_certificate_id",
+            mtlsCertificateId: "mtls_certificate_id",
+            sslmode: "sslmode",
+          }),
+        ),
+      ),
+      originConnectionLimit: Schema.optional(Schema.Number),
+    }).pipe(
+      Schema.encodeKeys({
+        name: "name",
+        origin: "origin",
+        caching: "caching",
+        mtls: "mtls",
+        originConnectionLimit: "origin_connection_limit",
+      }),
+      T.Http({
+        method: "POST",
+        path: "/accounts/{account_id}/hyperdrive/configs",
+      }),
+    ),
+) as unknown as Schema.Schema<CreateConfigRequest>;
+
+export interface CreateConfigResponse {
+  /** Define configurations using a unique string identifier. */
+  id: string;
+  /** The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  origin:
+    | {
+        database: string;
+        host: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        database: string;
+        host: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  caching?:
+    | { disabled?: boolean | null }
+    | {
+        disabled?: boolean | null;
+        maxAge?: number | null;
+        staleWhileRevalidate?: number | null;
+      }
+    | null;
+  /** Defines the creation time of the Hyperdrive configuration. */
+  createdOn?: string | null;
+  /** Defines the last modified time of the Hyperdrive configuration. */
+  modifiedOn?: string | null;
+  /** mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string | null;
+    mtlsCertificateId?: string | null;
+    sslmode?: string | null;
+  } | null;
+  /** The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified, defaults t */
+  originConnectionLimit?: number | null;
+}
+
+export const CreateConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      id: Schema.String,
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          accessClientId: Schema.String,
+          database: Schema.String,
+          host: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            database: "database",
+            host: "host",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+              maxAge: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              staleWhileRevalidate: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }).pipe(
+              Schema.encodeKeys({
+                disabled: "disabled",
+                maxAge: "max_age",
+                staleWhileRevalidate: "stale_while_revalidate",
+              }),
+            ),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+      createdOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      modifiedOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      mtls: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            caCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            mtlsCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            sslmode: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              caCertificateId: "ca_certificate_id",
+              mtlsCertificateId: "mtls_certificate_id",
+              sslmode: "sslmode",
+            }),
+          ),
+          Schema.Null,
+        ]),
+      ),
+      originConnectionLimit: Schema.optional(
+        Schema.Union([Schema.Number, Schema.Null]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          id: "id",
+          name: "name",
+          origin: "origin",
+          caching: "caching",
+          createdOn: "created_on",
+          modifiedOn: "modified_on",
+          mtls: "mtls",
+          originConnectionLimit: "origin_connection_limit",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<CreateConfigResponse>;
+
+export type CreateConfigError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | InvalidHyperdriveConfig
+  | InvalidObjectIdentifier;
+
+export const createConfig: API.OperationMethod<
+  CreateConfigRequest,
+  CreateConfigResponse,
+  CreateConfigError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: CreateConfigRequest,
+  output: CreateConfigResponse,
+  errors: [
+    PrivateHostNotAllowed,
+    InvalidHyperdriveConfig,
+    InvalidObjectIdentifier,
+  ],
+}));
+
+export interface UpdateConfigRequest {
+  hyperdriveId: string;
+  /** Path param: Define configurations using a unique string identifier. */
+  accountId: string;
+  /** Body param: The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  /** Body param */
+  origin:
+    | {
+        database: string;
+        host: string;
+        password: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        accessClientSecret: string;
+        database: string;
+        host: string;
+        password: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        password: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  /** Body param */
+  caching?:
+    | { disabled?: boolean }
+    | { disabled?: boolean; maxAge?: number; staleWhileRevalidate?: number };
+  /** Body param: mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string;
+    mtlsCertificateId?: string;
+    sslmode?: string;
+  };
+  /** Body param: The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified */
+  originConnectionLimit?: number;
+}
+
+export const UpdateConfigRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      hyperdriveId: Schema.String.pipe(T.HttpPath("hyperdriveId")),
+      accountId: Schema.String.pipe(T.HttpPath("account_id")),
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          accessClientId: Schema.String,
+          accessClientSecret: SensitiveString,
+          database: Schema.String,
+          host: Schema.String,
+          password: SensitiveString,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            accessClientSecret: "access_client_secret",
+            database: "database",
+            host: "host",
+            password: "password",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          password: SensitiveString,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          database: Schema.String,
+          password: SensitiveString,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            password: "password",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+          }),
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+            maxAge: Schema.optional(Schema.Number),
+            staleWhileRevalidate: Schema.optional(Schema.Number),
+          }).pipe(
+            Schema.encodeKeys({
+              disabled: "disabled",
+              maxAge: "max_age",
+              staleWhileRevalidate: "stale_while_revalidate",
+            }),
+          ),
+        ]),
+      ),
+      mtls: Schema.optional(
+        Schema.Struct({
+          caCertificateId: Schema.optional(Schema.String),
+          mtlsCertificateId: Schema.optional(Schema.String),
+          sslmode: Schema.optional(Schema.String),
+        }).pipe(
+          Schema.encodeKeys({
+            caCertificateId: "ca_certificate_id",
+            mtlsCertificateId: "mtls_certificate_id",
+            sslmode: "sslmode",
+          }),
+        ),
+      ),
+      originConnectionLimit: Schema.optional(Schema.Number),
+    }).pipe(
+      Schema.encodeKeys({
+        name: "name",
+        origin: "origin",
+        caching: "caching",
+        mtls: "mtls",
+        originConnectionLimit: "origin_connection_limit",
+      }),
+      T.Http({
+        method: "PUT",
+        path: "/accounts/{account_id}/hyperdrive/configs/{hyperdriveId}",
+      }),
+    ),
+) as unknown as Schema.Schema<UpdateConfigRequest>;
+
+export interface UpdateConfigResponse {
+  /** Define configurations using a unique string identifier. */
+  id: string;
+  /** The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  origin:
+    | {
+        database: string;
+        host: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        database: string;
+        host: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  caching?:
+    | { disabled?: boolean | null }
+    | {
+        disabled?: boolean | null;
+        maxAge?: number | null;
+        staleWhileRevalidate?: number | null;
+      }
+    | null;
+  /** Defines the creation time of the Hyperdrive configuration. */
+  createdOn?: string | null;
+  /** Defines the last modified time of the Hyperdrive configuration. */
+  modifiedOn?: string | null;
+  /** mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string | null;
+    mtlsCertificateId?: string | null;
+    sslmode?: string | null;
+  } | null;
+  /** The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified, defaults t */
+  originConnectionLimit?: number | null;
+}
+
+export const UpdateConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      id: Schema.String,
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          accessClientId: Schema.String,
+          database: Schema.String,
+          host: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            database: "database",
+            host: "host",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+              maxAge: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              staleWhileRevalidate: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }).pipe(
+              Schema.encodeKeys({
+                disabled: "disabled",
+                maxAge: "max_age",
+                staleWhileRevalidate: "stale_while_revalidate",
+              }),
+            ),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+      createdOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      modifiedOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      mtls: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            caCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            mtlsCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            sslmode: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              caCertificateId: "ca_certificate_id",
+              mtlsCertificateId: "mtls_certificate_id",
+              sslmode: "sslmode",
+            }),
+          ),
+          Schema.Null,
+        ]),
+      ),
+      originConnectionLimit: Schema.optional(
+        Schema.Union([Schema.Number, Schema.Null]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          id: "id",
+          name: "name",
+          origin: "origin",
+          caching: "caching",
+          createdOn: "created_on",
+          modifiedOn: "modified_on",
+          mtls: "mtls",
+          originConnectionLimit: "origin_connection_limit",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<UpdateConfigResponse>;
+
+export type UpdateConfigError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | HyperdriveConfigNotFound
+  | InvalidObjectIdentifier
+  | MethodNotAllowed;
+
+export const updateConfig: API.OperationMethod<
+  UpdateConfigRequest,
+  UpdateConfigResponse,
+  UpdateConfigError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: UpdateConfigRequest,
+  output: UpdateConfigResponse,
+  errors: [
+    PrivateHostNotAllowed,
+    HyperdriveConfigNotFound,
+    InvalidObjectIdentifier,
+    MethodNotAllowed,
+  ],
+}));
+
+export interface PatchConfigRequest {
+  hyperdriveId: string;
+  /** Path param: Define configurations using a unique string identifier. */
+  accountId: string;
+  /** Body param */
+  caching?:
+    | { disabled?: boolean }
+    | { disabled?: boolean; maxAge?: number; staleWhileRevalidate?: number };
+  /** Body param: mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string;
+    mtlsCertificateId?: string;
+    sslmode?: string;
+  };
+  /** Body param: The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name?: string;
+  /** Body param: Connect to a database through a Workers VPC Service. TLS settings (mTLS, sslmode) cannot be configured on the Hyperdrive when using a VPC Service origin; TLS must be managed on the VPC Ser */
+  origin?:
+    | {
+        database?: string;
+        password?: string;
+        scheme?: "postgres" | "postgresql" | "mysql" | (string & {});
+        user?: string;
+      }
+    | { host: string; port: number }
+    | { accessClientId: string; accessClientSecret: string; host: string }
+    | { serviceId: string };
+  /** Body param: The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified */
+  originConnectionLimit?: number;
+}
+
+export const PatchConfigRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      hyperdriveId: Schema.String.pipe(T.HttpPath("hyperdriveId")),
+      accountId: Schema.String.pipe(T.HttpPath("account_id")),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+          }),
+          Schema.Struct({
+            disabled: Schema.optional(Schema.Boolean),
+            maxAge: Schema.optional(Schema.Number),
+            staleWhileRevalidate: Schema.optional(Schema.Number),
+          }).pipe(
+            Schema.encodeKeys({
+              disabled: "disabled",
+              maxAge: "max_age",
+              staleWhileRevalidate: "stale_while_revalidate",
+            }),
+          ),
+        ]),
+      ),
+      mtls: Schema.optional(
+        Schema.Struct({
+          caCertificateId: Schema.optional(Schema.String),
+          mtlsCertificateId: Schema.optional(Schema.String),
+          sslmode: Schema.optional(Schema.String),
+        }).pipe(
+          Schema.encodeKeys({
+            caCertificateId: "ca_certificate_id",
+            mtlsCertificateId: "mtls_certificate_id",
+            sslmode: "sslmode",
+          }),
+        ),
+      ),
+      name: Schema.optional(Schema.String),
+      origin: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            accessClientId: Schema.String,
+            accessClientSecret: SensitiveString,
+            host: Schema.String,
+          }).pipe(
+            Schema.encodeKeys({
+              accessClientId: "access_client_id",
+              accessClientSecret: "access_client_secret",
+              host: "host",
+            }),
+          ),
+          Schema.Struct({
+            host: Schema.String,
+            port: Schema.Number,
+          }),
+          Schema.Struct({
+            serviceId: Schema.String,
+          }).pipe(Schema.encodeKeys({ serviceId: "service_id" })),
+          Schema.Struct({
+            database: Schema.optional(Schema.String),
+            password: Schema.optional(SensitiveString),
+            scheme: Schema.optional(
+              Schema.Union([
+                Schema.Literals(["postgres", "postgresql", "mysql"]),
+                Schema.String,
+              ]),
+            ),
+            user: Schema.optional(Schema.String),
+          }),
+        ]),
+      ),
+      originConnectionLimit: Schema.optional(Schema.Number),
+    }).pipe(
+      Schema.encodeKeys({
+        caching: "caching",
+        mtls: "mtls",
+        name: "name",
+        origin: "origin",
+        originConnectionLimit: "origin_connection_limit",
+      }),
+      T.Http({
+        method: "PATCH",
+        path: "/accounts/{account_id}/hyperdrive/configs/{hyperdriveId}",
+      }),
+    ),
+) as unknown as Schema.Schema<PatchConfigRequest>;
+
+export interface PatchConfigResponse {
+  /** Define configurations using a unique string identifier. */
+  id: string;
+  /** The name of the Hyperdrive configuration. Used to identify the configuration in the Cloudflare dashboard and API. */
+  name: string;
+  origin:
+    | {
+        database: string;
+        host: string;
+        port: number;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        accessClientId: string;
+        database: string;
+        host: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        user: string;
+      }
+    | {
+        database: string;
+        scheme: "postgres" | "postgresql" | "mysql" | (string & {});
+        serviceId: string;
+        user: string;
+      };
+  caching?:
+    | { disabled?: boolean | null }
+    | {
+        disabled?: boolean | null;
+        maxAge?: number | null;
+        staleWhileRevalidate?: number | null;
+      }
+    | null;
+  /** Defines the creation time of the Hyperdrive configuration. */
+  createdOn?: string | null;
+  /** Defines the last modified time of the Hyperdrive configuration. */
+  modifiedOn?: string | null;
+  /** mTLS configuration for the origin connection. Cannot be used with VPC Service origins; TLS must be managed on the VPC Service. */
+  mtls?: {
+    caCertificateId?: string | null;
+    mtlsCertificateId?: string | null;
+    sslmode?: string | null;
+  } | null;
+  /** The (soft) maximum number of connections the Hyperdrive is allowed to make to the origin database.  Maximum allowed: 20 for free tier accounts, 100 for paid tier accounts. If not specified, defaults t */
+  originConnectionLimit?: number | null;
+}
+
+export const PatchConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      id: Schema.String,
+      name: Schema.String,
+      origin: Schema.Union([
+        Schema.Struct({
+          database: Schema.String,
+          host: Schema.String,
+          port: Schema.Number,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }),
+        Schema.Struct({
+          accessClientId: Schema.String,
+          database: Schema.String,
+          host: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            accessClientId: "access_client_id",
+            database: "database",
+            host: "host",
+            scheme: "scheme",
+            user: "user",
+          }),
+        ),
+        Schema.Struct({
+          database: Schema.String,
+          scheme: Schema.Union([
+            Schema.Literals(["postgres", "postgresql", "mysql"]),
+            Schema.String,
+          ]),
+          serviceId: Schema.String,
+          user: Schema.String,
+        }).pipe(
+          Schema.encodeKeys({
+            database: "database",
+            scheme: "scheme",
+            serviceId: "service_id",
+            user: "user",
+          }),
+        ),
+      ]),
+      caching: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+            }),
+            Schema.Struct({
+              disabled: Schema.optional(
+                Schema.Union([Schema.Boolean, Schema.Null]),
+              ),
+              maxAge: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+              staleWhileRevalidate: Schema.optional(
+                Schema.Union([Schema.Number, Schema.Null]),
+              ),
+            }).pipe(
+              Schema.encodeKeys({
+                disabled: "disabled",
+                maxAge: "max_age",
+                staleWhileRevalidate: "stale_while_revalidate",
+              }),
+            ),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+      createdOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      modifiedOn: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      mtls: Schema.optional(
+        Schema.Union([
+          Schema.Struct({
+            caCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            mtlsCertificateId: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+            sslmode: Schema.optional(
+              Schema.Union([Schema.String, Schema.Null]),
+            ),
+          }).pipe(
+            Schema.encodeKeys({
+              caCertificateId: "ca_certificate_id",
+              mtlsCertificateId: "mtls_certificate_id",
+              sslmode: "sslmode",
+            }),
+          ),
+          Schema.Null,
+        ]),
+      ),
+      originConnectionLimit: Schema.optional(
+        Schema.Union([Schema.Number, Schema.Null]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          id: "id",
+          name: "name",
+          origin: "origin",
+          caching: "caching",
+          createdOn: "created_on",
+          modifiedOn: "modified_on",
+          mtls: "mtls",
+          originConnectionLimit: "origin_connection_limit",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<PatchConfigResponse>;
+
+export type PatchConfigError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | HyperdriveConfigNotFound
+  | InvalidObjectIdentifier
+  | MethodNotAllowed;
+
+export const patchConfig: API.OperationMethod<
+  PatchConfigRequest,
+  PatchConfigResponse,
+  PatchConfigError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: PatchConfigRequest,
+  output: PatchConfigResponse,
+  errors: [
+    PrivateHostNotAllowed,
+    HyperdriveConfigNotFound,
+    InvalidObjectIdentifier,
+    MethodNotAllowed,
+  ],
+}));
+
+export interface DeleteConfigRequest {
+  hyperdriveId: string;
+  /** Define configurations using a unique string identifier. */
+  accountId: string;
+}
+
+export const DeleteConfigRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      hyperdriveId: Schema.String.pipe(T.HttpPath("hyperdriveId")),
+      accountId: Schema.String.pipe(T.HttpPath("account_id")),
+    }).pipe(
+      T.Http({
+        method: "DELETE",
+        path: "/accounts/{account_id}/hyperdrive/configs/{hyperdriveId}",
+      }),
+    ),
+) as unknown as Schema.Schema<DeleteConfigRequest>;
+
+export type DeleteConfigResponse = unknown;
+
+export const DeleteConfigResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () => Schema.Unknown.pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<DeleteConfigResponse>;
+
+export type DeleteConfigError =
+  | DefaultErrors
+  | PrivateHostNotAllowed
+  | HyperdriveConfigNotFound
+  | InvalidObjectIdentifier
+  | MethodNotAllowed;
+
+export const deleteConfig: API.OperationMethod<
+  DeleteConfigRequest,
+  DeleteConfigResponse,
+  DeleteConfigError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteConfigRequest,
+  output: DeleteConfigResponse,
+  errors: [
+    PrivateHostNotAllowed,
+    HyperdriveConfigNotFound,
+    InvalidObjectIdentifier,
+    MethodNotAllowed,
+  ],
+}));

@@ -1,0 +1,318 @@
+/**
+ * Cloudflare HOSTNAMES API
+ *
+ * Generated from Cloudflare TypeScript SDK.
+ * DO NOT EDIT - regenerate with: bun scripts/generate.ts --service hostnames
+ */
+
+import * as Schema from "effect/Schema";
+import type * as HttpClient from "effect/unstable/http/HttpClient";
+import * as API from "../client/api.ts";
+import * as T from "../traits.ts";
+import type { Credentials } from "../credentials.ts";
+import { type DefaultErrors } from "../errors.ts";
+
+// =============================================================================
+// Errors
+// =============================================================================
+
+export class AdvancedCertificateManagerRequired extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<AdvancedCertificateManagerRequired>()(
+    "AdvancedCertificateManagerRequired",
+    { code: Schema.Number, message: Schema.String },
+  ),
+  [{ code: 1450 }],
+) {}
+
+export class Forbidden extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<Forbidden>()("Forbidden", {
+    code: Schema.Number,
+    message: Schema.String,
+  }),
+  [{ status: 403 }],
+) {}
+
+export class HostnameTlsSettingNotFound extends T.applyErrorMatchers(
+  Schema.TaggedErrorClass<HostnameTlsSettingNotFound>()(
+    "HostnameTlsSettingNotFound",
+    { code: Schema.Number, message: Schema.String },
+  ),
+  [{ status: 404 }],
+) {}
+
+// =============================================================================
+// SettingTl
+// =============================================================================
+
+export interface GetSettingTlsRequest {
+  /** Identifier. */
+  zoneId: string;
+  settingId: string;
+}
+
+export const GetSettingTlsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+      settingId: Schema.String.pipe(T.HttpPath("settingId")),
+    }).pipe(
+      T.Http({
+        method: "GET",
+        path: "/zones/{zone_id}/hostnames/settings/{settingId}",
+      }),
+    ),
+) as unknown as Schema.Schema<GetSettingTlsRequest>;
+
+export interface GetSettingTlsResponse {
+  result: {
+    createdAt?: string | null;
+    hostname?: string | null;
+    status?: string | null;
+    updatedAt?: string | null;
+    value?: "1.0" | "1.1" | "1.2" | "1.3" | "on" | "off" | string[] | null;
+  }[];
+}
+
+export const GetSettingTlsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      result: Schema.Array(
+        Schema.Struct({
+          createdAt: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          hostname: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          status: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+          updatedAt: Schema.optional(
+            Schema.Union([Schema.String, Schema.Null]),
+          ),
+          value: Schema.optional(
+            Schema.Union([
+              Schema.Union([
+                Schema.Literal("1.0"),
+                Schema.Literal("1.1"),
+                Schema.Literal("1.2"),
+                Schema.Literal("1.3"),
+                Schema.Literal("on"),
+                Schema.Literal("off"),
+                Schema.Array(Schema.String),
+              ]),
+              Schema.Null,
+            ]),
+          ),
+        }).pipe(
+          Schema.encodeKeys({
+            createdAt: "created_at",
+            hostname: "hostname",
+            status: "status",
+            updatedAt: "updated_at",
+            value: "value",
+          }),
+        ),
+      ),
+    }),
+) as unknown as Schema.Schema<GetSettingTlsResponse>;
+
+export type GetSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | Forbidden;
+
+export const getSettingTls: API.PaginatedOperationMethod<
+  GetSettingTlsRequest,
+  GetSettingTlsResponse,
+  GetSettingTlsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.makePaginated(() => ({
+  input: GetSettingTlsRequest,
+  output: GetSettingTlsResponse,
+  errors: [AdvancedCertificateManagerRequired, Forbidden],
+  pagination: {
+    mode: "single",
+    items: "result",
+  } as const,
+}));
+
+export interface PutSettingTlsRequest {
+  hostname: string;
+  /** Path param: Identifier. */
+  zoneId: string;
+  settingId: string;
+  /** Body param: The TLS setting value. The type depends on the `setting_id` used in the request path:  - `ciphers`: an array of allowed cipher suite strings in BoringSSL format (e.g., `["ECDHE-RSA-AES128- */
+  value: "1.0" | "1.1" | "1.2" | "1.3" | "on" | "off" | string[];
+}
+
+export const PutSettingTlsRequest = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      hostname: Schema.String.pipe(T.HttpPath("hostname")),
+      zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+      settingId: Schema.String.pipe(T.HttpPath("settingId")),
+      value: Schema.Union([
+        Schema.Literal("1.0"),
+        Schema.Literal("1.1"),
+        Schema.Literal("1.2"),
+        Schema.Literal("1.3"),
+        Schema.Literal("on"),
+        Schema.Literal("off"),
+        Schema.Array(Schema.String),
+      ]),
+    }).pipe(
+      T.Http({
+        method: "PUT",
+        path: "/zones/{zone_id}/hostnames/settings/{settingId}/{hostname}",
+      }),
+    ),
+) as unknown as Schema.Schema<PutSettingTlsRequest>;
+
+export interface PutSettingTlsResponse {
+  /** This is the time the tls setting was originally created for this hostname. */
+  createdAt?: string | null;
+  /** The hostname for which the tls settings are set. */
+  hostname?: string | null;
+  /** Deployment status for the given tls setting. */
+  status?: string | null;
+  /** This is the time the tls setting was updated. */
+  updatedAt?: string | null;
+  /** The TLS setting value. The type depends on the `setting_id` used in the request path:  - `ciphers`: an array of allowed cipher suite strings in BoringSSL format (e.g., `["ECDHE-RSA-AES128-GCM-SHA256", */
+  value?: "1.0" | "1.1" | "1.2" | "1.3" | "on" | "off" | string[] | null;
+}
+
+export const PutSettingTlsResponse = /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(
+  () =>
+    Schema.Struct({
+      createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      hostname: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      status: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      value: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Literal("1.0"),
+            Schema.Literal("1.1"),
+            Schema.Literal("1.2"),
+            Schema.Literal("1.3"),
+            Schema.Literal("on"),
+            Schema.Literal("off"),
+            Schema.Array(Schema.String),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          createdAt: "created_at",
+          hostname: "hostname",
+          status: "status",
+          updatedAt: "updated_at",
+          value: "value",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+) as unknown as Schema.Schema<PutSettingTlsResponse>;
+
+export type PutSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | Forbidden;
+
+export const putSettingTls: API.OperationMethod<
+  PutSettingTlsRequest,
+  PutSettingTlsResponse,
+  PutSettingTlsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: PutSettingTlsRequest,
+  output: PutSettingTlsResponse,
+  errors: [AdvancedCertificateManagerRequired, Forbidden],
+}));
+
+export interface DeleteSettingTlsRequest {
+  hostname: string;
+  /** Identifier. */
+  zoneId: string;
+  settingId: string;
+}
+
+export const DeleteSettingTlsRequest =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
+    Schema.Struct({
+      hostname: Schema.String.pipe(T.HttpPath("hostname")),
+      zoneId: Schema.String.pipe(T.HttpPath("zone_id")),
+      settingId: Schema.String.pipe(T.HttpPath("settingId")),
+    }).pipe(
+      T.Http({
+        method: "DELETE",
+        path: "/zones/{zone_id}/hostnames/settings/{settingId}/{hostname}",
+      }),
+    ),
+  ) as unknown as Schema.Schema<DeleteSettingTlsRequest>;
+
+export interface DeleteSettingTlsResponse {
+  /** This is the time the tls setting was originally created for this hostname. */
+  createdAt?: string | null;
+  /** The hostname for which the tls settings are set. */
+  hostname?: string | null;
+  /** Deployment status for the given tls setting. */
+  status?: string | null;
+  /** This is the time the tls setting was updated. */
+  updatedAt?: string | null;
+  /** The TLS setting value. The type depends on the `setting_id` used in the request path:  - `ciphers`: an array of allowed cipher suite strings in BoringSSL format (e.g., `["ECDHE-RSA-AES128-GCM-SHA256", */
+  value?: "1.0" | "1.1" | "1.2" | "1.3" | "on" | "off" | string[] | null;
+}
+
+export const DeleteSettingTlsResponse =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.suspend(() =>
+    Schema.Struct({
+      createdAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      hostname: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      status: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      updatedAt: Schema.optional(Schema.Union([Schema.String, Schema.Null])),
+      value: Schema.optional(
+        Schema.Union([
+          Schema.Union([
+            Schema.Literal("1.0"),
+            Schema.Literal("1.1"),
+            Schema.Literal("1.2"),
+            Schema.Literal("1.3"),
+            Schema.Literal("on"),
+            Schema.Literal("off"),
+            Schema.Array(Schema.String),
+          ]),
+          Schema.Null,
+        ]),
+      ),
+    })
+      .pipe(
+        Schema.encodeKeys({
+          createdAt: "created_at",
+          hostname: "hostname",
+          status: "status",
+          updatedAt: "updated_at",
+          value: "value",
+        }),
+      )
+      .pipe(T.ResponsePath("result")),
+  ) as unknown as Schema.Schema<DeleteSettingTlsResponse>;
+
+export type DeleteSettingTlsError =
+  | DefaultErrors
+  | AdvancedCertificateManagerRequired
+  | HostnameTlsSettingNotFound
+  | Forbidden;
+
+export const deleteSettingTls: API.OperationMethod<
+  DeleteSettingTlsRequest,
+  DeleteSettingTlsResponse,
+  DeleteSettingTlsError,
+  Credentials | HttpClient.HttpClient
+> = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  input: DeleteSettingTlsRequest,
+  output: DeleteSettingTlsResponse,
+  errors: [
+    AdvancedCertificateManagerRequired,
+    HostnameTlsSettingNotFound,
+    Forbidden,
+  ],
+}));

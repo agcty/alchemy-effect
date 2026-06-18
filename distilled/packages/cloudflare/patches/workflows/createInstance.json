@@ -1,0 +1,8 @@
+{
+  "errors": {
+    "WorkflowNotFound": [{ "code": 10200 }],
+    "InstanceAlreadyExists": [{ "code": 10405 }],
+    "InvalidRoute": [{ "code": 7003 }],
+    "InvalidBody": [{ "code": 10002 }]
+  }
+}

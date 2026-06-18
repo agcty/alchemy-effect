@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "InvalidQueueName": [{ "code": 11003 }],
+    "QueueNotFound": [{ "code": 11000 }],
+    "InvalidRoute": [{ "code": 7003 }]
+  }
+}

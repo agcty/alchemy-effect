@@ -1,0 +1,829 @@
+/**
+ * Azure Devopsinfrastructure API
+ *
+ * Generated from the Azure REST API specs.
+ * DO NOT EDIT - regenerate with: bun run generate
+ */
+import * as Schema from "effect/Schema";
+import { API } from "../client.ts";
+import * as T from "../traits.ts";
+
+// Input Schema
+export const ImageVersionsListByImageInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    imageName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/images/{imageName}/versions",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type ImageVersionsListByImageInput =
+  typeof ImageVersionsListByImageInput.Type;
+
+// Output Schema
+export const ImageVersionsListByImageOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type ImageVersionsListByImageOutput =
+  typeof ImageVersionsListByImageOutput.Type;
+
+// The operation
+/**
+ * List ImageVersion resources by Image
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param imageName - Name of the image.
+ */
+export const ImageVersionsListByImage = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: ImageVersionsListByImageInput,
+    outputSchema: ImageVersionsListByImageOutput,
+  }),
+);
+// Input Schema
+export const OperationsListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/providers/Microsoft.DevOpsInfrastructure/operations",
+    apiVersion: "2025-09-20",
+  }),
+);
+export type OperationsListInput = typeof OperationsListInput.Type;
+
+// Output Schema
+export const OperationsListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  value: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        name: Schema.optional(Schema.String),
+        isDataAction: Schema.optional(Schema.Boolean),
+        display: Schema.optional(
+          Schema.Struct({
+            provider: Schema.optional(Schema.String),
+            resource: Schema.optional(Schema.String),
+            operation: Schema.optional(Schema.String),
+            description: Schema.optional(Schema.String),
+          }),
+        ),
+        origin: Schema.optional(
+          Schema.Literals(["user", "system", "user,system"]),
+        ),
+        actionType: Schema.optional(Schema.Literals(["Internal"])),
+      }),
+    ),
+  ),
+  nextLink: Schema.optional(Schema.String),
+});
+export type OperationsListOutput = typeof OperationsListOutput.Type;
+
+// The operation
+/**
+ * List the operations for the provider
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const OperationsList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: OperationsListInput,
+  outputSchema: OperationsListOutput,
+}));
+// Input Schema
+export const PoolsCheckNameAvailabilityInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    name: Schema.String,
+    type: Schema.Literals(["Microsoft.DevOpsInfrastructure/pools"]),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.DevOpsInfrastructure/checkNameAvailability",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type PoolsCheckNameAvailabilityInput =
+  typeof PoolsCheckNameAvailabilityInput.Type;
+
+// Output Schema
+export const PoolsCheckNameAvailabilityOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    available: Schema.Literals(["Available", "Unavailable"]),
+    message: Schema.String,
+    name: Schema.String,
+    reason: Schema.Literals(["Invalid", "AlreadyExists"]),
+  });
+export type PoolsCheckNameAvailabilityOutput =
+  typeof PoolsCheckNameAvailabilityOutput.Type;
+
+// The operation
+/**
+ * Checks that the pool name is valid and is not already in use.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ */
+export const PoolsCheckNameAvailability = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: PoolsCheckNameAvailabilityInput,
+    outputSchema: PoolsCheckNameAvailabilityOutput,
+  }),
+);
+// Input Schema
+export const PoolsCreateOrUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    poolName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        provisioningState: Schema.optional(
+          Schema.Literals([
+            "Succeeded",
+            "Failed",
+            "Canceled",
+            "Provisioning",
+            "Updating",
+            "Deleting",
+            "Accepted",
+          ]),
+        ),
+        maximumConcurrency: Schema.Number,
+        organizationProfile: Schema.Struct({
+          kind: Schema.String,
+        }),
+        agentProfile: Schema.Struct({
+          kind: Schema.String,
+          resourcePredictions: Schema.optional(Schema.Unknown),
+          resourcePredictionsProfile: Schema.optional(
+            Schema.Struct({
+              kind: Schema.Literals(["Manual", "Automatic"]),
+            }),
+          ),
+        }),
+        fabricProfile: Schema.Struct({
+          kind: Schema.String,
+        }),
+        devCenterProjectResourceId: Schema.String,
+        runtimeConfiguration: Schema.optional(
+          Schema.Struct({
+            workFolder: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    identity: Schema.optional(
+      Schema.Struct({
+        principalId: Schema.optional(Schema.String),
+        tenantId: Schema.optional(Schema.String),
+        type: Schema.Literals([
+          "None",
+          "SystemAssigned",
+          "UserAssigned",
+          "SystemAssigned,UserAssigned",
+        ]),
+        userAssignedIdentities: Schema.optional(
+          Schema.Record(
+            Schema.String,
+            Schema.Struct({
+              principalId: Schema.optional(Schema.String),
+              clientId: Schema.optional(Schema.String),
+            }),
+          ),
+        ),
+      }),
+    ),
+    tags: Schema.optional(Schema.Record(Schema.String, Schema.String)),
+    location: Schema.String,
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type PoolsCreateOrUpdateInput = typeof PoolsCreateOrUpdateInput.Type;
+
+// Output Schema
+export const PoolsCreateOrUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type PoolsCreateOrUpdateOutput = typeof PoolsCreateOrUpdateOutput.Type;
+
+// The operation
+/**
+ * Create a Pool
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const PoolsCreateOrUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: PoolsCreateOrUpdateInput,
+  outputSchema: PoolsCreateOrUpdateOutput,
+}));
+// Input Schema
+export const PoolsDeleteInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  subscriptionId: Schema.String.pipe(T.PathParam()),
+  resourceGroupName: Schema.String.pipe(T.PathParam()),
+  poolName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "DELETE",
+    path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}",
+    apiVersion: "2025-09-20",
+  }),
+);
+export type PoolsDeleteInput = typeof PoolsDeleteInput.Type;
+
+// Output Schema
+export const PoolsDeleteOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type PoolsDeleteOutput = typeof PoolsDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete a Pool
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const PoolsDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: PoolsDeleteInput,
+  outputSchema: PoolsDeleteOutput,
+}));
+// Input Schema
+export const PoolsDeleteResourcesInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    poolName: Schema.String.pipe(T.PathParam()),
+    resourceIds: Schema.Array(Schema.String),
+  }).pipe(
+    T.Http({
+      method: "POST",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}/resources",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type PoolsDeleteResourcesInput = typeof PoolsDeleteResourcesInput.Type;
+
+// Output Schema
+export const PoolsDeleteResourcesOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type PoolsDeleteResourcesOutput = typeof PoolsDeleteResourcesOutput.Type;
+
+// The operation
+/**
+ * A synchronous resource action.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const PoolsDeleteResources = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: PoolsDeleteResourcesInput,
+    outputSchema: PoolsDeleteResourcesOutput,
+  }),
+);
+// Input Schema
+export const PoolsGetInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  subscriptionId: Schema.String.pipe(T.PathParam()),
+  resourceGroupName: Schema.String.pipe(T.PathParam()),
+  poolName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}",
+    apiVersion: "2025-09-20",
+  }),
+);
+export type PoolsGetInput = typeof PoolsGetInput.Type;
+
+// Output Schema
+export const PoolsGetOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  type: Schema.optional(Schema.String),
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+});
+export type PoolsGetOutput = typeof PoolsGetOutput.Type;
+
+// The operation
+/**
+ * Get a Pool
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const PoolsGet = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: PoolsGetInput,
+  outputSchema: PoolsGetOutput,
+}));
+// Input Schema
+export const PoolsListByResourceGroupInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type PoolsListByResourceGroupInput =
+  typeof PoolsListByResourceGroupInput.Type;
+
+// Output Schema
+export const PoolsListByResourceGroupOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type PoolsListByResourceGroupOutput =
+  typeof PoolsListByResourceGroupOutput.Type;
+
+// The operation
+/**
+ * List Pool resources by resource group
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ */
+export const PoolsListByResourceGroup = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: PoolsListByResourceGroupInput,
+    outputSchema: PoolsListByResourceGroupOutput,
+  }),
+);
+// Input Schema
+export const PoolsListBySubscriptionInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.DevOpsInfrastructure/pools",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type PoolsListBySubscriptionInput =
+  typeof PoolsListBySubscriptionInput.Type;
+
+// Output Schema
+export const PoolsListBySubscriptionOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type PoolsListBySubscriptionOutput =
+  typeof PoolsListBySubscriptionOutput.Type;
+
+// The operation
+/**
+ * List Pool resources by subscription ID
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ */
+export const PoolsListBySubscription = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: PoolsListBySubscriptionInput,
+    outputSchema: PoolsListBySubscriptionOutput,
+  }),
+);
+// Input Schema
+export const PoolsUpdateInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  subscriptionId: Schema.String.pipe(T.PathParam()),
+  resourceGroupName: Schema.String.pipe(T.PathParam()),
+  poolName: Schema.String.pipe(T.PathParam()),
+  identity: Schema.optional(
+    Schema.Struct({
+      principalId: Schema.optional(Schema.String),
+      tenantId: Schema.optional(Schema.String),
+      type: Schema.Literals([
+        "None",
+        "SystemAssigned",
+        "UserAssigned",
+        "SystemAssigned,UserAssigned",
+      ]),
+      userAssignedIdentities: Schema.optional(
+        Schema.Record(
+          Schema.String,
+          Schema.Struct({
+            principalId: Schema.optional(Schema.String),
+            clientId: Schema.optional(Schema.String),
+          }),
+        ),
+      ),
+    }),
+  ),
+  tags: Schema.optional(Schema.Record(Schema.String, Schema.String)),
+  properties: Schema.optional(
+    Schema.Struct({
+      provisioningState: Schema.optional(
+        Schema.Literals([
+          "Succeeded",
+          "Failed",
+          "Canceled",
+          "Provisioning",
+          "Updating",
+          "Deleting",
+          "Accepted",
+        ]),
+      ),
+      maximumConcurrency: Schema.optional(Schema.Number),
+      organizationProfile: Schema.optional(
+        Schema.Struct({
+          kind: Schema.String,
+        }),
+      ),
+      agentProfile: Schema.optional(
+        Schema.Struct({
+          kind: Schema.String,
+          resourcePredictions: Schema.optional(Schema.Unknown),
+          resourcePredictionsProfile: Schema.optional(
+            Schema.Struct({
+              kind: Schema.Literals(["Manual", "Automatic"]),
+            }),
+          ),
+        }),
+      ),
+      fabricProfile: Schema.optional(
+        Schema.Struct({
+          kind: Schema.String,
+        }),
+      ),
+      devCenterProjectResourceId: Schema.optional(Schema.String),
+      runtimeConfiguration: Schema.optional(
+        Schema.Struct({
+          workFolder: Schema.optional(Schema.String),
+        }),
+      ),
+    }),
+  ),
+}).pipe(
+  T.Http({
+    method: "PATCH",
+    path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}",
+    apiVersion: "2025-09-20",
+  }),
+);
+export type PoolsUpdateInput = typeof PoolsUpdateInput.Type;
+
+// Output Schema
+export const PoolsUpdateOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  type: Schema.optional(Schema.String),
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+});
+export type PoolsUpdateOutput = typeof PoolsUpdateOutput.Type;
+
+// The operation
+/**
+ * Update a Pool
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const PoolsUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: PoolsUpdateInput,
+  outputSchema: PoolsUpdateOutput,
+}));
+// Input Schema
+export const ResourceDetailsListByPoolInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    poolName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.DevOpsInfrastructure/pools/{poolName}/resources",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type ResourceDetailsListByPoolInput =
+  typeof ResourceDetailsListByPoolInput.Type;
+
+// Output Schema
+export const ResourceDetailsListByPoolOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type ResourceDetailsListByPoolOutput =
+  typeof ResourceDetailsListByPoolOutput.Type;
+
+// The operation
+/**
+ * List ResourceDetailsObject resources by Pool
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param poolName - Name of the pool. It needs to be globally unique.
+ */
+export const ResourceDetailsListByPool = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: ResourceDetailsListByPoolInput,
+    outputSchema: ResourceDetailsListByPoolOutput,
+  }),
+);
+// Input Schema
+export const SkuListByLocationInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    locationName: Schema.String.pipe(T.PathParam()),
+  },
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/subscriptions/{subscriptionId}/providers/Microsoft.DevOpsInfrastructure/locations/{locationName}/skus",
+    apiVersion: "2025-09-20",
+  }),
+);
+export type SkuListByLocationInput = typeof SkuListByLocationInput.Type;
+
+// Output Schema
+export const SkuListByLocationOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type SkuListByLocationOutput = typeof SkuListByLocationOutput.Type;
+
+// The operation
+/**
+ * List ResourceSku resources by subscription ID
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param locationName - Name of the location.
+ */
+export const SkuListByLocation = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: SkuListByLocationInput,
+  outputSchema: SkuListByLocationOutput,
+}));
+// Input Schema
+export const SubscriptionUsagesUsagesInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    location: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.DevOpsInfrastructure/locations/{location}/usages",
+      apiVersion: "2025-09-20",
+    }),
+  );
+export type SubscriptionUsagesUsagesInput =
+  typeof SubscriptionUsagesUsagesInput.Type;
+
+// Output Schema
+export const SubscriptionUsagesUsagesOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        name: Schema.optional(
+          Schema.Struct({
+            value: Schema.optional(Schema.String),
+            localizedValue: Schema.optional(Schema.String),
+          }),
+        ),
+        id: Schema.String,
+        unit: Schema.String,
+        currentValue: Schema.Number,
+        limit: Schema.Number,
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type SubscriptionUsagesUsagesOutput =
+  typeof SubscriptionUsagesUsagesOutput.Type;
+
+// The operation
+/**
+ * List Quota resources by subscription ID
+ *
+ * @param subscriptionId - The ID of the target subscription. The value must be an UUID.
+ * @param location - The name of the Azure region.
+ * @param api-version - The API version to use for this operation.
+ */
+export const SubscriptionUsagesUsages = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: SubscriptionUsagesUsagesInput,
+    outputSchema: SubscriptionUsagesUsagesOutput,
+  }),
+);

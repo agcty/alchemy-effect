@@ -1,0 +1,99 @@
+{
+  "errors": {
+    "WorkerNotFound": [{ "code": 10007 }]
+  },
+  "request": {
+    "properties": {
+      "bindings[].json": { "type": "unknown" },
+      "bindings[?type=durable_object_namespace].class_name": {
+        "optional": false
+      },
+      "bindings[?type=workflow].class_name": {
+        "optional": false
+      },
+      "bindings[]": {
+        "appendUnion": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "worker_loader" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "artifacts" }
+              },
+              {
+                "name": "namespace",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "response": {
+    "properties": {
+      "bindings[].json": { "type": "unknown" },
+      "bindings[]": {
+        "appendUnion": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "worker_loader" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "artifacts" }
+              },
+              {
+                "name": "namespace",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

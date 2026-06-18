@@ -1,0 +1,9 @@
+{
+  "errors": {
+    "InvalidObjectIdentifier": [{ "code": 7003 }],
+    "ZoneNotFound": [
+      { "status": 404, "message": { "includes": "Invalid or missing zone" } }
+    ],
+    "Forbidden": [{ "status": 403 }]
+  }
+}

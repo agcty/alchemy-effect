@@ -1,0 +1,16 @@
+{
+  "errors": {
+    "ImagesAccessNotEnabled": [{ "code": 5403 }]
+  },
+  "response": {
+    "properties": {
+      "id": { "optional": true },
+      "options": { "optional": true },
+      "neverRequireSignedURLs": { "optional": true },
+      "variants": {
+        "optional": true,
+        "definition": { "kind": "object", "name": "Record" }
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "errors": {
+    "RulesetNotFound": [{ "code": 10003 }, { "code": 10001 }],
+    "Forbidden": [{ "status": 403 }]
+  },
+  "response": {
+    "properties": {
+      "rules": {
+        "optional": true
+      },
+      "rules[].action_parameters.from_value.status_code": {
+        "appendUnion": [{ "kind": "primitive", "value": "number" }]
+      }
+    }
+  }
+}

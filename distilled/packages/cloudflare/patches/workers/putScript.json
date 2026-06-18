@@ -1,0 +1,204 @@
+{
+  "errors": {
+    "InvalidRoute": [{ "code": 7003 }],
+    "InvalidWorkerScript": [{ "code": 10068 }],
+    "InternalServerError": [
+      {
+        "code": 10002,
+        "message": { "includes": "An unknown error has occurred" }
+      }
+    ],
+    "DurableObjectMustBeSqlite": [
+      {
+        "code": 10074,
+        "message": { "includes": "not a SQLite Durable Object" }
+      }
+    ],
+    "DuplicateMigrationTarget": [
+      {
+        "code": 10074,
+        "message": {
+          "includes": "cannot be the target of more than one migration"
+        }
+      }
+    ],
+    "ScriptStartupError": [{ "code": 10021 }],
+    "ScriptModuleNotFound": [
+      {
+        "code": 10021,
+        "message": { "includes": "No such module" }
+      }
+    ]
+  },
+  "request": {
+    "properties": {
+      "metadata.bindings[].json": { "type": "unknown" },
+      "metadata.bindings[?type=durable_object_namespace].class_name": {
+        "optional": false
+      },
+      "metadata.bindings[?type=workflow].class_name": {
+        "optional": false
+      },
+      "metadata.bindings[]": {
+        "appendUnion": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "worker_loader" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "artifacts" }
+              },
+              {
+                "name": "namespace",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "ratelimit" }
+              },
+              {
+                "name": "namespace_id",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "simple",
+                "required": true,
+                "type": {
+                  "kind": "object",
+                  "properties": [
+                    {
+                      "name": "limit",
+                      "required": true,
+                      "type": { "kind": "primitive", "value": "number" }
+                    },
+                    {
+                      "name": "period",
+                      "required": true,
+                      "type": { "kind": "primitive", "value": "number" }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "metadata.containers": {
+        "optional": true,
+        "definition": {
+          "kind": "array",
+          "elementType": {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "class_name",
+                "type": { "kind": "primitive", "value": "string" },
+                "required": true
+              }
+            ]
+          }
+        }
+      },
+      "metadata.observability.traces": {
+        "optional": true,
+        "definition": {
+          "kind": "object",
+          "properties": [
+            {
+              "name": "enabled",
+              "required": true,
+              "type": { "kind": "primitive", "value": "boolean" }
+            },
+            {
+              "name": "head_sampling_rate",
+              "required": false,
+              "type": { "kind": "primitive", "value": "number" }
+            },
+            {
+              "name": "destinations",
+              "required": false,
+              "type": {
+                "kind": "array",
+                "elementType": { "kind": "primitive", "value": "string" }
+              }
+            },
+            {
+              "name": "persist",
+              "required": false,
+              "type": { "kind": "primitive", "value": "boolean" }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "response": {
+    "properties": {
+      "observability.traces": {
+        "optional": true,
+        "definition": {
+          "kind": "object",
+          "properties": [
+            {
+              "name": "enabled",
+              "required": true,
+              "type": { "kind": "primitive", "value": "boolean" }
+            },
+            {
+              "name": "head_sampling_rate",
+              "required": false,
+              "type": { "kind": "primitive", "value": "number" }
+            },
+            {
+              "name": "destinations",
+              "required": false,
+              "type": {
+                "kind": "array",
+                "elementType": { "kind": "primitive", "value": "string" }
+              }
+            },
+            {
+              "name": "persist",
+              "required": false,
+              "type": { "kind": "primitive", "value": "boolean" }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

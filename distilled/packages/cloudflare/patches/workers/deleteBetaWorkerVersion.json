@@ -1,0 +1,6 @@
+{
+  "errors": {
+    "WorkerNotFound": [{ "code": 10007 }],
+    "WorkerVersionNotFound": [{ "code": 10071 }]
+  }
+}

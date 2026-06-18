@@ -1,0 +1,9 @@
+{
+  "errors": {},
+  "response": {
+    "properties": {
+      "result": { "nullable": true },
+      "result[].scope": { "type": "unknown" }
+    }
+  }
+}
