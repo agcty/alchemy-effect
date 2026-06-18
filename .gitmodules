@@ -5,6 +5,3 @@
 	# `git submodule update --init` (CI included). Fetch explicitly with
 	# `git submodule update --init --checkout .vendor/alchemy`.
 	update = none
-[submodule "distilled"]
-	path = distilled
-	url = https://github.com/alchemy-run/distilled.git
