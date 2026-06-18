@@ -1,11 +1,5 @@
 # Changelog
 
-## [v0.11.1](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.11.1) (2026-06-18)
-
-### Bug Fixes
-
-- **runtime**: improve local container reliability - by John Royal in [#52](https://github.com/alchemy-run/cloudflare-tools/pull/52) [(2d92adb)](https://github.com/alchemy-run/cloudflare-tools/commit/2d92adb92c2514aaf14f55e08ce331746fd6e66a)
-
 ## [v0.11.0](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.11.0) (2026-06-15)
 
 ### Features
@@ -30,7 +24,7 @@
 
 ## [v0.10.11](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.11) (2026-06-09)
 
-*No significant changes*
+_No significant changes_
 
 ## [v0.10.10](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.10) (2026-06-07)
 
@@ -43,7 +37,7 @@
 
 ## [v0.10.9](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.9) (2026-06-05)
 
-*No significant changes*
+_No significant changes_
 
 ## [v0.10.8](https://github.com/alchemy-run/cloudflare-tools/releases/tag/v0.10.8) (2026-06-05)
 
