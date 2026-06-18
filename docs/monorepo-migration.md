@@ -2,6 +2,8 @@
 
 For the short maintainer-facing case, see
 [`monorepo-maintainer-summary.md`](./monorepo-maintainer-summary.md).
+For the clean replacement-repository cutover procedure, see
+[`monorepo-cutover-operating-note.md`](./monorepo-cutover-operating-note.md).
 
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
 using the same high-level shape as the Oddlynew monorepo: shared repository infrastructure remains

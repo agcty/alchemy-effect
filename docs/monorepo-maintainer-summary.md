@@ -4,6 +4,9 @@ This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one 
 The goal is not only to put repositories in one checkout, but to make cross-repository changes
 reviewable, testable, cacheable, and releasable as one coherent system.
 
+For the clean replacement-repository cutover procedure, see
+[`monorepo-cutover-operating-note.md`](./monorepo-cutover-operating-note.md).
+
 ## What Gets Better
 
 Pull requests that currently span multiple repositories can become one branch with one project
