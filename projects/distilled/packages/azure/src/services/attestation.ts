@@ -1,0 +1,952 @@
+/**
+ * Azure Attestation API
+ *
+ * Generated from the Azure REST API specs.
+ * DO NOT EDIT - regenerate with: bun run generate
+ */
+import * as Schema from "effect/Schema";
+import { API } from "../client.ts";
+import * as T from "../traits.ts";
+
+// Input Schema
+export const AttestationProvidersCreateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+    location: Schema.String,
+    tags: Schema.optional(Schema.Record(Schema.String, Schema.String)),
+    properties: Schema.Struct({
+      publicNetworkAccess: Schema.optional(
+        Schema.Literals(["Enabled", "Disabled"]),
+      ),
+      policySigningCertificates: Schema.optional(
+        Schema.Struct({
+          keys: Schema.optional(
+            Schema.Array(
+              Schema.Struct({
+                alg: Schema.optional(Schema.String),
+                crv: Schema.optional(Schema.String),
+                d: Schema.optional(Schema.String),
+                dp: Schema.optional(Schema.String),
+                dq: Schema.optional(Schema.String),
+                e: Schema.optional(Schema.String),
+                k: Schema.optional(Schema.String),
+                kid: Schema.optional(Schema.String),
+                kty: Schema.String,
+                n: Schema.optional(Schema.String),
+                p: Schema.optional(Schema.String),
+                q: Schema.optional(Schema.String),
+                qi: Schema.optional(Schema.String),
+                use: Schema.optional(Schema.String),
+                x: Schema.optional(Schema.String),
+                x5c: Schema.optional(Schema.Array(Schema.String)),
+                y: Schema.optional(Schema.String),
+              }),
+            ),
+          ),
+        }),
+      ),
+      tpmAttestationAuthentication: Schema.optional(
+        Schema.Literals(["Enabled", "Disabled"]),
+      ),
+    }),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersCreateInput =
+  typeof AttestationProvidersCreateInput.Type;
+
+// Output Schema
+export const AttestationProvidersCreateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type AttestationProvidersCreateOutput =
+  typeof AttestationProvidersCreateOutput.Type;
+
+// The operation
+/**
+ * Creates or updates an Attestation Provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const AttestationProvidersCreate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: AttestationProvidersCreateInput,
+    outputSchema: AttestationProvidersCreateOutput,
+  }),
+);
+// Input Schema
+export const AttestationProvidersDeleteInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersDeleteInput =
+  typeof AttestationProvidersDeleteInput.Type;
+
+// Output Schema
+export const AttestationProvidersDeleteOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type AttestationProvidersDeleteOutput =
+  typeof AttestationProvidersDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete Attestation Service.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const AttestationProvidersDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: AttestationProvidersDeleteInput,
+    outputSchema: AttestationProvidersDeleteOutput,
+  }),
+);
+// Input Schema
+export const AttestationProvidersGetInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersGetInput =
+  typeof AttestationProvidersGetInput.Type;
+
+// Output Schema
+export const AttestationProvidersGetOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type AttestationProvidersGetOutput =
+  typeof AttestationProvidersGetOutput.Type;
+
+// The operation
+/**
+ * Get the status of Attestation Provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const AttestationProvidersGet = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: AttestationProvidersGetInput,
+    outputSchema: AttestationProvidersGetOutput,
+  }),
+);
+// Input Schema
+export const AttestationProvidersGetDefaultByLocationInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    location: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.Attestation/locations/{location}/defaultProvider",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersGetDefaultByLocationInput =
+  typeof AttestationProvidersGetDefaultByLocationInput.Type;
+
+// Output Schema
+export const AttestationProvidersGetDefaultByLocationOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type AttestationProvidersGetDefaultByLocationOutput =
+  typeof AttestationProvidersGetDefaultByLocationOutput.Type;
+
+// The operation
+/**
+ * Get the default provider by location.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param location - The name of Azure region.
+ */
+export const AttestationProvidersGetDefaultByLocation =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: AttestationProvidersGetDefaultByLocationInput,
+    outputSchema: AttestationProvidersGetDefaultByLocationOutput,
+  }));
+// Input Schema
+export const AttestationProvidersListInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.Attestation/attestationProviders",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersListInput =
+  typeof AttestationProvidersListInput.Type;
+
+// Output Schema
+export const AttestationProvidersListOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+    value: Schema.optional(
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.optional(Schema.String),
+          name: Schema.optional(Schema.String),
+          type: Schema.optional(Schema.String),
+          systemData: Schema.optional(
+            Schema.Struct({
+              createdBy: Schema.optional(Schema.String),
+              createdByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              createdAt: Schema.optional(Schema.String),
+              lastModifiedBy: Schema.optional(Schema.String),
+              lastModifiedByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              lastModifiedAt: Schema.optional(Schema.String),
+            }),
+          ),
+        }),
+      ),
+    ),
+  });
+export type AttestationProvidersListOutput =
+  typeof AttestationProvidersListOutput.Type;
+
+// The operation
+/**
+ * Returns a list of attestation providers in a subscription.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ */
+export const AttestationProvidersList = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: AttestationProvidersListInput,
+    outputSchema: AttestationProvidersListOutput,
+  }),
+);
+// Input Schema
+export const AttestationProvidersListByResourceGroupInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersListByResourceGroupInput =
+  typeof AttestationProvidersListByResourceGroupInput.Type;
+
+// Output Schema
+export const AttestationProvidersListByResourceGroupOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+    value: Schema.optional(
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.optional(Schema.String),
+          name: Schema.optional(Schema.String),
+          type: Schema.optional(Schema.String),
+          systemData: Schema.optional(
+            Schema.Struct({
+              createdBy: Schema.optional(Schema.String),
+              createdByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              createdAt: Schema.optional(Schema.String),
+              lastModifiedBy: Schema.optional(Schema.String),
+              lastModifiedByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              lastModifiedAt: Schema.optional(Schema.String),
+            }),
+          ),
+        }),
+      ),
+    ),
+  });
+export type AttestationProvidersListByResourceGroupOutput =
+  typeof AttestationProvidersListByResourceGroupOutput.Type;
+
+// The operation
+/**
+ * Returns attestation providers list in a resource group.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ */
+export const AttestationProvidersListByResourceGroup =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: AttestationProvidersListByResourceGroupInput,
+    outputSchema: AttestationProvidersListByResourceGroupOutput,
+  }));
+// Input Schema
+export const AttestationProvidersListDefaultInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/providers/Microsoft.Attestation/defaultProviders",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersListDefaultInput =
+  typeof AttestationProvidersListDefaultInput.Type;
+
+// Output Schema
+export const AttestationProvidersListDefaultOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+    value: Schema.optional(
+      Schema.Array(
+        Schema.Struct({
+          id: Schema.optional(Schema.String),
+          name: Schema.optional(Schema.String),
+          type: Schema.optional(Schema.String),
+          systemData: Schema.optional(
+            Schema.Struct({
+              createdBy: Schema.optional(Schema.String),
+              createdByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              createdAt: Schema.optional(Schema.String),
+              lastModifiedBy: Schema.optional(Schema.String),
+              lastModifiedByType: Schema.optional(
+                Schema.Literals([
+                  "User",
+                  "Application",
+                  "ManagedIdentity",
+                  "Key",
+                ]),
+              ),
+              lastModifiedAt: Schema.optional(Schema.String),
+            }),
+          ),
+        }),
+      ),
+    ),
+  });
+export type AttestationProvidersListDefaultOutput =
+  typeof AttestationProvidersListDefaultOutput.Type;
+
+// The operation
+/**
+ * Get the default provider
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ */
+export const AttestationProvidersListDefault =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: AttestationProvidersListDefaultInput,
+    outputSchema: AttestationProvidersListDefaultOutput,
+  }));
+// Input Schema
+export const AttestationProvidersUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+    tags: Schema.optional(Schema.Record(Schema.String, Schema.String)),
+    properties: Schema.optional(
+      Schema.Struct({
+        publicNetworkAccess: Schema.optional(
+          Schema.Literals(["Enabled", "Disabled"]),
+        ),
+        tpmAttestationAuthentication: Schema.optional(
+          Schema.Literals(["Enabled", "Disabled"]),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PATCH",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type AttestationProvidersUpdateInput =
+  typeof AttestationProvidersUpdateInput.Type;
+
+// Output Schema
+export const AttestationProvidersUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type AttestationProvidersUpdateOutput =
+  typeof AttestationProvidersUpdateOutput.Type;
+
+// The operation
+/**
+ * Updates the Attestation Provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const AttestationProvidersUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: AttestationProvidersUpdateInput,
+    outputSchema: AttestationProvidersUpdateOutput,
+  }),
+);
+// Input Schema
+export const OperationsListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/providers/Microsoft.Attestation/operations",
+    apiVersion: "2021-06-01",
+  }),
+);
+export type OperationsListInput = typeof OperationsListInput.Type;
+
+// Output Schema
+export const OperationsListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+  value: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        name: Schema.optional(Schema.String),
+        display: Schema.optional(
+          Schema.Struct({
+            provider: Schema.optional(Schema.String),
+            resource: Schema.optional(Schema.String),
+            operation: Schema.optional(Schema.String),
+            description: Schema.optional(Schema.String),
+          }),
+        ),
+        properties: Schema.optional(
+          Schema.Struct({
+            serviceSpecification: Schema.optional(
+              Schema.Struct({
+                logSpecifications: Schema.optional(
+                  Schema.Array(
+                    Schema.Struct({
+                      name: Schema.optional(Schema.String),
+                      displayName: Schema.optional(Schema.String),
+                    }),
+                  ),
+                ),
+              }),
+            ),
+          }),
+        ),
+      }),
+    ),
+  ),
+});
+export type OperationsListOutput = typeof OperationsListOutput.Type;
+
+// The operation
+/**
+ * List the operations for the provider
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const OperationsList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: OperationsListInput,
+  outputSchema: OperationsListOutput,
+}));
+// Input Schema
+export const PrivateEndpointConnectionsCreateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+    privateEndpointConnectionName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        privateEndpoint: Schema.optional(
+          Schema.Struct({
+            id: Schema.optional(Schema.String),
+          }),
+        ),
+        privateLinkServiceConnectionState: Schema.Struct({
+          status: Schema.optional(
+            Schema.Literals(["Pending", "Approved", "Rejected"]),
+          ),
+          description: Schema.optional(Schema.String),
+          actionsRequired: Schema.optional(Schema.String),
+        }),
+        provisioningState: Schema.optional(
+          Schema.Literals(["Succeeded", "Creating", "Deleting", "Failed"]),
+        ),
+      }),
+    ),
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}/privateEndpointConnections/{privateEndpointConnectionName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type PrivateEndpointConnectionsCreateInput =
+  typeof PrivateEndpointConnectionsCreateInput.Type;
+
+// Output Schema
+export const PrivateEndpointConnectionsCreateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type PrivateEndpointConnectionsCreateOutput =
+  typeof PrivateEndpointConnectionsCreateOutput.Type;
+
+// The operation
+/**
+ * Update the state of specified private endpoint connection associated with the attestation provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ * @param privateEndpointConnectionName - The name of the private endpoint connection associated with the Azure resource
+ * @param properties - Resource properties.
+ */
+export const PrivateEndpointConnectionsCreate =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: PrivateEndpointConnectionsCreateInput,
+    outputSchema: PrivateEndpointConnectionsCreateOutput,
+  }));
+// Input Schema
+export const PrivateEndpointConnectionsDeleteInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+    privateEndpointConnectionName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}/privateEndpointConnections/{privateEndpointConnectionName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type PrivateEndpointConnectionsDeleteInput =
+  typeof PrivateEndpointConnectionsDeleteInput.Type;
+
+// Output Schema
+export const PrivateEndpointConnectionsDeleteOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type PrivateEndpointConnectionsDeleteOutput =
+  typeof PrivateEndpointConnectionsDeleteOutput.Type;
+
+// The operation
+/**
+ * Deletes the specified private endpoint connection associated with the attestation provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ * @param privateEndpointConnectionName - The name of the private endpoint connection associated with the Azure resource
+ */
+export const PrivateEndpointConnectionsDelete =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: PrivateEndpointConnectionsDeleteInput,
+    outputSchema: PrivateEndpointConnectionsDeleteOutput,
+  }));
+// Input Schema
+export const PrivateEndpointConnectionsGetInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+    privateEndpointConnectionName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}/privateEndpointConnections/{privateEndpointConnectionName}",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type PrivateEndpointConnectionsGetInput =
+  typeof PrivateEndpointConnectionsGetInput.Type;
+
+// Output Schema
+export const PrivateEndpointConnectionsGetOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type PrivateEndpointConnectionsGetOutput =
+  typeof PrivateEndpointConnectionsGetOutput.Type;
+
+// The operation
+/**
+ * Gets the specified private endpoint connection associated with the attestation provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ * @param privateEndpointConnectionName - The name of the private endpoint connection associated with the Azure resource
+ */
+export const PrivateEndpointConnectionsGet =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: PrivateEndpointConnectionsGetInput,
+    outputSchema: PrivateEndpointConnectionsGetOutput,
+  }));
+// Input Schema
+export const PrivateEndpointConnectionsListInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}/privateEndpointConnections",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type PrivateEndpointConnectionsListInput =
+  typeof PrivateEndpointConnectionsListInput.Type;
+
+// Output Schema
+export const PrivateEndpointConnectionsListOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type PrivateEndpointConnectionsListOutput =
+  typeof PrivateEndpointConnectionsListOutput.Type;
+
+// The operation
+/**
+ * List all the private endpoint connections associated with the attestation provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const PrivateEndpointConnectionsList =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: PrivateEndpointConnectionsListInput,
+    outputSchema: PrivateEndpointConnectionsListOutput,
+  }));
+// Input Schema
+export const PrivateLinkResourcesListByProviderInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    subscriptionId: Schema.String.pipe(T.PathParam()),
+    resourceGroupName: Schema.String.pipe(T.PathParam()),
+    providerName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "GET",
+      path: "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.Attestation/attestationProviders/{providerName}/privateLinkResources",
+      apiVersion: "2021-06-01",
+    }),
+  );
+export type PrivateLinkResourcesListByProviderInput =
+  typeof PrivateLinkResourcesListByProviderInput.Type;
+
+// Output Schema
+export const PrivateLinkResourcesListByProviderOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type PrivateLinkResourcesListByProviderOutput =
+  typeof PrivateLinkResourcesListByProviderOutput.Type;
+
+// The operation
+/**
+ * Gets the private link resources supported for the attestation provider.
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param subscriptionId - The ID of the target subscription.
+ * @param resourceGroupName - The name of the resource group. The name is case insensitive.
+ * @param providerName - Name of the attestation provider.
+ */
+export const PrivateLinkResourcesListByProvider =
+  /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+    inputSchema: PrivateLinkResourcesListByProviderInput,
+    outputSchema: PrivateLinkResourcesListByProviderOutput,
+  }));

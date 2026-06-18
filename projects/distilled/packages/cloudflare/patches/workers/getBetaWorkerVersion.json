@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "WorkerNotFound": [{ "code": 10007 }],
+    "WorkerVersionNotFound": [{ "code": 10071 }]
+  },
+  "response": {
+    "properties": {
+      "bindings[].json": { "type": "unknown" },
+      "bindings[]": {
+        "appendUnion": [
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "worker_loader" }
+              }
+            ]
+          },
+          {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "name",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              },
+              {
+                "name": "type",
+                "required": true,
+                "type": { "kind": "literal", "value": "artifacts" }
+              },
+              {
+                "name": "namespace",
+                "required": true,
+                "type": { "kind": "primitive", "value": "string" }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

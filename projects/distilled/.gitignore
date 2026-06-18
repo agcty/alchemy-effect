@@ -1,0 +1,14 @@
+.distilled
+node_modules
+**/*.tsbuildinfo
+lib/
+!scripts/lib
+.env
+pnpm-workspace.yaml
+.ai-workspace
+.gen-tmp
+vendor/
+.claude
+.worktrees
+.azure-np/
+**/.azure-np/

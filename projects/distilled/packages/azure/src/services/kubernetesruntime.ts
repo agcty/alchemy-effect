@@ -1,0 +1,967 @@
+/**
+ * Azure Kubernetesruntime API
+ *
+ * Generated from the Azure REST API specs.
+ * DO NOT EDIT - regenerate with: bun run generate
+ */
+import * as Schema from "effect/Schema";
+import { API } from "../client.ts";
+import * as T from "../traits.ts";
+import { SensitiveString } from "../sensitive.ts";
+
+// Input Schema
+export const BgpPeersCreateOrUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    bgpPeerName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        myAsn: Schema.Number,
+        peerAsn: Schema.Number,
+        peerAddress: Schema.String,
+        provisioningState: Schema.optional(
+          Schema.Literals([
+            "Succeeded",
+            "Failed",
+            "Canceled",
+            "Provisioning",
+            "Updating",
+            "Deleting",
+            "Accepted",
+          ]),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/bgpPeers/{bgpPeerName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type BgpPeersCreateOrUpdateInput =
+  typeof BgpPeersCreateOrUpdateInput.Type;
+
+// Output Schema
+export const BgpPeersCreateOrUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type BgpPeersCreateOrUpdateOutput =
+  typeof BgpPeersCreateOrUpdateOutput.Type;
+
+// The operation
+/**
+ * Create a BgpPeer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param bgpPeerName - The name of the BgpPeer
+ */
+export const BgpPeersCreateOrUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: BgpPeersCreateOrUpdateInput,
+    outputSchema: BgpPeersCreateOrUpdateOutput,
+  }),
+);
+// Input Schema
+export const BgpPeersDeleteInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  bgpPeerName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "DELETE",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/bgpPeers/{bgpPeerName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type BgpPeersDeleteInput = typeof BgpPeersDeleteInput.Type;
+
+// Output Schema
+export const BgpPeersDeleteOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type BgpPeersDeleteOutput = typeof BgpPeersDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete a BgpPeer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param bgpPeerName - The name of the BgpPeer
+ */
+export const BgpPeersDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: BgpPeersDeleteInput,
+  outputSchema: BgpPeersDeleteOutput,
+}));
+// Input Schema
+export const BgpPeersGetInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  bgpPeerName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/bgpPeers/{bgpPeerName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type BgpPeersGetInput = typeof BgpPeersGetInput.Type;
+
+// Output Schema
+export const BgpPeersGetOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  type: Schema.optional(Schema.String),
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+});
+export type BgpPeersGetOutput = typeof BgpPeersGetOutput.Type;
+
+// The operation
+/**
+ * Get a BgpPeer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param bgpPeerName - The name of the BgpPeer
+ */
+export const BgpPeersGet = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: BgpPeersGetInput,
+  outputSchema: BgpPeersGetOutput,
+}));
+// Input Schema
+export const BgpPeersListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/bgpPeers",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type BgpPeersListInput = typeof BgpPeersListInput.Type;
+
+// Output Schema
+export const BgpPeersListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  value: Schema.Array(
+    Schema.Struct({
+      id: Schema.optional(Schema.String),
+      name: Schema.optional(Schema.String),
+      type: Schema.optional(Schema.String),
+      systemData: Schema.optional(
+        Schema.Struct({
+          createdBy: Schema.optional(Schema.String),
+          createdByType: Schema.optional(
+            Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+          ),
+          createdAt: Schema.optional(Schema.String),
+          lastModifiedBy: Schema.optional(Schema.String),
+          lastModifiedByType: Schema.optional(
+            Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+          ),
+          lastModifiedAt: Schema.optional(Schema.String),
+        }),
+      ),
+    }),
+  ),
+  nextLink: Schema.optional(Schema.String),
+});
+export type BgpPeersListOutput = typeof BgpPeersListOutput.Type;
+
+// The operation
+/**
+ * List BgpPeer resources by parent
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const BgpPeersList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: BgpPeersListInput,
+  outputSchema: BgpPeersListOutput,
+}));
+// Input Schema
+export const LoadBalancersCreateOrUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    loadBalancerName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        addresses: Schema.Array(Schema.String),
+        serviceSelector: Schema.optional(
+          Schema.Record(Schema.String, Schema.String),
+        ),
+        advertiseMode: Schema.Literals(["ARP", "BGP", "Both"]),
+        bgpPeers: Schema.optional(Schema.Array(Schema.String)),
+        provisioningState: Schema.optional(
+          Schema.Literals([
+            "Succeeded",
+            "Failed",
+            "Canceled",
+            "Provisioning",
+            "Updating",
+            "Deleting",
+            "Accepted",
+          ]),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/loadBalancers/{loadBalancerName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type LoadBalancersCreateOrUpdateInput =
+  typeof LoadBalancersCreateOrUpdateInput.Type;
+
+// Output Schema
+export const LoadBalancersCreateOrUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type LoadBalancersCreateOrUpdateOutput =
+  typeof LoadBalancersCreateOrUpdateOutput.Type;
+
+// The operation
+/**
+ * Create a LoadBalancer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param loadBalancerName - The name of the LoadBalancer
+ */
+export const LoadBalancersCreateOrUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: LoadBalancersCreateOrUpdateInput,
+    outputSchema: LoadBalancersCreateOrUpdateOutput,
+  }),
+);
+// Input Schema
+export const LoadBalancersDeleteInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    loadBalancerName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/loadBalancers/{loadBalancerName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type LoadBalancersDeleteInput = typeof LoadBalancersDeleteInput.Type;
+
+// Output Schema
+export const LoadBalancersDeleteOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type LoadBalancersDeleteOutput = typeof LoadBalancersDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete a LoadBalancer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param loadBalancerName - The name of the LoadBalancer
+ */
+export const LoadBalancersDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: LoadBalancersDeleteInput,
+  outputSchema: LoadBalancersDeleteOutput,
+}));
+// Input Schema
+export const LoadBalancersGetInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  loadBalancerName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/loadBalancers/{loadBalancerName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type LoadBalancersGetInput = typeof LoadBalancersGetInput.Type;
+
+// Output Schema
+export const LoadBalancersGetOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  },
+);
+export type LoadBalancersGetOutput = typeof LoadBalancersGetOutput.Type;
+
+// The operation
+/**
+ * Get a LoadBalancer
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param loadBalancerName - The name of the LoadBalancer
+ */
+export const LoadBalancersGet = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: LoadBalancersGetInput,
+  outputSchema: LoadBalancersGetOutput,
+}));
+// Input Schema
+export const LoadBalancersListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/loadBalancers",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type LoadBalancersListInput = typeof LoadBalancersListInput.Type;
+
+// Output Schema
+export const LoadBalancersListOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  });
+export type LoadBalancersListOutput = typeof LoadBalancersListOutput.Type;
+
+// The operation
+/**
+ * List LoadBalancer resources by parent
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const LoadBalancersList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: LoadBalancersListInput,
+  outputSchema: LoadBalancersListOutput,
+}));
+// Input Schema
+export const OperationsListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/providers/Microsoft.KubernetesRuntime/operations",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type OperationsListInput = typeof OperationsListInput.Type;
+
+// Output Schema
+export const OperationsListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  value: Schema.optional(
+    Schema.Array(
+      Schema.Struct({
+        name: Schema.optional(Schema.String),
+        isDataAction: Schema.optional(Schema.Boolean),
+        display: Schema.optional(
+          Schema.Struct({
+            provider: Schema.optional(Schema.String),
+            resource: Schema.optional(Schema.String),
+            operation: Schema.optional(Schema.String),
+            description: Schema.optional(Schema.String),
+          }),
+        ),
+        origin: Schema.optional(
+          Schema.Literals(["user", "system", "user,system"]),
+        ),
+        actionType: Schema.optional(Schema.Literals(["Internal"])),
+      }),
+    ),
+  ),
+  nextLink: Schema.optional(Schema.String),
+});
+export type OperationsListOutput = typeof OperationsListOutput.Type;
+
+// The operation
+/**
+ * List the operations for the provider
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const OperationsList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: OperationsListInput,
+  outputSchema: OperationsListOutput,
+}));
+// Input Schema
+export const ServicesCreateOrUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    serviceName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        rpObjectId: Schema.optional(Schema.String),
+        provisioningState: Schema.optional(
+          Schema.Literals([
+            "Succeeded",
+            "Failed",
+            "Canceled",
+            "Provisioning",
+            "Updating",
+            "Deleting",
+            "Accepted",
+          ]),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/services/{serviceName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type ServicesCreateOrUpdateInput =
+  typeof ServicesCreateOrUpdateInput.Type;
+
+// Output Schema
+export const ServicesCreateOrUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type ServicesCreateOrUpdateOutput =
+  typeof ServicesCreateOrUpdateOutput.Type;
+
+// The operation
+/**
+ * Create a ServiceResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param serviceName - The name of the the service
+ */
+export const ServicesCreateOrUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: ServicesCreateOrUpdateInput,
+    outputSchema: ServicesCreateOrUpdateOutput,
+  }),
+);
+// Input Schema
+export const ServicesDeleteInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  serviceName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "DELETE",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/services/{serviceName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type ServicesDeleteInput = typeof ServicesDeleteInput.Type;
+
+// Output Schema
+export const ServicesDeleteOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type ServicesDeleteOutput = typeof ServicesDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete a ServiceResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param serviceName - The name of the the service
+ */
+export const ServicesDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: ServicesDeleteInput,
+  outputSchema: ServicesDeleteOutput,
+}));
+// Input Schema
+export const ServicesGetInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  serviceName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/services/{serviceName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type ServicesGetInput = typeof ServicesGetInput.Type;
+
+// Output Schema
+export const ServicesGetOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  type: Schema.optional(Schema.String),
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+});
+export type ServicesGetOutput = typeof ServicesGetOutput.Type;
+
+// The operation
+/**
+ * Get a ServiceResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param serviceName - The name of the the service
+ */
+export const ServicesGet = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: ServicesGetInput,
+  outputSchema: ServicesGetOutput,
+}));
+// Input Schema
+export const ServicesListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/services",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type ServicesListInput = typeof ServicesListInput.Type;
+
+// Output Schema
+export const ServicesListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  value: Schema.Array(
+    Schema.Struct({
+      id: Schema.optional(Schema.String),
+      name: Schema.optional(Schema.String),
+      type: Schema.optional(Schema.String),
+      systemData: Schema.optional(
+        Schema.Struct({
+          createdBy: Schema.optional(Schema.String),
+          createdByType: Schema.optional(
+            Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+          ),
+          createdAt: Schema.optional(Schema.String),
+          lastModifiedBy: Schema.optional(Schema.String),
+          lastModifiedByType: Schema.optional(
+            Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+          ),
+          lastModifiedAt: Schema.optional(Schema.String),
+        }),
+      ),
+    }),
+  ),
+  nextLink: Schema.optional(Schema.String),
+});
+export type ServicesListOutput = typeof ServicesListOutput.Type;
+
+// The operation
+/**
+ * List ServiceResource resources by parent
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const ServicesList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: ServicesListInput,
+  outputSchema: ServicesListOutput,
+}));
+// Input Schema
+export const StorageClassCreateOrUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    storageClassName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        allowVolumeExpansion: Schema.optional(
+          Schema.Literals(["Allow", "Disallow"]),
+        ),
+        mountOptions: Schema.optional(Schema.Array(Schema.String)),
+        provisioner: Schema.optional(Schema.String),
+        volumeBindingMode: Schema.optional(
+          Schema.Literals(["Immediate", "WaitForFirstConsumer"]),
+        ),
+        accessModes: Schema.optional(
+          Schema.Array(Schema.Literals(["ReadWriteOnce", "ReadWriteMany"])),
+        ),
+        dataResilience: Schema.optional(
+          Schema.Literals(["NotDataResilient", "DataResilient"]),
+        ),
+        failoverSpeed: Schema.optional(
+          Schema.Literals(["NotAvailable", "Slow", "Fast", "Super"]),
+        ),
+        limitations: Schema.optional(Schema.Array(Schema.String)),
+        performance: Schema.optional(
+          Schema.Literals([
+            "Undefined",
+            "Basic",
+            "Standard",
+            "Premium",
+            "Ultra",
+          ]),
+        ),
+        priority: Schema.optional(Schema.Number),
+        typeProperties: Schema.Struct({
+          type: Schema.Literals(["Native", "RWX", "Blob", "NFS", "SMB"]),
+        }),
+        provisioningState: Schema.optional(
+          Schema.Literals([
+            "Succeeded",
+            "Failed",
+            "Canceled",
+            "Provisioning",
+            "Updating",
+            "Deleting",
+            "Accepted",
+          ]),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PUT",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/storageClasses/{storageClassName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type StorageClassCreateOrUpdateInput =
+  typeof StorageClassCreateOrUpdateInput.Type;
+
+// Output Schema
+export const StorageClassCreateOrUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type StorageClassCreateOrUpdateOutput =
+  typeof StorageClassCreateOrUpdateOutput.Type;
+
+// The operation
+/**
+ * Create a StorageClassResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param storageClassName - The name of the the storage class
+ */
+export const StorageClassCreateOrUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(
+  () => ({
+    inputSchema: StorageClassCreateOrUpdateInput,
+    outputSchema: StorageClassCreateOrUpdateOutput,
+  }),
+);
+// Input Schema
+export const StorageClassDeleteInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    storageClassName: Schema.String.pipe(T.PathParam()),
+  }).pipe(
+    T.Http({
+      method: "DELETE",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/storageClasses/{storageClassName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type StorageClassDeleteInput = typeof StorageClassDeleteInput.Type;
+
+// Output Schema
+export const StorageClassDeleteOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Void;
+export type StorageClassDeleteOutput = typeof StorageClassDeleteOutput.Type;
+
+// The operation
+/**
+ * Delete a StorageClassResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param storageClassName - The name of the the storage class
+ */
+export const StorageClassDelete = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: StorageClassDeleteInput,
+  outputSchema: StorageClassDeleteOutput,
+}));
+// Input Schema
+export const StorageClassGetInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  storageClassName: Schema.String.pipe(T.PathParam()),
+}).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/storageClasses/{storageClassName}",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type StorageClassGetInput = typeof StorageClassGetInput.Type;
+
+// Output Schema
+export const StorageClassGetOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+  id: Schema.optional(Schema.String),
+  name: Schema.optional(Schema.String),
+  type: Schema.optional(Schema.String),
+  systemData: Schema.optional(
+    Schema.Struct({
+      createdBy: Schema.optional(Schema.String),
+      createdByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      createdAt: Schema.optional(Schema.String),
+      lastModifiedBy: Schema.optional(Schema.String),
+      lastModifiedByType: Schema.optional(
+        Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+      ),
+      lastModifiedAt: Schema.optional(Schema.String),
+    }),
+  ),
+});
+export type StorageClassGetOutput = typeof StorageClassGetOutput.Type;
+
+// The operation
+/**
+ * Get a StorageClassResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param storageClassName - The name of the the storage class
+ */
+export const StorageClassGet = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: StorageClassGetInput,
+  outputSchema: StorageClassGetOutput,
+}));
+// Input Schema
+export const StorageClassListInput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {},
+).pipe(
+  T.Http({
+    method: "GET",
+    path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/storageClasses",
+    apiVersion: "2024-03-01",
+  }),
+);
+export type StorageClassListInput = typeof StorageClassListInput.Type;
+
+// Output Schema
+export const StorageClassListOutput = /*@__PURE__*/ /*#__PURE__*/ Schema.Struct(
+  {
+    value: Schema.Array(
+      Schema.Struct({
+        id: Schema.optional(Schema.String),
+        name: Schema.optional(Schema.String),
+        type: Schema.optional(Schema.String),
+        systemData: Schema.optional(
+          Schema.Struct({
+            createdBy: Schema.optional(Schema.String),
+            createdByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            createdAt: Schema.optional(Schema.String),
+            lastModifiedBy: Schema.optional(Schema.String),
+            lastModifiedByType: Schema.optional(
+              Schema.Literals([
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key",
+              ]),
+            ),
+            lastModifiedAt: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+    nextLink: Schema.optional(Schema.String),
+  },
+);
+export type StorageClassListOutput = typeof StorageClassListOutput.Type;
+
+// The operation
+/**
+ * List StorageClassResource resources by parent
+ *
+ * @param api-version - The API version to use for this operation.
+ */
+export const StorageClassList = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: StorageClassListInput,
+  outputSchema: StorageClassListOutput,
+}));
+// Input Schema
+export const StorageClassUpdateInput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    storageClassName: Schema.String.pipe(T.PathParam()),
+    properties: Schema.optional(
+      Schema.Struct({
+        allowVolumeExpansion: Schema.optional(
+          Schema.Literals(["Allow", "Disallow"]),
+        ),
+        mountOptions: Schema.optional(Schema.Array(Schema.String)),
+        accessModes: Schema.optional(
+          Schema.Array(Schema.Literals(["ReadWriteOnce", "ReadWriteMany"])),
+        ),
+        dataResilience: Schema.optional(
+          Schema.Literals(["NotDataResilient", "DataResilient"]),
+        ),
+        failoverSpeed: Schema.optional(
+          Schema.Literals(["NotAvailable", "Slow", "Fast", "Super"]),
+        ),
+        limitations: Schema.optional(Schema.Array(Schema.String)),
+        performance: Schema.optional(
+          Schema.Literals([
+            "Undefined",
+            "Basic",
+            "Standard",
+            "Premium",
+            "Ultra",
+          ]),
+        ),
+        priority: Schema.optional(Schema.Number),
+        typeProperties: Schema.optional(
+          Schema.Struct({
+            backingStorageClassName: Schema.optional(Schema.String),
+            azureStorageAccountName: Schema.optional(Schema.String),
+            azureStorageAccountKey: Schema.optional(Schema.String),
+            server: Schema.optional(Schema.String),
+            share: Schema.optional(Schema.String),
+            subDir: Schema.optional(Schema.String),
+            mountPermissions: Schema.optional(Schema.String),
+            onDelete: Schema.optional(Schema.Literals(["Delete", "Retain"])),
+            source: Schema.optional(Schema.String),
+            username: Schema.optional(Schema.String),
+            password: Schema.optional(SensitiveString),
+            domain: Schema.optional(Schema.String),
+          }),
+        ),
+      }),
+    ),
+  }).pipe(
+    T.Http({
+      method: "PATCH",
+      path: "/{resourceUri}/providers/Microsoft.KubernetesRuntime/storageClasses/{storageClassName}",
+      apiVersion: "2024-03-01",
+    }),
+  );
+export type StorageClassUpdateInput = typeof StorageClassUpdateInput.Type;
+
+// Output Schema
+export const StorageClassUpdateOutput =
+  /*@__PURE__*/ /*#__PURE__*/ Schema.Struct({
+    id: Schema.optional(Schema.String),
+    name: Schema.optional(Schema.String),
+    type: Schema.optional(Schema.String),
+    systemData: Schema.optional(
+      Schema.Struct({
+        createdBy: Schema.optional(Schema.String),
+        createdByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        createdAt: Schema.optional(Schema.String),
+        lastModifiedBy: Schema.optional(Schema.String),
+        lastModifiedByType: Schema.optional(
+          Schema.Literals(["User", "Application", "ManagedIdentity", "Key"]),
+        ),
+        lastModifiedAt: Schema.optional(Schema.String),
+      }),
+    ),
+  });
+export type StorageClassUpdateOutput = typeof StorageClassUpdateOutput.Type;
+
+// The operation
+/**
+ * Update a StorageClassResource
+ *
+ * @param api-version - The API version to use for this operation.
+ * @param storageClassName - The name of the the storage class
+ */
+export const StorageClassUpdate = /*@__PURE__*/ /*#__PURE__*/ API.make(() => ({
+  inputSchema: StorageClassUpdateInput,
+  outputSchema: StorageClassUpdateOutput,
+}));

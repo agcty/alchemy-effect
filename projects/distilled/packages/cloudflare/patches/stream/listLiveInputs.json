@@ -1,0 +1,48 @@
+{
+  "response": {
+    "properties": {
+      "$": {
+        "appendUnion": [
+          {
+            "kind": "array",
+            "elementType": {
+              "kind": "object",
+              "properties": [
+                {
+                  "name": "uid",
+                  "required": false,
+                  "type": { "kind": "primitive", "value": "string" }
+                },
+                {
+                  "name": "created",
+                  "required": false,
+                  "type": { "kind": "primitive", "value": "string" }
+                },
+                {
+                  "name": "modified",
+                  "required": false,
+                  "type": { "kind": "primitive", "value": "string" }
+                },
+                {
+                  "name": "enabled",
+                  "required": false,
+                  "type": { "kind": "primitive", "value": "boolean" }
+                },
+                {
+                  "name": "deleteRecordingAfterDays",
+                  "required": false,
+                  "type": { "kind": "primitive", "value": "number" }
+                },
+                {
+                  "name": "meta",
+                  "required": false,
+                  "type": { "kind": "unknown" }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
