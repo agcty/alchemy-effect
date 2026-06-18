@@ -1,4 +1,91 @@
-# alchemy
+# Agent Guide - Alchemy Monorepo
+
+This is a Bun/Nx TypeScript monorepo for `alchemy-effect`, `distilled`, and `cloudflare-tools`.
+Alchemy-specific resource provider doctrine still lives in this file, but the repo is now operated
+as one project graph rather than as three standalone checkouts.
+
+## Where to find things
+
+| You're looking for | Go to |
+| --- | --- |
+| Docs index | [`docs/index.md`](./docs/index.md) |
+| Monorepo migration overview | [`docs/monorepo/migration.md`](./docs/monorepo/migration.md) |
+| Maintainer-facing summary | [`docs/monorepo/maintainer-summary.md`](./docs/monorepo/maintainer-summary.md) |
+| Clean cutover/sync procedure | [`docs/monorepo/cutover-operating-note.md`](./docs/monorepo/cutover-operating-note.md) |
+| Alchemy package source | [`projects/alchemy/packages/alchemy/src`](./projects/alchemy/packages/alchemy/src) |
+| Alchemy public docs source | [`projects/alchemy/apps/website/src/content/docs`](./projects/alchemy/apps/website/src/content/docs) |
+| Generated provider API docs | [`projects/alchemy/apps/website/src/content/docs/providers`](./projects/alchemy/apps/website/src/content/docs/providers) |
+| Distilled provider packages | [`projects/distilled/packages`](./projects/distilled/packages) |
+| Cloudflare tools packages | [`projects/cloudflare-tools/packages`](./projects/cloudflare-tools/packages) |
+| Shared repo infrastructure | [`packages`](./packages) |
+
+## Foot-guns
+
+- **Use `bun nx`, not global `nx`.** The workspace pins Nx and infers targets through local plugins.
+- **Run `bun install` in a fresh worktree.** Nx, Bun catalogs, and workspace package resolution depend
+  on this checkout's `node_modules`.
+- **Prefer Nx targets over raw tool commands.** Use `bun nx build <project>`,
+  `bun nx typecheck <project>`, `bun nx lint <project>`, and `bun nx test <project> --run`.
+- **Vitest needs run mode.** Direct `vitest` can watch forever; Nx test commands should include
+  `--run` unless a project script already invokes `vitest run`.
+- **Generated provider docs are not source.** Edit JSDoc in
+  `projects/alchemy/packages/alchemy/src/**/*.ts`, then regenerate docs.
+- **Resource-factory agents have stricter rules.** Inside the factory workflow below, individual
+  agents do not run global compilers or builds; the coordinator owns wave-level verification.
+- **Rebuild Nx plugins after editing them.** `packages/nx-*-plugin` are loaded from built exports; run
+  `bun nx build <plugin>` and `bun nx reset --onlyDaemon` after plugin changes.
+
+## Quick reference
+
+| Task | Command |
+| --- | --- |
+| Discover projects | `bun nx show projects` |
+| Inspect one project | `bun nx show project <project> --json` |
+| Build a project | `bun nx build <project>` |
+| Type check a project | `bun nx typecheck <project>` |
+| Lint a project | `bun nx lint <project>` |
+| Run a focused test | `bun nx test <project> --run <path>` |
+| Build affected production graph | `.github/scripts/run-affected-production-target.ts build --parallel=6` |
+| Type check affected production graph | `.github/scripts/run-affected-production-target.ts typecheck --parallel=6` |
+| Lint affected production graph | `.github/scripts/run-affected-production-target.ts lint --parallel=6` |
+| Format repo code | `bun oxfmt ./packages ./projects` |
+| Preview Alchemy release | `bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish` |
+| Preview Distilled release | `bun nx release patch --groups=distilled --dry-run --first-release --skip-publish` |
+| Preview Cloudflare tools release | `bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish` |
+
+## Standard loop
+
+1. Identify the Nx project or projects touched by the change with `bun nx show projects` and
+   `bun nx show project <project> --json`.
+2. Run the focused target for each touched project, usually `build`, `typecheck`, `lint`, or `test`.
+3. For broad integration changes, run the affected production target script instead of manually
+   guessing every downstream package.
+4. Format changed code with `bun oxfmt ./packages ./projects` and run `git diff --check`.
+
+## Architecture map
+
+```text
+packages/                         # Shared monorepo infrastructure
+  nx-*-plugin/                    # Inferred Nx target plugins
+  nx-r2-cache-worker/             # Self-hosted Nx remote cache Worker
+  oxlint-config/                  # Shared lint config package
+  typescript-config/              # Shared tsconfig presets
+projects/
+  alchemy/
+    apps/                         # Website and private Alchemy stack apps
+    examples/                     # Runnable Alchemy examples
+    packages/                     # Public Alchemy packages
+  distilled/
+    packages/                     # Distilled provider SDK packages
+  cloudflare-tools/
+    packages/                     # Cloudflare runtime/build tooling
+docs/
+  monorepo/                       # Maintainer and migration notes
+```
+
+# Alchemy Resource Doctrine
+
+## Alchemy
 
 Alchemy Effect is an Infrastructure-as-Effects (IaE) framework that extends Infrastructure-as-Code (IaC) by combining business logic and infrastructure config into a single, type-safe program expressed as Effects.
 
@@ -109,9 +196,12 @@ Alchemy resource coverage is produced as a **software factory**: fleets of agent
 
 ## Resource budget: one type-checker for the whole factory
 
-`tsgo -b` over the workspace is expensive; dozens of agents running it concurrently thrashes the machine (and concurrent `tsbuildinfo` writes race). Instead:
+Workspace-wide type checking and builds are expensive; dozens of agents running them concurrently
+thrashes the machine and can race on `tsbuildinfo`. Instead:
 
-- **Agents are banned** from running `tsgo`, `tsc`, or `bun run build` (root or distilled) in any form. The coordinator owns type-checking and runs a one-shot `bun tsgo -b` at wave boundaries.
+- **Factory agents are banned** from running raw `tsgo`, `tsc`, root `bun run build`, or
+  all-workspace Nx commands in any form. The coordinator owns type-checking and runs the appropriate
+  Nx validation at wave boundaries.
 - **vitest resolves distilled from `src/*.ts` directly, NOT the built `lib/`** (the `bun` export condition; see `projects/alchemy/packages/alchemy/vitest.config.ts`). So a regenerated service is **immediately test-visible** the moment `bun scripts/generate.ts --service {service}` (+ oxlint/oxfmt) finishes — there is nothing to rebuild and **nothing to wait for**. Do NOT sleep and do NOT gate a test re-run on a build after regenerating. This applies to response-schema patches as well as error-tag-only patches.
 
 ## Speed doctrine: never wait on a hang
@@ -140,7 +230,8 @@ A wave task prompt is a contract. Include, every time:
 1. The **distilled service the agent owns** and the resources to build (with namespace + directory).
 2. **Assess-first** instruction (finish partial work, don't rewrite).
 3. The reading list: this file's Reconciler doctrine + Typed Error Doctrine, the catalog spec, the distilled service module + existing patches, current exemplar resources/tests (account-level CRUD, zone singleton capture-and-restore, observe-before-delete), and the registration files.
-4. The **type-check/build ban** (above) — agents never run `tsgo`/`tsc`/`bun run build`; the coordinator owns type-checking.
+4. The **type-check/build ban** (above) — agents never run raw compiler commands, root builds, or
+   all-workspace Nx commands; the coordinator owns type-checking.
 5. The **speed doctrine** (above) verbatim — agents rediscover unbounded waits otherwise.
 6. The **Typed Error Doctrine** hard rule with the patch-regenerate command for *their* service only.
 7. Registration discipline for the shared files, including the nested-mergeAll note.
@@ -805,58 +896,72 @@ Notes:
 
 # Spec-Driven Service Bring-Up
 
-Use @processes/AWS.md as the source of truth for bringing a single AWS service from zero to full coverage.
+When bringing a single AWS service from zero to full coverage, follow the factory loop above:
 
-That process covers:
+- derive resources, bindings, event sources, and helpers from the matching distilled service;
+- implement through the audit-driven loop;
+- use deterministic checks for registration and binding test coverage;
+- keep Lambda fixture tests consistent with the existing AWS tests;
+- preserve learned conventions like no auto-marshalling and one `describe("<BindingName>")` block
+  per binding.
 
-- deriving resources, bindings, event sources, and helpers from distilled
-- the audit-driven implementation loop
-- deterministic checks for registration and binding test coverage
-- Lambda fixture testing conventions
-- learned conventions like no auto-marshalling and one `describe("<BindingName>")` block per binding
+When a canonical resource needs mutable event-source configuration and there is any chance of
+circularity, prefer a resource binding contract over a plain input prop. DynamoDB Streams is the
+reference case: `Table` owns the actual stream state, while `streams(table)` injects that state via
+bindings and the runtime-specific layer handles the subscription mechanics.
 
-Keep `AGENTS.md` high-level and update @processes/AWS.md when the process evolves.
+# Validation Workflow
 
-When a canonical resource needs mutable event-source configuration and there is any chance of circularity, prefer a resource binding contract over a plain input prop. DynamoDB Streams is the reference case: `Table` owns the actual stream state, while `streams(table)` injects that state via bindings and the runtime-specific layer handles the subscription mechanics. See @processes/AWS.md for the DynamoDB Streams case study.
+The monorepo's default interface is Nx. Prefer project targets and affected production targets over
+raw `tsgo`, `tsc`, `vitest`, or `oxlint` invocations.
 
-# Build and Type Checking
-
-Always run type checking before committing changes:
+## Focused project validation
 
 ```bash
-bun tsgo -b
+bun nx build <project>
+bun nx typecheck <project>
+bun nx lint <project>
+bun nx test <project> --run <path>
 ```
 
-This runs the TypeScript compiler in build mode, which checks all projects in the workspace (including the distilled packages, which are project references). This is critical because CI will fail if there are type errors.
+Examples:
 
-## Running tests
+```bash
+bun nx build alchemy
+bun nx typecheck alchemy
+bun nx lint alchemy
+bun nx test alchemy --run test/Cloudflare/R2/Bucket.test.ts
+```
 
-Run tests from `projects/alchemy/packages/alchemy` — suite paths are relative to it:
+## Affected production validation
+
+For broad monorepo changes, use the production target helper so Nx computes the graph:
+
+```bash
+.github/scripts/run-affected-production-target.ts build --parallel=6
+.github/scripts/run-affected-production-target.ts typecheck --parallel=6
+.github/scripts/run-affected-production-target.ts lint --parallel=6
+```
+
+## Live resource tests
+
+Some Alchemy resource tests run against real cloud APIs. Run them from
+`projects/alchemy/packages/alchemy` because suite paths are relative to that package:
 
 ```bash
 cd projects/alchemy/packages/alchemy && ALCHEMY_PROFILE=testing bun vitest run test/Cloudflare/{Service}/{Resource}.test.ts
 ```
 
-vitest resolves distilled from `src/*.ts` directly (the `bun` export condition; see `projects/alchemy/packages/alchemy/vitest.config.ts`), so a regenerated service is test-visible immediately — no `lib/` rebuild is ever required before re-running tests.
+Vitest resolves distilled from `src/*.ts` directly through the `bun` export condition (see
+`projects/alchemy/packages/alchemy/vitest.config.ts`), so a regenerated distilled service is
+test-visible immediately. Do not rebuild `lib/` just to rerun a live resource test.
 
-## Multi-agent sessions: the coordinator owns type-checking
+## Multi-agent factory sessions
 
-When many agents work concurrently (see **The Resource Factory Process**), do NOT let each agent run `bun tsgo -b` — concurrent runs thrash the machine and race on `tsbuildinfo`. Agents never invoke the compiler; the coordinator runs a one-shot `bun tsgo -b` at wave boundaries as the authoritative type check.
-
-## Build Commands
-
-| Command           | Description                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------------------- |
-| `bun tsgo -b`     | Type check all projects (always run before committing)                                       |
-| `bun run build`   | Clean, type check, and build the alchemy package                                             |
-| `bun build:clean` | Full clean rebuild: cleans all artifacts, reinstalls dependencies, builds, and downloads env |
-
-Use `bun build:clean` when you encounter stale build artifacts or dependency issues. It runs:
-
-1. `bun clean .` - Removes all untracked files except .env
-2. `bun i` - Reinstalls dependencies
-3. `bun run build` - Builds the project
-4. `bun download:env` - Downloads environment files
+When many agents work concurrently (see **The Resource Factory Process**), the coordinator owns
+global verification. Individual factory agents should not run root `tsgo`, `tsc`, `bun run build`,
+or all-workspace Nx commands because concurrent compiler runs thrash the machine and can race on
+`tsbuildinfo`. The coordinator runs the authoritative Nx validation at wave boundaries.
 
 # Tutorial Documentation Standard
 

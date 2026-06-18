@@ -12,7 +12,7 @@
 
 **Infrastructure-as-Effects** — cloud infrastructure and application logic as a single, type-safe [Effect](https://effect.website) program.
 
-[Docs](https://v2.alchemy.run) · [Tutorial](https://v2.alchemy.run/tutorial/part-1) · [Examples](./examples) · [Discord](https://discord.gg/jwKw8dBJdN)
+[Docs](https://v2.alchemy.run) · [Tutorial](https://v2.alchemy.run/tutorial/part-1) · [Examples](./projects/alchemy/examples) · [Discord](https://discord.gg/jwKw8dBJdN)
 
 </div>
 
@@ -64,7 +64,7 @@ full documentation index, then act as my pair on this project.
 Goal: help me set up, build, test, and deploy a cloud application with
 `alchemy` (Infrastructure-as-Effects, powered by Effect).
 
-Follow the patterns from the docs and the /examples folder. Stay idiomatic
+Follow the patterns from the docs and the projects/alchemy/examples folder. Stay idiomatic
 to Effect: use Layers for wiring, return Effects from lifecycle code, and
 keep infra and runtime in the same program. Ask before introducing new
 dependencies or breaking conventions.
@@ -75,7 +75,7 @@ dependencies or breaking conventions.
 - [What is Alchemy?](https://v2.alchemy.run/what-is-alchemy) — the framework in 2 minutes
 - [Getting Started](https://v2.alchemy.run/getting-started) — your first Stack
 - [Tutorial](https://v2.alchemy.run/tutorial/part-1) — five-part walkthrough to a tested, CI-deployed app
-- [Examples](./examples) — runnable projects on AWS and Cloudflare
+- [Examples](./projects/alchemy/examples) — runnable projects on AWS and Cloudflare
 - [llms.txt](https://v2.alchemy.run/llms.txt) — agent-ready documentation index
 
 > **alchemy** is in alpha. Expect breaking changes. Come hang in our [Discord](https://discord.gg/jwKw8dBJdN).
