@@ -47,8 +47,8 @@ bun nx show projects --affected \
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
-bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
+bun nx release patch --groups=distilled --dry-run --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
 
 That gives a concrete before/after story for the old multi-repo workflow: one PR, one affected
@@ -56,10 +56,11 @@ graph, one cached validation path, and one release plan.
 
 The GitHub `release` workflow uses the same release groups. It defaults to dry-run and uses
 continuation defaults by group: `alchemy` continues the beta prerelease line, while `distilled` and
-`cloudflare-tools` continue stable patch releases. Its `first-release: auto` mode adds
-`--first-release` only while the selected imported group has no matching monorepo release tags yet.
-Disabling dry-run is the explicit approval for the workflow to publish, and the workflow refuses
-non-dry releases from any branch other than `main`.
+`cloudflare-tools` continue stable patch releases. Imported-group releases require monorepo
+baseline tags such as `distilled-v0.25.2` and `cloudflare-tools-v0.11.2` on the cutover commit, so
+the first monorepo patch release produces a clean version-bump range instead of replaying imported
+history. Disabling dry-run is the explicit approval for the workflow to publish, and the workflow
+refuses non-dry releases from any branch other than `main`.
 
 ## Source Layout
 
@@ -117,19 +118,18 @@ bun nx build nx-r2-cache-worker
 bun nx typecheck nx-r2-cache-worker
 bun nx test nx-r2-cache-worker
 bun nx lint nx-r2-cache-worker
+.github/scripts/run-affected-production-target.ts build --parallel=6
 .github/scripts/run-affected-production-target.ts typecheck --parallel=6
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 git diff --check
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
-bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
+bun nx release patch --groups=distilled --dry-run --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
 
-The release dry-runs complete without writing files. The imported release groups use
-`--first-release` for the first monorepo release because Nx cannot derive their previous changelog
-range from the imported standalone repository tags in this branch. After the first monorepo-native
-`distilled-v*` and `cloudflare-tools-v*` tags exist, normal patch releases should omit
-`--first-release`.
+The release dry-runs complete without writing files. The imported release groups resolve their
+current versions from monorepo baseline tags on the cutover commit, then continue as normal patch
+releases.
 
 ## Remaining Operational Work
 

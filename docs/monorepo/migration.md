@@ -182,8 +182,8 @@ Nx release is configured for conventional commits and per-project changelogs:
 
 ```bash
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
-bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
+bun nx release patch --groups=distilled --dry-run --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
 
 Those commands already preview package version bumps and changelog entries from the merged commit
@@ -191,21 +191,29 @@ history. They intentionally mirror the current release lines: `alchemy` continue
 `2.0.0-beta.56` to `2.0.0-beta.57`, `distilled` continues from `0.25.2` to `0.25.3`, and
 `cloudflare-tools` continues from `0.11.2` to `0.11.3`.
 
-The imported Distilled and Cloudflare Tools groups currently use `--first-release` for the first
-monorepo release preview because Nx cannot derive their previous changelog range from the imported
-standalone repository tags in this branch. After the first monorepo-native `distilled-v*` and
-`cloudflare-tools-v*` tags exist, normal patch releases should omit `--first-release`.
+The imported Distilled and Cloudflare Tools groups require monorepo baseline tags at the final
+cutover commit:
+
+```bash
+git tag -a distilled-v0.25.2 HEAD -m "distilled monorepo baseline 0.25.2"
+git tag -a cloudflare-tools-v0.11.2 HEAD -m "cloudflare-tools monorepo baseline 0.11.2"
+```
+
+Those tags keep the first monorepo-native patch release clean. Placing the tags on the old imported
+release commits is not enough after merging unrelated histories: Nx would still include the
+Alchemy-side history in the changelog range. `--first-release` is therefore not the production
+cutover path; it should be reserved for intentionally new release groups without a prior baseline.
 
 Removing `--dry-run` and `--skip-publish` is the production publish step once npm/GitHub release
 credentials are intentionally wired for the monorepo.
 
 The `release` GitHub workflow exposes the same release groups as a manual workflow dispatch. It
 defaults to dry-run, chooses the same continuation specifier by group unless maintainers override it,
-and uses `first-release: auto` to add `--first-release` only when the selected imported group has no
-matching monorepo release tags yet. Non-dry releases are refused unless the workflow is dispatched
-from `main`; when they do run, the workflow passes `--yes` to Nx release, publishes through each
-package's `nx-release-publish` target after its `build` target has produced publishable `lib` /
-`dist` artifacts, and pushes the release commit/tags.
+and refuses normal imported-group releases if the matching monorepo baseline tag is missing. Non-dry
+releases are refused unless the workflow is dispatched from `main`; when they do run, the workflow
+passes `--yes` to Nx release, publishes through each package's `nx-release-publish` target after its
+`build` target has produced publishable `lib` / `dist` artifacts, and pushes the release
+commit/tags.
 
 ## Remote Cache
 
@@ -260,8 +268,9 @@ The Worker requires `NX_R2_CACHE_TRUSTED_TOKEN` and `NX_R2_CACHE_BRANCH_TOKEN` i
 3. Deploy `nx-r2-cache-worker`, add cache variables and secrets, then confirm PR runs use branch
    cache and `main` uses trusted cache.
 4. Run affected builds on integration PRs that touch both `alchemy` and `distilled`.
-5. Run the Nx release dry-runs for all three groups and approve the generated version/changelog
+5. Create or update the imported-group baseline tags on the final cutover commit.
+6. Run the Nx release dry-runs for all three groups and approve the generated version/changelog
    plan.
-6. Remove `--dry-run` / `--skip-publish` from the chosen release command when npm/GitHub
+7. Remove `--dry-run` / `--skip-publish` from the chosen release command when npm/GitHub
    credentials are intentionally wired for the monorepo.
-7. Archive or redirect the old standalone repos after the first monorepo release succeeds.
+8. Archive or redirect the old standalone repos after the first monorepo release succeeds.

@@ -23,12 +23,11 @@ on:
         type: boolean
         default: true
       first-release:
-        description: Use --first-release. Auto enables it for the first imported Distilled/Cloudflare Tools release.
+        description: Use --first-release. Imported groups should use monorepo baseline tags instead.
         required: true
         type: choice
-        default: auto
+        default: "false"
         options:
-          - auto
           - "true"
           - "false"
       preid:
@@ -103,13 +102,13 @@ jobs:
 
           args=(release "${SPECIFIER}" "--groups=${RELEASE_GROUP}")
 
-          first_release_tag_pattern=""
+          release_tag_pattern=""
           case "${RELEASE_GROUP}" in
             distilled)
-              first_release_tag_pattern="distilled-v*"
+              release_tag_pattern="distilled-v*"
               ;;
             cloudflare-tools)
-              first_release_tag_pattern="cloudflare-tools-v*"
+              release_tag_pattern="cloudflare-tools-v*"
               ;;
           esac
 
@@ -123,12 +122,12 @@ jobs:
             true)
               args+=(--first-release)
               ;;
-            auto)
-              if [ -n "${first_release_tag_pattern}" ] && ! git tag --list "${first_release_tag_pattern}" | grep -q .; then
-                args+=(--first-release)
-              fi
-              ;;
             false)
+              if [ -n "${release_tag_pattern}" ] && ! git tag --list "${release_tag_pattern}" | grep -q .; then
+                echo "Missing ${RELEASE_GROUP} monorepo baseline tag matching ${release_tag_pattern}." >&2
+                echo "Create the cutover baseline tag before running a normal imported-group release, or explicitly set first-release=true." >&2
+                exit 1
+              fi
               ;;
             *)
               echo "Unsupported first-release value: ${FIRST_RELEASE}" >&2

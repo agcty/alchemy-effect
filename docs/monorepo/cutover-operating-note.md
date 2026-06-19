@@ -172,7 +172,7 @@ distilled:        0.25.2        -> 0.25.3
 cloudflare-tools: 0.11.2        -> 0.11.3
 ```
 
-The cutover branch should either import or create baseline tags that match the new release groups:
+The cutover branch should carry baseline tags that match the new release groups:
 
 ```text
 v2.0.0-beta.56
@@ -180,11 +180,24 @@ distilled-v0.25.2
 cloudflare-tools-v0.11.2
 ```
 
-Those baselines preserve the release-line intent, but this branch still uses `--first-release` for
-the first imported Distilled and Cloudflare Tools monorepo releases because Nx cannot derive their
-previous changelog range from the imported standalone repository tags. After the first monorepo-native
-`distilled-v*` and `cloudflare-tools-v*` tags exist, normal patch releases should omit
-`--first-release`.
+For imported repositories, create the namespaced baseline tags on the final monorepo cutover commit,
+not on the old standalone release commit. A tag on the pre-merge imported side leaves the unrelated
+Alchemy side of the merge outside the tag ancestry, which makes Nx's changelog range include the
+whole Alchemy history. A cutover baseline tag says: "this merged monorepo state is the published
+0.25.2 / 0.11.2 baseline; only commits after this point belong in the next changelog."
+
+```bash
+git tag -a distilled-v0.25.2 HEAD -m "distilled monorepo baseline 0.25.2"
+git tag -a cloudflare-tools-v0.11.2 HEAD -m "cloudflare-tools monorepo baseline 0.11.2"
+```
+
+The existing Alchemy `v2.0.0-beta.56` tag already works when the replacement is based on the
+current `alchemy-effect` repository. If maintainers create a brand-new repository instead of
+cutting over the existing one, push that Alchemy tag as well.
+
+Do not use `--first-release` for the imported groups during production cutover. It is useful for a
+brand-new release group with no meaningful prior baseline, but here it produces a synthetic
+changelog from too much merged history.
 
 ## Acceptance Checks
 
@@ -206,8 +219,8 @@ The cutover branch is ready to show as a replacement repository when all of thes
 
 ```bash
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
-bun nx release patch --groups=distilled --dry-run --first-release --skip-publish
-bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish
+bun nx release patch --groups=distilled --dry-run --skip-publish
+bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
 
 - A newly landed upstream commit from Distilled or Cloudflare-tools can be synced through the
@@ -219,19 +232,22 @@ Use this only after the branch topology and validation checks pass:
 
 1. Announce a short write freeze on `alchemy-effect`, `distilled`, and `cloudflare-tools`.
 2. Fetch each source repository and perform one final sync into `codex/monorepo-clean-history`.
-3. Re-run the topology, history, Nx, and release dry-run checks above.
-4. Decide whether the replacement lives in the existing `alchemy-effect` repository or a new repo.
-5. Configure repository settings before opening the branch for normal work:
+3. Create or move the imported-group baseline tags onto the final cutover commit:
+   `distilled-v0.25.2` and `cloudflare-tools-v0.11.2`.
+4. Re-run the topology, history, Nx, and release dry-run checks above.
+5. Decide whether the replacement lives in the existing `alchemy-effect` repository or a new repo.
+6. Configure repository settings before opening the branch for normal work:
    - default branch target;
    - branch protection and required checks for the Nx validation workflow;
    - Actions permissions for `contents: write` and OIDC;
    - repository/environment secrets for npm trusted publishing, Cloudflare, Doppler, and Nx R2
      cache;
    - repository variables for the Nx cache Worker URL and any deployment account IDs.
-6. Configure npm trusted publishing for each public package against the final GitHub repository and
+7. Configure npm trusted publishing for each public package against the final GitHub repository and
    `release` workflow.
-7. Push the clean branch and make it the default branch only after the final validation run passes.
-8. Keep the old standalone Distilled and Cloudflare Tools repositories read-only until the first
+8. Push the clean branch and the exact baseline tags only; do not bulk-push imported generic tags.
+9. Make the branch the default branch only after the final validation run passes.
+10. Keep the old standalone Distilled and Cloudflare Tools repositories read-only until the first
    monorepo release succeeds, then archive or redirect them.
 
 ## Non-Goals For The First Cutover
