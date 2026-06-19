@@ -3,6 +3,8 @@
 For the short maintainer-facing case, see [`maintainer-summary.md`](./maintainer-summary.md).
 For the clean replacement-repository cutover procedure, see
 [`cutover-operating-note.md`](./cutover-operating-note.md).
+For the Oddlynew-owned fork distribution track, see
+[`dogfood-distribution.md`](./dogfood-distribution.md).
 
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
 using the same high-level shape as the Oddlynew monorepo: shared repository infrastructure remains

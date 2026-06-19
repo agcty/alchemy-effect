@@ -6,6 +6,8 @@ reviewable, testable, cacheable, and releasable as one coherent system.
 
 For the clean replacement-repository cutover procedure, see
 [`cutover-operating-note.md`](./cutover-operating-note.md).
+For the separate Oddlynew dogfood fork track, see
+[`dogfood-distribution.md`](./dogfood-distribution.md).
 
 ## What Gets Better
 
