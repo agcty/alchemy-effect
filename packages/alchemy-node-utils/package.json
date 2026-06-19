@@ -1,0 +1,61 @@
+{
+  "name": "@oddlynew/alchemy-node-utils",
+  "version": "0.0.5",
+  "description": "Node.js utilities shared by the Oddlynew Alchemy distribution.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "src",
+    "lib"
+  ],
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./exit-hook": {
+      "bun": "./src/exit-hook.ts",
+      "types": "./lib/exit-hook.d.ts",
+      "default": "./lib/exit-hook.js"
+    },
+    "./ignore": {
+      "bun": "./src/ignore.ts",
+      "types": "./lib/ignore.d.ts",
+      "default": "./lib/ignore.js"
+    },
+    "./lockfile": {
+      "bun": "./src/lockfile-async.ts",
+      "types": "./lib/lockfile.d.ts",
+      "default": "./lib/lockfile.js"
+    },
+    "./retry": {
+      "bun": "./src/retry.ts",
+      "types": "./lib/retry.d.ts",
+      "default": "./lib/retry.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -b"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:"
+  },
+  "nx": {
+    "name": "@oddlynew/alchemy-node-utils",
+    "tags": [
+      "type:package",
+      "scope:repo"
+    ]
+  }
+}

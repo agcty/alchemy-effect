@@ -1,4 +1,4 @@
-import type { CloudflarePluginOptions } from "@distilled.cloud/cloudflare-rolldown-plugin/options";
+import type { CloudflarePluginOptions } from "@oddlynew/distilled-cloudflare-rolldown-plugin/options";
 import {
   additionalModulesPlugin,
   cloudflareExternalsPlugin,
@@ -8,12 +8,12 @@ import {
   optionsPlugin,
   virtualModulesPlugin,
   wasmInitPlugin,
-} from "@distilled.cloud/cloudflare-rolldown-plugin/plugins";
+} from "@oddlynew/distilled-cloudflare-rolldown-plugin/plugins";
 import type {
   BindingHooks,
   RuntimeServices,
   RuntimeWorker,
-} from "@distilled.cloud/cloudflare-runtime";
+} from "@oddlynew/distilled-cloudflare-runtime";
 import type * as Context from "effect/Context";
 import type * as vite from "vite";
 import { dev } from "./dev-plugin.js";

@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as originTls from "@distilled.cloud/cloudflare/origin-tls-client-auth";
+import * as originTls from "@oddlynew/distilled-cloudflare/origin-tls-client-auth";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

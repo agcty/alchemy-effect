@@ -1,5 +1,5 @@
-import type { BucketLocationConstraint } from "@distilled.cloud/aws/s3";
-import * as s3 from "@distilled.cloud/aws/s3";
+import type { BucketLocationConstraint } from "@oddlynew/distilled-aws/s3";
+import * as s3 from "@oddlynew/distilled-aws/s3";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Schedule from "effect/Schedule";

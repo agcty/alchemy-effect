@@ -23,7 +23,7 @@ import {
 /**
  * Local (dev) provider for Cloudflare Container applications.
  *
- * The Docker build/run is owned by `@distilled.cloud/cloudflare-runtime`; this
+ * The Docker build/run is owned by `@oddlynew/distilled-cloudflare-runtime`; this
  * provider's only job is to bundle the container program once and materialize
  * it into a stable Docker build context, then surface that context as a
  * `dev: ContainerImage.Build` output so the runtime can `docker build` it.

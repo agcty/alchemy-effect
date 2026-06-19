@@ -1,5 +1,5 @@
-import { Credentials } from "@distilled.cloud/planetscale/Credentials";
-import * as planetscale from "@distilled.cloud/planetscale/Operations";
+import { Credentials } from "@oddlynew/distilled-planetscale/Credentials";
+import * as planetscale from "@oddlynew/distilled-planetscale/Operations";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Stream from "effect/Stream";

@@ -1,4 +1,4 @@
-import * as customCertificates from "@distilled.cloud/cloudflare/custom-certificates";
+import * as customCertificates from "@oddlynew/distilled-cloudflare/custom-certificates";
 import crypto from "node:crypto";
 
 import * as Effect from "effect/Effect";

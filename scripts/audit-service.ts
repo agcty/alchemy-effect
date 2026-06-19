@@ -1029,7 +1029,7 @@ async function auditService(serviceName: string): Promise<AuditReport> {
   };
 
   const preferredDistilledPath = path.resolve(
-    `.vendor/distilled/@distilled.cloud/aws/src/services/${config.distilled}.ts`,
+    `.vendor/distilled/@oddlynew/distilled-aws/src/services/${config.distilled}.ts`,
   );
   const fallbackDistilledPath = path.resolve(
     `projects/distilled/packages/aws/src/services/${config.distilled}.ts`,
@@ -1044,7 +1044,7 @@ async function auditService(serviceName: string): Promise<AuditReport> {
         .catch(() => undefined),
     );
   const distilledPath =
-    resolvedDistilledPath ?? `@distilled.cloud/aws/${config.distilled}`;
+    resolvedDistilledPath ?? `@oddlynew/distilled-aws/${config.distilled}`;
   const alchemyPath = path.resolve(
     `projects/alchemy/packages/alchemy/src/AWS/${config.alchemy}`,
   );
@@ -1059,7 +1059,7 @@ async function auditService(serviceName: string): Promise<AuditReport> {
   // Extract data
   const distilledOps = await extractDistilledOperations(
     resolvedDistilledPath ?? preferredDistilledPath,
-    `@distilled.cloud/aws/${config.distilled}`,
+    `@oddlynew/distilled-aws/${config.distilled}`,
   );
   const alchemyFiles = await getAlchemyFiles(alchemyPath);
   const indexExports = await getIndexExports(indexPath);

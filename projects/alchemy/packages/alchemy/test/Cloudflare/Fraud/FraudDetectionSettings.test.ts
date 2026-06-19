@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as fraud from "@distilled.cloud/cloudflare/fraud";
+import * as fraud from "@oddlynew/distilled-cloudflare/fraud";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

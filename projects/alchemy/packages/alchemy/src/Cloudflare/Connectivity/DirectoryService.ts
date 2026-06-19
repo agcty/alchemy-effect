@@ -1,4 +1,4 @@
-import * as connectivity from "@distilled.cloud/cloudflare/connectivity";
+import * as connectivity from "@oddlynew/distilled-cloudflare/connectivity";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";

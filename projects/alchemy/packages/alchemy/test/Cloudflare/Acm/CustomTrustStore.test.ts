@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as acm from "@distilled.cloud/cloudflare/acm";
+import * as acm from "@oddlynew/distilled-cloudflare/acm";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

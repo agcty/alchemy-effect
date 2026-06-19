@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import * as Cloudflare from "alchemy/Cloudflare/Bridge";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare/Bridge";
 import * as Effect from "effect/Effect";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";

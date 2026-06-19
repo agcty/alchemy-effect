@@ -1,11 +1,11 @@
-# @distilled.cloud/axiom
+# @oddlynew/distilled-axiom
 
 Effect-native [Axiom](https://axiom.co) SDK generated from Axiom's [public OpenAPI specification](https://github.com/axiomhq/docs/tree/main/restapi/versions). Covers the control-plane API (`v2`), the edge ingest API (`v1-edge-ingest`), and the edge query API (`v1-edge-query`) with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/axiom effect
+npm install @oddlynew/distilled-axiom effect
 ```
 
 ## Quick Start
@@ -13,8 +13,8 @@ npm install @distilled.cloud/axiom effect
 ```typescript
 import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { getDatasets } from "@distilled.cloud/axiom/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/axiom";
+import { getDatasets } from "@oddlynew/distilled-axiom/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-axiom";
 
 const program = Effect.gen(function* () {
   const datasets = yield* getDatasets({});
@@ -42,7 +42,7 @@ Create an API token in the [Axiom console](https://app.axiom.co/settings/api-tok
 
 ```typescript
 import { Effect } from "effect";
-import { getDataset } from "@distilled.cloud/axiom/Operations";
+import { getDataset } from "@oddlynew/distilled-axiom/Operations";
 
 getDataset({ id: "missing" }).pipe(
   Effect.catchTags({

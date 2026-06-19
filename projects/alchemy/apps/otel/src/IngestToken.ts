@@ -1,6 +1,6 @@
-import * as Alchemy from "alchemy";
-import * as Axiom from "alchemy/Axiom";
-import * as Output from "alchemy/Output";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Axiom from "@oddlynew/alchemy/Axiom";
+import * as Output from "@oddlynew/alchemy/Output";
 import { Effect } from "effect";
 import { Logs, Metrics, Traces } from "./Datasets.ts";
 

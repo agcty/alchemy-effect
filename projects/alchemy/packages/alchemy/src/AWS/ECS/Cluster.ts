@@ -1,4 +1,4 @@
-import * as ecs from "@distilled.cloud/aws/ecs";
+import * as ecs from "@oddlynew/distilled-aws/ecs";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

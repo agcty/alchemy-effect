@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Neon from "@/Neon";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as hyperdrive from "@distilled.cloud/cloudflare/hyperdrive";
+import * as hyperdrive from "@oddlynew/distilled-cloudflare/hyperdrive";
 import { assert, expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

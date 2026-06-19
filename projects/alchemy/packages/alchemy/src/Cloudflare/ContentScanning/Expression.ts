@@ -1,4 +1,4 @@
-import * as contentScanning from "@distilled.cloud/cloudflare/content-scanning";
+import * as contentScanning from "@oddlynew/distilled-cloudflare/content-scanning";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";

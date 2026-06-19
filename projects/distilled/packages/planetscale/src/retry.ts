@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as PlanetScale from "@distilled.cloud/planetscale";
+ * import * as PlanetScale from "@oddlynew/distilled-planetscale";
  *
  * myEffect.pipe(PlanetScale.Retry.transient);
  * Effect.provide(myEffect, Layer.succeed(PlanetScale.Retry.Retry, customPolicy));
@@ -21,7 +21,7 @@ import {
   type Policy,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 export {
   type Options,
@@ -34,7 +34,7 @@ export {
   transientOptions,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 /** Context tag for configuring retry behavior of PlanetScale API calls. */
 export class Retry extends Context.Service<Retry, Policy>()(

@@ -36,7 +36,7 @@ const twoslashPlugins = [
         baseUrl,
         paths: {
           alchemy: ["./projects/alchemy/packages/alchemy/src/index.ts"],
-          "alchemy/*": ["./projects/alchemy/packages/alchemy/src/*"],
+          "@oddlynew/alchemy/*": ["./projects/alchemy/packages/alchemy/src/*"],
         },
       },
     },

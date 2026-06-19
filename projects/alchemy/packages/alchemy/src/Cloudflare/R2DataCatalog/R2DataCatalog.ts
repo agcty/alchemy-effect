@@ -1,4 +1,4 @@
-import * as rdc from "@distilled.cloud/cloudflare/r2-data-catalog";
+import * as rdc from "@oddlynew/distilled-cloudflare/r2-data-catalog";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

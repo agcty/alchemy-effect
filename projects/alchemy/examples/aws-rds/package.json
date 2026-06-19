@@ -1,5 +1,5 @@
 {
-  "name": "aws-rds-example",
+  "name": "@oddlynew/alchemy-example-aws-rds",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -15,14 +15,14 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
-    "@distilled.cloud/aws": "catalog:",
+    "@oddlynew/distilled-aws": "workspace:*",
     "@effect/platform-node": "catalog:",
     "@types/pg": "^8.18.0",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:",
     "pg": "^8.20.0"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

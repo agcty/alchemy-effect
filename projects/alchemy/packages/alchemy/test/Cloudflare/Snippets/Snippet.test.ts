@@ -4,7 +4,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as snippets from "@distilled.cloud/cloudflare/snippets";
+import * as snippets from "@oddlynew/distilled-cloudflare/snippets";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

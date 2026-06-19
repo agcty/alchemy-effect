@@ -1,5 +1,5 @@
-import * as cfAccounts from "@distilled.cloud/cloudflare/accounts";
-import * as CfCredentialsModule from "@distilled.cloud/cloudflare/Credentials";
+import * as cfAccounts from "@oddlynew/distilled-cloudflare/accounts";
+import * as CfCredentialsModule from "@oddlynew/distilled-cloudflare/Credentials";
 import * as Console from "effect/Console";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

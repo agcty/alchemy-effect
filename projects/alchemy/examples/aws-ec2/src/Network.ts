@@ -1,5 +1,5 @@
-import * as AWS from "alchemy/AWS";
-import type { Output } from "alchemy/Output";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import type { Output } from "@oddlynew/alchemy/Output";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

@@ -335,7 +335,7 @@ export interface Repository extends Resource<
  * @section Deleting a Repository
  * @example Allow Repository Deletion
  * ```typescript
- * import { destroy } from "alchemy/RemovalPolicy";
+ * import { destroy } from "@oddlynew/alchemy/RemovalPolicy";
  *
  * yield* GitHub.Repository("ephemeral", {
  *   owner: "my-org",

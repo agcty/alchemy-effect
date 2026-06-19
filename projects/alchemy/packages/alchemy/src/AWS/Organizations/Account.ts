@@ -1,5 +1,5 @@
-import * as accountManagement from "@distilled.cloud/aws/account";
-import * as organizations from "@distilled.cloud/aws/organizations";
+import * as accountManagement from "@oddlynew/distilled-aws/account";
+import * as organizations from "@oddlynew/distilled-aws/organizations";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { Unowned } from "../../AdoptPolicy.ts";

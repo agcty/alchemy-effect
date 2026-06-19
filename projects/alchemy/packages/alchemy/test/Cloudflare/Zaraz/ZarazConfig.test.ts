@@ -4,7 +4,7 @@ import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
 import { stripNullFields, stripUndefinedFields } from "@/Util/data";
-import * as zaraz from "@distilled.cloud/cloudflare/zaraz";
+import * as zaraz from "@oddlynew/distilled-cloudflare/zaraz";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

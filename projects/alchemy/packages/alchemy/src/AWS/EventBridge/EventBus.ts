@@ -1,4 +1,4 @@
-import * as eventbridge from "@distilled.cloud/aws/eventbridge";
+import * as eventbridge from "@oddlynew/distilled-aws/eventbridge";
 import * as Effect from "effect/Effect";
 
 import { Unowned } from "../../AdoptPolicy.ts";
@@ -21,7 +21,7 @@ export type {
   IncludeDetail,
   Level,
   LogConfig,
-} from "@distilled.cloud/aws/eventbridge";
+} from "@oddlynew/distilled-aws/eventbridge";
 
 export type EventBusName = string;
 export type EventBusArn =

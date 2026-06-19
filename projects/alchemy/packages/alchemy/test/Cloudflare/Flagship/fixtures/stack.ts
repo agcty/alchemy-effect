@@ -1,5 +1,5 @@
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as pathe from "pathe";
 import { App } from "./app.ts";

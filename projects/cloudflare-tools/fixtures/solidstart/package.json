@@ -1,5 +1,5 @@
 {
-  "name": "@fixtures/solidstart",
+  "name": "@oddlynew/cloudflare-tools-fixture-solidstart",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,8 +20,8 @@
     "vite": "^7.0.0"
   },
   "devDependencies": {
-    "@distilled.cloud/cloudflare-vite-plugin": "workspace:*",
-    "@distilled.cloud/test-utils": "workspace:*",
+    "@oddlynew/distilled-cloudflare-vite-plugin": "workspace:*",
+    "@oddlynew/distilled-test-utils": "workspace:*",
     "@playwright/test": "catalog:"
   },
   "engines": {

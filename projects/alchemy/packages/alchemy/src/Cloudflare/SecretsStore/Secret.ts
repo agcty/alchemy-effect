@@ -1,4 +1,4 @@
-import * as secretsStore from "@distilled.cloud/cloudflare/secrets-store";
+import * as secretsStore from "@oddlynew/distilled-cloudflare/secrets-store";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";

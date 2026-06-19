@@ -1,4 +1,4 @@
-import * as sns from "@distilled.cloud/aws/sns";
+import * as sns from "@oddlynew/distilled-aws/sns";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

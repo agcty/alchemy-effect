@@ -24,7 +24,6 @@
  *   bun scripts/create-sdk-full.ts <name> --specs <url-or-repo>... [flags]
  *
  * Flags:
- *   --register-package            Publish a 0.0.0 placeholder to npm
  *   --skip-create                 Skip the create-sdk stage (package already exists)
  *   --skip-error-discovery        Skip the error-discovery stage
  *   --skip-tests                  Skip the generate-tests stage
@@ -109,12 +108,6 @@ const createSdkFull = Command.make(
       ),
       Flag.atLeast(0),
     ),
-    registerPackage: Flag.boolean("register-package").pipe(
-      Flag.withDefault(false),
-      Flag.withDescription(
-        "Publish a 0.0.0 placeholder to npm as @distilled.cloud/<name>",
-      ),
-    ),
     note: Flag.string("note").pipe(
       Flag.withDefault(""),
       Flag.withDescription(
@@ -149,7 +142,7 @@ const createSdkFull = Command.make(
       const scriptsDir = path.join(root, "scripts");
 
       yield* Console.log(
-        `\n${BOLD}🚀 Pipeline: create full SDK @distilled.cloud/${config.name}${RESET}`,
+        `\n${BOLD}🚀 Pipeline: create full SDK @oddlynew/distilled-${config.name}${RESET}`,
       );
 
       const runOrContinue = (
@@ -184,7 +177,6 @@ const createSdkFull = Command.make(
         for (const spec of config.specs) {
           createArgs.push("--specs", spec);
         }
-        if (config.registerPackage) createArgs.push("--register-package");
         if (note) createArgs.push("--note", note);
         yield* runOrContinue("create-sdk", "create-sdk.ts", createArgs);
       } else {
@@ -219,7 +211,7 @@ const createSdkFull = Command.make(
       }
 
       yield* Console.log(
-        `\n${GREEN}${BOLD}✨ Pipeline complete for @distilled.cloud/${config.name}${RESET}\n`,
+        `\n${GREEN}${BOLD}✨ Pipeline complete for @oddlynew/distilled-${config.name}${RESET}\n`,
       );
     }),
 ).pipe(

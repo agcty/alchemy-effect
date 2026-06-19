@@ -1,5 +1,5 @@
-import type { MiniflareInstance } from "@distilled.cloud/test-utils/miniflare";
-import { createMiniflare } from "@distilled.cloud/test-utils/miniflare";
+import type { MiniflareInstance } from "@oddlynew/distilled-test-utils/miniflare";
+import { createMiniflare } from "@oddlynew/distilled-test-utils/miniflare";
 import { expect, test } from "@playwright/test";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

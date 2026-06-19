@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/test-utils",
+  "name": "@oddlynew/distilled-test-utils",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
     "miniflare": "catalog:workers"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "rolldown": "catalog:"
   }
 }

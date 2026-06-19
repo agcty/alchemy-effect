@@ -22,7 +22,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/stripe";
+import { CredentialsFromEnv } from "@oddlynew/distilled-stripe";
 import {
   // Top-level list operations (with corresponding deletes)
   GetAccounts,
@@ -126,7 +126,7 @@ import {
   GetTopups,
   GetTransfers,
   GetTreasuryFinancialAccounts,
-} from "@distilled.cloud/stripe/Operations";
+} from "@oddlynew/distilled-stripe/Operations";
 
 // ANSI colors
 const RED = "\x1b[31m";

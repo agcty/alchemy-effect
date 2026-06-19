@@ -1,4 +1,4 @@
-# @distilled.cloud/sdk-core
+# @oddlynew/distilled-sdk-core
 
 Shared infrastructure for all Distilled SDKs. Provides the client factory, HTTP trait annotations, error classes, error categories, pagination utilities, and retry policies.
 
@@ -15,14 +15,14 @@ Shared infrastructure for all Distilled SDKs. Provides the client factory, HTTP 
 
 ## Usage
 
-This package is not intended to be used directly. It's a dependency of the provider SDKs (`@distilled.cloud/aws`, `@distilled.cloud/cloudflare`, etc.).
+This package is not intended to be used directly. It's a dependency of the provider SDKs (`@oddlynew/distilled-aws`, `@oddlynew/distilled-cloudflare`, etc.).
 
 ```typescript
 // Provider packages import from core like this:
-import { makeAPI } from "@distilled.cloud/sdk-core/client";
-import * as T from "@distilled.cloud/sdk-core/traits";
-import { NotFound, Forbidden } from "@distilled.cloud/sdk-core/errors";
-import * as Category from "@distilled.cloud/sdk-core/category";
+import { makeAPI } from "@oddlynew/distilled-sdk-core/client";
+import * as T from "@oddlynew/distilled-sdk-core/traits";
+import { NotFound, Forbidden } from "@oddlynew/distilled-sdk-core/errors";
+import * as Category from "@oddlynew/distilled-sdk-core/category";
 ```
 
 ## License

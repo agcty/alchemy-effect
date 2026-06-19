@@ -1,4 +1,4 @@
-import * as emailSecurity from "@distilled.cloud/cloudflare/email-security";
+import * as emailSecurity from "@oddlynew/distilled-cloudflare/email-security";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

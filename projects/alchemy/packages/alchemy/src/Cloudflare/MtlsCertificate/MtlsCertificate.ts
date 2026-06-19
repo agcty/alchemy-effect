@@ -1,4 +1,4 @@
-import * as mtls from "@distilled.cloud/cloudflare/mtls-certificates";
+import * as mtls from "@oddlynew/distilled-cloudflare/mtls-certificates";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

@@ -1,4 +1,4 @@
-import * as realtimeKit from "@distilled.cloud/cloudflare/realtime-kit";
+import * as realtimeKit from "@oddlynew/distilled-cloudflare/realtime-kit";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

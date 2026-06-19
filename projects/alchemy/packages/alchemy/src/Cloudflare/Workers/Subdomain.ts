@@ -1,4 +1,4 @@
-import * as workers from "@distilled.cloud/cloudflare/workers";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

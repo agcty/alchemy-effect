@@ -17,9 +17,11 @@ can reuse cache artifacts.
 
 The branch also brings over the repo infrastructure that made the Oddlynew monorepo practical:
 
-- shared `@alchemy.run/typescript-config` presets instead of root/product-local config bases;
-- shared `@alchemy.run/oxlint-config` presets with product-local overrides only where needed;
+- shared `@oddlynew/alchemy-typescript-config` presets instead of root/product-local config bases;
+- shared `@oddlynew/alchemy-oxlint-config` presets with product-local overrides only where needed;
 - inferred `build`, `typecheck`, `lint`, and Alchemy lifecycle targets through private Nx plugins;
+- a workspace-owned `@oddlynew/alchemy-node-utils` utility package instead of depending on the upstream
+  `@alchemy.run` package scope;
 - a self-hosted Nx remote cache Worker backed by R2;
 - fixed Nx release groups for `alchemy`, `distilled`, and `cloudflare-tools`;
 - a manual release workflow that runs those Nx release groups and defaults to dry-run.
@@ -49,6 +51,7 @@ bun nx show projects --affected \
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=alchemy-node-utils --dry-run --skip-publish
 bun nx release patch --groups=distilled --dry-run --skip-publish
 bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
@@ -57,17 +60,19 @@ That gives a concrete before/after story for the old multi-repo workflow: one PR
 graph, one cached validation path, and one release plan.
 
 The GitHub `release` workflow uses the same release groups. It defaults to dry-run and uses
-continuation defaults by group: `alchemy` continues the beta prerelease line, while `distilled` and
-`cloudflare-tools` continue stable patch releases. Imported-group releases require monorepo
-baseline tags such as `distilled-v0.25.2` and `cloudflare-tools-v0.11.2` on the cutover commit, so
-the first monorepo patch release produces a clean version-bump range instead of replaying imported
-history. Disabling dry-run is the explicit approval for the workflow to publish, and the workflow
-refuses non-dry releases from any branch other than `main`.
+continuation defaults by group: `alchemy` continues the beta prerelease line, while `alchemy-node-utils`,
+`distilled`, and `cloudflare-tools` continue stable patch releases. Dogfood releases require scoped
+monorepo baseline tags such as `@oddlynew/distilled@0.25.2` and
+`@oddlynew/cloudflare-tools@0.11.2` on the fork-namespace commit, so the first monorepo patch
+release produces a clean version-bump range instead of replaying imported history. Disabling dry-run
+is the explicit approval for the workflow to publish, and the workflow refuses non-dry releases from
+any branch other than `main`.
 
 ## Source Layout
 
-Root `packages/` is reserved for shared monorepo infrastructure:
+Root `packages/` is reserved for shared packages and monorepo infrastructure:
 
+- `alchemy-node-utils`
 - `nx-alchemy-plugin`
 - `nx-oxlint-plugin`
 - `nx-r2-cache-worker`
@@ -125,6 +130,7 @@ bun nx lint nx-r2-cache-worker
 .github/scripts/run-affected-production-target.ts lint --parallel=6
 git diff --check
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=alchemy-node-utils --dry-run --skip-publish
 bun nx release patch --groups=distilled --dry-run --skip-publish
 bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```

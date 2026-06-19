@@ -1,4 +1,4 @@
-import * as cloudfront from "@distilled.cloud/aws/cloudfront";
+import * as cloudfront from "@oddlynew/distilled-aws/cloudfront";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

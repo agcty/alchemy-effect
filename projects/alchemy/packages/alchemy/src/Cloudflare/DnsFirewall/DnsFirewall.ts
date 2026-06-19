@@ -1,4 +1,4 @@
-import * as dnsFirewall from "@distilled.cloud/cloudflare/dns-firewall";
+import * as dnsFirewall from "@oddlynew/distilled-cloudflare/dns-firewall";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

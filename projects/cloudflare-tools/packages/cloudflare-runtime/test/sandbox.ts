@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import * as Credentials from "@distilled.cloud/cloudflare/Credentials";
+import * as Credentials from "@oddlynew/distilled-cloudflare/Credentials";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

@@ -1,4 +1,4 @@
-import * as ssl from "@distilled.cloud/cloudflare/ssl";
+import * as ssl from "@oddlynew/distilled-cloudflare/ssl";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

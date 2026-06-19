@@ -74,7 +74,7 @@ Create an `alchemy.run.ts` file:
 ```typescript twoslash
 // @errors: 2345
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
+import * as Alchemy from "@oddlynew/alchemy";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -100,8 +100,8 @@ in a Cloudflare-hosted Worker backed by a Durable Object:
 
 ```typescript twoslash
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-+import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
++import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -131,7 +131,7 @@ the full picture.
 
 :::note[Other state stores]
 Don't want to deploy a Worker just for state? Swap `Cloudflare.state()`
-for `State.localState()` from `alchemy/State` to keep state on disk
+for `State.localState()` from `@oddlynew/alchemy/State` to keep state on disk
 under `.alchemy/`, or [write your own](/concepts/state-store).
 :::
 
@@ -146,8 +146,8 @@ Let's add a Cloudflare R2 Bucket to our Stack and observe the type error:
 ```typescript twoslash errorReplace='ProviderCollectionShape<"Cloudflare">::Cloudflare.Providers'
 // @errors: 2322
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -173,8 +173,8 @@ type error:
 
 ```typescript twoslash
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 -import * as Layer from "effect/Layer";
 
@@ -201,8 +201,8 @@ object from the generator to expose them:
 
 ```typescript twoslash
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default Alchemy.Stack(

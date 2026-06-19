@@ -1,4 +1,4 @@
-import type { WorkflowBinding } from "@distilled.cloud/vendor-workflows-shared/src/binding";
+import type { WorkflowBinding } from "@oddlynew/distilled-vendor-workflows-shared/src/binding";
 
 class WorkflowImpl implements Workflow {
   constructor(private binding: WorkflowBinding) {}

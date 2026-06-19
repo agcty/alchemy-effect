@@ -1,7 +1,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildRequestParts, getHttpTrait } from "@distilled.cloud/core/traits";
+import {
+  buildRequestParts,
+  getHttpTrait,
+} from "@oddlynew/distilled-core/traits";
 import * as Schema from "effect/Schema";
 import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";

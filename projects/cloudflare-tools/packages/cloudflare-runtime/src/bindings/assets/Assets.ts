@@ -1,14 +1,14 @@
-import { parseHeaders, parseRedirects } from "@distilled.cloud/vendor-workers-shared";
+import { parseHeaders, parseRedirects } from "@oddlynew/distilled-vendor-workers-shared";
 import {
   constructHeaders,
   constructRedirects,
-} from "@distilled.cloud/vendor-workers-shared/node/configuration/constructConfiguration";
+} from "@oddlynew/distilled-vendor-workers-shared/node/configuration/constructConfiguration";
 import {
   createAssetsIgnoreFunction,
   getContentType,
   normalizeFilePath,
-} from "@distilled.cloud/vendor-workers-shared/node/helpers";
-import { parseStaticRouting } from "@distilled.cloud/vendor-workers-shared/shared/configuration/parseStaticRouting";
+} from "@oddlynew/distilled-vendor-workers-shared/node/helpers";
+import { parseStaticRouting } from "@oddlynew/distilled-vendor-workers-shared/shared/configuration/parseStaticRouting";
 import {
   CONTENT_HASH_OFFSET,
   ENTRY_SIZE,
@@ -17,12 +17,12 @@ import {
   MAX_ASSET_SIZE,
   PATH_HASH_OFFSET,
   PATH_HASH_SIZE,
-} from "@distilled.cloud/vendor-workers-shared/shared/constants";
+} from "@oddlynew/distilled-vendor-workers-shared/shared/constants";
 import type {
   AssetConfig,
   RouterConfig,
   StaticRouting,
-} from "@distilled.cloud/vendor-workers-shared/shared/types";
+} from "@oddlynew/distilled-vendor-workers-shared/shared/types";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";

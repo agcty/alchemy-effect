@@ -1,12 +1,12 @@
-import type { BindingHooks, Module, RuntimeServices } from "@distilled.cloud/cloudflare-runtime";
-import { layerRuntime, Runtime } from "@distilled.cloud/cloudflare-runtime";
+import type { BindingHooks, Module, RuntimeServices } from "@oddlynew/distilled-cloudflare-runtime";
+import { layerRuntime, Runtime } from "@oddlynew/distilled-cloudflare-runtime";
 import {
   DurableObjectNamespace,
   Json,
   Loopback,
   UnsafeEval,
-} from "@distilled.cloud/cloudflare-runtime/bindings";
-import * as Credentials from "@distilled.cloud/cloudflare/Credentials";
+} from "@oddlynew/distilled-cloudflare-runtime/bindings";
+import * as Credentials from "@oddlynew/distilled-cloudflare/Credentials";
 import type * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Exit from "effect/Exit";

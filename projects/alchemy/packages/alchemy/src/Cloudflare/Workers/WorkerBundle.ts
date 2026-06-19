@@ -1,4 +1,4 @@
-import cloudflareRolldown from "@distilled.cloud/cloudflare-rolldown-plugin";
+import cloudflareRolldown from "@oddlynew/distilled-cloudflare-rolldown-plugin";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import { flow } from "effect/Function";
@@ -157,8 +157,8 @@ export const makeEffectVirtualEntry = (
 import * as Effect from "effect/Effect";
 
 import { env, DurableObject, WorkerEntrypoint${hasWfClasses ? ", WorkflowEntrypoint" : ""} } from "cloudflare:workers";
-import { makeDurableObjectBridge, makeWorkerBridge${hasWfClasses ? ", makeWorkflowBridge" : ""} } from "alchemy/Cloudflare";
-import { makeEntrypointLayer } from "alchemy/Runtime";
+import { makeDurableObjectBridge, makeWorkerBridge${hasWfClasses ? ", makeWorkflowBridge" : ""} } from "@oddlynew/alchemy/Cloudflare";
+import { makeEntrypointLayer } from "@oddlynew/alchemy/Runtime";
 
 import entrypoint from ${JSON.stringify(importPath)};
 

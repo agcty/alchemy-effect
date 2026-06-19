@@ -1,4 +1,4 @@
-import { MODULE_RULES } from "@distilled.cloud/cloudflare-rolldown-plugin/plugins";
+import { MODULE_RULES } from "@oddlynew/distilled-cloudflare-rolldown-plugin/plugins";
 import assert from "node:assert";
 import * as vite from "vite";
 import type { FetchFunctionOptions } from "vite/module-runner";

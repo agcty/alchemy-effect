@@ -1,4 +1,4 @@
-import * as flagship from "@distilled.cloud/cloudflare/flagship";
+import * as flagship from "@oddlynew/distilled-cloudflare/flagship";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

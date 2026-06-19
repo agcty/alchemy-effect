@@ -1,4 +1,4 @@
-import * as emailRouting from "@distilled.cloud/cloudflare/email-routing";
+import * as emailRouting from "@oddlynew/distilled-cloudflare/email-routing";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

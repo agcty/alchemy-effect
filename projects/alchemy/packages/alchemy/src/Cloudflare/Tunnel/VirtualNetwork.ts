@@ -1,4 +1,4 @@
-import * as zeroTrust from "@distilled.cloud/cloudflare/zero-trust";
+import * as zeroTrust from "@oddlynew/distilled-cloudflare/zero-trust";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";

@@ -5,7 +5,7 @@ import type { SpeedTestScheduleAttributes } from "@/Cloudflare/Speed/TestSchedul
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as speed from "@distilled.cloud/cloudflare/speed";
+import * as speed from "@oddlynew/distilled-cloudflare/speed";
 import { expect } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";

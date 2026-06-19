@@ -1,4 +1,4 @@
-import * as argo from "@distilled.cloud/cloudflare/argo";
+import * as argo from "@oddlynew/distilled-cloudflare/argo";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

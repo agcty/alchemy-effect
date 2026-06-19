@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/cloudflare-vite-plugin",
+  "name": "@oddlynew/distilled-cloudflare-vite-plugin",
   "version": "0.11.2",
   "homepage": "https://github.com/alchemy-run/alchemy-effect/tree/main/projects/cloudflare-tools/packages/cloudflare-vite-plugin#readme",
   "bugs": {
@@ -43,14 +43,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@distilled.cloud/cloudflare-rolldown-plugin": "workspace:*"
+    "@oddlynew/distilled-cloudflare-rolldown-plugin": "workspace:*"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
     "@cloudflare/workers-types": "catalog:workers",
-    "@distilled.cloud/build-utils": "workspace:*",
-    "@distilled.cloud/vendor-workers-shared": "workspace:*",
     "@effect/platform-node": "catalog:effect",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
+    "@oddlynew/distilled-build-utils": "workspace:*",
+    "@oddlynew/distilled-vendor-workers-shared": "workspace:*",
     "@types/ws": "^8.18.1",
     "rolldown": "catalog:",
     "tsdown": "catalog:",
@@ -59,10 +59,10 @@
     "ws": "^8.21.0"
   },
   "peerDependencies": {
-    "@distilled.cloud/cloudflare": "catalog:",
-    "@distilled.cloud/cloudflare-runtime": "workspace:*",
     "@effect/platform-bun": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
+    "@oddlynew/distilled-cloudflare-runtime": "workspace:*",
     "effect": "catalog:effect",
     "vite": "^7.0.0 || ^8.0.0"
   },

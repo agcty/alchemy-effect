@@ -20,7 +20,7 @@ expressed as an Effect.
 
 ```typescript twoslash
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -57,7 +57,7 @@ Create `src/bucket.ts`:
 
 ```typescript twoslash
 // src/bucket.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Bucket = Cloudflare.R2Bucket("Bucket");
 ```
@@ -68,8 +68,8 @@ Update `alchemy.run.ts` to import it instead of declaring it inline:
 // @filename: ./src/bucket.ts
 // ---cut---
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { Bucket } from "./src/bucket.ts";
 
@@ -104,11 +104,11 @@ Now the Worker can import `Bucket` and bind it in the Init phase:
 // @noEmit: true
 // @allowImportingTsExtensions: true
 // @filename: bucket.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 export const Bucket = Cloudflare.R2Bucket("Bucket");
 // @filename: index.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 +import { Bucket } from "./bucket.ts";
@@ -142,7 +142,7 @@ The previous step showed a type error — `R2Bucket.bind` requires the
 // @allowImportingTsExtensions: true
 // @filename: ./bucket.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { Bucket } from "./bucket.ts";
@@ -179,7 +179,7 @@ request:
 // @allowImportingTsExtensions: true
 // @filename: ./bucket.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -225,7 +225,7 @@ into a 500 response:
 // @allowImportingTsExtensions: true
 // @filename: ./bucket.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -277,7 +277,7 @@ request isn't a PUT:
 // @allowImportingTsExtensions: true
 // @filename: ./bucket.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -338,8 +338,8 @@ output:
 // @filename: ./src/bucket.ts
 // @filename: ./src/worker.ts
 // ---cut---
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { Bucket } from "./src/bucket.ts";
 +import Worker from "./src/worker.ts";

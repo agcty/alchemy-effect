@@ -125,10 +125,10 @@ alchemy deploy --adopt
 ```
 
 You can also enable adoption programmatically by piping the
-`adopt` combinator onto a deploy effect from `alchemy/AdoptPolicy`:
+`adopt` combinator onto a deploy effect from `@oddlynew/alchemy/AdoptPolicy`:
 
 ```typescript
-import { adopt } from "alchemy/AdoptPolicy";
+import { adopt } from "@oddlynew/alchemy/AdoptPolicy";
 
 yield* deploy(
   Effect.gen(function* () {

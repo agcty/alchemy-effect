@@ -1,5 +1,5 @@
-import * as Axiom from "alchemy/Axiom";
-import { Stack } from "alchemy/Stack";
+import * as Axiom from "@oddlynew/alchemy/Axiom";
+import { Stack } from "@oddlynew/alchemy/Stack";
 
 export const Traces = Axiom.Dataset(
   "Traces",

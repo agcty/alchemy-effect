@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/nx-tsgo-plugin",
+  "name": "@oddlynew/alchemy-nx-tsgo-plugin",
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers typecheck targets using tsgo.",
@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@nx/devkit": "catalog:",
-    "@alchemy.run/oxlint-config": "workspace:*",
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/node": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:"

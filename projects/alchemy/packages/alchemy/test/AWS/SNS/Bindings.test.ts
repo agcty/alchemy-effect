@@ -1,6 +1,6 @@
 import * as AWS from "@/AWS";
 import * as Test from "@/Test/Vitest";
-import * as SQS from "@distilled.cloud/aws/sqs";
+import * as SQS from "@oddlynew/distilled-aws/sqs";
 import { describe, expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

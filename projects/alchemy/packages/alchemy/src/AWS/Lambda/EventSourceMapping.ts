@@ -1,4 +1,4 @@
-import * as lambda from "@distilled.cloud/aws/lambda";
+import * as lambda from "@oddlynew/distilled-aws/lambda";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Schedule from "effect/Schedule";
@@ -191,7 +191,7 @@ export interface EventSourceMapping extends Resource<
  *
  * @example Subscribe a function to a queue
  * ```typescript
- * import * as AWS from "alchemy/AWS";
+ * import * as AWS from "@oddlynew/alchemy/AWS";
  *
  * const queue = yield* AWS.SQS.Queue("Jobs", {});
  * const worker = yield* AWS.Lambda.Function("Worker", {
@@ -219,7 +219,7 @@ export interface EventSourceMapping extends Resource<
  *
  * @example Process a Kinesis stream from the latest records
  * ```typescript
- * import * as AWS from "alchemy/AWS";
+ * import * as AWS from "@oddlynew/alchemy/AWS";
  *
  * const stream = yield* AWS.Kinesis.Stream("Events", {});
  * const consumer = yield* AWS.Lambda.Function("Consumer", {
@@ -240,7 +240,7 @@ export interface EventSourceMapping extends Resource<
  *
  * @example Replay a DynamoDB stream from the beginning
  * ```typescript
- * import * as AWS from "alchemy/AWS";
+ * import * as AWS from "@oddlynew/alchemy/AWS";
  *
  * const table = yield* AWS.DynamoDB.Table("Orders", {
  *   partitionKey: { name: "id", type: "S" },

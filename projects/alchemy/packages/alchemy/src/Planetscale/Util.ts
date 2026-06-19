@@ -1,4 +1,4 @@
-import * as ops from "@distilled.cloud/planetscale/Operations";
+import * as ops from "@oddlynew/distilled-planetscale/Operations";
 import * as Clock from "effect/Clock";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

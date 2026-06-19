@@ -2,7 +2,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Cloudflare from "@/Cloudflare/index.ts";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as alerting from "@distilled.cloud/cloudflare/alerting";
+import * as alerting from "@oddlynew/distilled-cloudflare/alerting";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

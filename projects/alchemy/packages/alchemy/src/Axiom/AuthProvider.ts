@@ -1,4 +1,4 @@
-import { DEFAULT_API_BASE_URL } from "@distilled.cloud/axiom/Credentials";
+import { DEFAULT_API_BASE_URL } from "@oddlynew/distilled-axiom/Credentials";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as Match from "effect/Match";

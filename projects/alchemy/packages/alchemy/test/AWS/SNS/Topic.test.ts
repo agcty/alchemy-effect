@@ -4,7 +4,7 @@ import { Topic } from "@/AWS/SNS";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as SNS from "@distilled.cloud/aws/sns";
+import * as SNS from "@oddlynew/distilled-aws/sns";
 import { describe, expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

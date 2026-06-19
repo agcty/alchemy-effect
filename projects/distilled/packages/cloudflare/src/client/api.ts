@@ -5,24 +5,24 @@
  * generated service files so that `API.make()`, `API.OperationMethod`, etc.
  * are all accessible as namespace members.
  */
-import { retryableKey } from "@distilled.cloud/core/category";
+import { retryableKey } from "@oddlynew/distilled-core/category";
 import {
   makeAPI,
   type ApiErrorClass,
   type OperationMethod,
   type PaginatedOperationMethod,
-} from "@distilled.cloud/core/client";
+} from "@oddlynew/distilled-core/client";
 import {
   paginateCursor,
   paginateSingle,
   paginateWithDefaults,
   type PaginationStrategy,
-} from "@distilled.cloud/core/pagination";
+} from "@oddlynew/distilled-core/pagination";
 import {
   parseRetryAfterForStatus,
   parseServerRetryHint,
-} from "@distilled.cloud/core/retry-after";
-import { getPath, type RequestParts } from "@distilled.cloud/core/traits";
+} from "@oddlynew/distilled-core/retry-after";
+import { getPath, type RequestParts } from "@oddlynew/distilled-core/traits";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import type * as AST from "effect/SchemaAST";

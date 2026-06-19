@@ -4,7 +4,7 @@ import * as Output from "@/Output";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as tokenValidation from "@distilled.cloud/cloudflare/token-validation";
+import * as tokenValidation from "@oddlynew/distilled-cloudflare/token-validation";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

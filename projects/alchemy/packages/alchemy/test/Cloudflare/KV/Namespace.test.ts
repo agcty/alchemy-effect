@@ -4,7 +4,7 @@ import * as KV from "@/Cloudflare/KV/index";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as kv from "@distilled.cloud/cloudflare/kv";
+import * as kv from "@oddlynew/distilled-cloudflare/kv";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

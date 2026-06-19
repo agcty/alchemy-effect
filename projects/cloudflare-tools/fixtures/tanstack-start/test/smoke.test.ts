@@ -1,5 +1,5 @@
-import { createMiniflare, type MiniflareInstance } from "@distilled.cloud/test-utils/miniflare";
-import { miniflareModulesFromDirectory } from "@distilled.cloud/test-utils/miniflare-module";
+import { createMiniflare, type MiniflareInstance } from "@oddlynew/distilled-test-utils/miniflare";
+import { miniflareModulesFromDirectory } from "@oddlynew/distilled-test-utils/miniflare-module";
 import { expect, test } from "@playwright/test";
 import dotenv from "dotenv";
 import path from "node:path";

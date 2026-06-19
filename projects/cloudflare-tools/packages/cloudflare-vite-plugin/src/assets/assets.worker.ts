@@ -1,7 +1,7 @@
 import {
   AssetWorkerInner,
   type Env as BaseEnv,
-} from "@distilled.cloud/vendor-workers-shared/workers/asset-worker";
+} from "@oddlynew/distilled-vendor-workers-shared/workers/asset-worker";
 
 const UNKNOWN_HOST = "http://localhost";
 

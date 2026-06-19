@@ -1,4 +1,4 @@
-import * as pageShield from "@distilled.cloud/cloudflare/page-shield";
+import * as pageShield from "@oddlynew/distilled-cloudflare/page-shield";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

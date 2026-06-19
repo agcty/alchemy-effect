@@ -1,4 +1,4 @@
-import * as emailSending from "@distilled.cloud/cloudflare/email-sending";
+import * as emailSending from "@oddlynew/distilled-cloudflare/email-sending";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
@@ -99,7 +99,7 @@ export type EmailSendingSubdomain = Resource<
  * @section Externally-hosted zones
  * @example Look up the DNS records to create manually
  * ```typescript
- * import * as emailSending from "@distilled.cloud/cloudflare/email-sending";
+ * import * as emailSending from "@oddlynew/distilled-cloudflare/email-sending";
  *
  * // For zones not on Cloudflare DNS, fetch the expected records and add
  * // them at your DNS host; `enabled` flips to true once they validate.

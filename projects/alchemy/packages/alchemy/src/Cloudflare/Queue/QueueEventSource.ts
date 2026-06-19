@@ -89,7 +89,7 @@ export type QueueMessage<Body = unknown> = cf.Message<Body>;
  * @category Storage & Databases
  * @example
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Duration from "effect/Duration";
  * import * as Effect from "effect/Effect";
  * import * as Stream from "effect/Stream";

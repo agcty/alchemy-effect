@@ -32,8 +32,8 @@ jobs:
       # need the larger runner — same as distilled's own CI.
       packages: |
         [
-          { "dir": "projects/alchemy/packages/alchemy",     "name": "alchemy",                   "runner": "ubuntu-22-large" },
-          { "dir": "projects/alchemy/packages/better-auth", "name": "@alchemy.run/better-auth",  "runner": "ubuntu-22-large" },
-          { "dir": "projects/alchemy/packages/pr-package",  "name": "@alchemy.run/pr-package",   "runner": "ubuntu-22-large" }
+          { "dir": "projects/alchemy/packages/alchemy",     "name": "@oddlynew/alchemy",              "runner": "ubuntu-22-large" },
+          { "dir": "projects/alchemy/packages/better-auth", "name": "@oddlynew/alchemy-better-auth",  "runner": "ubuntu-22-large" },
+          { "dir": "projects/alchemy/packages/pr-package",  "name": "@oddlynew/alchemy-pr-package",   "runner": "ubuntu-22-large" }
         ]
     secrets: inherit

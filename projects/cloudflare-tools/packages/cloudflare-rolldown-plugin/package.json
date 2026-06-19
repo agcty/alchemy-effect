@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/cloudflare-rolldown-plugin",
+  "name": "@oddlynew/distilled-cloudflare-rolldown-plugin",
   "version": "0.11.2",
   "description": "Rolldown plugin for Cloudflare Workers.",
   "keywords": [
@@ -67,9 +67,9 @@
     "unenv": "^2.0.0-rc.24"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
     "@cloudflare/workers-types": "catalog:workers",
-    "@distilled.cloud/test-utils": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
+    "@oddlynew/distilled-test-utils": "workspace:*",
     "mysql2": "^3.22.3",
     "vite": "catalog:",
     "vitest": "catalog:"

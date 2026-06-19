@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as Azure from "@distilled.cloud/azure";
+ * import * as Azure from "@oddlynew/distilled-azure";
  *
  * myEffect.pipe(Azure.Retry.transient);
  * Effect.provide(myEffect, Layer.succeed(Azure.Retry.Retry, customPolicy));
@@ -21,7 +21,7 @@ import {
   type Policy,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 export {
   type Options,
@@ -34,7 +34,7 @@ export {
   transientOptions,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 /** Context tag for configuring retry behavior of Azure API calls. */
 export class Retry extends Context.Service<Retry, Policy>()("AzureRetry") {}

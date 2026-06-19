@@ -23,7 +23,7 @@ the WebSocket handshake. Create `src/room.ts`:
 
 ```typescript
 // src/room.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default class Room extends Cloudflare.DurableObjectNamespace<Room>()(
@@ -58,7 +58,7 @@ what later:
 
 ```diff lang="typescript"
 // src/room.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default class Room extends Cloudflare.DurableObjectNamespace<Room>()(
@@ -234,7 +234,7 @@ to the matching DO instance:
 
 ```diff lang="typescript"
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -294,8 +294,8 @@ per run:
 
 ```typescript
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Deferred from "effect/Deferred";
 import * as Effect from "effect/Effect";

@@ -3,8 +3,8 @@ import {
   apiTokenCredentials,
   Credentials,
   oauthCredentials,
-} from "@distilled.cloud/cloudflare/Credentials";
-import { ConfigError } from "@distilled.cloud/core/errors";
+} from "@oddlynew/distilled-cloudflare/Credentials";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -18,7 +18,10 @@ import {
   type CloudflareResolvedCredentials,
 } from "./Auth/AuthProvider.ts";
 
-export { Credentials, fromEnv } from "@distilled.cloud/cloudflare/Credentials";
+export {
+  Credentials,
+  fromEnv,
+} from "@oddlynew/distilled-cloudflare/Credentials";
 
 /**
  * Build a `Credentials` layer that resolves Cloudflare credentials via the

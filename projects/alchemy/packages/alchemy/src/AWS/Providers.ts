@@ -2,13 +2,13 @@ import {
   isRetryable,
   isThrottlingError,
   isTransientError,
-} from "@distilled.cloud/aws/Category";
+} from "@oddlynew/distilled-aws/Category";
 import {
   capped,
   jittered,
   Retry,
   type Factory as RetryFactory,
-} from "@distilled.cloud/aws/Retry";
+} from "@oddlynew/distilled-aws/Retry";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";

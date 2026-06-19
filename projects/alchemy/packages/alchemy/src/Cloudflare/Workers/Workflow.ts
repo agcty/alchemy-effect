@@ -1,4 +1,4 @@
-import * as workflows from "@distilled.cloud/cloudflare/workflows";
+import * as workflows from "@oddlynew/distilled-cloudflare/workflows";
 import type { ConfigError } from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

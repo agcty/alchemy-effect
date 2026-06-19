@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as customNameservers from "@distilled.cloud/cloudflare/custom-nameservers";
+import * as customNameservers from "@oddlynew/distilled-cloudflare/custom-nameservers";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

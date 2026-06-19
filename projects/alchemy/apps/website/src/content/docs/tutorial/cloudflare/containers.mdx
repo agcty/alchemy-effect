@@ -17,7 +17,7 @@ yet — just the name and the entrypoint file:
 
 ```typescript
 // src/Sandbox.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export class Sandbox extends Cloudflare.Container<Sandbox>()(
   "Sandbox",
@@ -38,7 +38,7 @@ to match:
 
 ```diff lang="typescript"
 // src/Sandbox.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 +import * as Effect from "effect/Effect";
 +import type { PlatformError } from "effect/PlatformError";
 
@@ -69,10 +69,10 @@ through `Stack.useSync`. Use it to pick a beefier instance type in
 
 ```diff lang="typescript"
 // src/Sandbox.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import type { PlatformError } from "effect/PlatformError";
-+import { Stack } from "alchemy/Stack";
++import { Stack } from "@oddlynew/alchemy/Stack";
 
 export class Sandbox extends Cloudflare.Container<
   Sandbox,
@@ -234,7 +234,7 @@ class:
 
 ```typescript
 // src/Agent.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { Sandbox } from "./Sandbox.ts";
 
@@ -331,8 +331,8 @@ runtime — it has to be reachable from `alchemy.run.ts`. Provide
 
 ```diff lang="typescript"
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import SandboxLive from "./src/Sandbox.runtime.ts";
 import Worker from "./src/worker.ts";
@@ -354,7 +354,7 @@ The Worker binds `Agent` and exposes the `/sandbox/exec` route:
 
 ```diff lang="typescript"
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -403,8 +403,8 @@ stdout in the response:
 
 ```diff lang="typescript"
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 +import * as HttpBody from "effect/unstable/http/HttpBody";
@@ -449,7 +449,7 @@ to `Agent.ts` that proxies to it via `getTcpPort`:
 
 ```diff lang="typescript"
 // src/Agent.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import { Sandbox } from "./Sandbox.ts";

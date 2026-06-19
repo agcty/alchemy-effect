@@ -1,13 +1,13 @@
-# @distilled.cloud/posthog
+# @oddlynew/distilled-posthog
 
 Effect-native PostHog SDK generated from the [PostHog OpenAPI specification](https://posthog.com/docs/api). Manage feature flags, experiments, insights, dashboards, persons, cohorts, error tracking, surveys, session recordings, and more — with exhaustive error typing.
 
-Operations are grouped by service (matching the spec's tags) and exposed as namespaces from `@distilled.cloud/posthog/Operations`.
+Operations are grouped by service (matching the spec's tags) and exposed as namespaces from `@oddlynew/distilled-posthog/Operations`.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/posthog effect
+npm install @oddlynew/distilled-posthog effect
 ```
 
 ## Quick Start
@@ -15,8 +15,8 @@ npm install @distilled.cloud/posthog effect
 ```typescript
 import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { FeatureFlags } from "@distilled.cloud/posthog/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/posthog";
+import { FeatureFlags } from "@oddlynew/distilled-posthog/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-posthog";
 
 const program = Effect.gen(function* () {
   const result = yield* FeatureFlags.featureFlagsList({
@@ -47,7 +47,7 @@ Create a Personal API key in the [PostHog dashboard](https://us.posthog.com/sett
 
 ```typescript
 import { Effect } from "effect";
-import { FeatureFlags } from "@distilled.cloud/posthog/Operations";
+import { FeatureFlags } from "@oddlynew/distilled-posthog/Operations";
 
 FeatureFlags.featureFlagsRetrieve({
   project_id: "12345",

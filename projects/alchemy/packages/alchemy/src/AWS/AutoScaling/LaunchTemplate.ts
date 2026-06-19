@@ -1,6 +1,6 @@
-import type { Credentials } from "@distilled.cloud/aws/Credentials";
-import { Region } from "@distilled.cloud/aws/Region";
-import * as ec2 from "@distilled.cloud/aws/ec2";
+import type { Credentials } from "@oddlynew/distilled-aws/Credentials";
+import { Region } from "@oddlynew/distilled-aws/Region";
+import * as ec2 from "@oddlynew/distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Stream from "effect/Stream";

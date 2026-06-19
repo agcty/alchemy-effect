@@ -1,4 +1,4 @@
-import * as cache from "@distilled.cloud/cloudflare/cache";
+import * as cache from "@oddlynew/distilled-cloudflare/cache";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

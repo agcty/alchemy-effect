@@ -1,4 +1,4 @@
-import * as aiGateway from "@distilled.cloud/cloudflare/ai-gateway";
+import * as aiGateway from "@oddlynew/distilled-cloudflare/ai-gateway";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
@@ -138,7 +138,7 @@ export const isAiGatewaySpendingLimit = (
  * @section Setting a spend cap
  * @example Monthly cap
  * ```ts
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  *
  * // Cloudflare requires one manual credit top-up before a spending limit
  * // can be set. `topUp` reconciles that requirement: the provider observes

@@ -3,7 +3,7 @@ import { DBSubnetGroup } from "@/AWS/RDS/DBSubnetGroup.ts";
 import type { SubnetId } from "@/AWS/EC2/Subnet.ts";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as EC2 from "@distilled.cloud/aws/ec2";
+import * as EC2 from "@oddlynew/distilled-aws/ec2";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

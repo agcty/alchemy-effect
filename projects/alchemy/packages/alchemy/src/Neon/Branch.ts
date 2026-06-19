@@ -9,7 +9,7 @@ import {
   listProjects,
   type ListProjectsOutput,
   updateProjectBranch,
-} from "@distilled.cloud/neon";
+} from "@oddlynew/distilled-neon";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { isResolved } from "../Diff.ts";

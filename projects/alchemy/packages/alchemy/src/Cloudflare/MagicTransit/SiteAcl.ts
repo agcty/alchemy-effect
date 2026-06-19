@@ -1,4 +1,4 @@
-import * as magicTransit from "@distilled.cloud/cloudflare/magic-transit";
+import * as magicTransit from "@oddlynew/distilled-cloudflare/magic-transit";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

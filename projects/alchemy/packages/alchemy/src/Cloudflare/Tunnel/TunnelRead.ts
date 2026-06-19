@@ -8,8 +8,8 @@ import type {
   ListTunnelCloudflaredsError,
   ListTunnelCloudflaredsRequest,
   ListTunnelCloudflaredsResponse,
-} from "@distilled.cloud/cloudflare/zero-trust";
-import * as zeroTrust from "@distilled.cloud/cloudflare/zero-trust";
+} from "@oddlynew/distilled-cloudflare/zero-trust";
+import * as zeroTrust from "@oddlynew/distilled-cloudflare/zero-trust";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Binding from "../../Binding.ts";

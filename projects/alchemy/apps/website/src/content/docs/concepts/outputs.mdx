@@ -63,7 +63,7 @@ without forcing the value.
 When you need an `Output` shape but the value is already known:
 
 ```typescript
-import * as Output from "alchemy/Output";
+import * as Output from "@oddlynew/alchemy/Output";
 
 Output.literal("hello");      // Output<string>
 Output.literal(42);           // Output<number>
@@ -93,7 +93,7 @@ forcing it. The function runs once, after the upstream resource
 resolves:
 
 ```typescript
-import * as Output from "alchemy/Output";
+import * as Output from "@oddlynew/alchemy/Output";
 
 const upper = bucket.bucketName.pipe(
   Output.map((name) => name.toUpperCase()),

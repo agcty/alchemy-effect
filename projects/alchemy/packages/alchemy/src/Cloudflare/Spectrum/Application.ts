@@ -1,4 +1,4 @@
-import * as spectrum from "@distilled.cloud/cloudflare/spectrum";
+import * as spectrum from "@oddlynew/distilled-cloudflare/spectrum";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

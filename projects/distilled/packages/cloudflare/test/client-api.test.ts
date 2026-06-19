@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildRequestParts, getHttpTrait } from "@distilled.cloud/core/traits";
+import {
+  buildRequestParts,
+  getHttpTrait,
+} from "@oddlynew/distilled-core/traits";
 import * as Schema from "effect/Schema";
 import { transformCloudflareRequestParts } from "~/client/api";
 import { CreateAssetUploadRequest, PutScriptRequest } from "~/services/workers";

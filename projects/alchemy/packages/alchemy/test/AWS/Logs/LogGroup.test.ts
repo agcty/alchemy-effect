@@ -2,7 +2,7 @@ import * as AWS from "@/AWS";
 import { LogGroup } from "@/AWS/Logs/LogGroup.ts";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as logs from "@distilled.cloud/aws/cloudwatch-logs";
+import * as logs from "@oddlynew/distilled-aws/cloudwatch-logs";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

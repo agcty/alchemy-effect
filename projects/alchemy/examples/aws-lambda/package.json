@@ -1,5 +1,5 @@
 {
-  "name": "aws-lambda",
+  "name": "@oddlynew/alchemy-example-aws-lambda",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -16,12 +16,12 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@distilled.cloud/aws": "catalog:",
+    "@oddlynew/distilled-aws": "workspace:*",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

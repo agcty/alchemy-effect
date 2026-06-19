@@ -17,7 +17,7 @@ as one project graph rather than as three standalone checkouts.
 | Generated provider API docs | [`projects/alchemy/apps/website/src/content/docs/providers`](./projects/alchemy/apps/website/src/content/docs/providers) |
 | Distilled provider packages | [`projects/distilled/packages`](./projects/distilled/packages) |
 | Cloudflare tools packages | [`projects/cloudflare-tools/packages`](./projects/cloudflare-tools/packages) |
-| Shared repo infrastructure | [`packages`](./packages) |
+| Shared packages and repo infrastructure | [`packages`](./packages) |
 
 ## Foot-guns
 
@@ -50,8 +50,9 @@ as one project graph rather than as three standalone checkouts.
 | Lint affected production graph | `.github/scripts/run-affected-production-target.ts lint --parallel=6` |
 | Format repo code | `bun oxfmt ./packages ./projects` |
 | Preview Alchemy release | `bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish` |
-| Preview first Distilled monorepo release | `bun nx release patch --groups=distilled --dry-run --first-release --skip-publish` |
-| Preview first Cloudflare tools monorepo release | `bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-publish` |
+| Preview alchemy-node-utils release | `bun nx release patch --groups=alchemy-node-utils --dry-run --skip-publish` |
+| Preview Distilled release | `bun nx release patch --groups=distilled --dry-run --skip-publish` |
+| Preview Cloudflare tools release | `bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish` |
 
 ## Standard loop
 
@@ -65,7 +66,8 @@ as one project graph rather than as three standalone checkouts.
 ## Architecture map
 
 ```text
-packages/                         # Shared monorepo infrastructure
+packages/                         # Shared packages and monorepo infrastructure
+  alchemy-node-utils/                     # Shared @oddlynew/alchemy-node-utils package
   nx-*-plugin/                    # Inferred Nx target plugins
   nx-r2-cache-worker/             # Self-hosted Nx remote cache Worker
   oxlint-config/                  # Shared lint config package
@@ -927,10 +929,10 @@ bun nx test <project> --run <path>
 Examples:
 
 ```bash
-bun nx build alchemy
-bun nx typecheck alchemy
-bun nx lint alchemy
-bun nx test alchemy -- test/Cloudflare/R2/Bucket.test.ts
+bun nx build @oddlynew/alchemy
+bun nx typecheck @oddlynew/alchemy
+bun nx lint @oddlynew/alchemy
+bun nx test @oddlynew/alchemy -- test/Cloudflare/R2/Bucket.test.ts
 ```
 
 ## Affected production validation

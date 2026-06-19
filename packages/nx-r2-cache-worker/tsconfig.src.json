@@ -1,5 +1,5 @@
 {
-  "extends": "@alchemy.run/typescript-config/neutral.json",
+  "extends": "@oddlynew/alchemy-typescript-config/neutral.json",
   "compilerOptions": {
     "composite": true,
     "allowJs": false,

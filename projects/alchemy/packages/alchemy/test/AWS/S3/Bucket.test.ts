@@ -4,7 +4,7 @@ import { Bucket } from "@/AWS/S3";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as S3 from "@distilled.cloud/aws/s3";
+import * as S3 from "@oddlynew/distilled-aws/s3";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/website",
+  "name": "@oddlynew/distilled-website",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "deploy": "bun run build && bun run scripts/deploy.ts"
   },
   "dependencies": {
-    "@distilled.cloud/cloudflare": "workspace:*",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {

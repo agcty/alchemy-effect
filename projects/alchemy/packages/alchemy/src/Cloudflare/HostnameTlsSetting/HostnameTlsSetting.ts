@@ -1,4 +1,4 @@
-import * as hostnames from "@distilled.cloud/cloudflare/hostnames";
+import * as hostnames from "@oddlynew/distilled-cloudflare/hostnames";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

@@ -13,7 +13,7 @@ import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import { Credentials, CredentialsFromEnv } from "~/credentials";
 import * as Retry from "~/retry";
-import { makeDefault } from "@distilled.cloud/core/retry";
+import { makeDefault } from "@oddlynew/distilled-core/retry";
 
 type Provided = Scope.Scope | HttpClient.HttpClient | Credentials | Retry.Retry;
 

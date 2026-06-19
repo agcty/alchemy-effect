@@ -3,7 +3,7 @@
  *
  * @example
  * \`\`\`ts
- * import * as Posthog from "@distilled.cloud/posthog";
+ * import * as Posthog from "@oddlynew/distilled-posthog";
  * \`\`\`
  */
 export * from "./credentials.ts";

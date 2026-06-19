@@ -20,8 +20,8 @@ at the end:
 
 ```typescript
 // v1 — alchemy.run.ts
-import alchemy from "alchemy";
-import { Worker, R2Bucket } from "alchemy/cloudflare";
+import alchemy from "@oddlynew/alchemy";
+import { Worker, R2Bucket } from "@oddlynew/alchemy/cloudflare";
 
 const app = await alchemy("my-app", {});
 
@@ -41,8 +41,8 @@ of `await`:
 
 ```typescript
 // v2 — alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export const Bucket = Cloudflare.R2Bucket("Bucket");
@@ -140,7 +140,7 @@ resources in the Worker's Init phase using `yield*`:
 ```typescript twoslash
 // @noErrors
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -178,8 +178,8 @@ Stack just `yield*`-s the imported Worker:
 ```typescript twoslash
 // @noErrors
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-+import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
++import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import Worker from "./src/worker.ts";
 +import { Bucket } from "./src/bucket.ts";

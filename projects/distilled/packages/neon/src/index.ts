@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Neon from "@distilled.cloud/neon";
+ * import * as Neon from "@oddlynew/distilled-neon";
  * ```
  */
 export * from "./credentials.ts";

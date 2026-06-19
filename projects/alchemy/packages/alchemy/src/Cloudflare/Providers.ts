@@ -1,4 +1,4 @@
-import { Retry } from "@distilled.cloud/cloudflare";
+import { Retry } from "@oddlynew/distilled-cloudflare";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";
@@ -139,7 +139,7 @@ import * as WorkersForPlatforms from "./WorkersForPlatforms/index.ts";
 import * as Zaraz from "./Zaraz/index.ts";
 import * as Zone from "./Zone/index.ts";
 
-export { Credentials } from "@distilled.cloud/cloudflare/Credentials";
+export { Credentials } from "@oddlynew/distilled-cloudflare/Credentials";
 
 export class Providers extends Provider.ProviderCollection<Providers>()(
   "Cloudflare",

@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-worker-async",
+  "name": "@oddlynew/alchemy-example-cloudflare-worker-async",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -18,15 +18,15 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@alchemy.run/better-auth": "workspace:*",
+    "@oddlynew/alchemy-better-auth": "workspace:*",
     "@cloudflare/workers-types": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "better-auth": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

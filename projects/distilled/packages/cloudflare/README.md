@@ -1,11 +1,11 @@
-# @distilled.cloud/cloudflare
+# @oddlynew/distilled-cloudflare
 
 Effect-native Cloudflare SDK generated from the [Cloudflare TypeScript SDK](https://github.com/cloudflare/cloudflare-typescript) source. Covers Workers, R2, KV, D1, Queues, DNS, and more with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/cloudflare effect
+npm install @oddlynew/distilled-cloudflare effect
 ```
 
 ## Quick Start
@@ -14,9 +14,9 @@ npm install @distilled.cloud/cloudflare effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as DNS from "@distilled.cloud/cloudflare/dns";
-import * as R2 from "@distilled.cloud/cloudflare/r2";
-import { CredentialsFromEnv } from "@distilled.cloud/cloudflare";
+import * as DNS from "@oddlynew/distilled-cloudflare/dns";
+import * as R2 from "@oddlynew/distilled-cloudflare/r2";
+import { CredentialsFromEnv } from "@oddlynew/distilled-cloudflare";
 
 const program = Effect.gen(function* () {
   yield* R2.listBuckets({ account_id: "your-account-id" });
@@ -59,11 +59,11 @@ R2.getBucket({ account_id: "...", bucket_name: "missing" }).pipe(
 ## Services
 
 ```typescript
-import * as R2 from "@distilled.cloud/cloudflare/r2";
-import * as Workers from "@distilled.cloud/cloudflare/workers";
-import * as KV from "@distilled.cloud/cloudflare/kv";
-import * as Queues from "@distilled.cloud/cloudflare/queues";
-import * as DNS from "@distilled.cloud/cloudflare/dns";
+import * as R2 from "@oddlynew/distilled-cloudflare/r2";
+import * as Workers from "@oddlynew/distilled-cloudflare/workers";
+import * as KV from "@oddlynew/distilled-cloudflare/kv";
+import * as Queues from "@oddlynew/distilled-cloudflare/queues";
+import * as DNS from "@oddlynew/distilled-cloudflare/dns";
 ```
 
 ## License

@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/core",
+  "name": "@oddlynew/distilled-core",
   "version": "0.25.2",
   "license": "Apache-2.0",
   "repository": {
@@ -83,11 +83,10 @@
     "lint": "oxlint --type-aware src",
     "lint:fix": "oxlint --fix src",
     "check": "tsgo && oxlint src && oxfmt --check src",
-    "test": "bunx vitest run test --exclude specs --passWithNoTests",
-    "publish:npm": "bun run build && bun publish --access public"
+    "test": "bunx vitest run test --exclude specs --passWithNoTests"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "dotenv": "catalog:",

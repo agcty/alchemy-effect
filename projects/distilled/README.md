@@ -5,8 +5,8 @@ Effect-native SDKs for cloud providers with exhaustive error typing, retry polic
 ```typescript
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
-import * as Lambda from "@distilled.cloud/aws/lambda";
-import * as S3 from "@distilled.cloud/aws/s3";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
+import * as S3 from "@oddlynew/distilled-aws/s3";
 
 const bucket =
   yield *
@@ -40,21 +40,21 @@ existing work. Use `bun scripts/create-sdk.ts --help` for skip/resume flags.
 
 ## Packages
 
-| Package                                                          | Description                                                      |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [`@distilled.cloud/core`](./packages/core)                       | Shared client, traits, errors, and categories                    |
-| [`@distilled.cloud/aws`](./packages/aws)                         | AWS SDK from Smithy models (S3, Lambda, DynamoDB, 200+ services) |
-| [`@distilled.cloud/cloudflare`](./packages/cloudflare)           | Cloudflare SDK (Workers, R2, KV, D1, Queues, DNS)                |
-| [`@distilled.cloud/coinbase`](./packages/coinbase)               | Coinbase CDP SDK (EVM/Solana wallets, swaps, faucets, onramp)    |
-| [`@distilled.cloud/fly-io`](./packages/fly-io)                   | Fly.io SDK from OpenAPI spec                                     |
-| [`@distilled.cloud/gcp`](./packages/gcp)                         | GCP SDK from Discovery Documents                                 |
-| [`@distilled.cloud/mongodb-atlas`](./packages/mongodb-atlas)     | MongoDB Atlas SDK from OpenAPI spec                              |
-| [`@distilled.cloud/neon`](./packages/neon)                       | Neon serverless Postgres SDK from OpenAPI spec                   |
-| [`@distilled.cloud/planetscale`](./packages/planetscale)         | PlanetScale MySQL SDK from OpenAPI spec                          |
-| [`@distilled.cloud/prisma-postgres`](./packages/prisma-postgres) | Prisma Postgres SDK from OpenAPI spec                            |
-| [`@distilled.cloud/stripe`](./packages/stripe)                   | Stripe SDK from OpenAPI spec                                     |
-| [`@distilled.cloud/supabase`](./packages/supabase)               | Supabase Management API SDK from OpenAPI spec                    |
-| [`@distilled.cloud/turso`](./packages/turso)                     | Turso SDK from OpenAPI spec                                      |
+| Package                                                             | Description                                                      |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [`@oddlynew/distilled-core`](./packages/core)                       | Shared client, traits, errors, and categories                    |
+| [`@oddlynew/distilled-aws`](./packages/aws)                         | AWS SDK from Smithy models (S3, Lambda, DynamoDB, 200+ services) |
+| [`@oddlynew/distilled-cloudflare`](./packages/cloudflare)           | Cloudflare SDK (Workers, R2, KV, D1, Queues, DNS)                |
+| [`@oddlynew/distilled-coinbase`](./packages/coinbase)               | Coinbase CDP SDK (EVM/Solana wallets, swaps, faucets, onramp)    |
+| [`@oddlynew/distilled-fly-io`](./packages/fly-io)                   | Fly.io SDK from OpenAPI spec                                     |
+| [`@oddlynew/distilled-gcp`](./packages/gcp)                         | GCP SDK from Discovery Documents                                 |
+| [`@oddlynew/distilled-mongodb-atlas`](./packages/mongodb-atlas)     | MongoDB Atlas SDK from OpenAPI spec                              |
+| [`@oddlynew/distilled-neon`](./packages/neon)                       | Neon serverless Postgres SDK from OpenAPI spec                   |
+| [`@oddlynew/distilled-planetscale`](./packages/planetscale)         | PlanetScale MySQL SDK from OpenAPI spec                          |
+| [`@oddlynew/distilled-prisma-postgres`](./packages/prisma-postgres) | Prisma Postgres SDK from OpenAPI spec                            |
+| [`@oddlynew/distilled-stripe`](./packages/stripe)                   | Stripe SDK from OpenAPI spec                                     |
+| [`@oddlynew/distilled-supabase`](./packages/supabase)               | Supabase Management API SDK from OpenAPI spec                    |
+| [`@oddlynew/distilled-turso`](./packages/turso)                     | Turso SDK from OpenAPI spec                                      |
 
 ## Getting Started
 
@@ -69,11 +69,11 @@ cd alchemy-effect
 bun install
 
 # Build one SDK through Nx
-bun nx build @distilled.cloud/core
-bun nx build @distilled.cloud/stripe
+bun nx build @oddlynew/distilled-core
+bun nx build @oddlynew/distilled-stripe
 
 # Run one SDK's tests through Nx
-bun nx test @distilled.cloud/stripe
+bun nx test @oddlynew/distilled-stripe
 ```
 
 ## Git Performance

@@ -5,7 +5,7 @@
  * from the PlanetScale OpenAPI 2.0 (Swagger) spec.
  */
 import * as path from "path";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 

@@ -1,4 +1,4 @@
-import * as pqe from "@distilled.cloud/cloudflare/origin-post-quantum-encryption";
+import * as pqe from "@oddlynew/distilled-cloudflare/origin-post-quantum-encryption";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

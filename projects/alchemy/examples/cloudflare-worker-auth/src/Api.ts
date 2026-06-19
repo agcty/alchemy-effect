@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
@@ -7,7 +7,7 @@ import { AuthToken } from "./AuthToken.ts";
 
 /**
  * A Worker with a single bearer-token protected route, mirroring the auth
- * check in `@alchemy.run/pr-package`.
+ * check in `@oddlynew/alchemy-pr-package`.
  *
  * `Cloudflare.Secret.bind(...)` resolves to `Redacted<string>`. The comparison
  * MUST unwrap it with `Redacted.value(expected)` — coercing a `Redacted` to a

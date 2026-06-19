@@ -437,7 +437,7 @@ This is a BUG in the SDK, not expected behavior. Your job is to FIX it.
      when the response includes a standard \`Retry-After\` / \`RateLimit\` hint, pass
      \`retryAfter: parseRetryAfterForStatus(status, headers)\`. When there is no hint,
      omit \`retryAfter\` — the default policy still retries with exponential backoff.
-     Import: \`import { parseRetryAfterForStatus } from "@distilled.cloud/core/retry-after";\`
+     Import: \`import { parseRetryAfterForStatus } from "@oddlynew/distilled-core/retry-after";\`
 
 4. **OR create a patch** if the error is operation-specific:
    - For OpenAPI SDKs: add a JSON Patch entry to \`patches/*.patch.json\`

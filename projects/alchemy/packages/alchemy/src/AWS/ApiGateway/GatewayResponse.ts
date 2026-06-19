@@ -1,4 +1,4 @@
-import * as ag from "@distilled.cloud/aws/api-gateway";
+import * as ag from "@oddlynew/distilled-aws/api-gateway";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

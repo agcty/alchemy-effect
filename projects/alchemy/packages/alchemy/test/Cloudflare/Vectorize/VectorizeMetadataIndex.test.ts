@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
 import { poll } from "@/Util/poll.ts";
-import * as vectorize from "@distilled.cloud/cloudflare/vectorize";
+import * as vectorize from "@oddlynew/distilled-cloudflare/vectorize";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

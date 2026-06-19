@@ -18,10 +18,10 @@ outer init, mirroring how you added the bucket:
 
 ```diff lang="typescript"
 // src/api.ts
-import * as AWS from "alchemy/AWS";
-+import * as DynamoDB from "alchemy/AWS/DynamoDB";
-import * as S3 from "alchemy/AWS/S3";
-import { Stack } from "alchemy/Stack";
+import * as AWS from "@oddlynew/alchemy/AWS";
++import * as DynamoDB from "@oddlynew/alchemy/AWS/DynamoDB";
+import * as S3 from "@oddlynew/alchemy/AWS/S3";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Effect from "effect/Effect";
 // ...
 

@@ -1,4 +1,4 @@
-import type * as eks from "@distilled.cloud/aws/eks";
+import type * as eks from "@oddlynew/distilled-aws/eks";
 import * as Effect from "effect/Effect";
 import * as Namespace from "../../Namespace.ts";
 import * as Output from "../../Output.ts";

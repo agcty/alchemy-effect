@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import * as Category from "@distilled.cloud/core/category";
+ * import * as Category from "@oddlynew/distilled-core/category";
  *
  * export class Unauthorized extends Schema.TaggedErrorClass<Unauthorized>()(
  *   "Unauthorized",
@@ -69,13 +69,13 @@ export type Category =
  * Key for storing categories on error prototypes.
  * Shared across all SDKs so category checking works uniformly.
  */
-export const categoriesKey = "@distilled.cloud/error/categories";
+export const categoriesKey = "@oddlynew/distilled-error/categories";
 
 /**
  * Key for storing retryable trait on error prototypes.
  * Separate from categories - indicates this error should be retried.
  */
-export const retryableKey = "@distilled.cloud/error/retryable";
+export const retryableKey = "@oddlynew/distilled-error/retryable";
 
 export interface RetryableInfo {
   /** If true, this is a throttling error (use longer backoff) */

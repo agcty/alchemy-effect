@@ -4,7 +4,7 @@ import { Queue } from "@/AWS/SQS";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as SQS from "@distilled.cloud/aws/sqs";
+import * as SQS from "@oddlynew/distilled-aws/sqs";
 import { expect } from "@effect/vitest";
 import * as Console from "effect/Console";
 import * as Data from "effect/Data";

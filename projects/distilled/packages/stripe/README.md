@@ -1,11 +1,11 @@
-# @distilled.cloud/stripe
+# @oddlynew/distilled-stripe
 
 Effect-native Stripe SDK generated from the [Stripe OpenAPI specification](https://github.com/stripe/openapi). Covers payments, subscriptions, invoices, customers, and 560+ operations with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/stripe effect
+npm install @oddlynew/distilled-stripe effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/stripe effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { GetCustomersSearch } from "@distilled.cloud/stripe/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/stripe";
+import { GetCustomersSearch } from "@oddlynew/distilled-stripe/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-stripe";
 
 const program = Effect.gen(function* () {
   const results = yield* GetCustomersSearch({
@@ -44,7 +44,7 @@ Find your API keys in the [Stripe dashboard](https://dashboard.stripe.com/apikey
 Stripe errors are dispatched by `error.type` first, then HTTP status. Typed error classes include:
 
 ```typescript
-import { PostPaymentIntents } from "@distilled.cloud/stripe/Operations";
+import { PostPaymentIntents } from "@oddlynew/distilled-stripe/Operations";
 
 PostPaymentIntents({ amount: 1000, currency: "usd" }).pipe(
   Effect.catchTags({

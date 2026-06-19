@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-tools",
+  "name": "@oddlynew/cloudflare-tools",
   "private": true,
   "description": "Effect-native developer tooling for Cloudflare Workers.",
   "license": "MIT",
@@ -34,8 +34,8 @@
       }
     },
     "catalog": {
-      "@alchemy.run/node-utils": "^0.0.5",
-      "@distilled.cloud/cloudflare": "^0.24.5",
+      "@oddlynew/alchemy-node-utils": "workspace:*",
+      "@oddlynew/distilled-cloudflare": "^0.24.5",
       "@playwright/test": "^1.52.0",
       "rolldown": "^1.0.1",
       "tsdown": "^0.22.0",
@@ -46,8 +46,8 @@
   },
   "type": "module",
   "scripts": {
-    "build": "turbo run build --filter='@distilled.cloud/*'",
-    "dev": "turbo run dev --filter='@distilled.cloud/*'",
+    "build": "turbo run build --filter='@oddlynew/distilled-*'",
+    "dev": "turbo run dev --filter='@oddlynew/distilled-*'",
     "check": "bun run format && bun run lint && turbo run typecheck",
     "check:write": "bun run format:write && bun run lint:write && turbo run typecheck",
     "format": "oxfmt format --check .",
@@ -60,7 +60,7 @@
     "submodules:update": "git submodule update --remote --recursive"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "^1.3.11",
     "@types/node": "^24.12.0",
     "drizzle-orm": "^0.45.2",

@@ -1,4 +1,4 @@
-import * as pipelines from "@distilled.cloud/cloudflare/pipelines";
+import * as pipelines from "@oddlynew/distilled-cloudflare/pipelines";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

@@ -1,5 +1,5 @@
-import * as rds from "@distilled.cloud/aws/rds";
-import * as secretsmanager from "@distilled.cloud/aws/secrets-manager";
+import * as rds from "@oddlynew/distilled-aws/rds";
+import * as secretsmanager from "@oddlynew/distilled-aws/secrets-manager";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as Schedule from "effect/Schedule";

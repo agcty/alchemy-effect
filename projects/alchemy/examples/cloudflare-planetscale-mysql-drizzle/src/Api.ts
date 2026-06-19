@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { Layer } from "effect";

@@ -1,4 +1,4 @@
-import * as dns from "@distilled.cloud/cloudflare/dns";
+import * as dns from "@oddlynew/distilled-cloudflare/dns";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

@@ -1,4 +1,7 @@
-import { buildRequestParts, getHttpTrait } from "@distilled.cloud/core/traits";
+import {
+  buildRequestParts,
+  getHttpTrait,
+} from "@oddlynew/distilled-core/traits";
 import { describe, expect, it } from "vitest";
 import {
   DeleteProjectsRequest,

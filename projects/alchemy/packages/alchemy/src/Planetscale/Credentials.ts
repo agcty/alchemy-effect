@@ -1,8 +1,8 @@
-import { ConfigError } from "@distilled.cloud/core/errors";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 import {
   Credentials,
   DEFAULT_API_BASE_URL,
-} from "@distilled.cloud/planetscale/Credentials";
+} from "@oddlynew/distilled-planetscale/Credentials";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -19,7 +19,7 @@ export {
   Credentials,
   CredentialsFromEnv,
   DEFAULT_API_BASE_URL,
-} from "@distilled.cloud/planetscale/Credentials";
+} from "@oddlynew/distilled-planetscale/Credentials";
 
 /**
  * Build a PlanetScale `Credentials` Layer from an explicit token. Useful for

@@ -1,1 +1,1 @@
-export { default } from "@distilled.cloud/vendor-workers-shared/workers/router-worker";
+export { default } from "@oddlynew/distilled-vendor-workers-shared/workers/router-worker";

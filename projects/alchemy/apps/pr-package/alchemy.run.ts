@@ -1,7 +1,7 @@
-import * as PrPackage from "@alchemy.run/pr-package";
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Output from "alchemy/Output";
+import * as PrPackage from "@oddlynew/alchemy-pr-package";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Output from "@oddlynew/alchemy/Output";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import Api from "./src/Api.ts";

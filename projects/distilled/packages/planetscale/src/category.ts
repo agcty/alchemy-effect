@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import * as Category from "@distilled.cloud/planetscale/category";
+ * import * as Category from "@oddlynew/distilled-planetscale/category";
  * ```
  */
-export * from "@distilled.cloud/core/category";
+export * from "@oddlynew/distilled-core/category";

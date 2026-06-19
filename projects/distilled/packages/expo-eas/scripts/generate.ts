@@ -13,7 +13,7 @@
  * selection-set walker up to `maxDepth` levels.
  */
 import * as path from "path";
-import { generateFromGraphQL } from "@distilled.cloud/core/graphql/generate";
+import { generateFromGraphQL } from "@oddlynew/distilled-core/graphql/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 

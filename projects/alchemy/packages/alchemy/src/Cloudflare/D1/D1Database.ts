@@ -1,4 +1,4 @@
-import * as d1 from "@distilled.cloud/cloudflare/d1";
+import * as d1 from "@oddlynew/distilled-cloudflare/d1";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 

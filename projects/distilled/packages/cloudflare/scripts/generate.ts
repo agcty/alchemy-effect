@@ -3165,7 +3165,7 @@ function generateServiceFile(
     `import type { Credentials } from "${withTsExtension("../credentials")}";`,
   );
   // Collect error tags that are shared classes re-exported from
-  // `../errors.ts` (and ultimately from `@distilled.cloud/core/errors`).
+  // `../errors.ts` (and ultimately from `@oddlynew/distilled-core/errors`).
   // These are imported rather than redeclared per service, so an
   // operation that surfaces e.g. `InternalServerError` always refers to
   // the same class everywhere.

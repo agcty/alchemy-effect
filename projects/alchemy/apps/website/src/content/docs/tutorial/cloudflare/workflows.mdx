@@ -48,7 +48,7 @@ return value flows through to `instance.status().output`:
 
 ```typescript
 // src/NotifyWorkflow.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Room from "./room.ts";
 
@@ -77,7 +77,7 @@ a KV namespace by declaring it in its own file:
 
 ```typescript
 // src/KV.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const KV = Cloudflare.KVNamespace("KV");
 ```
@@ -95,7 +95,7 @@ returns a typed Effect-native client whose methods (`get`, `put`,
 
 ```diff lang="typescript"
 // src/NotifyWorkflow.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { KV } from "./KV.ts";
 import Room from "./room.ts";
@@ -127,7 +127,7 @@ calls, binding I/O, file writes — in a task:
 
 ```diff lang="typescript"
 // src/NotifyWorkflow.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { KV } from "./KV.ts";
 import Room from "./room.ts";
@@ -175,7 +175,7 @@ Add another task that fans the stored value out to the matching
 
 ```diff lang="typescript"
 // src/NotifyWorkflow.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { KV } from "./KV.ts";
 import Room from "./room.ts";
@@ -221,7 +221,7 @@ required because Cloudflare uses them as replay keys:
 
 ```diff lang="typescript"
 // src/NotifyWorkflow.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { KV } from "./KV.ts";
 import Room from "./room.ts";
@@ -275,8 +275,8 @@ binding on the workflow at plantime and hands back an accessor
 for use inside steps:
 
 ```diff lang="typescript"
-+import * as Alchemy from "alchemy";
- import * as Cloudflare from "alchemy/Cloudflare";
++import * as Alchemy from "@oddlynew/alchemy";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
  import Room from "./room.ts";
 
@@ -363,7 +363,7 @@ Worker's init phase. Use `create()` to start an instance and
 
 ```diff lang="typescript"
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -423,8 +423,8 @@ Add a test that POSTs to `/workflow/start/:roomId`, then polls
 
 ```diff lang="typescript"
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

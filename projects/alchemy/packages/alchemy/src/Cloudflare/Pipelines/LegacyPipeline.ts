@@ -1,5 +1,5 @@
-import { Credentials } from "@distilled.cloud/cloudflare/Credentials";
-import * as pipelines from "@distilled.cloud/cloudflare/pipelines";
+import { Credentials } from "@oddlynew/distilled-cloudflare/Credentials";
+import * as pipelines from "@oddlynew/distilled-cloudflare/pipelines";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

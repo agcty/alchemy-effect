@@ -1,4 +1,4 @@
-import * as alerting from "@distilled.cloud/cloudflare/alerting";
+import * as alerting from "@oddlynew/distilled-cloudflare/alerting";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

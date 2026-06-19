@@ -1,11 +1,11 @@
-# @distilled.cloud/expo-eas
+# @oddlynew/distilled-expo-eas
 
 Effect-native SDK for [Expo Application Services](https://expo.dev/eas) (EAS), generated from the [eas-cli](https://github.com/expo/eas-cli) GraphQL introspection schema. Drives the same `https://api.expo.dev/graphql` endpoint that powers `eas-cli` — Build, Submit, Update, and Hosting — with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/expo-eas effect
+npm install @oddlynew/distilled-expo-eas effect
 ```
 
 ## Quick Start
@@ -13,8 +13,8 @@ npm install @distilled.cloud/expo-eas effect
 ```typescript
 import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { me } from "@distilled.cloud/expo-eas/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/expo-eas";
+import { me } from "@oddlynew/distilled-expo-eas/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-expo-eas";
 
 const program = Effect.gen(function* () {
   const result = yield* me({});
@@ -44,12 +44,12 @@ EAS returns errors in the GraphQL `errors[]` envelope, each carrying an `extensi
 
 ```typescript
 import { Effect } from "effect";
-import { build } from "@distilled.cloud/expo-eas/Operations";
+import { build } from "@oddlynew/distilled-expo-eas/Operations";
 import {
   EasBuildFreeTierLimitExceeded,
   EasValidationError,
   UnknownEasError,
-} from "@distilled.cloud/expo-eas";
+} from "@oddlynew/distilled-expo-eas";
 
 build({}).pipe(
   Effect.catchTags({
@@ -67,7 +67,7 @@ build({}).pipe(
 
 ## Services
 
-The EAS GraphQL schema exposes ~140 top-level fields, generated as one operation per Query/Mutation field in `@distilled.cloud/expo-eas/Operations`. Operations group naturally into:
+The EAS GraphQL schema exposes ~140 top-level fields, generated as one operation per Query/Mutation field in `@oddlynew/distilled-expo-eas/Operations`. Operations group naturally into:
 
 - **Build** — `build`, `builds`, `buildAnnotation`, `buildAnnotations`, `buildPublicData`, `keystoreGenerationUrl`, `localBuild`
 - **Submit** — `submission`, `submissions`, `appStoreConnectApiKey`, `appStoreConnectApp`, `ascAppLink`, `googleServiceAccountKey`

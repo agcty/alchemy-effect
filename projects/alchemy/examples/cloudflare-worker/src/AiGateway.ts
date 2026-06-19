@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Gateway = Cloudflare.AiGateway("Gateway", {
   cacheTtl: 60,

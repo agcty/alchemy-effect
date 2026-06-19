@@ -1,4 +1,4 @@
-import * as images from "@distilled.cloud/cloudflare/images";
+import * as images from "@oddlynew/distilled-cloudflare/images";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

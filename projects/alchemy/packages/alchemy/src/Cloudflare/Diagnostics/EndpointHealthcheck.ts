@@ -1,4 +1,4 @@
-import * as diagnostics from "@distilled.cloud/cloudflare/diagnostics";
+import * as diagnostics from "@oddlynew/distilled-cloudflare/diagnostics";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

@@ -1,5 +1,5 @@
 {
-  "name": "@fixtures/solid-ssr",
+  "name": "@oddlynew/cloudflare-tools-fixture-solid-ssr",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -16,7 +16,7 @@
     "solid-js": "^1.9.5"
   },
   "devDependencies": {
-    "@distilled.cloud/cloudflare-vite-plugin": "workspace:*",
+    "@oddlynew/distilled-cloudflare-vite-plugin": "workspace:*",
     "@tailwindcss/postcss": "^4.1.13",
     "postcss": "^8.4.49",
     "solid-devtools": "^0.34.3",

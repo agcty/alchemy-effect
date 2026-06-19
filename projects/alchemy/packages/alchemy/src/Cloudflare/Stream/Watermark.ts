@@ -1,4 +1,4 @@
-import * as stream from "@distilled.cloud/cloudflare/stream";
+import * as stream from "@oddlynew/distilled-cloudflare/stream";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

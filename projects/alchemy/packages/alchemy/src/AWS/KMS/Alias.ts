@@ -1,4 +1,4 @@
-import * as kms from "@distilled.cloud/aws/kms";
+import * as kms from "@oddlynew/distilled-aws/kms";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
@@ -44,7 +44,7 @@ export interface Alias extends Resource<
  * @section Creating Aliases
  * @example Alias for a Key
  * ```typescript
- * import * as KMS from "alchemy/AWS/KMS";
+ * import * as KMS from "@oddlynew/alchemy/AWS/KMS";
  *
  * const key = yield* KMS.Key("AppKey");
  * const alias = yield* KMS.Alias("AppAlias", {

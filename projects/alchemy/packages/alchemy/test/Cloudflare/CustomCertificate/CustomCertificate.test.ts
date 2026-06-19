@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as customCertificates from "@distilled.cloud/cloudflare/custom-certificates";
+import * as customCertificates from "@oddlynew/distilled-cloudflare/custom-certificates";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

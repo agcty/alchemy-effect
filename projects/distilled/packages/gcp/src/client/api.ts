@@ -11,8 +11,8 @@ import {
   makeAPI,
   type OperationMethod,
   type PaginatedOperationMethod,
-} from "@distilled.cloud/core/client";
-import { parseRetryAfterForStatus } from "@distilled.cloud/core/retry-after";
+} from "@oddlynew/distilled-core/client";
+import { parseRetryAfterForStatus } from "@oddlynew/distilled-core/retry-after";
 import { HTTP_STATUS_MAP, UnknownGCPError, GCPParseError } from "../errors.ts";
 import { Credentials } from "../credentials.ts";
 import { Retry } from "../retry.ts";

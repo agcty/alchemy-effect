@@ -1,4 +1,4 @@
-import * as ag from "@distilled.cloud/aws/api-gateway";
+import * as ag from "@oddlynew/distilled-aws/api-gateway";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import { pipe } from "effect/Function";

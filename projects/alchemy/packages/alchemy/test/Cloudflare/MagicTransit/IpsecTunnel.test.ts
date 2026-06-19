@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as magicTransit from "@distilled.cloud/cloudflare/magic-transit";
+import * as magicTransit from "@oddlynew/distilled-cloudflare/magic-transit";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

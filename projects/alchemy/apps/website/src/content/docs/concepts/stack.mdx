@@ -17,8 +17,8 @@ A Stack is just an Effect that you `export default` from a TypeScript
 file:
 
 ```typescript
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default Alchemy.Stack(
@@ -95,7 +95,7 @@ Inside a resource or layer, you can access the current Stack's
 metadata via the `Stack` service:
 
 ```typescript
-import { Stack } from "alchemy/Stack";
+import { Stack } from "@oddlynew/alchemy/Stack";
 
 Effect.gen(function* () {
   const stack = yield* Stack;
@@ -116,8 +116,8 @@ service. `Stack.useSync` lets you compute props synchronously from
 the current stack — useful for parameterizing names by stage:
 
 ```typescript
-import * as Axiom from "alchemy/Axiom";
-import { Stack } from "alchemy/Stack";
+import * as Axiom from "@oddlynew/alchemy/Axiom";
+import { Stack } from "@oddlynew/alchemy/Stack";
 
 export const Traces = Axiom.Dataset(
   "Traces",

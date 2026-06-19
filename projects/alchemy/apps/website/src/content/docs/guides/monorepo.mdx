@@ -72,7 +72,7 @@ Create `backend/package.json`:
   "private": true,
   "type": "module",
   "dependencies": {
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "exports": {
@@ -121,7 +121,7 @@ same `BackendApi` constant.
 
 ```typescript
 // backend/src/Service.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Etag from "effect/unstable/http/Etag";
@@ -215,7 +215,7 @@ dependency:
   "private": true,
   "type": "module",
   "dependencies": {
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "backend": "workspace:*",
     "effect": "catalog:",
     "react": "^19.2.6",
@@ -267,8 +267,8 @@ Create `alchemy.run.ts` at the workspace root:
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { Path } from "effect/Path";
 import Service from "./backend/src/Service.ts";
@@ -338,7 +338,7 @@ You pay for that with two extra moving parts:
 
 ```typescript
 // backend/src/Stack.ts
-import * as Alchemy from "alchemy";
+import * as Alchemy from "@oddlynew/alchemy";
 
 export class Backend extends Alchemy.Stack<
   Backend,
@@ -376,7 +376,7 @@ does not affect the React bundle.
 
 ```typescript
 // backend/alchemy.run.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Service from "./src/Service.ts";
 import { Backend } from "./src/Stack.ts";
@@ -404,8 +404,8 @@ typecheck.
 
 ```typescript
 // frontend/alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import { Backend } from "backend";
 import * as Effect from "effect/Effect";
 

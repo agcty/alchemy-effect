@@ -23,8 +23,8 @@ Alchemy takes a different approach: infrastructure and logic are
 
 ```typescript
 // alchemy.run.ts — infrastructure and logic in one program
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Worker from "./src/worker.ts";
 
@@ -43,7 +43,7 @@ export default Alchemy.Stack(
 
 ```typescript
 // src/worker.ts — the Worker binds the Bucket directly
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { Bucket } from "./bucket.ts";
@@ -79,8 +79,8 @@ resources, the compiler tells you:
 
 ```typescript twoslash
 // @errors: 2322
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 

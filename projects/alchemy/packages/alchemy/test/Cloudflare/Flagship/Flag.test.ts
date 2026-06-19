@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
 import { poll } from "@/Util/poll.ts";
-import * as flagship from "@distilled.cloud/cloudflare/flagship";
+import * as flagship from "@oddlynew/distilled-cloudflare/flagship";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

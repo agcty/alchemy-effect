@@ -1,5 +1,5 @@
-import * as AWS from "alchemy/AWS";
-import * as Server from "alchemy/Server";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as Server from "@oddlynew/alchemy/Server";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Stream from "effect/Stream";

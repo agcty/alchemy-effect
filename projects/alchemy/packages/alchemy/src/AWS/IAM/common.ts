@@ -1,4 +1,4 @@
-import type * as iam from "@distilled.cloud/aws/iam";
+import type * as iam from "@oddlynew/distilled-aws/iam";
 import * as Redacted from "effect/Redacted";
 import type { PolicyDocument } from "./Policy.ts";
 

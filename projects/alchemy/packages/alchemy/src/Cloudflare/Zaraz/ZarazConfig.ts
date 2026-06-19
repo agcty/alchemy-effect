@@ -1,4 +1,4 @@
-import * as zaraz from "@distilled.cloud/cloudflare/zaraz";
+import * as zaraz from "@oddlynew/distilled-cloudflare/zaraz";
 import * as Effect from "effect/Effect";
 import { deepEqual, isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";

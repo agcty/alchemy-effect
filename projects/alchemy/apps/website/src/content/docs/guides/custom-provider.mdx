@@ -59,7 +59,7 @@ plan time — it must be globally unique.
 
 ```diff lang="typescript"
 // src/stripe/Product.ts
-+import { Resource } from "alchemy";
++import { Resource } from "@oddlynew/alchemy";
 +
 export interface StripeProductProps {
   name: string;
@@ -88,7 +88,7 @@ type and the value share the same name.
 
 ```diff lang="typescript"
 // src/stripe/Product.ts
-import { Resource } from "alchemy";
+import { Resource } from "@oddlynew/alchemy";
 
 // ... props / attributes / type unchanged ...
 
@@ -117,9 +117,9 @@ Start with stubs so the types compile, then fill them in:
 
 ```diff lang="typescript"
 // src/stripe/Product.ts
--import { Resource } from "alchemy";
-+import * as Provider from "alchemy/Provider";
-+import { Resource } from "alchemy";
+-import { Resource } from "@oddlynew/alchemy";
++import * as Provider from "@oddlynew/alchemy/Provider";
++import { Resource } from "@oddlynew/alchemy";
 +import * as Effect from "effect/Effect";
 
 // ... props / attributes / type / constructor unchanged ...
@@ -178,8 +178,8 @@ resulting Layer:
 
 ```diff lang="typescript"
 // src/stripe/Product.ts
-import * as Provider from "alchemy/Provider";
-import { Resource } from "alchemy";
+import * as Provider from "@oddlynew/alchemy/Provider";
+import { Resource } from "@oddlynew/alchemy";
 import * as Effect from "effect/Effect";
 +import * as Redacted from "effect/Redacted";
 +import Stripe from "stripe";
@@ -374,7 +374,7 @@ path when you can't decide.
 :::
 
 ```diff lang="typescript"
-+import { isResolved } from "alchemy/Diff";
++import { isResolved } from "@oddlynew/alchemy/Diff";
 +
 // ...
 
@@ -439,7 +439,7 @@ naming), brand the returned attributes with `Unowned` when they
 belong to someone else:
 
 ```typescript
-import { Unowned } from "alchemy/AdoptPolicy";
+import { Unowned } from "@oddlynew/alchemy/AdoptPolicy";
 
 read: Effect.fnUntraced(function* ({ id, olds }) {
   const live = yield* lookupByName(olds.name);
@@ -516,15 +516,15 @@ import * as Redacted from "effect/Redacted";
 +  AuthError,
 +  AuthProviderLayer,
 +  type ConfigureContext,
-+} from "alchemy/Auth/AuthProvider";
++} from "@oddlynew/alchemy/Auth/AuthProvider";
 +import {
 +  deleteCredentials,
 +  displayRedacted,
 +  readCredentials,
 +  writeCredentials,
-+} from "alchemy/Auth/Credentials";
-+import { getEnvRedacted, retryOnce } from "alchemy/Auth/Env";
-+import * as Clank from "alchemy/Util/Clank";
++} from "@oddlynew/alchemy/Auth/Credentials";
++import { getEnvRedacted, retryOnce } from "@oddlynew/alchemy/Auth/Env";
++import * as Clank from "@oddlynew/alchemy/Util/Clank";
 
 // ... config / credential types unchanged ...
 
@@ -725,8 +725,8 @@ layer that resolves the auth provider from the registry, runs
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { getAuthProvider } from "alchemy/Auth/AuthProvider";
-import { ALCHEMY_PROFILE, Profile } from "alchemy/Auth/Profile";
+import { getAuthProvider } from "@oddlynew/alchemy/Auth/AuthProvider";
+import { ALCHEMY_PROFILE, Profile } from "@oddlynew/alchemy/Auth/Profile";
 import {
   STRIPE_AUTH_PROVIDER_NAME,
   type StripeAuthConfig,
@@ -767,7 +767,7 @@ so `alchemy login` can discover it.
 
 ```typescript
 // src/stripe/Providers.ts
-import * as Provider from "alchemy/Provider";
+import * as Provider from "@oddlynew/alchemy/Provider";
 import * as Layer from "effect/Layer";
 import { StripeAuth } from "./AuthProvider.ts";
 import { fromAuthProvider } from "./Credentials.ts";
@@ -797,7 +797,7 @@ sight:
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
+import * as Alchemy from "@oddlynew/alchemy";
 import * as Effect from "effect/Effect";
 import * as Stripe from "./src/stripe";
 
@@ -849,7 +849,7 @@ Create `test/Product.test.ts`:
 
 ```typescript
 // test/Product.test.ts
-import * as Test from "alchemy/Test/Vitest";
+import * as Test from "@oddlynew/alchemy/Test/Vitest";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import Stripe from "stripe";

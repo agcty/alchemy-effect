@@ -1,11 +1,11 @@
-# @distilled.cloud/neon
+# @oddlynew/distilled-neon
 
 Effect-native Neon SDK generated from the [Neon OpenAPI specification](https://api-docs.neon.tech). Manage serverless Postgres projects, branches, endpoints, databases, and roles with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/neon effect
+npm install @oddlynew/distilled-neon effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/neon effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { listProjects } from "@distilled.cloud/neon/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/neon";
+import { listProjects } from "@oddlynew/distilled-neon/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-neon";
 
 const program = Effect.gen(function* () {
   const projects = yield* listProjects({});
@@ -40,7 +40,7 @@ Create an API key in the [Neon console](https://console.neon.tech/app/settings/a
 ## Error Handling
 
 ```typescript
-import { getProject } from "@distilled.cloud/neon/Operations";
+import { getProject } from "@oddlynew/distilled-neon/Operations";
 
 getProject({ project_id: "missing" }).pipe(
   Effect.catchTags({

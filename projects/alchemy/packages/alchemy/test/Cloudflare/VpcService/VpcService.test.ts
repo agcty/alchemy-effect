@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as connectivity from "@distilled.cloud/cloudflare/connectivity";
+import * as connectivity from "@oddlynew/distilled-cloudflare/connectivity";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -130,7 +130,7 @@ test.provider("create vpc service with ipv4 host", (stack) =>
 );
 
 // TODO: re-enable once distilled ships the union-ordering fix
-// (alchemy-run/distilled#232) — on @distilled.cloud/cloudflare@0.16.3 the
+// (alchemy-run/distilled#232) — on @oddlynew/distilled-cloudflare@0.16.3 the
 // dual-stack host variant comes after the ipv4-only variant in the request
 // schema's Schema.Union, so `ipv6` is silently stripped on encode.
 test.provider.skip("create vpc service with dual-stack host", (stack) =>

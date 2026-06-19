@@ -1,5 +1,5 @@
-import { Credentials } from "@distilled.cloud/planetscale/Credentials";
-import * as planetscale from "@distilled.cloud/planetscale/Operations";
+import { Credentials } from "@oddlynew/distilled-planetscale/Credentials";
+import * as planetscale from "@oddlynew/distilled-planetscale/Operations";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";
@@ -83,7 +83,7 @@ export interface PostgresDatabaseAttributes extends BaseDatabaseAttributes {
  * @section Adoption
  * @example Adopting an existing database
  * ```typescript
- * import { adopt } from "alchemy/AdoptPolicy";
+ * import { adopt } from "@oddlynew/alchemy/AdoptPolicy";
  *
  * const db = yield* Planetscale.PostgresDatabase("Existing", {
  *   name: "existing-db",

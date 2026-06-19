@@ -1,5 +1,5 @@
 {
-  "extends": "@alchemy.run/typescript-config/node.json",
+  "extends": "@oddlynew/alchemy-typescript-config/node.json",
   "include": ["src/**/*.ts", "src/**/*.json"],
   "compilerOptions": {
     "composite": true,

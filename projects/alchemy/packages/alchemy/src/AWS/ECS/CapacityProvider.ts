@@ -1,4 +1,4 @@
-import * as ecs from "@distilled.cloud/aws/ecs";
+import * as ecs from "@oddlynew/distilled-aws/ecs";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -109,7 +109,7 @@ export interface CapacityProvider extends Resource<
  * explicitly opted in via `--adopt` or {@link adopt}.
  * @example Adopt an existing provider
  * ```typescript
- * import { adopt } from "alchemy/AdoptPolicy";
+ * import { adopt } from "@oddlynew/alchemy/AdoptPolicy";
  *
  * yield* CapacityProvider("AppCapacityProvider", {
  *   name: "existing-provider",

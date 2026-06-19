@@ -1,5 +1,5 @@
-import { Credentials } from "@distilled.cloud/cloudflare/Credentials";
-import * as workers from "@distilled.cloud/cloudflare/workers";
+import { Credentials } from "@oddlynew/distilled-cloudflare/Credentials";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as HttpClient from "effect/unstable/http/HttpClient";

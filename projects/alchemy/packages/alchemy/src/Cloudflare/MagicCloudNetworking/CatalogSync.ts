@@ -1,4 +1,4 @@
-import * as mcn from "@distilled.cloud/cloudflare/magic-cloud-networking";
+import * as mcn from "@oddlynew/distilled-cloudflare/magic-cloud-networking";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

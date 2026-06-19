@@ -1,4 +1,4 @@
-import * as Axiom from "@distilled.cloud/axiom";
+import * as Axiom from "@oddlynew/distilled-axiom";
 import * as Effect from "effect/Effect";
 import * as Provider from "../Provider.ts";
 import { Resource } from "../Resource.ts";
@@ -85,7 +85,7 @@ export type Dashboard = Resource<
  *
  * @example One-chart dashboard
  * ```typescript
- * import type { Chart, LayoutCell } from "alchemy/Axiom";
+ * import type { Chart, LayoutCell } from "@oddlynew/alchemy/Axiom";
  *
  * const errors: Chart = {
  *   id: "errors-5m",

@@ -16,8 +16,8 @@ import {
   VpcEndpoint,
 } from "@/AWS/EC2";
 import * as Test from "@/Test/Vitest";
-import * as EC2 from "@distilled.cloud/aws/ec2";
-import * as ec2 from "@distilled.cloud/aws/ec2";
+import * as EC2 from "@oddlynew/distilled-aws/ec2";
+import * as ec2 from "@oddlynew/distilled-aws/ec2";
 import { expect } from "@effect/vitest";
 import { Data, Schedule } from "effect";
 import * as Effect from "effect/Effect";

@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as registrar from "@distilled.cloud/cloudflare/registrar";
+import * as registrar from "@oddlynew/distilled-cloudflare/registrar";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

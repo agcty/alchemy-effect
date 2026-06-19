@@ -3,4 +3,4 @@
 export {
   Engine,
   WorkflowBinding,
-} from "@distilled.cloud/vendor-workflows-shared/local-binding-worker";
+} from "@oddlynew/distilled-vendor-workflows-shared/local-binding-worker";

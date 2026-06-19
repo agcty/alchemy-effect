@@ -1,4 +1,4 @@
-# @distilled.cloud/vendor-workers-shared
+# @oddlynew/distilled-vendor-workers-shared
 
 Private workspace package vendoring raw TypeScript source from
 [`@cloudflare/workers-shared`](https://github.com/cloudflare/workers-sdk/tree/main/packages/workers-shared).
@@ -47,13 +47,13 @@ at commit `2dc61751451f142dbf93e618133a5c8942c07c9a` (path:
 
 ```ts
 // Node-facing barrel (helpers + parsers + types + constants)
-import { getContentType, parseHeaders } from "@distilled.cloud/vendor-workers-shared";
+import { getContentType, parseHeaders } from "@oddlynew/distilled-vendor-workers-shared";
 
 // Worker entries (default + named re-exports of ./src/worker)
-import assetWorker from "@distilled.cloud/vendor-workers-shared/workers/asset-worker";
-import routerWorker from "@distilled.cloud/vendor-workers-shared/workers/router-worker";
+import assetWorker from "@oddlynew/distilled-vendor-workers-shared/workers/asset-worker";
+import routerWorker from "@oddlynew/distilled-vendor-workers-shared/workers/router-worker";
 
 // Any individual module under the package via the wildcard
-import { AssetConfig } from "@distilled.cloud/vendor-workers-shared/shared/types";
-import { generateRulesMatcher } from "@distilled.cloud/vendor-workers-shared/workers/asset-worker/src/utils/rules-engine";
+import { AssetConfig } from "@oddlynew/distilled-vendor-workers-shared/shared/types";
+import { generateRulesMatcher } from "@oddlynew/distilled-vendor-workers-shared/workers/asset-worker/src/utils/rules-engine";
 ```

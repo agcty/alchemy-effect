@@ -9,7 +9,7 @@
  *
  * @example
  * ```ts
- * import * as T from "@distilled.cloud/core/traits";
+ * import * as T from "@oddlynew/distilled-core/traits";
  *
  * const GetDatabaseInput = Schema.Struct({
  *   organization: Schema.String.pipe(T.PathParam()),
@@ -30,7 +30,7 @@ import * as AST from "effect/SchemaAST";
 /**
  * Internal symbol for annotation metadata storage.
  */
-const annotationMetaSymbol = Symbol.for("@distilled.cloud/annotation-meta");
+const annotationMetaSymbol = Symbol.for("@oddlynew/distilled-annotation-meta");
 
 /**
  * Any type that has an .annotate() method returning itself.
@@ -106,7 +106,7 @@ export function all(...annotations: Annotation[]): Annotation {
 // =============================================================================
 
 /** Symbol for HTTP operation metadata (method + path template) */
-export const httpSymbol = Symbol.for("@distilled.cloud/http");
+export const httpSymbol = Symbol.for("@oddlynew/distilled-http");
 
 /** HTTP method type */
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "HEAD";
@@ -169,7 +169,7 @@ export const Http = (trait: HttpTrait) => makeAnnotation(httpSymbol, trait);
 // =============================================================================
 
 /** Symbol for path parameter annotation */
-export const pathParamSymbol = Symbol.for("@distilled.cloud/path-param");
+export const pathParamSymbol = Symbol.for("@oddlynew/distilled-path-param");
 
 /**
  * PathParam trait - marks a field as a path parameter.
@@ -191,7 +191,7 @@ export const PathParam = () => makeAnnotation(pathParamSymbol, true);
 // =============================================================================
 
 /** Symbol for query parameter annotation */
-export const queryParamSymbol = Symbol.for("@distilled.cloud/query-param");
+export const queryParamSymbol = Symbol.for("@oddlynew/distilled-query-param");
 
 /**
  * QueryParam trait - marks a field as a query parameter.
@@ -212,7 +212,7 @@ export const QueryParam = (name?: string) =>
 // =============================================================================
 
 /** Symbol for header parameter annotation */
-export const headerParamSymbol = Symbol.for("@distilled.cloud/header-param");
+export const headerParamSymbol = Symbol.for("@oddlynew/distilled-header-param");
 
 /**
  * HeaderParam trait - marks a field as a header parameter.
@@ -253,7 +253,7 @@ export const HttpHeader = (name: string) =>
   makeAnnotation(headerParamSymbol, name);
 
 /** Symbol for HTTP body annotation */
-export const httpBodySymbol = Symbol.for("@distilled.cloud/http-body");
+export const httpBodySymbol = Symbol.for("@oddlynew/distilled-http-body");
 
 /**
  * HttpBody - marks a field as the raw HTTP body.
@@ -264,7 +264,7 @@ export const HttpBody = () => makeAnnotation(httpBodySymbol, true);
 
 /** Symbol for binary response body annotation */
 export const binaryResponseBodySymbol = Symbol.for(
-  "@distilled.cloud/binary-response-body",
+  "@oddlynew/distilled-binary-response-body",
 );
 
 /**
@@ -279,7 +279,7 @@ export const BinaryResponseBody = () =>
 
 /** Symbol for response header annotation */
 export const responseHeaderSymbol = Symbol.for(
-  "@distilled.cloud/response-header",
+  "@oddlynew/distilled-response-header",
 );
 
 /**
@@ -297,7 +297,7 @@ export const HttpResponseHeader = (name: string) =>
   makeAnnotation(responseHeaderSymbol, name);
 
 /** Symbol for GraphQL operation metadata (query string + operation name) */
-export const graphqlOpSymbol = Symbol.for("@distilled.cloud/graphql-op");
+export const graphqlOpSymbol = Symbol.for("@oddlynew/distilled-graphql-op");
 
 /** GraphQL operation type */
 export type GraphQLOpType = "query" | "mutation";
@@ -336,7 +336,9 @@ export const GraphQLOp = (trait: GraphQLOpTrait) =>
   makeAnnotation(graphqlOpSymbol, trait);
 
 /** Symbol for response body path transformation */
-export const responsePathSymbol = Symbol.for("@distilled.cloud/response-path");
+export const responsePathSymbol = Symbol.for(
+  "@oddlynew/distilled-response-path",
+);
 
 /**
  * ResponsePath - decode the response from a nested path within the raw body.
@@ -348,7 +350,7 @@ export const ResponsePath = (path: string) =>
 
 /** Symbol for form data file annotation */
 export const httpFormDataFileSymbol = Symbol.for(
-  "@distilled.cloud/http-form-data-file",
+  "@oddlynew/distilled-http-form-data-file",
 );
 
 /**
@@ -363,7 +365,7 @@ export const HttpFormDataFile = () =>
 
 /** Symbol for "do not follow redirects; treat 3xx Location header as success body" */
 export const httpNoFollowRedirectSymbol = Symbol.for(
-  "@distilled.cloud/http-no-follow-redirect",
+  "@oddlynew/distilled-http-no-follow-redirect",
 );
 
 /**
@@ -415,7 +417,9 @@ export const NoFollowRedirect = (trait: NoFollowRedirectTrait = {}) =>
 // =============================================================================
 
 /** Symbol for API error code mapping */
-export const apiErrorCodeSymbol = Symbol.for("@distilled.cloud/api-error-code");
+export const apiErrorCodeSymbol = Symbol.for(
+  "@oddlynew/distilled-api-error-code",
+);
 
 /**
  * ApiErrorCode trait - maps an error class to an API error code.
@@ -437,7 +441,7 @@ export const ApiErrorCode = (code: string) =>
 // =============================================================================
 
 /** Symbol for service metadata */
-export const serviceSymbol = Symbol.for("@distilled.cloud/service");
+export const serviceSymbol = Symbol.for("@oddlynew/distilled-service");
 
 /** Service metadata */
 export interface ServiceTrait {

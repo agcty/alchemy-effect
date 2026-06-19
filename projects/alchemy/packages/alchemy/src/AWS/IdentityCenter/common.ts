@@ -1,5 +1,5 @@
-import * as identitystore from "@distilled.cloud/aws/identitystore";
-import * as ssoAdmin from "@distilled.cloud/aws/sso-admin";
+import * as identitystore from "@oddlynew/distilled-aws/identitystore";
+import * as ssoAdmin from "@oddlynew/distilled-aws/sso-admin";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";

@@ -3,7 +3,7 @@
  *
  * @example
  * \`\`\`ts
- * import * as Azure from "@distilled.cloud/azure";
+ * import * as Azure from "@oddlynew/distilled-azure";
  * \`\`\`
  */
 export * from "./credentials.ts";

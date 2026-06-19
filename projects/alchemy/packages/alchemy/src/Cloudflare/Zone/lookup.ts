@@ -1,8 +1,8 @@
 import {
   Credentials,
   formatHeaders,
-} from "@distilled.cloud/cloudflare/Credentials";
-import * as zones from "@distilled.cloud/cloudflare/zones";
+} from "@oddlynew/distilled-cloudflare/Credentials";
+import * as zones from "@oddlynew/distilled-cloudflare/zones";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import type * as HttpClient from "effect/unstable/http/HttpClient";

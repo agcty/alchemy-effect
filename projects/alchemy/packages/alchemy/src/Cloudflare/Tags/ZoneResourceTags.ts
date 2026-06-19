@@ -1,4 +1,4 @@
-import * as resourceTagging from "@distilled.cloud/cloudflare/resource-tagging";
+import * as resourceTagging from "@oddlynew/distilled-cloudflare/resource-tagging";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

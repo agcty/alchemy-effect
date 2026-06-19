@@ -1,9 +1,9 @@
 /**
  * GCP traits - re-exports shared traits and adds GCP-specific ones.
  */
-export * from "@distilled.cloud/core/traits";
+export * from "@oddlynew/distilled-core/traits";
 
-import { getAnnotation } from "@distilled.cloud/core/traits";
+import { getAnnotation } from "@oddlynew/distilled-core/traits";
 import * as AST from "effect/SchemaAST";
 
 // =============================================================================
@@ -12,7 +12,7 @@ import * as AST from "effect/SchemaAST";
 
 /** Symbol for error matcher annotations */
 export const errorMatchersSymbol = Symbol.for(
-  "@distilled.cloud/gcp/error-matchers",
+  "@oddlynew/distilled-gcp/error-matchers",
 );
 
 export interface ErrorMatcher {

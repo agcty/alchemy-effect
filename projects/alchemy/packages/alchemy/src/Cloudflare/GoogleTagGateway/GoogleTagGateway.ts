@@ -1,4 +1,4 @@
-import * as googleTagGateway from "@distilled.cloud/cloudflare/google-tag-gateway";
+import * as googleTagGateway from "@oddlynew/distilled-cloudflare/google-tag-gateway";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

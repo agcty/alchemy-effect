@@ -1,4 +1,4 @@
-import * as zones from "@distilled.cloud/cloudflare/zones";
+import * as zones from "@oddlynew/distilled-cloudflare/zones";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 
@@ -87,7 +87,7 @@ export type ZoneHold = Resource<
  * @section Adopting an existing hold
  * @example Take over a hold that was placed outside Alchemy
  * ```typescript
- * import { adopt } from "alchemy/AdoptPolicy";
+ * import { adopt } from "@oddlynew/alchemy/AdoptPolicy";
  * // A hold carries no ownership markers, so the engine refuses to take
  * // over a pre-existing hold unless you opt in with `adopt(true)`.
  * const hold = yield* Cloudflare.ZoneHold("MyHold", {

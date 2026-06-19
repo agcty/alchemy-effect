@@ -3,7 +3,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
 import { poll } from "@/Util/poll.ts";
-import * as mtls from "@distilled.cloud/cloudflare/mtls-certificates";
+import * as mtls from "@oddlynew/distilled-cloudflare/mtls-certificates";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

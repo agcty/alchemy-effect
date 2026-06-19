@@ -1,5 +1,5 @@
 import * as AWS from "@/AWS";
-import * as Kinesis from "@distilled.cloud/aws/kinesis";
+import * as Kinesis from "@oddlynew/distilled-aws/kinesis";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

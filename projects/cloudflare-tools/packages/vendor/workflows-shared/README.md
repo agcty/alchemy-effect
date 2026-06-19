@@ -1,4 +1,4 @@
-# @distilled.cloud/vendor-workflows-shared
+# @oddlynew/distilled-vendor-workflows-shared
 
 Private workspace package vendoring raw TypeScript source from
 [`@cloudflare/workflows-shared`](https://github.com/cloudflare/workers-sdk/tree/main/packages/workflows-shared).
@@ -23,8 +23,8 @@ at commit `2dc61751451f142dbf93e618133a5c8942c07c9a` (path:
 import {
   Engine,
   WorkflowBinding,
-} from "@distilled.cloud/vendor-workflows-shared/local-binding-worker";
+} from "@oddlynew/distilled-vendor-workflows-shared/local-binding-worker";
 
 // Type-only imports of individual modules
-import type { Engine } from "@distilled.cloud/vendor-workflows-shared/src/engine";
+import type { Engine } from "@oddlynew/distilled-vendor-workflows-shared/src/engine";
 ```

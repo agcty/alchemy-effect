@@ -67,8 +67,8 @@ const RUNTIMES: readonly Runtime[] = (() => {
 
 const PUBLISHED = [
   { dir: "alchemy", name: "alchemy" },
-  { dir: "better-auth", name: "@alchemy.run/better-auth" },
-  { dir: "pr-package", name: "@alchemy.run/pr-package" },
+  { dir: "better-auth", name: "@oddlynew/alchemy-better-auth" },
+  { dir: "pr-package", name: "@oddlynew/alchemy-pr-package" },
 ] as const;
 
 const canary = process.env.SMOKE_CANARY === "1";

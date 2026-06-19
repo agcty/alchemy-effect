@@ -1,1 +1,1 @@
-export * from "@distilled.cloud/core/category";
+export * from "@oddlynew/distilled-core/category";

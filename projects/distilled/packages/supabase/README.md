@@ -1,11 +1,11 @@
-# @distilled.cloud/supabase
+# @oddlynew/distilled-supabase
 
 Effect-native Supabase Management API SDK generated from the [Supabase OpenAPI specification](https://supabase.com/docs/reference/api). Manage projects, databases, branches, functions, secrets, auth, storage, and more with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/supabase effect
+npm install @oddlynew/distilled-supabase effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/supabase effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { v1ListAllProjects } from "@distilled.cloud/supabase/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/supabase";
+import { v1ListAllProjects } from "@oddlynew/distilled-supabase/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-supabase";
 
 const program = Effect.gen(function* () {
   const projects = yield* v1ListAllProjects({});
@@ -40,7 +40,7 @@ Generate an access token in the [Supabase dashboard](https://supabase.com/dashbo
 ## Error Handling
 
 ```typescript
-import { v1GetProject } from "@distilled.cloud/supabase/Operations";
+import { v1GetProject } from "@oddlynew/distilled-supabase/Operations";
 
 v1GetProject({ ref: "missing-project" }).pipe(
   Effect.catchTags({

@@ -1,5 +1,5 @@
 {
-  "name": "@fixtures/tanstack-start",
+  "name": "@oddlynew/cloudflare-tools-fixture-tanstack-start",
   "private": true,
   "type": "module",
   "imports": {
@@ -29,11 +29,11 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:workers",
-    "@distilled.cloud/cloudflare": "catalog:",
-    "@distilled.cloud/cloudflare-runtime": "workspace:*",
-    "@distilled.cloud/cloudflare-vite-plugin": "workspace:*",
-    "@distilled.cloud/test-utils": "workspace:*",
     "@effect/platform-node": "catalog:effect",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
+    "@oddlynew/distilled-cloudflare-runtime": "workspace:*",
+    "@oddlynew/distilled-cloudflare-vite-plugin": "workspace:*",
+    "@oddlynew/distilled-test-utils": "workspace:*",
     "@playwright/test": "catalog:",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/devtools-vite": "latest",

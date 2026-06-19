@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { HttpClientRequest, HttpServerResponse } from "effect/unstable/http";
 import { SandboxContainer } from "./SandboxContainer.ts";

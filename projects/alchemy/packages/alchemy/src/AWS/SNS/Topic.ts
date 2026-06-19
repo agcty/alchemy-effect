@@ -1,4 +1,4 @@
-import * as sns from "@distilled.cloud/aws/sns";
+import * as sns from "@oddlynew/distilled-aws/sns";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { Unowned } from "../../AdoptPolicy.ts";
@@ -69,7 +69,7 @@ export interface Topic extends Resource<
  * @section Creating Topics
  * @example Standard Topic
  * ```typescript
- * import * as SNS from "alchemy/AWS/SNS";
+ * import * as SNS from "@oddlynew/alchemy/AWS/SNS";
  *
  * const topic = yield* SNS.Topic("OrdersTopic");
  * ```

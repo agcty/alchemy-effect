@@ -13,8 +13,8 @@ import type {
   UpdateRecordError,
   UpdateRecordRequest,
   UpdateRecordResponse,
-} from "@distilled.cloud/cloudflare/dns";
-import * as dns from "@distilled.cloud/cloudflare/dns";
+} from "@oddlynew/distilled-cloudflare/dns";
+import * as dns from "@oddlynew/distilled-cloudflare/dns";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Binding from "../../Binding.ts";
@@ -139,7 +139,7 @@ export const dnsWriteClient = (
  * access to that zone, so calls take no `zoneId`. Pass the {@link Zone}
  * resource directly (it's an `Effect`), or `yield* Zone` for a resolved value.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
  *

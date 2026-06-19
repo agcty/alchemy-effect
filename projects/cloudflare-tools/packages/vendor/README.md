@@ -6,7 +6,7 @@ Cloudflare worker packages from
 [`cloudflare/workers-sdk`](https://github.com/cloudflare/workers-sdk)).
 
 Each vendored upstream gets its own workspace package named
-`@distilled.cloud/vendor-<upstream-name>` and lives at
+`@oddlynew/distilled-vendor-<upstream-name>` and lives at
 `packages/vendor/<upstream-name>/`.
 
 These packages:
@@ -72,7 +72,7 @@ Every vendored package exposes the same script surface:
 | `test:watch` | `vitest`     | Re-runs affected tests on change.                                                                                  |
 
 The `build` / `typecheck` split exists because consumer packages (e.g.
-`@distilled.cloud/cloudflare-runtime`) use TypeScript project references and
+`@oddlynew/distilled-cloudflare-runtime`) use TypeScript project references and
 need our emitted `.d.ts` files, while local development wants the fast
 no-emit `tsc` invocation.
 
@@ -151,7 +151,7 @@ The example below assumes the upstream lives at
    Copy `package.json`, `README.md`, the four `tsconfig.*.json` files, and
    `vitest.config.ts` from [`packages/vendor/workers-shared/`](workers-shared/)
    as a starting point and update:
-   - `package.json` → `name: "@distilled.cloud/vendor-<upstream>"`, `description`, `exports` entries for any directory-as-module subpaths.
+   - `package.json` → `name: "@oddlynew/distilled-vendor-<upstream>"`, `description`, `exports` entries for any directory-as-module subpaths.
    - `README.md` → provenance (upstream URL, commit SHA, license), file mapping table.
    - `vitest.config.ts` → add one `cloudflareTest`-backed project per worker (the `node` and `shared` projects work as-is via the glob patterns).
    - tsconfigs typically need no changes — the globs are package-local.
@@ -196,7 +196,7 @@ The example below assumes the upstream lives at
 
    ```bash
    bun install
-   bun run turbo run typecheck test --filter @distilled.cloud/vendor-<upstream>
+   bun run turbo run typecheck test --filter @oddlynew/distilled-vendor-<upstream>
    bunx oxlint lint packages/vendor/<upstream>
    bunx oxfmt format --check packages/vendor/<upstream>
    ```

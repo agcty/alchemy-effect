@@ -159,7 +159,7 @@ A provider can also declare top-level `stables` for attributes that
 are immutable across all updates (e.g. ARNs, resource IDs).
 
 For comparing nested objects, use the `deepEqual` and
-`anyPropsAreDifferent` helpers from `alchemy/Diff`. If any input
+`anyPropsAreDifferent` helpers from `@oddlynew/alchemy/Diff`. If any input
 might still be unresolved when `diff` runs (an unresolved `Output`),
 guard with `isResolved` first and return `undefined` to let the
 default path handle it.
@@ -198,11 +198,11 @@ read: Effect.fnUntraced(function* ({ id, olds, output }) {
   Re-running with `--adopt` (or scoping the effect with
   `adopt(true)`) unlocks a takeover.
 
-`Unowned` is a brand from `alchemy/AdoptPolicy` — there's no wrapper
+`Unowned` is a brand from `@oddlynew/alchemy/AdoptPolicy` — there's no wrapper
 to unwrap, just a hidden symbol on the attributes object:
 
 ```typescript
-import { Unowned } from "alchemy/AdoptPolicy";
+import { Unowned } from "@oddlynew/alchemy/AdoptPolicy";
 
 read: Effect.fnUntraced(function* ({ id, olds }) {
   const live = yield* lookup(olds.name);

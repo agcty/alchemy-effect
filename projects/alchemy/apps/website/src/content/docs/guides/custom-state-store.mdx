@@ -48,7 +48,7 @@ Create `src/postgres-state.ts`:
 // src/postgres-state.ts
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
-import { State, type StateService } from "alchemy/State";
+import { State, type StateService } from "@oddlynew/alchemy/State";
 
 export interface PostgresStateProps {
   connectionString: string;
@@ -98,7 +98,7 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 +import * as Scope from "effect/Scope";
 +import postgres from "postgres";
-import { State, type StateService } from "alchemy/State";
+import { State, type StateService } from "@oddlynew/alchemy/State";
 
 export interface PostgresStateProps {
   connectionString: string;
@@ -153,7 +153,7 @@ deploy.
 
 A few things to know before writing them:
 
-- **Use `encodeState` / `reviveState`** from `alchemy/State` when
+- **Use `encodeState` / `reviveState`** from `@oddlynew/alchemy/State` when
   serializing. They handle `Secret` values, `Date`s, and other
   non-JSON types in `ResourceState`.
 - **Return `undefined` from `get`** for missing rows — don't error.
@@ -166,14 +166,14 @@ A few things to know before writing them:
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import postgres from "postgres";
--import { State, type StateService } from "alchemy/State";
+-import { State, type StateService } from "@oddlynew/alchemy/State";
 +import {
 +  State,
 +  StateStoreError,
 +  encodeState,
 +  reviveState,
 +  type StateService,
-+} from "alchemy/State";
++} from "@oddlynew/alchemy/State";
 
 // ...
 
@@ -335,8 +335,8 @@ stores:
 
 ```diff lang="typescript"
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 +import { postgresState } from "./src/postgres-state.ts";
 
@@ -367,7 +367,7 @@ the double `yield*`: the first resolves the `State` service to its
 // test/postgres-state.test.ts
 import { describe, expect, it } from "vitest";
 import * as Effect from "effect/Effect";
-import { State } from "alchemy/State";
+import { State } from "@oddlynew/alchemy/State";
 import { postgresState } from "../src/postgres-state.ts";
 
 const layer = postgresState({
@@ -422,7 +422,7 @@ production:
   characters. Postgres handles them fine as parameterized values,
   but if your backend uses FQNs in keys (filenames, S3 keys, Redis
   keys) you'll need to escape them — Alchemy ships
-  `encodeFqn` / `decodeFqn` from `alchemy/FQN`.
+  `encodeFqn` / `decodeFqn` from `@oddlynew/alchemy/FQN`.
 - **Concurrent writes happen** during a deploy as Alchemy applies
   resources in parallel. Your backend needs row-level (or
   equivalent) consistency on the `(stack, stage, fqn)` key.

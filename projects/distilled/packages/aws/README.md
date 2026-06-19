@@ -1,11 +1,11 @@
-# @distilled.cloud/aws
+# @oddlynew/distilled-aws
 
 Effect-native AWS SDK generated from [Smithy](https://smithy.io) models with full protocol support. Covers S3, Lambda, DynamoDB, SQS, IAM, EC2, and 200+ services with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/aws effect
+npm install @oddlynew/distilled-aws effect
 ```
 
 ## Quick Start
@@ -14,9 +14,9 @@ npm install @distilled.cloud/aws effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as Lambda from "@distilled.cloud/aws/lambda";
-import * as S3 from "@distilled.cloud/aws/s3";
-import { Credentials, Region } from "@distilled.cloud/aws";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
+import * as S3 from "@oddlynew/distilled-aws/s3";
+import { Credentials, Region } from "@oddlynew/distilled-aws";
 
 const program = Effect.gen(function* () {
   yield* S3.putObject({

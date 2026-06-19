@@ -21,11 +21,11 @@ export {
   HTTP_STATUS_MAP,
   DEFAULT_ERRORS,
   API_ERRORS,
-} from "@distilled.cloud/core/errors";
-export type { DefaultErrors } from "@distilled.cloud/core/errors";
+} from "@oddlynew/distilled-core/errors";
+export type { DefaultErrors } from "@oddlynew/distilled-core/errors";
 
 import * as Schema from "effect/Schema";
-import * as Category from "@distilled.cloud/core/category";
+import * as Category from "@oddlynew/distilled-core/category";
 
 // Payment Required - billing/quota limit (402)
 export class PaymentRequired extends Schema.TaggedErrorClass<PaymentRequired>()(

@@ -1,4 +1,4 @@
-import * as Lambda from "@distilled.cloud/aws/lambda";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";

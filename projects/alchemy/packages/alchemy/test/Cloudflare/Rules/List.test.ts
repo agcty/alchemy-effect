@@ -1,7 +1,7 @@
 import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Test from "@/Test/Vitest";
-import * as rules from "@distilled.cloud/cloudflare/rules";
+import * as rules from "@oddlynew/distilled-cloudflare/rules";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";

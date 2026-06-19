@@ -21,7 +21,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/prisma-postgres";
+import { CredentialsFromEnv } from "@oddlynew/distilled-prisma-postgres";
 import {
   getV1Workspaces,
   getV1Projects,
@@ -32,7 +32,7 @@ import {
   deleteV1DatabasesByDatabaseId,
   deleteV1ProjectsById,
   deleteV1IntegrationsById,
-} from "@distilled.cloud/prisma-postgres/Operations";
+} from "@oddlynew/distilled-prisma-postgres/Operations";
 
 // ANSI colors
 const RED = "\x1b[31m";

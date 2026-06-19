@@ -2,7 +2,7 @@ import * as Planetscale from "@/Planetscale";
 import * as Provider from "@/Provider";
 import * as RemovalPolicy from "@/RemovalPolicy.ts";
 import * as Test from "@/Test/Vitest";
-import * as ops from "@distilled.cloud/planetscale/Operations";
+import * as ops from "@oddlynew/distilled-planetscale/Operations";
 import { describe, expect } from "@effect/vitest";
 import { Redacted } from "effect";
 import * as Cause from "effect/Cause";

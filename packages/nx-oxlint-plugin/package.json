@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/nx-oxlint-plugin",
+  "name": "@oddlynew/alchemy-nx-oxlint-plugin",
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers lint targets for packages with oxlint config files.",
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@nx/devkit": "catalog:",
-    "@alchemy.run/oxlint-config": "workspace:*",
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:",

@@ -1,5 +1,5 @@
 {
-  "name": "alchemy-pr-package",
+  "name": "@oddlynew/alchemy-pr-package-app",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -10,12 +10,12 @@
   },
   "type": "module",
   "dependencies": {
-    "@alchemy.run/pr-package": "workspace:*",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy-pr-package": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "nx": {
-    "name": "alchemy-pr-package",
+    "name": "@oddlynew/alchemy-pr-package-app",
     "doppler": {
       "project": "alchemy-v2"
     }

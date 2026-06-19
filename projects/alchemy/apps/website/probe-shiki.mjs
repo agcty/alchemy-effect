@@ -5,7 +5,7 @@ const hl = await createHighlighter({
   langs: ["typescript"],
   engine: await createOnigurumaEngine(import("shiki/wasm")),
 });
-const code = `import * as Alchemy from "alchemy";
+const code = `import * as Alchemy from "@oddlynew/alchemy";
 import * as Effect from "effect/Effect";
 export default Alchemy.Stack(
   "MyApp",

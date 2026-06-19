@@ -7,15 +7,17 @@ For the Oddlynew-owned fork distribution track, see
 [`dogfood-distribution.md`](./dogfood-distribution.md).
 
 This branch models `alchemy-effect`, `distilled`, and `cloudflare-tools` as one Bun/Nx workspace
-using the same high-level shape as the Oddlynew monorepo: shared repository infrastructure remains
+using the same high-level shape as the Oddlynew monorepo: shared packages remain
 at the root, while product-owned code lives under `projects/<product>/...`.
 
 ## Source Layout
 
-The root `packages/` directory is reserved for shared monorepo infrastructure:
+The root `packages/` directory is reserved for shared packages used across products and repository
+infrastructure:
 
 ```text
 packages/
+├── alchemy-node-utils
 ├── nx-alchemy-plugin
 ├── nx-oxlint-plugin
 ├── nx-r2-cache-worker
@@ -60,10 +62,11 @@ Each package root remains an Nx project through its `package.json`. For example:
 | Package root                                                     | Nx project name                                | Release group       |
 | ---------------------------------------------------------------- | ---------------------------------------------- | ------------------- |
 | `projects/alchemy/apps/otel`                                     | `alchemy-otel`                                 | private, no release |
-| `projects/alchemy/packages/alchemy`                              | `alchemy`                                      | `alchemy`           |
-| `projects/distilled/packages/stripe`                             | `@distilled.cloud/stripe`                      | `distilled`         |
-| `projects/cloudflare-tools/packages/cloudflare-vite-plugin`       | `@distilled.cloud/cloudflare-vite-plugin`      | `cloudflare-tools`  |
-| `projects/cloudflare-tools/packages/tools/test`                  | `@distilled.cloud/test-utils`                  | private, no release |
+| `projects/alchemy/packages/alchemy`                              | `@oddlynew/alchemy`                           | `alchemy`           |
+| `packages/alchemy-node-utils`                                            | `@oddlynew/alchemy-node-utils`                        | `alchemy-node-utils`        |
+| `projects/distilled/packages/stripe`                             | `@oddlynew/distilled-stripe`                      | `distilled`         |
+| `projects/cloudflare-tools/packages/cloudflare-vite-plugin`       | `@oddlynew/distilled-cloudflare-vite-plugin`      | `cloudflare-tools`  |
+| `projects/cloudflare-tools/packages/tools/test`                  | `@oddlynew/distilled-test-utils`                  | private, no release |
 
 This lets Nx answer the important questions while the filesystem also communicates ownership:
 
@@ -76,13 +79,13 @@ This lets Nx answer the important questions while the filesystem also communicat
 
 The repo includes private Nx plugins under `packages/nx-*-plugin`:
 
-- `@alchemy.run/nx-tsdown-plugin` adds `build` when a project has `tsdown.config.ts`.
-- `@alchemy.run/nx-tsgo-plugin` adds `typecheck` when a project has `tsconfig.json` and no existing
+- `@oddlynew/alchemy-nx-tsdown-plugin` adds `build` when a project has `tsdown.config.ts`.
+- `@oddlynew/alchemy-nx-tsgo-plugin` adds `typecheck` when a project has `tsconfig.json` and no existing
   `typecheck` package script or project target.
-- `@alchemy.run/nx-oxlint-plugin` adds `lint` when a project has local oxlint config, has
+- `@oddlynew/alchemy-nx-oxlint-plugin` adds `lint` when a project has local oxlint config, has
   `tsconfig.json` for the default type-aware mode, and has no existing `lint` package script or
   project target.
-- `@alchemy.run/nx-alchemy-plugin` adds `dev`, `deploy`, `destroy`, and `plan` when a project has
+- `@oddlynew/alchemy-nx-alchemy-plugin` adds `dev`, `deploy`, `destroy`, and `plan` when a project has
   `alchemy.run.ts`.
 
 That keeps package `package.json` files focused on package behavior while Nx owns orchestration.
@@ -96,19 +99,19 @@ Useful commands:
 bun nx show projects
 bun nx graph
 bun nx show projects --affected --files=projects/distilled/packages/stripe/src/index.ts
-bun nx run @distilled.cloud/cloudflare-vite-plugin:build
+bun nx run @oddlynew/distilled-cloudflare-vite-plugin:build
 ```
 
 ## Shared Config
 
 The branch follows the Oddlynew config pattern by putting shared lint and TypeScript presets in
-root infrastructure packages:
+root packages:
 
-- `@alchemy.run/oxlint-config`
-- `@alchemy.run/typescript-config`
+- `@oddlynew/alchemy-oxlint-config`
+- `@oddlynew/alchemy-typescript-config`
 
 Product/package TypeScript configs extend named package presets such as
-`@alchemy.run/typescript-config/node.json` or `@alchemy.run/typescript-config/bun.json`. The root
+`@oddlynew/alchemy-typescript-config/node.json` or `@oddlynew/alchemy-typescript-config/bun.json`. The root
 `tsconfig.base.json`, `tsconfig.scripts.json`, product-local `tsconfig.base.json` files, and
 example-local config bases are intentionally removed. Package-local `tsconfig*.json` files own their
 runtime and project-reference boundaries directly.
@@ -124,9 +127,9 @@ explicit in code. Product-specific overrides live at `projects/<product>/oxlint.
 
 The shared package intentionally exposes two presets:
 
-- `@alchemy.run/oxlint-config/base-config` mirrors the minimal root/Distilled rules from the
+- `@oddlynew/alchemy-oxlint-config/base-config` mirrors the minimal root/Distilled rules from the
   standalone repos.
-- `@alchemy.run/oxlint-config/effect-config` mirrors the stricter Cloudflare-tools Effect-style
+- `@oddlynew/alchemy-oxlint-config/effect-config` mirrors the stricter Cloudflare-tools Effect-style
   rules, while keeping category-level type-aware checks as warnings/off by default like Oddlynew's
   baseline.
 
@@ -175,8 +178,9 @@ handlers now use `Effect.catch` and re-fail unknown errors.
 
 `nx.json` models the three public release surfaces separately:
 
-- `alchemy`: `alchemy`, `@alchemy.run/better-auth`, `@alchemy.run/pr-package`
-- `distilled`: the public `@distilled.cloud/*` provider packages from `distilled`
+- `alchemy`: `@oddlynew/alchemy`, `@oddlynew/alchemy-better-auth`, `@oddlynew/alchemy-pr-package`
+- `alchemy-node-utils`: the shared `@oddlynew/alchemy-node-utils` package used by Alchemy and Cloudflare Tools
+- `distilled`: the public `@oddlynew/distilled-*` provider packages from `distilled`
 - `cloudflare-tools`: the public Cloudflare runtime, Vite plugin, and Rolldown plugin packages
 
 Each group is fixed-versioned internally, matching the current repos. A release of the Alchemy group
@@ -194,21 +198,24 @@ Nx release is configured for conventional commits and per-project changelogs:
 
 ```bash
 bun nx release prerelease --groups=alchemy --dry-run --preid beta --skip-publish
+bun nx release patch --groups=alchemy-node-utils --dry-run --skip-publish
 bun nx release patch --groups=distilled --dry-run --skip-publish
 bun nx release patch --groups=cloudflare-tools --dry-run --skip-publish
 ```
 
 Those commands already preview package version bumps and changelog entries from the merged commit
-history. They intentionally mirror the current release lines: `alchemy` continues from
-`2.0.0-beta.57` to `2.0.0-beta.58`, `distilled` continues from `0.25.2` to `0.25.3`, and
-`cloudflare-tools` continues from `0.11.2` to `0.11.3`.
+history. They intentionally mirror the current release lines: `@oddlynew/alchemy` continues from
+`2.0.0-beta.57` to `2.0.0-beta.58`, `@oddlynew/alchemy-node-utils` continues from `0.0.5` to `0.0.6`,
+`@oddlynew/distilled` continues from `0.25.2` to `0.25.3`, and `@oddlynew/cloudflare-tools`
+continues from `0.11.2` to `0.11.3`.
 
-The imported Distilled and Cloudflare Tools groups require monorepo baseline tags at the final
-cutover commit:
+The dogfood release groups require monorepo baseline tags at the fork-namespace commit:
 
 ```bash
-git tag -a distilled-v0.25.2 HEAD -m "distilled monorepo baseline 0.25.2"
-git tag -a cloudflare-tools-v0.11.2 HEAD -m "cloudflare-tools monorepo baseline 0.11.2"
+git tag -a "@oddlynew/alchemy@2.0.0-beta.57" HEAD -m "oddlynew alchemy dogfood baseline 2.0.0-beta.57"
+git tag -a "@oddlynew/alchemy-node-utils@0.0.5" HEAD -m "oddlynew alchemy-node-utils dogfood baseline 0.0.5"
+git tag -a "@oddlynew/distilled@0.25.2" HEAD -m "oddlynew distilled dogfood baseline 0.25.2"
+git tag -a "@oddlynew/cloudflare-tools@0.11.2" HEAD -m "oddlynew cloudflare tools dogfood baseline 0.11.2"
 ```
 
 Those tags keep the first monorepo-native patch release clean. Placing the tags on the old imported
@@ -221,7 +228,7 @@ credentials are intentionally wired for the monorepo.
 
 The `release` GitHub workflow exposes the same release groups as a manual workflow dispatch. It
 defaults to dry-run, chooses the same continuation specifier by group unless maintainers override it,
-and refuses normal imported-group releases if the matching monorepo baseline tag is missing. Non-dry
+and refuses normal releases if the matching dogfood baseline tag is missing. Non-dry
 releases are refused unless the workflow is dispatched from `main`; when they do run, the workflow
 passes `--yes` to Nx release, publishes through each package's `nx-release-publish` target after its
 `build` target has produced publishable `lib` / `dist` artifacts, and pushes the release

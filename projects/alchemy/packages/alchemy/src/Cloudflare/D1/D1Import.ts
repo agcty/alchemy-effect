@@ -1,8 +1,8 @@
-import * as d1 from "@distilled.cloud/cloudflare/d1";
+import * as d1 from "@oddlynew/distilled-cloudflare/d1";
 import {
   Credentials,
   formatHeaders,
-} from "@distilled.cloud/cloudflare/Credentials";
+} from "@oddlynew/distilled-cloudflare/Credentials";
 import crypto from "node:crypto";
 import * as Effect from "effect/Effect";
 import * as HttpClient from "effect/unstable/http/HttpClient";

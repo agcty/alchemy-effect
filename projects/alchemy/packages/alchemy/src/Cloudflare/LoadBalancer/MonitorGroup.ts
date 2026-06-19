@@ -1,4 +1,4 @@
-import * as loadBalancers from "@distilled.cloud/cloudflare/load-balancers";
+import * as loadBalancers from "@oddlynew/distilled-cloudflare/load-balancers";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

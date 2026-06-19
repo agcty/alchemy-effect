@@ -1,4 +1,4 @@
-import * as zones from "@distilled.cloud/cloudflare/zones";
+import * as zones from "@oddlynew/distilled-cloudflare/zones";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

@@ -1,4 +1,4 @@
-import * as waitingRooms from "@distilled.cloud/cloudflare/waiting-rooms";
+import * as waitingRooms from "@oddlynew/distilled-cloudflare/waiting-rooms";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

@@ -3,7 +3,7 @@
  *
  * @example
  * \`\`\`ts
- * import * as Workos from "@distilled.cloud/workos";
+ * import * as Workos from "@oddlynew/distilled-workos";
  * \`\`\`
  */
 export * from "./credentials.ts";

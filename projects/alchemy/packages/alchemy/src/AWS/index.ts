@@ -5,7 +5,7 @@ export * from "./Environment.ts";
 export * from "./Providers.ts";
 export * from "./StateStore/index.ts";
 
-export { Region } from "@distilled.cloud/aws/Region";
+export { Region } from "@oddlynew/distilled-aws/Region";
 
 export * as ACM from "./ACM/index.ts";
 export * as ApiGateway from "./ApiGateway/index.ts";

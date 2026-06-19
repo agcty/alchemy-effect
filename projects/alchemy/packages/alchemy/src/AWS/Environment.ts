@@ -1,7 +1,7 @@
 import {
   type CredentialsError,
   type ResolvedCredentials,
-} from "@distilled.cloud/aws/Credentials";
+} from "@oddlynew/distilled-aws/Credentials";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";
@@ -42,7 +42,7 @@ export class FailedToGetAccount extends Data.TaggedError(
  *
  * `credentials` is held as an Effect so callers can refresh on each access
  * (SSO sessions expire). The Effect itself is constructed once when this
- * service is built; resolving it lazily preserves @distilled.cloud/aws's
+ * service is built; resolving it lazily preserves @oddlynew/distilled-aws's
  * existing `Credentials` semantics.
  */
 export interface AWSEnvironmentShape {

@@ -45,7 +45,7 @@ export interface NotificationsProps<Events extends S3EventType[]> {
  * @section Subscribing to Events
  * @example Process all object creation events
  * ```typescript
- * import * as S3 from "alchemy/AWS/S3";
+ * import * as S3 from "@oddlynew/alchemy/AWS/S3";
  *
  * yield* S3.notifications(bucket, {
  *   events: ["s3:ObjectCreated:*"],

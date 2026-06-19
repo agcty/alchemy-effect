@@ -1,4 +1,4 @@
-import * as s3 from "@distilled.cloud/aws/s3";
+import * as s3 from "@oddlynew/distilled-aws/s3";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

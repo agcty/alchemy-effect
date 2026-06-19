@@ -1,4 +1,4 @@
-import { ConfigError } from "@distilled.cloud/core/errors";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";

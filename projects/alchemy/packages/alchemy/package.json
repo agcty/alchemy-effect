@@ -1,12 +1,12 @@
 {
-  "name": "alchemy",
+  "name": "@oddlynew/alchemy",
   "version": "2.0.0-beta.57",
   "homepage": "https://alchemy.run",
   "license": "Apache-2.0",
   "author": "Sam Goodwin <sam@alchemy.run>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alchemy-run/alchemy-effect.git",
+    "url": "git+https://github.com/agcty/alchemy-effect.git",
     "directory": "projects/alchemy/packages/alchemy"
   },
   "bin": {
@@ -24,7 +24,6 @@
     "build": "tsgo -b && tsgo -b tsconfig.bin.json && bun bundle",
     "bundle": "tsdown",
     "bundle:watch": "tsdown --watch",
-    "publish:npm": "cp ../../../../README.md . && bun publish && rm README.md",
     "test": "vitest run",
     "test:benchmark": "tsx --tsconfig tsconfig.test.json test/types.benchmark.ts",
     "nuke": "cd ../../ && bun nuke"
@@ -290,18 +289,18 @@
     "access": "public"
   },
   "dependencies": {
-    "@alchemy.run/node-utils": "catalog:",
+    "@oddlynew/alchemy-node-utils": "workspace:*",
     "@aws-sdk/credential-providers": "catalog:",
     "@clack/prompts": "^0.11.0",
-    "@distilled.cloud/aws": "workspace:*",
-    "@distilled.cloud/axiom": "workspace:*",
-    "@distilled.cloud/cloudflare": "workspace:*",
-    "@distilled.cloud/cloudflare-rolldown-plugin": "catalog:",
-    "@distilled.cloud/cloudflare-runtime": "catalog:",
-    "@distilled.cloud/cloudflare-vite-plugin": "catalog:",
-    "@distilled.cloud/core": "workspace:*",
-    "@distilled.cloud/neon": "workspace:*",
-    "@distilled.cloud/planetscale": "workspace:*",
+    "@oddlynew/distilled-aws": "workspace:*",
+    "@oddlynew/distilled-axiom": "workspace:*",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
+    "@oddlynew/distilled-cloudflare-rolldown-plugin": "workspace:*",
+    "@oddlynew/distilled-cloudflare-runtime": "workspace:*",
+    "@oddlynew/distilled-cloudflare-vite-plugin": "workspace:*",
+    "@oddlynew/distilled-core": "workspace:*",
+    "@oddlynew/distilled-neon": "workspace:*",
+    "@oddlynew/distilled-planetscale": "workspace:*",
     "@effect/vitest": "catalog:",
     "@libsql/client": "catalog:",
     "@octokit/rest": "^22.0.1",
@@ -353,7 +352,7 @@
     "uuid": "catalog:",
     "vitest": "catalog:",
     "ws": "catalog:",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   },
   "peerDependencies": {
     "@effect/platform-bun": "catalog:",

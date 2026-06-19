@@ -10,7 +10,7 @@ import {
   type ListProjectsOutput,
   createProject as sdkCreateProject,
   updateProject,
-} from "@distilled.cloud/neon";
+} from "@oddlynew/distilled-neon";
 import * as Console from "effect/Console";
 import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";

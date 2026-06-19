@@ -3,7 +3,7 @@ import { AWSEnvironment } from "@/AWS/Environment.ts";
 import { Alias, Key } from "@/AWS/KMS";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as KMS from "@distilled.cloud/aws/kms";
+import * as KMS from "@oddlynew/distilled-aws/kms";
 import { describe, expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

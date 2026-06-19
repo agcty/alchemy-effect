@@ -20,7 +20,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 const specsDir = path.join(rootDir, "specs/docs/restapi/versions");
@@ -39,7 +39,7 @@ interface Version {
    * Subpath alias to expose in src/ as a barrel re-export. If set, the
    * generator writes src/{alias}.ts re-exporting the version's index. The
    * package.json exports the alias as `./{alias}` (e.g. "edge-ingest" →
-   * `@distilled.cloud/axiom/edge-ingest`). The default v2 version has no
+   * `@oddlynew/distilled-axiom/edge-ingest`). The default v2 version has no
    * alias because it is re-exported from the package root.
    */
   alias?: string;
@@ -156,7 +156,7 @@ fs.writeFileSync(
 );
 
 // Per-alias barrel files under src/ (e.g. src/edge-ingest.ts) so users can
-// import via `@distilled.cloud/axiom/edge-ingest`.
+// import via `@oddlynew/distilled-axiom/edge-ingest`.
 const srcDir = path.join(rootDir, "src");
 for (const v of VERSIONS) {
   if (!v.alias) continue;

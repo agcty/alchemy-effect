@@ -1,4 +1,4 @@
-import * as rules from "@distilled.cloud/cloudflare/rules";
+import * as rules from "@oddlynew/distilled-cloudflare/rules";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";

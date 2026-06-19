@@ -1,5 +1,5 @@
-import type { ContainerImage } from "@distilled.cloud/cloudflare-runtime/Docker";
-import * as Containers from "@distilled.cloud/cloudflare/containers";
+import type { ContainerImage } from "@oddlynew/distilled-cloudflare-runtime/Docker";
+import * as Containers from "@oddlynew/distilled-cloudflare/containers";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { Unowned } from "../../AdoptPolicy.ts";
@@ -35,7 +35,7 @@ import {
 } from "./ContainerBundle.ts";
 import { LocalContainerProvider } from "./LocalContainerProvider.ts";
 
-export { Credentials } from "@distilled.cloud/cloudflare/Credentials";
+export { Credentials } from "@oddlynew/distilled-cloudflare/Credentials";
 
 export namespace ContainerApplication {
   export type InstanceType = NonNullable<
@@ -274,7 +274,7 @@ export type ContainerShape = Main<ContainerServices>;
  *
  * @example Minimal container
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  *
  * export class Sandbox extends Cloudflare.Container<Sandbox>()("Sandbox", {
  *   main: import.meta.filename,

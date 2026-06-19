@@ -1,5 +1,5 @@
-import { ConfigError } from "@distilled.cloud/core/errors";
-import { Credentials } from "@distilled.cloud/neon";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
+import { Credentials } from "@oddlynew/distilled-neon";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -11,7 +11,7 @@ import {
   type NeonResolvedCredentials,
 } from "./AuthProvider.ts";
 
-export { Credentials } from "@distilled.cloud/neon";
+export { Credentials } from "@oddlynew/distilled-neon";
 
 const DEFAULT_BASE_URL = "https://console.neon.tech/api/v2";
 

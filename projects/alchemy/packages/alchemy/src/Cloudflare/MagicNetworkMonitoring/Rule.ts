@@ -1,4 +1,4 @@
-import * as mnm from "@distilled.cloud/cloudflare/magic-network-monitoring";
+import * as mnm from "@oddlynew/distilled-cloudflare/magic-network-monitoring";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

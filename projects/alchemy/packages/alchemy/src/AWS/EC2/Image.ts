@@ -1,4 +1,4 @@
-import * as ec2 from "@distilled.cloud/aws/ec2";
+import * as ec2 from "@oddlynew/distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 
 export type ImageArchitecture = "x86_64" | "arm64";

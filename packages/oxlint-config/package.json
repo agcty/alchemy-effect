@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/oxlint-config",
+  "name": "@oddlynew/alchemy-oxlint-config",
   "version": "0.0.0",
   "private": true,
   "description": "Shared oxlint config for the Alchemy monorepo",

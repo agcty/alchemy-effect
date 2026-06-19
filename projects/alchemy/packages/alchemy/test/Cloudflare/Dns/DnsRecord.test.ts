@@ -4,7 +4,7 @@ import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as dns from "@distilled.cloud/cloudflare/dns";
+import * as dns from "@oddlynew/distilled-cloudflare/dns";
 import { expect } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";

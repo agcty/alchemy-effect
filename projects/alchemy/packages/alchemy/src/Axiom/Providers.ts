@@ -14,7 +14,7 @@ import { Notifier, NotifierProvider } from "./Notifier.ts";
 import { View, ViewProvider } from "./View.ts";
 import { VirtualField, VirtualFieldProvider } from "./VirtualField.ts";
 
-export { Credentials } from "@distilled.cloud/axiom/Credentials";
+export { Credentials } from "@oddlynew/distilled-axiom/Credentials";
 
 export class Providers extends Provider.ProviderCollection<Providers>()(
   "Axiom",

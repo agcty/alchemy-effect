@@ -1,5 +1,5 @@
 import { defineConfig } from "oxlint";
-import sharedConfig from "@alchemy.run/oxlint-config/base-config";
+import sharedConfig from "@oddlynew/alchemy-oxlint-config/base-config";
 
 export default defineConfig({
   ...sharedConfig,

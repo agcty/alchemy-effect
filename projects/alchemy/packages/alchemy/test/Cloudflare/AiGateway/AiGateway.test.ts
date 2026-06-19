@@ -4,7 +4,7 @@ import * as Alchemy from "@/index.ts";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as aiGateway from "@distilled.cloud/cloudflare/ai-gateway";
+import * as aiGateway from "@oddlynew/distilled-cloudflare/ai-gateway";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

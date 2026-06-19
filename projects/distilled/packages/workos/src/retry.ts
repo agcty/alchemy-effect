@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as WorkOS from "@distilled.cloud/workos";
+ * import * as WorkOS from "@oddlynew/distilled-workos";
  *
  * myEffect.pipe(WorkOS.Retry.transient);
  * Effect.provide(myEffect, Layer.succeed(WorkOS.Retry.Retry, customPolicy));
@@ -21,7 +21,7 @@ import {
   type Policy,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 export {
   type Options,
@@ -34,7 +34,7 @@ export {
   transientOptions,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 /** Context tag for configuring retry behavior of WorkOS API calls. */
 export class Retry extends Context.Service<Retry, Policy>()("WorkOSRetry") {}

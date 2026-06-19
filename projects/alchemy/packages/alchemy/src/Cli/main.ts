@@ -4,11 +4,11 @@ import * as Layer from "effect/Layer";
 import * as Command from "effect/unstable/cli/Command";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 
-import { AlchemyContextLive } from "alchemy/AlchemyContext";
-import { CredentialsStoreLive } from "alchemy/Auth/Credentials";
-import { ProfileLive } from "alchemy/Auth/Profile";
-import { TelemetryLive } from "alchemy/Telemetry/Layer";
-import { PlatformServices } from "alchemy/Util/PlatformServices";
+import { AlchemyContextLive } from "@oddlynew/alchemy/AlchemyContext";
+import { CredentialsStoreLive } from "@oddlynew/alchemy/Auth/Credentials";
+import { ProfileLive } from "@oddlynew/alchemy/Auth/Profile";
+import { TelemetryLive } from "@oddlynew/alchemy/Telemetry/Layer";
+import { PlatformServices } from "@oddlynew/alchemy/Util/PlatformServices";
 import packageJson from "../../package.json" with { type: "json" };
 
 import { checkLatestVersion } from "./checkVersion.ts";

@@ -1,4 +1,4 @@
-import * as originCa from "@distilled.cloud/cloudflare/origin-ca-certificates";
+import * as originCa from "@oddlynew/distilled-cloudflare/origin-ca-certificates";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

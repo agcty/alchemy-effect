@@ -1,4 +1,4 @@
-import * as urlNormalization from "@distilled.cloud/cloudflare/url-normalization";
+import * as urlNormalization from "@oddlynew/distilled-cloudflare/url-normalization";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

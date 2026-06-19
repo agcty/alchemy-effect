@@ -1,4 +1,4 @@
-import * as rulesets from "@distilled.cloud/cloudflare/rulesets";
+import * as rulesets from "@oddlynew/distilled-cloudflare/rulesets";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

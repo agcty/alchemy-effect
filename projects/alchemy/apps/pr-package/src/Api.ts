@@ -1,6 +1,6 @@
-import * as PrPackage from "@alchemy.run/pr-package";
-import * as Cloudflare from "alchemy/Cloudflare";
-import { Stack } from "alchemy/Stack";
+import * as PrPackage from "@oddlynew/alchemy-pr-package";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import { Stack } from "@oddlynew/alchemy/Stack";
 
 export const ALCHEMY_HOSTS = [
   "pkg.alchemy.run",
@@ -33,7 +33,10 @@ const parseAliasUrl: PrPackage.ParseAliasUrl = (url) => {
     }
   } else if (DISTILLED_HOSTS.includes(url.hostname)) {
     if (segments.length === 2) {
-      return { pkgName: `@distilled.cloud/${segments[0]!}`, tag: segments[1]! };
+      return {
+        pkgName: `@oddlynew/distilled-${segments[0]!}`,
+        tag: segments[1]!,
+      };
     }
   }
   return null;

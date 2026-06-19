@@ -24,7 +24,7 @@ straightforward thing is to bind the KV in the Worker's init
 closure and call it from `fetch`:
 
 ```typescript
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -60,7 +60,7 @@ capability without saying how it's provided:
 ```typescript
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
-import * as Alchemy from "alchemy";
+import * as Alchemy from "@oddlynew/alchemy";
 
 export class JobService extends Context.Service<
   JobService,
@@ -81,7 +81,7 @@ A Layer is the implementation side of a service. It declares the
 resources it needs, wires up bindings, and returns the typed value:
 
 ```typescript
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 

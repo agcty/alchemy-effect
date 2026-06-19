@@ -1,4 +1,4 @@
-import * as botManagement from "@distilled.cloud/cloudflare/bot-management";
+import * as botManagement from "@oddlynew/distilled-cloudflare/bot-management";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-solid-ssr",
+  "name": "@oddlynew/alchemy-example-cloudflare-solidjs-ssr",
   "version": "0.0.0",
   "private": true,
   "description": "",
@@ -18,7 +18,7 @@
     "solid-devtools": "^0.34.3",
     "tailwindcss": "^4.1.13",
     "vite": "^7.1.4",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:",
     "vite-plugin-solid": "^2.11.8"
   },

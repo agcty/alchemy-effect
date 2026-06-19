@@ -1,11 +1,11 @@
-# @distilled.cloud/prisma-postgres
+# @oddlynew/distilled-prisma-postgres
 
 Effect-native Prisma Postgres SDK generated from the [Prisma Postgres Management API specification](https://www.prisma.io/docs/postgres). Manage projects, databases, connections, backups, integrations, and workspaces with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/prisma-postgres effect
+npm install @oddlynew/distilled-prisma-postgres effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/prisma-postgres effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { getV1Databases } from "@distilled.cloud/prisma-postgres/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/prisma-postgres";
+import { getV1Databases } from "@oddlynew/distilled-prisma-postgres/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-prisma-postgres";
 
 const program = Effect.gen(function* () {
   const databases = yield* getV1Databases({});
@@ -43,7 +43,7 @@ Generate an API token in the [Prisma Data Platform](https://console.prisma.io/) 
 ## Error Handling
 
 ```typescript
-import { getV1ProjectsById } from "@distilled.cloud/prisma-postgres/Operations";
+import { getV1ProjectsById } from "@oddlynew/distilled-prisma-postgres/Operations";
 
 getV1ProjectsById({ id: "missing" }).pipe(
   Effect.catchTags({

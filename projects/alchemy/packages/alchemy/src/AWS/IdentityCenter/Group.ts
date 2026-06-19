@@ -1,4 +1,4 @@
-import * as identitystore from "@distilled.cloud/aws/identitystore";
+import * as identitystore from "@oddlynew/distilled-aws/identitystore";
 import * as Effect from "effect/Effect";
 import { isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Supabase from "@distilled.cloud/supabase";
+ * import * as Supabase from "@oddlynew/distilled-supabase";
  * ```
  */
 export * from "./credentials.ts";

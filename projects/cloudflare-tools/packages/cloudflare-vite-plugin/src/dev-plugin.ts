@@ -1,6 +1,6 @@
-import type { OptionsApi } from "@distilled.cloud/cloudflare-rolldown-plugin/plugins";
-import { resolvePluginApi } from "@distilled.cloud/cloudflare-rolldown-plugin/utils";
-import type { RuntimeServices } from "@distilled.cloud/cloudflare-runtime";
+import type { OptionsApi } from "@oddlynew/distilled-cloudflare-rolldown-plugin/plugins";
+import { resolvePluginApi } from "@oddlynew/distilled-cloudflare-rolldown-plugin/utils";
+import type { RuntimeServices } from "@oddlynew/distilled-cloudflare-runtime";
 import type * as Context from "effect/Context";
 import * as NodeHttp from "node:http";
 import * as vite from "vite";

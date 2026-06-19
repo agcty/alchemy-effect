@@ -5,7 +5,7 @@
  * from the Stripe OpenAPI 3.0 SDK spec.
  */
 import * as path from "path";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 

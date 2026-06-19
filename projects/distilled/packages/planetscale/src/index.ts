@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as PlanetScale from "@distilled.cloud/planetscale";
+ * import * as PlanetScale from "@oddlynew/distilled-planetscale";
  * ```
  */
 export * from "./credentials.ts";

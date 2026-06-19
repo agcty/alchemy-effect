@@ -1,5 +1,5 @@
 {
-  "name": "alchemy-github-secrets",
+  "name": "@oddlynew/alchemy-github-secrets",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -10,11 +10,11 @@
   },
   "type": "module",
   "dependencies": {
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "nx": {
-    "name": "alchemy-github-secrets",
+    "name": "@oddlynew/alchemy-github-secrets",
     "doppler": {
       "project": "alchemy-v2"
     }

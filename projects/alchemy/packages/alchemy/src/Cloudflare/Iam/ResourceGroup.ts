@@ -1,4 +1,4 @@
-import * as iam from "@distilled.cloud/cloudflare/iam";
+import * as iam from "@oddlynew/distilled-cloudflare/iam";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

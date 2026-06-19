@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/cloudflare",
+  "name": "@oddlynew/distilled-cloudflare",
   "version": "0.25.2",
   "license": "Apache-2.0",
   "repository": {
@@ -62,18 +62,17 @@
     "lint:fix": "oxlint --fix src",
     "check": "tsgo && oxlint src && oxfmt --check src",
     "test": "vitest run --exclude specs --passWithNoTests",
-    "publish:npm": "bun run build && bun publish --access public",
     "generate": "bun run scripts/generate.ts && oxlint --fix src && oxfmt --write src && oxfmt --write src",
     "specs:fetch": "git submodule update --force --init --recursive --depth=1 specs/cloudflare-typescript && git -C specs/cloudflare-typescript checkout -- .",
     "specs:update": "git -C specs/cloudflare-typescript fetch && git -C specs/cloudflare-typescript checkout main && git -C specs/cloudflare-typescript pull"
   },
   "dependencies": {
-    "@distilled.cloud/core": "workspace:*"
+    "@oddlynew/distilled-core": "workspace:*"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
     "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "dotenv": "catalog:",

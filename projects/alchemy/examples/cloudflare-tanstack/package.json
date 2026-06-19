@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-tanstack-example",
+  "name": "@oddlynew/alchemy-example-cloudflare-tanstack",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@tanstack/react-router": "^1.167.4",
     "@tanstack/react-start": "^1.166.15",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
@@ -32,6 +32,6 @@
     "@vitejs/plugin-react": "^6.0.1",
     "typescript": "^5.9.3",
     "vite": "catalog:",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

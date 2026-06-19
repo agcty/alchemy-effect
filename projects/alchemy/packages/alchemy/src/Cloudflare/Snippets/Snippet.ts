@@ -1,4 +1,4 @@
-import * as snippets from "@distilled.cloud/cloudflare/snippets";
+import * as snippets from "@oddlynew/distilled-cloudflare/snippets";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

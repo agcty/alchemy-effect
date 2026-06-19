@@ -63,20 +63,20 @@ export default defineConfig({
 });
 
 /**
- * Resolve `@distilled.cloud/*` imports to their TypeScript sources so a
+ * Resolve `@oddlynew/distilled-*` imports to their TypeScript sources so a
  * `bun scripts/generate.ts` regen is live in tests with no `lib` rebuild.
  *
  * The distilled packages expose `src/*.ts` under the `bun` export condition
  * and built `lib/*.js` under `default`. Under `bun vitest` the externalized
  * import would otherwise resolve `default` → stale `lib`. We can't flip the
  * resolver to `bun` globally (that breaks other deps' subpath resolution,
- * e.g. `@smithy/core`), so this plugin redirects ONLY `@distilled.cloud/*`
+ * e.g. `@smithy/core`), so this plugin redirects ONLY `@oddlynew/distilled-*`
  * by reading each package's own `exports` map and picking its `bun` target.
  * Returning the absolute `src` path makes Vite transform it as a project
  * file instead of externalizing the built output.
  */
 function distilledSrcResolver(): Plugin {
-  const prefix = "@distilled.cloud/";
+  const prefix = "@oddlynew/distilled-";
   const exportsCache = new Map<string, Record<string, any> | undefined>();
 
   const loadExports = (pkg: string) => {

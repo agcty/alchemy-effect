@@ -1,11 +1,11 @@
-# @distilled.cloud/mongodb-atlas
+# @oddlynew/distilled-mongodb-atlas
 
 Effect-native MongoDB Atlas SDK generated from the [MongoDB Atlas Administration API specification](https://www.mongodb.com/docs/atlas/reference/api-resources-spec/v2/). Manage clusters, database users, projects, organizations, backups, and 390+ operations with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/mongodb-atlas effect
+npm install @oddlynew/distilled-mongodb-atlas effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/mongodb-atlas effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { listGroupClusters } from "@distilled.cloud/mongodb-atlas/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/mongodb-atlas";
+import { listGroupClusters } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-mongodb-atlas";
 
 const program = Effect.gen(function* () {
   const clusters = yield* listGroupClusters({ groupId: "my-project-id" });
@@ -40,7 +40,7 @@ Create an API key in the [MongoDB Atlas console](https://cloud.mongodb.com/) und
 ## Error Handling
 
 ```typescript
-import { getGroupCluster } from "@distilled.cloud/mongodb-atlas/Operations";
+import { getGroupCluster } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 getGroupCluster({ groupId: "my-project", clusterName: "missing" }).pipe(
   Effect.catchTags({

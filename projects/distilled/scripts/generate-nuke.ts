@@ -74,7 +74,7 @@ The nuke script at ${pkgDir}/scripts/nuke.ts should:
 1. Accept a \`--dry-run\` flag (when set, only list resources; when absent, delete them)
 2. Use Effect CLI (\`effect/unstable/cli\`) for argument parsing, following the same
    pattern as other scripts in scripts/ (e.g. see scripts/error-discovery.ts or scripts/create-sdk.ts)
-3. Use the Distilled SDK (\`@distilled.cloud/${provider}\`) to make API calls
+3. Use the Distilled SDK (\`@oddlynew/distilled-${provider}\`) to make API calls
 4. Load credentials from the environment via \`dotenv/config\` and the SDK's \`CredentialsFromEnv\`
 5. Use \`@effect/platform-bun\` for BunRuntime/BunServices ONLY
 6. Use \`effect/unstable/http/FetchHttpClient\` for FetchHttpClient — NOT \`@effect/platform\`

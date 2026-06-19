@@ -22,7 +22,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Console, Effect, Schedule } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/supabase";
+import { CredentialsFromEnv } from "@oddlynew/distilled-supabase";
 import {
   v1ListAllProjects,
   v1ListAllOrganizations,
@@ -50,7 +50,7 @@ import {
   v1RemoveProjectSigningKey,
   v1RemoveProjectAddon,
   v1DeleteJitAccess,
-} from "@distilled.cloud/supabase/Operations";
+} from "@oddlynew/distilled-supabase/Operations";
 
 // ANSI colors
 const RED = "\x1b[31m";

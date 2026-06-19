@@ -1,4 +1,4 @@
-import * as accounts from "@distilled.cloud/cloudflare/accounts";
+import * as accounts from "@oddlynew/distilled-cloudflare/accounts";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

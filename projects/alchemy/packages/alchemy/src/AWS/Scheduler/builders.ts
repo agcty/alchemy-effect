@@ -1,4 +1,4 @@
-import type * as scheduler from "@distilled.cloud/aws/scheduler";
+import type * as scheduler from "@oddlynew/distilled-aws/scheduler";
 import * as Effect from "effect/Effect";
 import type { Cluster } from "../ECS/Cluster.ts";
 import * as IAM from "../IAM/index.ts";

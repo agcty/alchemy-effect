@@ -1,4 +1,4 @@
-import * as rdsdata from "@distilled.cloud/aws/rds-data";
+import * as rdsdata from "@oddlynew/distilled-aws/rds-data";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Binding from "../../Binding.ts";

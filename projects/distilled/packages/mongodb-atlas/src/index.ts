@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Mongodb-atlas from "@distilled.cloud/mongodb-atlas";
+ * import * as Mongodb-atlas from "@oddlynew/distilled-mongodb-atlas";
  * ```
  */
 export * from "./credentials.ts";

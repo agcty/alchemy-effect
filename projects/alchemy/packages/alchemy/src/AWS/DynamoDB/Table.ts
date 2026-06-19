@@ -1,9 +1,9 @@
-import type * as DynamoDB from "@distilled.cloud/aws/dynamodb";
+import type * as DynamoDB from "@oddlynew/distilled-aws/dynamodb";
 import type {
   PointInTimeRecoverySpecification,
   TimeToLiveSpecification,
-} from "@distilled.cloud/aws/dynamodb";
-import * as dynamodb from "@distilled.cloud/aws/dynamodb";
+} from "@oddlynew/distilled-aws/dynamodb";
+import * as dynamodb from "@oddlynew/distilled-aws/dynamodb";
 import type * as lambda from "aws-lambda";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
@@ -117,7 +117,7 @@ export interface Table extends Resource<
  * @section Creating Tables
  * @example Basic Table
  * ```typescript
- * import * as DynamoDB from "alchemy/AWS/DynamoDB";
+ * import * as DynamoDB from "@oddlynew/alchemy/AWS/DynamoDB";
  *
  * const table = yield* DynamoDB.Table("UsersTable", {
  *   partitionKey: "pk",

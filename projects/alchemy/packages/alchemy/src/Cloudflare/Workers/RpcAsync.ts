@@ -36,7 +36,7 @@ export type RpcAsync<Shape> = {
  *
  * @example Three ways to reach a value from a plain Worker — direct binding, fetch, RPC
  * ```ts
- * import { toRpcAsync } from "alchemy/Cloudflare/Bridge";
+ * import { toRpcAsync } from "@oddlynew/alchemy/Cloudflare/Bridge";
  * import type Backend from "./backend.ts";
  *
  * interface Env {

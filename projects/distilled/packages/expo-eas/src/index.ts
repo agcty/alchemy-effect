@@ -3,7 +3,7 @@
  *
  * @example
  * \`\`\`ts
- * import * as Eas from "@distilled.cloud/expo-eas";
+ * import * as Eas from "@oddlynew/distilled-expo-eas";
  * \`\`\`
  */
 export * from "./credentials.ts";

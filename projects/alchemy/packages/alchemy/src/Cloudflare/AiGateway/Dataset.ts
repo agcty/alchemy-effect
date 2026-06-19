@@ -1,4 +1,4 @@
-import * as aiGateway from "@distilled.cloud/cloudflare/ai-gateway";
+import * as aiGateway from "@oddlynew/distilled-cloudflare/ai-gateway";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

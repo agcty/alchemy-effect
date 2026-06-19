@@ -1,4 +1,4 @@
-import * as resourceSharing from "@distilled.cloud/cloudflare/resource-sharing";
+import * as resourceSharing from "@oddlynew/distilled-cloudflare/resource-sharing";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

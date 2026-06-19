@@ -214,9 +214,9 @@ By the end you'll have:
 
    ```typescript twoslash
    // @noErrors
-   import * as Alchemy from "alchemy";
-   + import * as GitHub from "alchemy/GitHub";
-   + import * as Output from "alchemy/Output";
+   import * as Alchemy from "@oddlynew/alchemy";
+   + import * as GitHub from "@oddlynew/alchemy/GitHub";
+   + import * as Output from "@oddlynew/alchemy/Output";
    import * as Effect from "effect/Effect";
 
    export default Alchemy.Stack(
@@ -364,9 +364,9 @@ token-management token.
 
 ```typescript
 // stacks/github.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -481,9 +481,9 @@ can pick the right pair based on `STAGE`.
 
 ```typescript
 // stacks/github.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -585,9 +585,9 @@ administration.
 
 ```typescript
 // stacks/github.ts
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
-import * as GitHub from "alchemy/GitHub";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 
@@ -717,8 +717,8 @@ AWS console.
 
 ```typescript
 // stacks/github.ts
-import * as Alchemy from "alchemy";
-import * as GitHub from "alchemy/GitHub";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

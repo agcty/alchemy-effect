@@ -1,5 +1,5 @@
 {
-  "name": "website",
+  "name": "@oddlynew/alchemy-website",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -39,7 +39,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "astro": "^5.12.8",
     "effect": "catalog:",
     "expressive-code-twoslash": "^0.6.1",

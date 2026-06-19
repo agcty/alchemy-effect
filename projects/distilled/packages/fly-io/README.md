@@ -1,11 +1,11 @@
-# @distilled.cloud/fly-io
+# @oddlynew/distilled-fly-io
 
 Effect-native Fly.io SDK generated from the [Fly.io OpenAPI specification](https://docs.machines.dev). Manage apps, machines, volumes, secrets, certificates, and more with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/fly-io effect
+npm install @oddlynew/distilled-fly-io effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/fly-io effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { AppsList } from "@distilled.cloud/fly-io/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/fly-io";
+import { AppsList } from "@oddlynew/distilled-fly-io/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-fly-io";
 
 const program = Effect.gen(function* () {
   const apps = yield* AppsList({ org_slug: "my-org" });
@@ -40,7 +40,7 @@ Create a personal access token with `flyctl tokens create` or in the [Fly.io das
 ## Error Handling
 
 ```typescript
-import { AppsShow } from "@distilled.cloud/fly-io/Operations";
+import { AppsShow } from "@oddlynew/distilled-fly-io/Operations";
 
 AppsShow({ app_name: "missing-app" }).pipe(
   Effect.catchTags({

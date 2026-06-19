@@ -35,7 +35,9 @@ export const devCommand = Command.make(
               ...process.execArgv,
               "--watch",
               "--no-clear-screen",
-              fileURLToPath(import.meta.resolve("alchemy/bin/exec.ts")),
+              fileURLToPath(
+                import.meta.resolve("@oddlynew/alchemy/bin/exec.ts"),
+              ),
             ]
           : [
               "node",
@@ -48,7 +50,9 @@ export const devCommand = Command.make(
                 : []),
               "--watch",
               "--watch-preserve-output",
-              fileURLToPath(import.meta.resolve("alchemy/bin/exec.js")),
+              fileURLToPath(
+                import.meta.resolve("@oddlynew/alchemy/bin/exec.js"),
+              ),
             ];
       const child = yield* ChildProcess.make(command[0], command.slice(1), {
         stdin: "inherit",

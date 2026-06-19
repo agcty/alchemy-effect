@@ -1,4 +1,4 @@
-import * as ag from "@distilled.cloud/aws/api-gateway";
+import * as ag from "@oddlynew/distilled-aws/api-gateway";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";
@@ -107,7 +107,7 @@ export interface RestApi extends Resource<
  *
  * @example Mock HTTP GET on the root path
  * ```typescript
- * import * as ApiGateway from "alchemy/AWS/ApiGateway";
+ * import * as ApiGateway from "@oddlynew/alchemy/AWS/ApiGateway";
  *
  * const api = yield* ApiGateway.RestApi("Api", {
  *   endpointConfiguration: { types: ["REGIONAL"] },

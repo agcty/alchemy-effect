@@ -1,4 +1,4 @@
-import * as hyperdrive from "@distilled.cloud/cloudflare/hyperdrive";
+import * as hyperdrive from "@oddlynew/distilled-cloudflare/hyperdrive";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

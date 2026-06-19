@@ -1,7 +1,7 @@
 import * as AWS from "@/AWS";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as Kinesis from "@distilled.cloud/aws/kinesis";
+import * as Kinesis from "@oddlynew/distilled-aws/kinesis";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

@@ -1,7 +1,7 @@
 import * as Neon from "@/Neon";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import { getProject } from "@distilled.cloud/neon";
+import { getProject } from "@oddlynew/distilled-neon";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

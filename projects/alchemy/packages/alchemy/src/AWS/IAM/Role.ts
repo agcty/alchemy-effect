@@ -1,4 +1,4 @@
-import * as iam from "@distilled.cloud/aws/iam";
+import * as iam from "@oddlynew/distilled-aws/iam";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { Unowned } from "../../AdoptPolicy.ts";

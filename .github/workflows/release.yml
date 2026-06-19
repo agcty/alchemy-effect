@@ -10,6 +10,7 @@ on:
         default: alchemy
         options:
           - alchemy
+          - alchemy-node-utils
           - distilled
           - cloudflare-tools
       specifier:
@@ -23,7 +24,7 @@ on:
         type: boolean
         default: true
       first-release:
-        description: Use --first-release. Imported groups should use monorepo baseline tags instead.
+        description: Use --first-release. Dogfood groups should normally use scoped baseline tags instead.
         required: true
         type: choice
         default: "false"
@@ -94,7 +95,7 @@ jobs:
               alchemy)
                 SPECIFIER="prerelease"
                 ;;
-              distilled | cloudflare-tools)
+              alchemy-node-utils | distilled | cloudflare-tools)
                 SPECIFIER="patch"
                 ;;
             esac
@@ -102,13 +103,18 @@ jobs:
 
           args=(release "${SPECIFIER}" "--groups=${RELEASE_GROUP}")
 
-          release_tag_pattern=""
           case "${RELEASE_GROUP}" in
+            alchemy)
+              release_tag_pattern="@oddlynew/alchemy@*"
+              ;;
+            alchemy-node-utils)
+              release_tag_pattern="@oddlynew/alchemy-node-utils@*"
+              ;;
             distilled)
-              release_tag_pattern="distilled-v*"
+              release_tag_pattern="@oddlynew/distilled@*"
               ;;
             cloudflare-tools)
-              release_tag_pattern="cloudflare-tools-v*"
+              release_tag_pattern="@oddlynew/cloudflare-tools@*"
               ;;
           esac
 
@@ -123,9 +129,9 @@ jobs:
               args+=(--first-release)
               ;;
             false)
-              if [ -n "${release_tag_pattern}" ] && ! git tag --list "${release_tag_pattern}" | grep -q .; then
-                echo "Missing ${RELEASE_GROUP} monorepo baseline tag matching ${release_tag_pattern}." >&2
-                echo "Create the cutover baseline tag before running a normal imported-group release, or explicitly set first-release=true." >&2
+              if ! git tag --list "${release_tag_pattern}" | grep -q .; then
+                echo "Missing ${RELEASE_GROUP} dogfood baseline tag matching ${release_tag_pattern}." >&2
+                echo "Create the dogfood baseline tag before running a normal release, or explicitly set first-release=true." >&2
                 exit 1
               fi
               ;;

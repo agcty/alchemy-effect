@@ -35,12 +35,13 @@ Initial public mapping:
 | `alchemy`                                             | `@oddlynew/alchemy`                              |
 | `@alchemy.run/better-auth`                            | `@oddlynew/alchemy-better-auth`                  |
 | `@alchemy.run/pr-package`                             | `@oddlynew/alchemy-pr-package`                   |
+| `@alchemy.run/node-utils`                             | `@oddlynew/alchemy-node-utils`                    |
 | `@distilled.cloud/core`                               | `@oddlynew/distilled-core`                       |
 | `@distilled.cloud/<provider>`                         | `@oddlynew/distilled-<provider>`                 |
 | `@distilled.cloud/cloudflare-runtime`                 | `@oddlynew/distilled-cloudflare-runtime`         |
 | `@distilled.cloud/cloudflare-vite-plugin`             | `@oddlynew/distilled-cloudflare-vite-plugin`     |
 | `@distilled.cloud/cloudflare-rolldown-plugin`         | `@oddlynew/distilled-cloudflare-rolldown-plugin` |
-| `@alchemy.run/nx-*`, config, and cache infra packages | `@oddlynew/nx-*`, config, and cache infra names  |
+| private Nx, config, and cache infra packages          | `@oddlynew/alchemy-nx-*` and `@oddlynew/alchemy-*-config` |
 
 The `alchemy` CLI binary can remain named `alchemy`. The package identity changes; the command name
 does not have to.
@@ -62,6 +63,13 @@ The target release loop is the Oddlynew shape:
 3. `bun nx release` computes versions from conventional commits.
 4. Nx writes package changelogs and tags.
 5. Nx publishes the public packages to npm with provenance.
+
+Dogfood release tags are scoped to the fork identities:
+
+- `@oddlynew/alchemy@<version>`
+- `@oddlynew/alchemy-node-utils@<version>`
+- `@oddlynew/distilled@<version>`
+- `@oddlynew/cloudflare-tools@<version>`
 
 The dogfood branch may start with a manual `workflow_dispatch` release while credentials and npm
 scope ownership are being proven. Once the first real release is reliable, prefer automatic release

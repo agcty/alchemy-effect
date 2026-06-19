@@ -1,6 +1,6 @@
-import { Region } from "@distilled.cloud/aws/Region";
-import type { BucketLocationConstraint } from "@distilled.cloud/aws/s3";
-import * as s3 from "@distilled.cloud/aws/s3";
+import { Region } from "@oddlynew/distilled-aws/Region";
+import type { BucketLocationConstraint } from "@oddlynew/distilled-aws/s3";
+import * as s3 from "@oddlynew/distilled-aws/s3";
 import * as Arr from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Order from "effect/Order";
@@ -258,7 +258,7 @@ export interface Bucket extends Resource<
  * @section Creating a Bucket
  * @example Basic Bucket
  * ```typescript
- * import * as S3 from "alchemy/AWS/S3";
+ * import * as S3 from "@oddlynew/alchemy/AWS/S3";
  *
  * const bucket = yield* S3.Bucket("my-bucket", {});
  * ```

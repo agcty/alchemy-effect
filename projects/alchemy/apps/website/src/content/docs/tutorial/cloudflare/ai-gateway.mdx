@@ -26,7 +26,7 @@ show up in the AI Gateway dashboard.
 
 ```typescript
 // src/AiGateway.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Gateway = Cloudflare.AiGateway("Gateway", {
   cacheTtl: 60,
@@ -72,7 +72,7 @@ the gateway endpoint, `getLog`/`patchLog` for the request log, and
 
 ```diff lang="typescript"
 // src/Api.ts
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
 +import { Gateway } from "./AiGateway.ts";
 

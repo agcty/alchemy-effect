@@ -169,7 +169,7 @@
 
 ### &nbsp;&nbsp;&nbsp;🐞 Bug Fixes
 
-- Bump @distilled.cloud/* to 0.23.1 &nbsp;-&nbsp; by **Michael K** in https://github.com/alchemy-run/alchemy-effect/issues/539 [<samp>(d0afc)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/d0afc986)
+- Bump @oddlynew/distilled-* to 0.23.1 &nbsp;-&nbsp; by **Michael K** in https://github.com/alchemy-run/alchemy-effect/issues/539 [<samp>(d0afc)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/d0afc986)
 - **cloudflare**:
   - Cloudflare.Providers requirement type was any &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(4b0ca)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/4b0caa8d)
   - Allow ConfigError in RpcWorker and RpcDurableObjectNamespace &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(4e8f4)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/4e8f4e55)
@@ -492,7 +492,7 @@
 
 - Move to effect@4.0.0-beta.66 &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/alchemy-effect/issues/321 [<samp>(b57f7)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/b57f78cf)
 - Improve transport error fault tolerance &nbsp;-&nbsp; by **sam** [<samp>(6d67c)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/6d67c24f)
-- **Neon**: Use @distilled.cloud/neon SDK instead of hand-rolled API &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/alchemy-effect/issues/270 [<samp>(1b9d4)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/1b9d4372)
+- **Neon**: Use @oddlynew/distilled-neon SDK instead of hand-rolled API &nbsp;-&nbsp; by **sam** in https://github.com/alchemy-run/alchemy-effect/issues/270 [<samp>(1b9d4)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/1b9d4372)
 
 ##### &nbsp;&nbsp;&nbsp;&nbsp;[View changes on GitHub](https://github.com/alchemy-run/alchemy-effect/compare/v2.0.0-beta.37...HEAD)
 
@@ -1263,7 +1263,7 @@ _No significant changes_
 ### &nbsp;&nbsp;&nbsp;🚀 Features
 
 - **better-auth**:
-  - Add @alchemy.run/better-auth packag with D1 support &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(9dc0f)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/9dc0ff6)
+  - Add @oddlynew/alchemy-better-auth packag with D1 support &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(9dc0f)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/9dc0ff6)
 - **cloudflare**:
   - D1Database resource &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(48fd4)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/48fd499)
   - Expose raw Cloudflare.Request as a Tag &nbsp;-&nbsp; by **Sam Goodwin** [<samp>(67998)</samp>](https://github.com/alchemy-run/alchemy-effect/commit/67998cd)

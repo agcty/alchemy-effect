@@ -1,5 +1,5 @@
-import { Text } from "@distilled.cloud/cloudflare-runtime/bindings";
-import cloudflare from "@distilled.cloud/cloudflare-vite-plugin";
+import { Text } from "@oddlynew/distilled-cloudflare-runtime/bindings";
+import cloudflare from "@oddlynew/distilled-cloudflare-vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import { devtools } from "@tanstack/devtools-vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";

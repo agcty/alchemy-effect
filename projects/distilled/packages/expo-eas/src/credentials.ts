@@ -5,7 +5,7 @@
  * Personal/Organization Access Token issued from
  * https://expo.dev/settings/access-tokens, sent as `Authorization: Bearer <token>`.
  */
-import { ConfigError } from "@distilled.cloud/core/errors";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 import * as EffectConfig from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

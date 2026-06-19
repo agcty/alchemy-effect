@@ -1,4 +1,4 @@
-import * as queues from "@distilled.cloud/cloudflare/queues";
+import * as queues from "@oddlynew/distilled-cloudflare/queues";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Option from "effect/Option";
@@ -73,7 +73,7 @@ export type Queue = Resource<
  *
  * @example Sending messages from a Worker
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";

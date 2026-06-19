@@ -1,4 +1,4 @@
-import * as cni from "@distilled.cloud/cloudflare/network-interconnects";
+import * as cni from "@oddlynew/distilled-cloudflare/network-interconnects";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

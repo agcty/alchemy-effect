@@ -1,4 +1,4 @@
-import cloudflare from "@distilled.cloud/cloudflare-vite-plugin";
+import cloudflare from "@oddlynew/distilled-cloudflare-vite-plugin";
 import { solidStart } from "@solidjs/start/config";
 import type { PluginOption } from "vite";
 import { defineConfig } from "vite";

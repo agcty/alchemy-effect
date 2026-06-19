@@ -22,7 +22,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/fly-io";
+import { CredentialsFromEnv } from "@oddlynew/distilled-fly-io";
 import {
   AppsList,
   AppsDelete,
@@ -35,7 +35,7 @@ import {
   SecretDelete,
   SecretkeysList,
   SecretkeyDelete,
-} from "@distilled.cloud/fly-io/Operations";
+} from "@oddlynew/distilled-fly-io/Operations";
 
 // ============================================================================
 // ANSI colors

@@ -287,7 +287,7 @@ export function bundleOutputFromRolldownOutputBundle(
  *
  * These run LAST so they see module ids that have already been resolved into
  * `node_modules/<pkg>/...` by upstream resolver plugins such as
- * `@distilled.cloud/cloudflare-rolldown-plugin`.
+ * `@oddlynew/distilled-cloudflare-rolldown-plugin`.
  */
 function builtInPlugins(
   extra?: BundleExtraOptions,

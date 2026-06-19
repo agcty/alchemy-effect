@@ -102,7 +102,7 @@ Now we wire it up. Create `src/worker.ts` with an empty Init phase:
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default Cloudflare.Worker(
@@ -129,7 +129,7 @@ handlers below.
 
 ```typescript
 // src/bucket.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Tasks = Cloudflare.R2Bucket("Tasks");
 ```
@@ -267,7 +267,7 @@ Here's the complete `src/worker.ts`:
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schema from "effect/Schema";
@@ -333,8 +333,8 @@ export default Cloudflare.Worker(
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Worker from "./src/worker.ts";
 
@@ -459,7 +459,7 @@ instead of R2.
 
 ```typescript
 // src/object.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";

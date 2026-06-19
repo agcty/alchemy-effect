@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/better-auth",
+  "name": "@oddlynew/alchemy-better-auth",
   "version": "2.0.0-beta.57",
   "license": "Apache-2.0",
   "type": "module",
@@ -23,7 +23,7 @@
     }
   },
   "dependencies": {
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "peerDependencies": {
@@ -33,6 +33,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

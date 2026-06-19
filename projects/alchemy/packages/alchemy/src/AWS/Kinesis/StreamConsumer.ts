@@ -1,4 +1,4 @@
-import * as kinesis from "@distilled.cloud/aws/kinesis";
+import * as kinesis from "@oddlynew/distilled-aws/kinesis";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

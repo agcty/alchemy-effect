@@ -1,4 +1,4 @@
-import * as addressing from "@distilled.cloud/cloudflare/addressing";
+import * as addressing from "@oddlynew/distilled-cloudflare/addressing";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

@@ -1,5 +1,5 @@
 {
-  "extends": "@alchemy.run/typescript-config/bun.json",
+  "extends": "@oddlynew/alchemy-typescript-config/bun.json",
   "include": ["alchemy.run.ts"],
   "compilerOptions": {
     "composite": true,
@@ -9,8 +9,8 @@
     "moduleResolution": "Bundler",
     "target": "ESNext",
     "paths": {
-      "alchemy": ["../../packages/alchemy/src/index.ts"],
-      "alchemy/*": ["../../packages/alchemy/src/*"]
+      "@oddlynew/alchemy": ["../../packages/alchemy/src/index.ts"],
+      "@oddlynew/alchemy/*": ["../../packages/alchemy/src/*"]
     }
   },
   "references": [

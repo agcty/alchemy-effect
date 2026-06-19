@@ -1,4 +1,4 @@
-import * as aisearch from "@distilled.cloud/cloudflare/aisearch";
+import * as aisearch from "@oddlynew/distilled-cloudflare/aisearch";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";

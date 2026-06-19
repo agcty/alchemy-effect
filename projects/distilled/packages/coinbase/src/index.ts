@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Coinbase from "@distilled.cloud/coinbase";
+ * import * as Coinbase from "@oddlynew/distilled-coinbase";
  * ```
  */
 export * from "./credentials.ts";

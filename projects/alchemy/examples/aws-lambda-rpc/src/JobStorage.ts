@@ -1,9 +1,9 @@
-import * as DynamoDB from "alchemy/AWS/DynamoDB";
-import * as Lambda from "alchemy/AWS/Lambda";
-import * as S3 from "alchemy/AWS/S3";
-import * as SQS from "alchemy/AWS/SQS";
-import * as RemovalPolicy from "alchemy/RemovalPolicy";
-import { Stack } from "alchemy/Stack";
+import * as DynamoDB from "@oddlynew/alchemy/AWS/DynamoDB";
+import * as Lambda from "@oddlynew/alchemy/AWS/Lambda";
+import * as S3 from "@oddlynew/alchemy/AWS/S3";
+import * as SQS from "@oddlynew/alchemy/AWS/SQS";
+import * as RemovalPolicy from "@oddlynew/alchemy/RemovalPolicy";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Console from "effect/Console";
 import * as Context from "effect/Context";
 import * as Data from "effect/Data";

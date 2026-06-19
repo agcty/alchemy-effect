@@ -1,7 +1,7 @@
 import * as AWS from "@/AWS";
 import { CapacityProvider } from "@/AWS/ECS";
 import * as Test from "@/Test/Vitest";
-import * as ecs from "@distilled.cloud/aws/ecs";
+import * as ecs from "@oddlynew/distilled-aws/ecs";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

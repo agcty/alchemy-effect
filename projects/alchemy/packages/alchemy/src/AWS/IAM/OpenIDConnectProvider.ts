@@ -1,4 +1,4 @@
-import * as iam from "@distilled.cloud/aws/iam";
+import * as iam from "@oddlynew/distilled-aws/iam";
 import * as Effect from "effect/Effect";
 import { isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";

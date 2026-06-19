@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-git-artifacts",
+  "name": "@oddlynew/alchemy-example-cloudflare-git-artifacts",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -20,10 +20,10 @@
   "dependencies": {
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

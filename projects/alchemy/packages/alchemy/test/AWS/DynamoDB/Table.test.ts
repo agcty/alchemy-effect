@@ -4,7 +4,7 @@ import { Table } from "@/AWS/DynamoDB";
 import * as Provider from "@/Provider";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as DynamoDB from "@distilled.cloud/aws/dynamodb";
+import * as DynamoDB from "@oddlynew/distilled-aws/dynamodb";
 import { describe, expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

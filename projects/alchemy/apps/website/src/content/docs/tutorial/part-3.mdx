@@ -20,8 +20,8 @@ with `Test.make({...})` — the same `Cloudflare.providers()` /
 // @filename: ../alchemy.run.ts
 // ---cut---
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import Stack from "../alchemy.run.ts";
@@ -45,8 +45,8 @@ tests run:
 // @filename: ../alchemy.run.ts
 // ---cut---
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import Stack from "../alchemy.run.ts";
@@ -72,8 +72,8 @@ returned from your Stack in Part 2:
 // @filename: ../alchemy.run.ts
 // ---cut---
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import Stack from "../alchemy.run.ts";
@@ -117,8 +117,8 @@ actually handles requests:
 // @filename: ../alchemy.run.ts
 // ---cut---
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 +import * as HttpBody from "effect/unstable/http/HttpBody";
@@ -180,8 +180,8 @@ Add `afterAll` with `destroy`, using `skipIf` to only tear down when
 ```typescript twoslash
 // @filename: ../alchemy.run.ts
 // ---cut---
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import * as HttpBody from "effect/unstable/http/HttpBody";

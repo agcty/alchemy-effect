@@ -2,7 +2,7 @@ import * as AWS from "@/AWS";
 import { Record } from "@/AWS/Route53";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as route53 from "@distilled.cloud/aws/route-53";
+import * as route53 from "@oddlynew/distilled-aws/route-53";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

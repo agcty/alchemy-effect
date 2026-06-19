@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/cloudflare-runtime",
+  "name": "@oddlynew/distilled-cloudflare-runtime",
   "version": "0.11.2",
   "description": "Runtime for Cloudflare Workers.",
   "keywords": [
@@ -114,19 +114,19 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
-    "@alchemy.run/node-utils": "catalog:",
+    "@oddlynew/alchemy-node-utils": "workspace:*",
     "workerd": "catalog:workers"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
     "@cloudflare/workers-types": "catalog:workers",
-    "@distilled.cloud/build-utils": "workspace:*",
-    "@distilled.cloud/cloudflare-rolldown-plugin": "workspace:*",
-    "@distilled.cloud/vendor-workers-shared": "workspace:*",
-    "@distilled.cloud/vendor-workflows-shared": "workspace:*",
     "@effect/platform-bun": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
     "@effect/vitest": "catalog:effect",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
+    "@oddlynew/distilled-build-utils": "workspace:*",
+    "@oddlynew/distilled-cloudflare-rolldown-plugin": "workspace:*",
+    "@oddlynew/distilled-vendor-workers-shared": "workspace:*",
+    "@oddlynew/distilled-vendor-workflows-shared": "workspace:*",
     "capnp-es": "^0.0.14",
     "capnweb": "^0.8.0",
     "rolldown": "catalog:",
@@ -134,9 +134,9 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@distilled.cloud/cloudflare": "catalog:",
     "@effect/platform-bun": "catalog:effect",
     "@effect/platform-node": "catalog:effect",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
     "effect": "catalog:effect"
   },
   "peerDependenciesMeta": {

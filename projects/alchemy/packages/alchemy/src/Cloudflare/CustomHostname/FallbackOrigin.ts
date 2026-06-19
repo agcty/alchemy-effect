@@ -1,4 +1,4 @@
-import * as customHostnames from "@distilled.cloud/cloudflare/custom-hostnames";
+import * as customHostnames from "@oddlynew/distilled-cloudflare/custom-hostnames";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

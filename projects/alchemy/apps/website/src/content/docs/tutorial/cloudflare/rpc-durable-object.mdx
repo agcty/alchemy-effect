@@ -69,7 +69,7 @@ tests all import.
 
 ```typescript
 // src/counter.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { CounterRpcs } from "./rpcs.ts";
 
@@ -150,7 +150,7 @@ two HTTP verbs to `getTitle` / `setTitle` for the test to call:
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -190,8 +190,8 @@ client alive for the duration of the request.
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Worker from "./src/worker.ts";
 
@@ -210,8 +210,8 @@ export default Alchemy.Stack(
 ```typescript
 // test/counter.test.ts
 import { expect } from "@effect/vitest";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Vitest";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Vitest";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -291,7 +291,7 @@ with no impl — and provide the runtime via `static make`:
 
 ```typescript
 // src/counter.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -410,7 +410,7 @@ WorkerA's namespace — no public URL, no service binding, just
 
 ```typescript
 // src/workerB.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { Counter } from "./counter.ts";
 import { WorkerA } from "./worker.ts";

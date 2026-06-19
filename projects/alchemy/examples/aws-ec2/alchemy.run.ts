@@ -1,6 +1,6 @@
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
-import * as Output from "alchemy/Output";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as Output from "@oddlynew/alchemy/Output";
 import * as Effect from "effect/Effect";
 import { NetworkLive } from "./src/Network.ts";
 import Server from "./src/Server.ts";

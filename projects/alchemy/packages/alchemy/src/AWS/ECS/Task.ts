@@ -1,8 +1,8 @@
-import * as logs from "@distilled.cloud/aws/cloudwatch-logs";
-import * as ecr from "@distilled.cloud/aws/ecr";
-import * as ecs from "@distilled.cloud/aws/ecs";
-import * as iam from "@distilled.cloud/aws/iam";
-import { Region } from "@distilled.cloud/aws/Region";
+import * as logs from "@oddlynew/distilled-aws/cloudwatch-logs";
+import * as ecr from "@oddlynew/distilled-aws/ecr";
+import * as ecs from "@oddlynew/distilled-aws/ecs";
+import * as iam from "@oddlynew/distilled-aws/iam";
+import { Region } from "@oddlynew/distilled-aws/Region";
 import * as Config from "effect/Config";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -608,15 +608,15 @@ export const TaskProvider = () =>
               virtualEntryPlugin(
                 (importPath) => `
 import { NodeServices } from "@effect/platform-node";
-import { Stack } from "alchemy/Stack";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
-import * as Credentials from "@distilled.cloud/aws/Credentials";
+import * as Credentials from "@oddlynew/distilled-aws/Credentials";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import * as Region from "@distilled.cloud/aws/Region";
+import * as Region from "@oddlynew/distilled-aws/Region";
 
 import { ${handler} as handler } from ${JSON.stringify(importPath)};
 

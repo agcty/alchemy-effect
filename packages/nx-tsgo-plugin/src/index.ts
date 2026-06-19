@@ -107,7 +107,7 @@ function readJson<T>(path: string): T | undefined {
 }
 
 export default {
-  name: "@alchemy.run/nx-tsgo-plugin",
+  name: "@oddlynew/alchemy-nx-tsgo-plugin",
   createNodes: createNodesFunction,
 };
 

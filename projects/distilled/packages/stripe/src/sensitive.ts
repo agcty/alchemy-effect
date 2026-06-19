@@ -1,1 +1,1 @@
-export * from "@distilled.cloud/core/sensitive";
+export * from "@oddlynew/distilled-core/sensitive";

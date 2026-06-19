@@ -1,7 +1,7 @@
 import type * as cf from "@cloudflare/workers-types";
-import type { ContainerImage } from "@distilled.cloud/cloudflare-runtime/Docker";
-import * as workers from "@distilled.cloud/cloudflare/workers";
-import * as zones from "@distilled.cloud/cloudflare/zones";
+import type { ContainerImage } from "@oddlynew/distilled-cloudflare-runtime/Docker";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
+import * as zones from "@oddlynew/distilled-cloudflare/zones";
 import type * as Config from "effect/Config";
 import type { ConfigError } from "effect/Config";
 import * as Context from "effect/Context";
@@ -1236,7 +1236,7 @@ export const LiveWorkerProvider = () =>
 
       const viteBuild = Effect.fn(function* (props: WorkerProps) {
         const compatibility = getCompatibility(props);
-        // Loaded lazily: `./Vite.ts` pulls in `@distilled.cloud/cloudflare-vite-plugin`
+        // Loaded lazily: `./Vite.ts` pulls in `@oddlynew/distilled-cloudflare-vite-plugin`
         // (~0.5s), which is only needed for vite-based workers at build time —
         // not for every Worker definition at module-load time.
         const Vite = yield* Effect.promise(() => import("./Vite.ts"));
@@ -2157,7 +2157,7 @@ export const LiveWorkerProvider = () =>
                 // first put for a fresh worker name. Surfaced as the shared
                 // `InternalServerError` upstream (alchemy-run/distilled#290).
                 // Also match `UnknownCloudflareError` for older
-                // @distilled.cloud/cloudflare versions that haven't picked
+                // @oddlynew/distilled-cloudflare versions that haven't picked
                 // up the patch yet.
                 Effect.retry({
                   while: (e) =>

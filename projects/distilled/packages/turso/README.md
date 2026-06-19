@@ -1,4 +1,4 @@
-# @distilled.cloud/turso
+# @oddlynew/distilled-turso
 
 Effect-native Turso SDK generated from the [Turso API documentation](https://docs.turso.tech/api-reference). Manage databases, organizations, and groups with exhaustive error typing.
 
@@ -7,7 +7,7 @@ Effect-native Turso SDK generated from the [Turso API documentation](https://doc
 ## Installation
 
 ```bash
-npm install @distilled.cloud/turso effect
+npm install @oddlynew/distilled-turso effect
 ```
 
 ## Quick Start
@@ -16,7 +16,7 @@ npm install @distilled.cloud/turso effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { CredentialsFromEnv } from "@distilled.cloud/turso";
+import { CredentialsFromEnv } from "@oddlynew/distilled-turso";
 
 const TursoLive = Layer.mergeAll(FetchHttpClient.layer, CredentialsFromEnv);
 ```

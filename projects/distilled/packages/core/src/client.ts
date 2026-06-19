@@ -9,7 +9,7 @@
  *
  * @example
  * ```ts
- * import { API } from "@distilled.cloud/core/client";
+ * import { API } from "@oddlynew/distilled-core/client";
  *
  * const listDatabases = API.make(() => ({
  *   inputSchema: ListDatabasesInput,
@@ -162,13 +162,13 @@ export interface ClientConfig<Creds, RequestOptions = never> {
    *  The optional `errors` parameter provides per-operation typed error classes.
    *  The optional `headers` parameter is the response header bag (lowercase
    *  keys) — for retryable status codes, pass `retryAfter: parseRetryAfterForStatus(status, headers)`
-   *  from `@distilled.cloud/core/retry-after` when a standard `Retry-After` /
+   *  from `@oddlynew/distilled-core/retry-after` when a standard `Retry-After` /
    *  `RateLimit` hint is present; omit `retryAfter` when there is no hint (the
    *  default retry policy still uses exponential backoff). The status-gated
    *  helper avoids attaching stale `retryAfter` to non-retryable classes
    *  (BadRequest/401/404/etc.). The maximum honored hint is capped (default
    *  60s) — override with \`DISTILLED_SERVER_RETRY_HINT_CAP_MS\` or provide
-   *  \`ServerRetryHintCapMs\` via \`Layer\` from \`@distilled.cloud/core/retry\`.
+   *  \`ServerRetryHintCapMs\` via \`Layer\` from \`@oddlynew/distilled-core/retry\`.
    */
   matchError: (
     status: number,

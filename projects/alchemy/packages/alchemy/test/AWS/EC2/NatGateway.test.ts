@@ -2,7 +2,7 @@ import * as AWS from "@/AWS";
 import { EIP, InternetGateway, NatGateway, Subnet, Vpc } from "@/AWS/EC2";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as EC2 from "@distilled.cloud/aws/ec2";
+import * as EC2 from "@oddlynew/distilled-aws/ec2";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import type * as Effect from "effect/Effect";
 
 const dayInSeconds = 24 * 60 * 60;

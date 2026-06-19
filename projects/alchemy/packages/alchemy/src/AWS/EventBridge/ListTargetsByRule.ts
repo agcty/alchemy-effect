@@ -1,4 +1,4 @@
-import * as eventbridge from "@distilled.cloud/aws/eventbridge";
+import * as eventbridge from "@oddlynew/distilled-aws/eventbridge";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Binding from "../../Binding.ts";

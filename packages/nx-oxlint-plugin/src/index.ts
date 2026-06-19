@@ -159,7 +159,7 @@ function readJson<T>(path: string): T | undefined {
 
 // Export as default plugin object
 export default {
-  name: "@alchemy.run/nx-oxlint-plugin",
+  name: "@oddlynew/alchemy-nx-oxlint-plugin",
   createNodes: createNodesFunction,
 };
 

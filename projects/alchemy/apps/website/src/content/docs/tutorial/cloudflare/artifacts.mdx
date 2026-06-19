@@ -33,7 +33,7 @@ Create `src/Repos.ts`:
 
 ```typescript twoslash
 // src/Repos.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Repos = Cloudflare.Artifacts("Repos");
 ```
@@ -97,7 +97,7 @@ into an `HttpEffect`:
 ```typescript twoslash
 // @noErrors
 // src/Worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Path from "effect/Path";
@@ -174,8 +174,8 @@ the same `RepoApi` value drives the typed client:
 
 ```typescript
 // test/integ.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Bun";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import * as HttpApiClient from "effect/unstable/httpapi/HttpApiClient";
@@ -470,7 +470,7 @@ Start with the smallest possible DO — empty public API, no state:
 
 ```typescript twoslash
 // src/Repo.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default class Repo extends Cloudflare.DurableObjectNamespace<Repo>()(

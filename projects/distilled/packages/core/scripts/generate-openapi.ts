@@ -13,7 +13,7 @@
  *
  * @example
  * ```ts
- * import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+ * import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
  *
  * generateFromOpenAPI({
  *   specPath: "specs/openapi.json",
@@ -190,7 +190,7 @@ export interface GeneratorConfig {
   importPrefix: string;
   /** Client import path (e.g., "../client") */
   clientImport?: string;
-  /** Traits import path (e.g., "../traits" or "@distilled.cloud/core/traits") */
+  /** Traits import path (e.g., "../traits" or "@oddlynew/distilled-core/traits") */
   traitsImport?: string;
   /** Sensitive import path */
   sensitiveImport?: string;

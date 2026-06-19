@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as rdc from "@distilled.cloud/cloudflare/r2-data-catalog";
+import * as rdc from "@oddlynew/distilled-cloudflare/r2-data-catalog";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

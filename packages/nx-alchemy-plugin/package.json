@@ -1,10 +1,10 @@
 {
-  "name": "@alchemy.run/nx-alchemy-plugin",
+  "name": "@oddlynew/alchemy-nx-alchemy-plugin",
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers deployment targets for packages with alchemy.run.ts files.",
   "keywords": [
-    "alchemy",
+    "@oddlynew/alchemy",
     "deployment",
     "nx",
     "plugin"
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@nx/devkit": "catalog:",
-    "@alchemy.run/oxlint-config": "workspace:*",
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:",

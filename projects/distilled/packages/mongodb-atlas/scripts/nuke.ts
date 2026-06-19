@@ -22,112 +22,112 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/mongodb-atlas";
+import { CredentialsFromEnv } from "@oddlynew/distilled-mongodb-atlas";
 
 // Organization-level list/delete
-import { listOrgs } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listOrgApiKeys } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteOrgApiKey } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listOrgTeams } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteOrgTeam } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listOrgServiceAccounts } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteOrgServiceAccount } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listOrgResourcePolicies } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteOrgResourcePolicy } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listOrgs } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listOrgApiKeys } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteOrgApiKey } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listOrgTeams } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteOrgTeam } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listOrgServiceAccounts } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteOrgServiceAccount } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listOrgResourcePolicies } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteOrgResourcePolicy } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Project (Group) level
-import { listGroups } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroup } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroups } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroup } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Cluster-level
-import { listGroupClusters } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupCluster } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listGroupFlexClusters } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupFlexCluster } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupClusters } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupCluster } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listGroupFlexClusters } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupFlexCluster } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Database users
-import { listGroupDatabaseUsers } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupDatabaseUser } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupDatabaseUsers } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupDatabaseUser } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Custom DB roles
-import { listGroupCustomDbRoleRoles } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupCustomDbRoleRole } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupCustomDbRoleRoles } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupCustomDbRoleRole } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Network containers
-import { listGroupContainerAll } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupContainer } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupContainerAll } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupContainer } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Network peering
-import { listGroupPeers } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupPeer } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupPeers } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupPeer } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Private endpoints
-import { listGroupPrivateEndpointEndpointService } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupPrivateEndpointEndpointService } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupPrivateEndpointEndpointService } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupPrivateEndpointEndpointService } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Private network settings
-import { listGroupPrivateNetworkSettingEndpointIds } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupPrivateNetworkSettingEndpointId } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupPrivateNetworkSettingEndpointIds } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupPrivateNetworkSettingEndpointId } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Data federation
-import { listGroupDataFederation } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupDataFederation } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupDataFederation } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupDataFederation } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Alert configs
-import { listGroupAlertConfigs } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupAlertConfig } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupAlertConfigs } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupAlertConfig } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Access list
-import { listGroupAccessListEntries } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupAccessListEntry } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupAccessListEntries } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupAccessListEntry } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Backup export buckets
-import { listGroupBackupExportBuckets } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupBackupExportBucket } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupBackupExportBuckets } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupBackupExportBucket } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Backup private endpoints
-import { listGroupBackupPrivateEndpoints } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupBackupPrivateEndpoint } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupBackupPrivateEndpoints } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupBackupPrivateEndpoint } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Integrations
-import { listGroupIntegrations } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupIntegration } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupIntegrations } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupIntegration } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Log integrations
-import { listGroupLogIntegrations } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupLogIntegration } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupLogIntegrations } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupLogIntegration } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Service accounts (group-level)
-import { listGroupServiceAccounts } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupServiceAccount } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupServiceAccounts } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupServiceAccount } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Stream workspaces, connections, processors
-import { listGroupStreamWorkspaces } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupStreamWorkspace } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listGroupStreamConnections } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupStreamConnection } from "@distilled.cloud/mongodb-atlas/Operations";
-import { getGroupStreamProcessors } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupStreamProcessor } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupStreamWorkspaces } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupStreamWorkspace } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listGroupStreamConnections } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupStreamConnection } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { getGroupStreamProcessors } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupStreamProcessor } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Stream private link connections
-import { listGroupStreamPrivateLinkConnections } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupStreamPrivateLinkConnection } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupStreamPrivateLinkConnections } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupStreamPrivateLinkConnection } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Stream VPC peering
-import { listGroupStreamVpcPeeringConnections } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupStreamVpcPeeringConnection } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupStreamVpcPeeringConnections } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupStreamVpcPeeringConnection } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Encryption at rest private endpoints
-import { listGroupEncryptionAtRestPrivateEndpoints } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupEncryptionAtRestPrivateEndpoints } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // Cluster child resources
-import { listGroupClusterOnlineArchives } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupClusterOnlineArchive } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listGroupClusterSearchIndexes } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupClusterSearchIndex } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupClusterSearchDeployment } from "@distilled.cloud/mongodb-atlas/Operations";
-import { listGroupClusterBackupSnapshots } from "@distilled.cloud/mongodb-atlas/Operations";
-import { deleteGroupClusterBackupSnapshot } from "@distilled.cloud/mongodb-atlas/Operations";
+import { listGroupClusterOnlineArchives } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupClusterOnlineArchive } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listGroupClusterSearchIndexes } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupClusterSearchIndex } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupClusterSearchDeployment } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { listGroupClusterBackupSnapshots } from "@oddlynew/distilled-mongodb-atlas/Operations";
+import { deleteGroupClusterBackupSnapshot } from "@oddlynew/distilled-mongodb-atlas/Operations";
 
 // ANSI colors
 const RED = "\x1b[31m";

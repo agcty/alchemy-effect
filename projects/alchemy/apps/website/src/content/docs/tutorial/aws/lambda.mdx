@@ -35,8 +35,8 @@ providers wired in:
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 
 export default Alchemy.Stack(
@@ -85,7 +85,7 @@ ceremony, an entrypoint, and an empty runtime:
 
 ```typescript
 // src/api.ts
-import * as AWS from "alchemy/AWS";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 
 export default class Api extends AWS.Lambda.Function<Api>()(
@@ -115,7 +115,7 @@ is wired up to handle incoming HTTP requests:
 
 ```diff lang="typescript"
 // src/api.ts
-import * as AWS from "alchemy/AWS";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 +import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -168,8 +168,8 @@ value in the surrounding Effect context:
 
 ```diff lang="typescript"
 // src/api.ts
-import * as AWS from "alchemy/AWS";
-+import { Stack } from "alchemy/Stack";
+import * as AWS from "@oddlynew/alchemy/AWS";
++import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -202,8 +202,8 @@ deploy:
 
 ```diff lang="typescript"
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 +import Api from "./src/api.ts";
 
@@ -244,8 +244,8 @@ checks the body:
 
 ```typescript
 // test/integ.test.ts
-import * as AWS from "alchemy/AWS";
-import * as Test from "alchemy/Test/Bun";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import * as HttpClient from "effect/unstable/http/HttpClient";

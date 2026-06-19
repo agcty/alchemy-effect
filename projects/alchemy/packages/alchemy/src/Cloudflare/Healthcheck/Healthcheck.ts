@@ -1,4 +1,4 @@
-import * as healthchecks from "@distilled.cloud/cloudflare/healthchecks";
+import * as healthchecks from "@oddlynew/distilled-cloudflare/healthchecks";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";

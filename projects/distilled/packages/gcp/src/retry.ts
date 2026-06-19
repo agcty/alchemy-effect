@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as GCP from "@distilled.cloud/gcp";
+ * import * as GCP from "@oddlynew/distilled-gcp";
  *
  * myEffect.pipe(GCP.Retry.transient);
  * Effect.provide(myEffect, Layer.succeed(GCP.Retry.Retry, customPolicy));
@@ -21,7 +21,7 @@ import {
   type Policy,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 export {
   type Options,
@@ -34,7 +34,7 @@ export {
   transientOptions,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 /** Context tag for configuring retry behavior of GCP API calls. */
 export class Retry extends Context.Service<Retry, Policy>()("GCPRetry") {}

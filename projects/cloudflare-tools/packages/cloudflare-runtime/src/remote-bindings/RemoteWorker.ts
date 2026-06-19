@@ -1,4 +1,4 @@
-import * as workers from "@distilled.cloud/cloudflare/workers";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
 import * as Cause from "effect/Cause";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";

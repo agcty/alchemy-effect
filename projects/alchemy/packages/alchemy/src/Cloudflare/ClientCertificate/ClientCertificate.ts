@@ -1,4 +1,4 @@
-import * as clientCertificates from "@distilled.cloud/cloudflare/client-certificates";
+import * as clientCertificates from "@oddlynew/distilled-cloudflare/client-certificates";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";

@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-static-site-example",
+  "name": "@oddlynew/alchemy-example-cloudflare-static-site",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -17,13 +17,13 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
-    "@distilled.cloud/cloudflare": "catalog:",
+    "@oddlynew/distilled-cloudflare": "workspace:*",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

@@ -1,4 +1,4 @@
-import * as Credentials from "@distilled.cloud/cloudflare/Credentials";
+import * as Credentials from "@oddlynew/distilled-cloudflare/Credentials";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";

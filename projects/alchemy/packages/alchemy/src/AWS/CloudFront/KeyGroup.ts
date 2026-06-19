@@ -1,4 +1,4 @@
-import * as cloudfront from "@distilled.cloud/aws/cloudfront";
+import * as cloudfront from "@oddlynew/distilled-aws/cloudfront";
 import * as Effect from "effect/Effect";
 import { isResolved } from "../../Diff.ts";
 import type { Input } from "../../Input.ts";

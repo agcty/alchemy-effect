@@ -1,11 +1,11 @@
-# @distilled.cloud/gcp
+# @oddlynew/distilled-gcp
 
 Effect-native GCP SDK generated from [Google API Discovery Documents](https://developers.google.com/discovery/v1/getting_started) with exhaustive error typing. Covers Cloud Storage, Compute Engine, Cloud Run, and more.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/gcp effect
+npm install @oddlynew/distilled-gcp effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/gcp effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as Storage from "@distilled.cloud/gcp/storage-v1";
-import { CredentialsFromEnv } from "@distilled.cloud/gcp";
+import * as Storage from "@oddlynew/distilled-gcp/storage-v1";
+import { CredentialsFromEnv } from "@oddlynew/distilled-gcp";
 
 const program = Effect.gen(function* () {
   const buckets = yield* Storage.listBuckets

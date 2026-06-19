@@ -1,6 +1,6 @@
 import * as AWS from "@/AWS";
 import * as Test from "@/Test/Vitest";
-import * as cloudfront from "@distilled.cloud/aws/cloudfront";
+import * as cloudfront from "@oddlynew/distilled-aws/cloudfront";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

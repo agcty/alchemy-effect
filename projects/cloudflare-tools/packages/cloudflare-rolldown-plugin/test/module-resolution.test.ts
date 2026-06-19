@@ -1,4 +1,4 @@
-import { createMiniflareFromRolldown } from "@distilled.cloud/test-utils/miniflare";
+import { createMiniflareFromRolldown } from "@oddlynew/distilled-test-utils/miniflare";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { buildFixture } from "./utils/build-fixture";

@@ -1,4 +1,4 @@
-import * as zeroTrust from "@distilled.cloud/cloudflare/zero-trust";
+import * as zeroTrust from "@oddlynew/distilled-cloudflare/zero-trust";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Stream from "effect/Stream";
@@ -15,7 +15,7 @@ import type { Providers } from "../Providers.ts";
  * single-key object whose key selects the rule kind (`email`, `emailDomain`,
  * `everyone`, `ip`, etc.) and whose value carries the rule's parameters.
  *
- * Re-exported from `@distilled.cloud/cloudflare/zero-trust`'s
+ * Re-exported from `@oddlynew/distilled-cloudflare/zero-trust`'s
  * `CreateAccessPolicyRequest` so the full Cloudflare rule surface is available
  * without re-declaring the union.
  */

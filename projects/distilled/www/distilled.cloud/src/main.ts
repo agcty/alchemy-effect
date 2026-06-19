@@ -88,7 +88,7 @@ const distilledTheme: ThemeRegistration = {
 // ============================================================================
 
 const codeExamples: Record<string, string> = {
-  hero: `import * as S3 from "@distilled.cloud/aws/s3"
+  hero: `import * as S3 from "@oddlynew/distilled-aws/s3"
 
 const bucket = yield* S3.getBucket({
   Bucket: "my-bucket"
@@ -161,7 +161,7 @@ function fetchNpmVersions() {
     .querySelectorAll<HTMLElement>(".badge[data-package]")
     .forEach((badge) => {
       const pkg = badge.dataset.package!;
-      fetch(`https://registry.npmjs.org/@distilled.cloud/${pkg}/latest`)
+      fetch(`https://registry.npmjs.org/@oddlynew/distilled-${pkg}/latest`)
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data?.version) {

@@ -219,7 +219,7 @@ export interface RpcDurableObjectNamespaceClass extends Effect.Effect<
  * the per-instance inner Effect returns the
  * `RpcServer.toHttpEffect(schema)`-piped Effect directly.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -274,7 +274,7 @@ export interface RpcDurableObjectNamespaceClass extends Effect.Effect<
  * binding (`Counter.from(HostWorker)`) without pulling the runtime
  * into their bundle.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import { RpcSerialization, RpcServer } from "effect/unstable/rpc";

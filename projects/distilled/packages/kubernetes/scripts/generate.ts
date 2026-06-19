@@ -14,7 +14,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 const servicesDir = path.join(rootDir, "src/services");

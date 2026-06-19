@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as realtimeKit from "@distilled.cloud/cloudflare/realtime-kit";
+import * as realtimeKit from "@oddlynew/distilled-cloudflare/realtime-kit";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";

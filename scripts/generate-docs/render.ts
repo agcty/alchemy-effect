@@ -314,7 +314,7 @@ export function syntheticIndexes(entries: SourceEntry[]) {
         `# ${title}`,
         "",
         directory === "."
-          ? "Static API reference generated from `alchemy/src`."
+          ? "Static API reference generated from `@oddlynew/alchemy/src`."
           : `Directory index for \`src/${directory}\`.`,
         "",
         childDirectories.length > 0

@@ -12,14 +12,14 @@
  * - An output schema (the selected fields)
  * - The `API.make(() => ({ inputSchema, outputSchema }))` operation
  *
- * The runtime client (`@distilled.cloud/core/client`) detects the `GraphQLOp`
+ * The runtime client (`@oddlynew/distilled-core/client`) detects the `GraphQLOp`
  * trait and (a) wraps the body as `{ query, operationName, variables }` and
  * (b) extracts the response from `data.<operationName>` (surfacing `errors[]`
  * via the SDK's `matchError`).
  *
  * @example
  * ```ts
- * import { generateFromGraphQL } from "@distilled.cloud/core/graphql/generate";
+ * import { generateFromGraphQL } from "@oddlynew/distilled-core/graphql/generate";
  *
  * generateFromGraphQL({
  *   schemaPath: "specs/introspection.json",
@@ -31,7 +31,7 @@
  * To produce an introspection JSON from a live endpoint:
  *
  * ```ts
- * import { introspectEndpoint } from "@distilled.cloud/core/graphql/generate";
+ * import { introspectEndpoint } from "@oddlynew/distilled-core/graphql/generate";
  * await introspectEndpoint("https://api.example.com/graphql", {
  *   headers: { Authorization: "Bearer ..." },
  *   outputPath: "specs/introspection.json",

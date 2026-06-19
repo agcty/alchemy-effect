@@ -1,4 +1,4 @@
-# @alchemy.run/pr-package
+# @oddlynew/alchemy-pr-package
 
 A self-hostable PR-package service for Cloudflare. Publish ephemeral, tag-addressable npm tarballs (e.g. one per PR commit) and install them with a pretty URL like `https://pkg.ing/<pkg>/<sha>`.
 
@@ -12,7 +12,7 @@ It packages four Cloudflare resources into a single Effect `handler`:
 ## Install
 
 ```sh
-bun add @alchemy.run/pr-package
+bun add @oddlynew/alchemy-pr-package
 ```
 
 ## Usage
@@ -26,8 +26,8 @@ Two-file pattern, mirroring how `projects/alchemy/apps/otel/src/Ingester.ts` is 
 
 ```ts
 // projects/alchemy/apps/pr-package/src/Api.ts — the worker entry (main: import.meta.filename)
-import * as PrPackage from "@alchemy.run/pr-package";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as PrPackage from "@oddlynew/alchemy-pr-package";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 const parseAliasUrl: PrPackage.ParseAliasUrl = (url) => {
   // Map any alias host's URL to { pkgName, tag }, or return null to fall through.
@@ -53,10 +53,10 @@ export default class Api extends Cloudflare.Worker<Api>()(
 
 ```ts
 // projects/alchemy/apps/pr-package/alchemy.run.ts — the stack
-import * as PrPackage from "@alchemy.run/pr-package";
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Output from "alchemy/Output";
+import * as PrPackage from "@oddlynew/alchemy-pr-package";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Output from "@oddlynew/alchemy/Output";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import Api from "./src/Api.ts";

@@ -1,4 +1,4 @@
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -39,7 +39,7 @@ const bindings = Layer.mergeAll(
  *
  * @example
  * ```ts
- * import * as PrPackage from "@alchemy.run/pr-package";
+ * import * as PrPackage from "@oddlynew/alchemy-pr-package";
  *
  * class Api extends Cloudflare.Worker<Api>()(
  *   "Api",

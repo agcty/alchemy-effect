@@ -10,7 +10,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import YAML from "yaml";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
 
 const rootDir = path.join(import.meta.dir, "..");
 

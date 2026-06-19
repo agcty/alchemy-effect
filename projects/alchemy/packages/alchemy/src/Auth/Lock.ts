@@ -1,4 +1,4 @@
-import { lock } from "@alchemy.run/node-utils/lockfile";
+import { lock } from "@oddlynew/alchemy-node-utils/lockfile";
 import * as Effect from "effect/Effect";
 import * as fs from "node:fs/promises";
 import * as path from "pathe";
@@ -11,7 +11,7 @@ const lockDir = path.join(rootDir, "lock");
  * critical section concurrently for the same `key`, both within this
  * process and across other processes on the same machine.
  *
- * Uses `@alchemy.run/node-utils` lockfile for both: it tracks in-process
+ * Uses `@oddlynew/alchemy-node-utils` lockfile for both: it tracks in-process
  * holders by path (so same-process callers wait via `retries`) and uses
  * an OS file lock for cross-process coordination, with stale-lock
  * detection at 60s.

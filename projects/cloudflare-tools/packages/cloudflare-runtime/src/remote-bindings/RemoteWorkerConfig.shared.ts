@@ -1,4 +1,4 @@
-import type * as workers from "@distilled.cloud/cloudflare/workers";
+import type * as workers from "@oddlynew/distilled-cloudflare/workers";
 
 export interface RemoteWorkerConfig {
   readonly name: string;

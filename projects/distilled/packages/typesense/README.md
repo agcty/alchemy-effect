@@ -1,11 +1,11 @@
-# @distilled.cloud/typesense
+# @oddlynew/distilled-typesense
 
 Effect-native Typesense SDK generated from the [Typesense OpenAPI specification](https://github.com/typesense/typesense-api-spec). Manage collections, documents, search, synonyms, curation, analytics, API keys, and cluster operations with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/typesense effect
+npm install @oddlynew/distilled-typesense effect
 ```
 
 ## Quick Start
@@ -13,8 +13,8 @@ npm install @distilled.cloud/typesense effect
 ```typescript
 import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { getCollections } from "@distilled.cloud/typesense/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/typesense";
+import { getCollections } from "@oddlynew/distilled-typesense/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-typesense";
 
 const program = Effect.gen(function* () {
   const collections = yield* getCollections({});
@@ -41,8 +41,8 @@ TYPESENSE_API_URL=http://localhost:8108
 
 ```typescript
 import { Effect } from "effect";
-import { getCollection } from "@distilled.cloud/typesense/Operations";
-import { UnknownTypesenseError } from "@distilled.cloud/typesense/Errors";
+import { getCollection } from "@oddlynew/distilled-typesense/Operations";
+import { UnknownTypesenseError } from "@oddlynew/distilled-typesense/Errors";
 
 getCollection({ collectionName: "missing" }).pipe(
   Effect.catchTags({

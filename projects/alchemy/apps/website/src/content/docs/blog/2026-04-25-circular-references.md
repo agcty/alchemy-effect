@@ -163,7 +163,7 @@ that runs only when the Stack provides it.
 
 ```typescript
 // src/A.ts — just the Tag
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export class A extends Cloudflare.Worker<A>()("A", {
   main: import.meta.filename,
@@ -179,7 +179,7 @@ The runtime piece is a second file-level export:
 
 ```diff lang="typescript"
   // src/A.ts
-  import * as Cloudflare from "alchemy/Cloudflare";
+  import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 + import * as Effect from "effect/Effect";
 + import { B } from "./B.ts";
 

@@ -5,7 +5,7 @@
  * by primary tag into `src/operations/{service}/` subdirectories — similar to
  * how `packages/cloudflare/` splits operations by service.
  *
- * The shared OpenAPI generator (`@distilled.cloud/core/openapi/generate`)
+ * The shared OpenAPI generator (`@oddlynew/distilled-core/openapi/generate`)
  * writes one file per operation into a single output directory. To produce a
  * service-grouped layout, this script:
  *   1. Reads the full OpenAPI spec.
@@ -20,8 +20,8 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { generateFromOpenAPI } from "@distilled.cloud/core/openapi/generate";
-import { applyAllPatches } from "@distilled.cloud/core/json-patch";
+import { generateFromOpenAPI } from "@oddlynew/distilled-core/openapi/generate";
+import { applyAllPatches } from "@oddlynew/distilled-core/json-patch";
 
 const rootDir = path.join(import.meta.dir, "..");
 const specPath = path.join(

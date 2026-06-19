@@ -22,7 +22,7 @@ import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Console, Effect } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import { Command, Flag } from "effect/unstable/cli";
-import { CredentialsFromEnv } from "@distilled.cloud/kubernetes";
+import { CredentialsFromEnv } from "@oddlynew/distilled-kubernetes";
 
 // ── Core V1 ─────────────────────────────────────────────────────────────────
 import {
@@ -56,7 +56,7 @@ import {
   deleteCoreV1Node,
   listCoreV1PersistentVolume,
   deleteCoreV1PersistentVolume,
-} from "@distilled.cloud/kubernetes/core";
+} from "@oddlynew/distilled-kubernetes/core";
 
 // ── Apps V1 ─────────────────────────────────────────────────────────────────
 import {
@@ -70,7 +70,7 @@ import {
   deleteAppsV1NamespacedReplicaSet,
   listAppsV1ControllerRevisionForAllNamespaces,
   deleteAppsV1NamespacedControllerRevision,
-} from "@distilled.cloud/kubernetes/apps";
+} from "@oddlynew/distilled-kubernetes/apps";
 
 // ── Batch V1 ────────────────────────────────────────────────────────────────
 import {
@@ -78,7 +78,7 @@ import {
   deleteBatchV1NamespacedJob,
   listBatchV1CronJobForAllNamespaces,
   deleteBatchV1NamespacedCronJob,
-} from "@distilled.cloud/kubernetes/batch";
+} from "@oddlynew/distilled-kubernetes/batch";
 
 // ── Networking V1 ───────────────────────────────────────────────────────────
 import {
@@ -92,7 +92,7 @@ import {
   deleteNetworkingV1IPAddress,
   listNetworkingV1ServiceCIDR,
   deleteNetworkingV1ServiceCIDR,
-} from "@distilled.cloud/kubernetes/networking";
+} from "@oddlynew/distilled-kubernetes/networking";
 
 // ── Storage V1 ──────────────────────────────────────────────────────────────
 import {
@@ -108,7 +108,7 @@ import {
   deleteStorageV1VolumeAttributesClass,
   listStorageV1CSIStorageCapacityForAllNamespaces,
   deleteStorageV1NamespacedCSIStorageCapacity,
-} from "@distilled.cloud/kubernetes/storage";
+} from "@oddlynew/distilled-kubernetes/storage";
 
 // ── RBAC V1 ─────────────────────────────────────────────────────────────────
 import {
@@ -120,67 +120,67 @@ import {
   deleteRbacAuthorizationV1NamespacedRole,
   listRbacAuthorizationV1RoleBindingForAllNamespaces,
   deleteRbacAuthorizationV1NamespacedRoleBinding,
-} from "@distilled.cloud/kubernetes/rbac-authorization";
+} from "@oddlynew/distilled-kubernetes/rbac-authorization";
 
 // ── Policy V1 ───────────────────────────────────────────────────────────────
 import {
   listPolicyV1PodDisruptionBudgetForAllNamespaces,
   deletePolicyV1NamespacedPodDisruptionBudget,
-} from "@distilled.cloud/kubernetes/policy";
+} from "@oddlynew/distilled-kubernetes/policy";
 
 // ── Autoscaling V2 ─────────────────────────────────────────────────────────
 import {
   listAutoscalingV2HorizontalPodAutoscalerForAllNamespaces,
   deleteAutoscalingV2NamespacedHorizontalPodAutoscaler,
-} from "@distilled.cloud/kubernetes/autoscaling";
+} from "@oddlynew/distilled-kubernetes/autoscaling";
 
 // ── Certificates V1 ────────────────────────────────────────────────────────
 import {
   listCertificatesV1CertificateSigningRequest,
   deleteCertificatesV1CertificateSigningRequest,
-} from "@distilled.cloud/kubernetes/certificates";
+} from "@oddlynew/distilled-kubernetes/certificates";
 
 // ── Coordination V1 ────────────────────────────────────────────────────────
 import {
   listCoordinationV1LeaseForAllNamespaces,
   deleteCoordinationV1NamespacedLease,
-} from "@distilled.cloud/kubernetes/coordination";
+} from "@oddlynew/distilled-kubernetes/coordination";
 
 // ── Discovery V1 ───────────────────────────────────────────────────────────
 import {
   listDiscoveryV1EndpointSliceForAllNamespaces,
   deleteDiscoveryV1NamespacedEndpointSlice,
-} from "@distilled.cloud/kubernetes/discovery";
+} from "@oddlynew/distilled-kubernetes/discovery";
 
 // ── Events V1 ──────────────────────────────────────────────────────────────
 import {
   listEventsV1EventForAllNamespaces,
   deleteEventsV1NamespacedEvent,
-} from "@distilled.cloud/kubernetes/events";
+} from "@oddlynew/distilled-kubernetes/events";
 
 // ── Scheduling V1 ──────────────────────────────────────────────────────────
 import {
   listSchedulingV1PriorityClass,
   deleteSchedulingV1PriorityClass,
-} from "@distilled.cloud/kubernetes/scheduling";
+} from "@oddlynew/distilled-kubernetes/scheduling";
 
 // ── Node V1 ────────────────────────────────────────────────────────────────
 import {
   listNodeV1RuntimeClass,
   deleteNodeV1RuntimeClass,
-} from "@distilled.cloud/kubernetes/node";
+} from "@oddlynew/distilled-kubernetes/node";
 
 // ── API Extensions V1 ──────────────────────────────────────────────────────
 import {
   listApiextensionsV1CustomResourceDefinition,
   deleteApiextensionsV1CustomResourceDefinition,
-} from "@distilled.cloud/kubernetes/apiextensions";
+} from "@oddlynew/distilled-kubernetes/apiextensions";
 
 // ── API Registration V1 ────────────────────────────────────────────────────
 import {
   listApiregistrationV1APIService,
   deleteApiregistrationV1APIService,
-} from "@distilled.cloud/kubernetes/apiregistration";
+} from "@oddlynew/distilled-kubernetes/apiregistration";
 
 // ── Flow Control V1 ────────────────────────────────────────────────────────
 import {
@@ -188,7 +188,7 @@ import {
   deleteFlowcontrolApiserverV1FlowSchema,
   listFlowcontrolApiserverV1PriorityLevelConfiguration,
   deleteFlowcontrolApiserverV1PriorityLevelConfiguration,
-} from "@distilled.cloud/kubernetes/flowcontrol-apiserver";
+} from "@oddlynew/distilled-kubernetes/flowcontrol-apiserver";
 
 // ── Admission Registration V1 ──────────────────────────────────────────────
 import {
@@ -204,7 +204,7 @@ import {
   deleteAdmissionregistrationV1MutatingAdmissionPolicy,
   listAdmissionregistrationV1MutatingAdmissionPolicyBinding,
   deleteAdmissionregistrationV1MutatingAdmissionPolicyBinding,
-} from "@distilled.cloud/kubernetes/admissionregistration";
+} from "@oddlynew/distilled-kubernetes/admissionregistration";
 
 // ── Resource V1 ────────────────────────────────────────────────────────────
 import {
@@ -216,19 +216,19 @@ import {
   deleteResourceV1NamespacedResourceClaim,
   listResourceV1ResourceClaimTemplateForAllNamespaces,
   deleteResourceV1NamespacedResourceClaimTemplate,
-} from "@distilled.cloud/kubernetes/resource";
+} from "@oddlynew/distilled-kubernetes/resource";
 
 // ── Internal API Server V1alpha1 ───────────────────────────────────────────
 import {
   listInternalApiserverV1alpha1StorageVersion,
   deleteInternalApiserverV1alpha1StorageVersion,
-} from "@distilled.cloud/kubernetes/internal-apiserver";
+} from "@oddlynew/distilled-kubernetes/internal-apiserver";
 
 // ── Storage Migration V1beta1 ──────────────────────────────────────────────
 import {
   listStoragemigrationV1beta1StorageVersionMigration,
   deleteStoragemigrationV1beta1StorageVersionMigration,
-} from "@distilled.cloud/kubernetes/storagemigration";
+} from "@oddlynew/distilled-kubernetes/storagemigration";
 
 // ============================================================================
 // ANSI colors

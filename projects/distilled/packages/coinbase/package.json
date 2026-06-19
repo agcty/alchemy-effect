@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/coinbase",
+  "name": "@oddlynew/distilled-coinbase",
   "version": "0.25.2",
   "license": "Apache-2.0",
   "repository": {
@@ -72,16 +72,15 @@
     "lint:fix": "oxlint --fix src",
     "check": "tsgo && oxlint src && oxfmt --check src",
     "test": "bunx vitest run test --exclude specs --passWithNoTests",
-    "publish:npm": "bun run build && bun publish --access public",
     "generate": "bun run scripts/generate.ts && oxlint --fix src && oxfmt --write src && oxfmt --write src",
     "specs:fetch": "git submodule update --force --init --recursive --depth=1 specs/cdp-sdk && git -C specs/cdp-sdk checkout -- .",
     "specs:update": "git -C specs/cdp-sdk fetch && git -C specs/cdp-sdk checkout main && git -C specs/cdp-sdk pull"
   },
   "dependencies": {
-    "@distilled.cloud/core": "workspace:*"
+    "@oddlynew/distilled-core": "workspace:*"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "dotenv": "catalog:",

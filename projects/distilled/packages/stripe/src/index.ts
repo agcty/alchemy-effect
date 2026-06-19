@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Stripe from "@distilled.cloud/stripe";
+ * import * as Stripe from "@oddlynew/distilled-stripe";
  * ```
  */
 export * from "./credentials.ts";

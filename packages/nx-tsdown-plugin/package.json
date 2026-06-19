@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/nx-tsdown-plugin",
+  "name": "@oddlynew/alchemy-nx-tsdown-plugin",
   "version": "0.0.0",
   "private": true,
   "description": "Nx plugin that infers build targets for packages with tsdown.config.ts files.",
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "@nx/devkit": "catalog:",
-    "@alchemy.run/oxlint-config": "workspace:*",
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "tsdown": "catalog:",

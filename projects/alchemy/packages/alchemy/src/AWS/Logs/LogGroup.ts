@@ -1,4 +1,4 @@
-import * as logs from "@distilled.cloud/aws/cloudwatch-logs";
+import * as logs from "@oddlynew/distilled-aws/cloudwatch-logs";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";

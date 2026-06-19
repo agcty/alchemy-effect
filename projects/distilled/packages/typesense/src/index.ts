@@ -3,7 +3,7 @@
  *
  * @example
  * \`\`\`ts
- * import * as Typesense from "@distilled.cloud/typesense";
+ * import * as Typesense from "@oddlynew/distilled-typesense";
  * \`\`\`
  */
 export * from "./credentials.ts";

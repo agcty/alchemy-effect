@@ -1,4 +1,4 @@
-import * as organizations from "@distilled.cloud/aws/organizations";
+import * as organizations from "@oddlynew/distilled-aws/organizations";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

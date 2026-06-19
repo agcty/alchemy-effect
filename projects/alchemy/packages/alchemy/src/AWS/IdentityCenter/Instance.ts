@@ -1,4 +1,4 @@
-import * as ssoAdmin from "@distilled.cloud/aws/sso-admin";
+import * as ssoAdmin from "@oddlynew/distilled-aws/sso-admin";
 import * as Effect from "effect/Effect";
 import { isResolved } from "../../Diff.ts";
 import * as Provider from "../../Provider.ts";

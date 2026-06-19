@@ -1,9 +1,9 @@
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
-import * as Neon from "alchemy/Neon";
-import * as Output from "alchemy/Output";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
+import * as Neon from "@oddlynew/alchemy/Neon";
+import * as Output from "@oddlynew/alchemy/Output";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";

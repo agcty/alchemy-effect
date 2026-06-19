@@ -1,6 +1,6 @@
-import * as cfAccounts from "@distilled.cloud/cloudflare/accounts";
-import { apiKeyCredentials } from "@distilled.cloud/cloudflare/Credentials";
-import * as user from "@distilled.cloud/cloudflare/user";
+import * as cfAccounts from "@oddlynew/distilled-cloudflare/accounts";
+import { apiKeyCredentials } from "@oddlynew/distilled-cloudflare/Credentials";
+import * as user from "@oddlynew/distilled-cloudflare/user";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";

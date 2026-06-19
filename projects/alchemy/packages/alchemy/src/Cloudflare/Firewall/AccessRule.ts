@@ -1,4 +1,4 @@
-import * as firewall from "@distilled.cloud/cloudflare/firewall";
+import * as firewall from "@oddlynew/distilled-cloudflare/firewall";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

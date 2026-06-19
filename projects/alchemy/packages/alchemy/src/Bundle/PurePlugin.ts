@@ -30,7 +30,7 @@ export const DEFAULT_PURE_PACKAGES: ReadonlyArray<string> = [
   "effect",
   "@effect/*",
   "alchemy",
-  "@alchemy.run/*",
+  "@oddlynew/alchemy*",
 ];
 
 /**

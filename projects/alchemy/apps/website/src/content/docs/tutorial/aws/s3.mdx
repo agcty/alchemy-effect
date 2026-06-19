@@ -20,9 +20,9 @@ the outer init:
 
 ```diff lang="typescript"
 // src/api.ts
-import * as AWS from "alchemy/AWS";
-+import * as S3 from "alchemy/AWS/S3";
-import { Stack } from "alchemy/Stack";
+import * as AWS from "@oddlynew/alchemy/AWS";
++import * as S3 from "@oddlynew/alchemy/AWS/S3";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Effect from "effect/Effect";
 +import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
@@ -252,8 +252,8 @@ redeploys the function bundle.
 
 ```typescript
 // test/integ.test.ts
-import * as AWS from "alchemy/AWS";
-import * as Test from "alchemy/Test/Bun";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as Test from "@oddlynew/alchemy/Test/Bun";
 import { expect } from "bun:test";
 import * as Effect from "effect/Effect";
 import * as HttpBody from "effect/unstable/http/HttpBody";

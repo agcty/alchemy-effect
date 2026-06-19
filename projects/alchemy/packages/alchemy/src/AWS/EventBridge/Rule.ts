@@ -1,4 +1,4 @@
-import * as eventbridge from "@distilled.cloud/aws/eventbridge";
+import * as eventbridge from "@oddlynew/distilled-aws/eventbridge";
 import * as Effect from "effect/Effect";
 import { Unowned } from "../../AdoptPolicy.ts";
 import { isResolved } from "../../Diff.ts";
@@ -39,7 +39,7 @@ export type {
   SageMakerPipelineParameter,
   SageMakerPipelineParameters,
   SqsParameters,
-} from "@distilled.cloud/aws/eventbridge";
+} from "@oddlynew/distilled-aws/eventbridge";
 
 export type RuleName = string;
 

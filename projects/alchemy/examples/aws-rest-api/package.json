@@ -1,5 +1,5 @@
 {
-  "name": "aws-rest-api",
+  "name": "@oddlynew/alchemy-example-aws-rest-api",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -15,11 +15,11 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
-    "@distilled.cloud/aws": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/distilled-aws": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

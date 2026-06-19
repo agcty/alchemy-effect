@@ -1,4 +1,4 @@
-import * as certificateAuthorities from "@distilled.cloud/cloudflare/certificate-authorities";
+import * as certificateAuthorities from "@oddlynew/distilled-cloudflare/certificate-authorities";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

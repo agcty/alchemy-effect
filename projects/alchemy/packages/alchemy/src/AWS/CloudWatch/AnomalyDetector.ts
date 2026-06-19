@@ -1,4 +1,4 @@
-import * as cloudwatch from "@distilled.cloud/aws/cloudwatch";
+import * as cloudwatch from "@oddlynew/distilled-aws/cloudwatch";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

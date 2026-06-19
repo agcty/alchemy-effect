@@ -1,6 +1,6 @@
 import cloudflare, {
   type CloudflareVitePluginOptions,
-} from "@distilled.cloud/cloudflare-vite-plugin";
+} from "@oddlynew/distilled-cloudflare-vite-plugin";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import { createRequire } from "node:module";

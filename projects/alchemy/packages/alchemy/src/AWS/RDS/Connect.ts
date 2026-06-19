@@ -1,4 +1,4 @@
-import * as secretsmanager from "@distilled.cloud/aws/secrets-manager";
+import * as secretsmanager from "@oddlynew/distilled-aws/secrets-manager";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";

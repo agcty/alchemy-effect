@@ -6,9 +6,9 @@
  *
  * @example
  * \`\`\`ts
- * import * as Operations from "@distilled.cloud/axiom";
- * import * as EdgeIngest from "@distilled.cloud/axiom/edge-ingest";
- * import * as EdgeQuery from "@distilled.cloud/axiom/edge-query";
+ * import * as Operations from "@oddlynew/distilled-axiom";
+ * import * as EdgeIngest from "@oddlynew/distilled-axiom/edge-ingest";
+ * import * as EdgeQuery from "@oddlynew/distilled-axiom/edge-query";
  * \`\`\`
  */
 export * from "./credentials.ts";

@@ -1,6 +1,6 @@
-import { Assets } from "@distilled.cloud/cloudflare-runtime/bindings";
-import { Loopback } from "@distilled.cloud/cloudflare-runtime/globals";
-import { PluginContext } from "@distilled.cloud/cloudflare-runtime/PluginContext";
+import { Assets } from "@oddlynew/distilled-cloudflare-runtime/bindings";
+import { Loopback } from "@oddlynew/distilled-cloudflare-runtime/globals";
+import { PluginContext } from "@oddlynew/distilled-cloudflare-runtime/PluginContext";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as NodeFs from "node:fs/promises";

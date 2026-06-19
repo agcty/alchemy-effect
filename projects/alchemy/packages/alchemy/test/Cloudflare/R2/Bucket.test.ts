@@ -2,7 +2,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as r2 from "@distilled.cloud/cloudflare/r2";
+import * as r2 from "@oddlynew/distilled-cloudflare/r2";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

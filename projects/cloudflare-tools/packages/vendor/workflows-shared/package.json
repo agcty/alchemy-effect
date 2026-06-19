@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/vendor-workflows-shared",
+  "name": "@oddlynew/distilled-vendor-workflows-shared",
   "version": "0.0.0",
   "private": true,
   "description": "Vendored TypeScript source of @cloudflare/workflows-shared.",
@@ -17,9 +17,9 @@
     "typecheck": "tsc -b"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*",
     "@cloudflare/vitest-pool-workers": "^0.13.0",
     "@cloudflare/workers-types": "catalog:workers",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "effect": "catalog:effect",
     "heap-js": "^2.5.0",
     "itty-time": "^2.0.2",

@@ -1,4 +1,4 @@
-import * as cloudforceOne from "@distilled.cloud/cloudflare/cloudforce-one";
+import * as cloudforceOne from "@oddlynew/distilled-cloudflare/cloudforce-one";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

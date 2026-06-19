@@ -1,18 +1,18 @@
-# `@distilled.cloud/cloudflare-rolldown-plugin`
+# `@oddlynew/distilled-cloudflare-rolldown-plugin`
 
 Rolldown plugin for Cloudflare Workers.
 
 ## Install
 
 ```bash
-bun add @distilled.cloud/cloudflare-rolldown-plugin rolldown
+bun add @oddlynew/distilled-cloudflare-rolldown-plugin rolldown
 ```
 
 ## Usage
 
 ```ts
 import { rolldown } from "rolldown";
-import cloudflare from "@distilled.cloud/cloudflare-rolldown-plugin";
+import cloudflare from "@oddlynew/distilled-cloudflare-rolldown-plugin";
 
 const bundle = await rolldown({
   input: "./src/index.ts",

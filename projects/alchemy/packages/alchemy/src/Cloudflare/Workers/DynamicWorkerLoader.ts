@@ -145,7 +145,7 @@ export const isDynamicWorkerLoader = (
  *
  * @example Registering a loader (effect-native Worker)
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";

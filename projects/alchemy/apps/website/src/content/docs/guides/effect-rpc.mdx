@@ -89,7 +89,7 @@ Create `src/worker.ts` with an empty Init phase:
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 
 export default Cloudflare.Worker(
@@ -115,7 +115,7 @@ below.
 
 ```typescript
 // src/bucket.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export const Tasks = Cloudflare.R2Bucket("Tasks");
 ```
@@ -219,7 +219,7 @@ or `Etag.layer` — the RPC server handles message framing internally.
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -274,8 +274,8 @@ export default Cloudflare.Worker(
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Worker from "./src/worker.ts";
 
@@ -430,7 +430,7 @@ The DO's Init returns `{ fetch }` produced by
 
 ```typescript
 // src/object.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as RpcSerialization from "effect/unstable/rpc/RpcSerialization";
@@ -565,7 +565,7 @@ takes the `RpcGroup` directly in props and removes the `{ fetch }`
 wrapper:
 
 ```typescript
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";

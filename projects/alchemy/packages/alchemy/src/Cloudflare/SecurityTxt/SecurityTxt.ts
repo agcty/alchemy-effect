@@ -1,4 +1,4 @@
-import * as securityTxt from "@distilled.cloud/cloudflare/security-txt";
+import * as securityTxt from "@oddlynew/distilled-cloudflare/security-txt";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

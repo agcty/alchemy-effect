@@ -1,7 +1,7 @@
 import {
   Credentials,
   fromApiToken,
-} from "@distilled.cloud/cloudflare/Credentials";
+} from "@oddlynew/distilled-cloudflare/Credentials";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Redacted from "effect/Redacted";

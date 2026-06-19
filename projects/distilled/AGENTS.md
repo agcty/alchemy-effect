@@ -7,14 +7,14 @@ commands, and formatting rules. The notes below describe Distilled-specific SDK 
 ## Monorepo Workflow
 
 - Use `bun nx` from the repository root for validation and builds. Examples:
-  - `bun nx build @distilled.cloud/core`
-  - `bun nx typecheck @distilled.cloud/stripe`
-  - `bun nx lint @distilled.cloud/cloudflare`
-  - `bun nx test @distilled.cloud/aws`
+  - `bun nx build @oddlynew/distilled-core`
+  - `bun nx typecheck @oddlynew/distilled-stripe`
+  - `bun nx lint @oddlynew/distilled-cloudflare`
+  - `bun nx test @oddlynew/distilled-aws`
 - For broad changes, use the production affected helper from the root:
   `.github/scripts/run-affected-production-target.ts typecheck --parallel=6`.
 - Package-local scripts still exist for generation and debugging. Prefer the Nx form from the root
-  when available, for example `bun nx run @distilled.cloud/stripe:generate`.
+  when available, for example `bun nx run @oddlynew/distilled-stripe:generate`.
 - Do not use the imported standalone root scripts as the default validation path; they are retained
   for package behavior and historical compatibility.
 
@@ -27,19 +27,19 @@ Effect-native SDKs with exhaustive error typing. We use a TDD-driven approach to
 ```
 projects/distilled/
 ├── packages/
-│   ├── core/             # @distilled.cloud/core — shared client, traits, errors, categories
-│   ├── aws/              # @distilled.cloud/aws — AWS SDK from Smithy models
-│   ├── cloudflare/       # @distilled.cloud/cloudflare — Cloudflare SDK from TypeScript SDK
-│   ├── coinbase/         # @distilled.cloud/coinbase — Coinbase CDP SDK from OpenAPI spec
-│   ├── fly-io/           # @distilled.cloud/fly-io — Fly.io SDK from OpenAPI spec
-│   ├── gcp/              # @distilled.cloud/gcp — GCP SDK from Discovery Documents
-│   ├── mongodb-atlas/    # @distilled.cloud/mongodb-atlas — MongoDB Atlas SDK from OpenAPI spec
-│   ├── neon/             # @distilled.cloud/neon — Neon SDK from OpenAPI spec
-│   ├── planetscale/      # @distilled.cloud/planetscale — PlanetScale SDK from OpenAPI spec
-│   ├── prisma-postgres/  # @distilled.cloud/prisma-postgres — Prisma Postgres SDK from OpenAPI spec
-│   ├── stripe/           # @distilled.cloud/stripe — Stripe SDK from OpenAPI spec
-│   ├── supabase/         # @distilled.cloud/supabase — Supabase SDK from OpenAPI spec
-│   └── turso/            # @distilled.cloud/turso — Turso SDK from OpenAPI spec
+│   ├── core/             # @oddlynew/distilled-core — shared client, traits, errors, categories
+│   ├── aws/              # @oddlynew/distilled-aws — AWS SDK from Smithy models
+│   ├── cloudflare/       # @oddlynew/distilled-cloudflare — Cloudflare SDK from TypeScript SDK
+│   ├── coinbase/         # @oddlynew/distilled-coinbase — Coinbase CDP SDK from OpenAPI spec
+│   ├── fly-io/           # @oddlynew/distilled-fly-io — Fly.io SDK from OpenAPI spec
+│   ├── gcp/              # @oddlynew/distilled-gcp — GCP SDK from Discovery Documents
+│   ├── mongodb-atlas/    # @oddlynew/distilled-mongodb-atlas — MongoDB Atlas SDK from OpenAPI spec
+│   ├── neon/             # @oddlynew/distilled-neon — Neon SDK from OpenAPI spec
+│   ├── planetscale/      # @oddlynew/distilled-planetscale — PlanetScale SDK from OpenAPI spec
+│   ├── prisma-postgres/  # @oddlynew/distilled-prisma-postgres — Prisma Postgres SDK from OpenAPI spec
+│   ├── stripe/           # @oddlynew/distilled-stripe — Stripe SDK from OpenAPI spec
+│   ├── supabase/         # @oddlynew/distilled-supabase — Supabase SDK from OpenAPI spec
+│   └── turso/            # @oddlynew/distilled-turso — Turso SDK from OpenAPI spec
 ├── scripts/              # Root-level scripts (create-sdk.ts, bump.ts, etc.)
 ├── AGENTS.md             # Distilled-specific agent notes
 └── AGENTS.md             # This file
@@ -65,7 +65,7 @@ projects/distilled/packages/{name}/
 
 ### Core Package
 
-`projects/distilled/packages/core` (`@distilled.cloud/core`) contains shared infrastructure used by all SDKs:
+`projects/distilled/packages/core` (`@oddlynew/distilled-core`) contains shared infrastructure used by all SDKs:
 
 - `client.ts` — `API.make()` and `API.makePaginated()` factories that create Effect operations from annotated schemas
 - `traits.ts` — Schema annotations for HTTP bindings (`T.Http`, `T.PathParam`, `T.HttpHeader`, `T.JsonName`, etc.)
@@ -76,7 +76,7 @@ projects/distilled/packages/{name}/
 - `sensitive.ts` — Sensitive data schemas
 - `json-patch.ts` — JSON Patch (RFC 6902) implementation for spec patching
 
-All other packages depend on core via the `@distilled.cloud/core` workspace dependency.
+All other packages depend on core via the `@oddlynew/distilled-core` workspace dependency.
 
 ## Tools
 
@@ -106,8 +106,8 @@ Every package has these scripts:
 ### Monorepo Build
 
 ```bash
-bun nx build @distilled.cloud/core
-bun nx build @distilled.cloud/stripe
+bun nx build @oddlynew/distilled-core
+bun nx build @oddlynew/distilled-stripe
 ```
 
 Core must be built before other packages because provider packages depend on its emitted
@@ -119,7 +119,7 @@ declarations. Nx models that dependency ordering through the project graph, so u
 Use `create-sdk` to scaffold a new SDK package with all boilerplate, submodule setup, and code generation:
 
 ```bash
-bun run create-sdk <name> --specs <url-or-repo>... [--register-package]
+bun run create-sdk <name> --specs <url-or-repo>...
 ```
 
 Examples:
@@ -130,9 +130,6 @@ bun run create-sdk stripe --specs https://raw.githubusercontent.com/stripe/opena
 
 # Git repo → adds as direct submodule
 bun run create-sdk stripe --specs https://github.com/stripe/openapi.git
-
-# Publish a 0.0.0 placeholder to npm
-bun run create-sdk foo --specs https://api.foo.com/openapi.json --register-package
 ```
 
 After scaffolding, the `create-sdk` script automatically calls Claude to review the OpenAPI spec and update credentials, client error handling, and auth to match the actual API.
@@ -172,7 +169,7 @@ Each SDK uses a patch system to fix vendor spec inaccuracies. When you encounter
 
 1. Run the test with `DEBUG=1` to see the raw error response
 2. Add the error to the appropriate patch file
-3. Regenerate: `bun nx run @distilled.cloud/<provider>:generate` from the repo root, or
+3. Regenerate: `bun nx run @oddlynew/distilled-<provider>:generate` from the repo root, or
    `bun run generate` from the package directory
 4. Import the new typed error and update the test
 

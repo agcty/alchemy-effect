@@ -87,7 +87,7 @@ async function createNodesInternal(
 
 // Export as default plugin object
 export default {
-  name: "@alchemy.run/nx-tsdown-plugin",
+  name: "@oddlynew/alchemy-nx-tsdown-plugin",
   createNodes: createNodesFunction,
 };
 

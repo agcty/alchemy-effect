@@ -1,4 +1,4 @@
-import type * as Lambda from "@distilled.cloud/aws/lambda";
+import type * as Lambda from "@oddlynew/distilled-aws/lambda";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import * as Binding from "../../Binding.ts";

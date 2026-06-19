@@ -1,4 +1,4 @@
-import { exitHook } from "@alchemy.run/node-utils/exit-hook";
+import { exitHook } from "@oddlynew/alchemy-node-utils/exit-hook";
 import * as Context from "effect/Context";
 import * as DateTime from "effect/DateTime";
 import * as Effect from "effect/Effect";

@@ -1,6 +1,6 @@
-import { Region as AwsRegion } from "@distilled.cloud/aws/Region";
-import * as acm from "@distilled.cloud/aws/acm";
-import * as route53 from "@distilled.cloud/aws/route-53";
+import { Region as AwsRegion } from "@oddlynew/distilled-aws/Region";
+import * as acm from "@oddlynew/distilled-aws/acm";
+import * as route53 from "@oddlynew/distilled-aws/route-53";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
@@ -517,7 +517,7 @@ const defaultValidationMethod = "DNS" as const;
 
 const withAcmRegion = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
   // `AwsRegion`'s service value is an `Effect<RegionName>` (see
-  // `@distilled.cloud/aws/Region`), so it must be provided as an effect, not a
+  // `@oddlynew/distilled-aws/Region`), so it must be provided as an effect, not a
   // bare string — providing a raw string yields a primitive into the run loop.
   effect.pipe(Effect.provideService(AwsRegion, Effect.succeed(ACM_REGION)));
 

@@ -16,9 +16,9 @@ building, and stand up a **second Lambda** that consumes them.
 
 ```diff lang="typescript"
 // src/api.ts
-import * as AWS from "alchemy/AWS";
-import * as DynamoDB from "alchemy/AWS/DynamoDB";
-+import * as SQS from "alchemy/AWS/SQS";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as DynamoDB from "@oddlynew/alchemy/AWS/DynamoDB";
++import * as SQS from "@oddlynew/alchemy/AWS/SQS";
 // ...
 
 Effect.gen(function* () {
@@ -96,7 +96,7 @@ Consumers live as their own Lambda Function. Create
 
 ```typescript
 // src/worker.ts
-import * as AWS from "alchemy/AWS";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 
 export default class Worker extends AWS.Lambda.Function<Worker>()(
@@ -119,7 +119,7 @@ the cleanest way to do that is to lift the declaration out of
 
 ```typescript
 // src/queue.ts
-import * as SQS from "alchemy/AWS/SQS";
+import * as SQS from "@oddlynew/alchemy/AWS/SQS";
 
 export const Jobs = SQS.Queue("Jobs");
 ```
@@ -142,7 +142,7 @@ a typed `Queue` resource:
 
 ```diff lang="typescript"
 // src/worker.ts
-import * as AWS from "alchemy/AWS";
+import * as AWS from "@oddlynew/alchemy/AWS";
 import * as Effect from "effect/Effect";
 +import { Jobs } from "./queue.ts";
 
@@ -165,8 +165,8 @@ subscription — log each message body:
 
 ```diff lang="typescript"
 // src/worker.ts
-import * as AWS from "alchemy/AWS";
-+import * as SQS from "alchemy/AWS/SQS";
+import * as AWS from "@oddlynew/alchemy/AWS";
++import * as SQS from "@oddlynew/alchemy/AWS/SQS";
 +import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 +import * as Stream from "effect/Stream";

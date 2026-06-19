@@ -1,4 +1,4 @@
-import * as zones from "@distilled.cloud/cloudflare/zones";
+import * as zones from "@oddlynew/distilled-cloudflare/zones";
 import * as Array from "effect/Array";
 import * as Effect from "effect/Effect";
 import * as Equivalence from "effect/Equivalence";
@@ -172,14 +172,14 @@ export type Zone = Resource<
  *
  * @example Allow destruction
  * ```typescript
- * import { destroy } from "alchemy/RemovalPolicy";
+ * import { destroy } from "@oddlynew/alchemy/RemovalPolicy";
  * yield* Cloudflare.Zone("MyZone", { name: "example.com" }).pipe(destroy());
  * ```
  *
  * @section Adopting an existing Zone
  * @example Take over a zone that already exists in Cloudflare
  * ```typescript
- * import { adopt } from "alchemy/AdoptPolicy";
+ * import { adopt } from "@oddlynew/alchemy/AdoptPolicy";
  * // A zone carries no ownership markers, so the engine refuses to take over a
  * // pre-existing zone unless you opt in with `adopt(true)`.
  * const zone = yield* Cloudflare.Zone("MyZone", {

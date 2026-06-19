@@ -3,25 +3,23 @@
  * Create a new SDK package for the Distilled monorepo.
  *
  * Usage:
- *   bun scripts/create-sdk.ts <name> --specs <url-or-repo>... [--register-package]
+ *   bun scripts/create-sdk.ts <name> --specs <url-or-repo>...
  *
  * Examples:
  *   # OpenAPI spec URL → creates distilled-spec-* mirror repo
- *   bun scripts/create-sdk.ts stripe --specs https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json --register-package
+ *   bun scripts/create-sdk.ts stripe --specs https://raw.githubusercontent.com/stripe/openapi/master/openapi/spec3.json
  *
  *   # Git repo → adds as direct submodule
- *   bun scripts/create-sdk.ts stripe --specs https://github.com/stripe/openapi.git --register-package
+ *   bun scripts/create-sdk.ts stripe --specs https://github.com/stripe/openapi.git
  *
  *   # Multiple spec URLs
  *   bun scripts/create-sdk.ts foo --specs https://api.foo.com/v1/openapi.json https://api.foo.com/v2/openapi.json
  *
  * Flags:
- *   --register-package   Publish a 0.0.0 placeholder to npm as @distilled.cloud/<name>
  *   --specs              One or more spec sources (git repo URLs ending in .git, or HTTP URLs to fetch)
  */
 
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { spawn } from "node:child_process";
 import { Console, Data, Effect, type PlatformError, Stream } from "effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -120,30 +118,6 @@ const exec = (
 
     return { stdout, stderr, code };
   }).pipe(Effect.scoped);
-
-/**
- * Run a command interactively (inherits stdio for user prompts like npm publish).
- * Uses node:child_process directly since ChildProcess doesn't support full inherit mode
- * with interactive prompts.
- */
-const execInteractive = (
-  cmd: string,
-  args: string[],
-  opts?: { cwd?: string },
-): Effect.Effect<{ code: number }, never, never> =>
-  Effect.callback<{ code: number }, never>((resume) => {
-    const cp = spawn(cmd, args, {
-      cwd: opts?.cwd,
-      stdio: "inherit",
-      shell: process.platform === "win32",
-    });
-    cp.on("close", (code: number) => {
-      resume(Effect.succeed({ code: code ?? 1 }));
-    });
-    cp.on("error", () => {
-      resume(Effect.succeed({ code: 1 }));
-    });
-  });
 
 // ============================================================================
 // Utilities
@@ -244,94 +218,7 @@ const hasGeneratedOperations = (
   });
 
 // ============================================================================
-// Step 1: Register NPM Package
-// ============================================================================
-
-const registerNpmPackage = (
-  root: string,
-  name: string,
-): Effect.Effect<
-  void,
-  SdkError,
-  ChildProcessSpawner.ChildProcessSpawner | FileSystem.FileSystem | Path.Path
-> =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const fs = yield* FileSystem.FileSystem;
-    const pkgName = `@distilled.cloud/${name}`;
-    yield* Console.log(`\n📦 Registering npm package: ${pkgName}@0.0.0`);
-
-    // Check if package already exists on npm
-    const { code, stdout } = yield* exec("npm", ["view", pkgName, "version"], {
-      ignoreError: true,
-    });
-
-    if (code === 0 && stdout.trim().length > 0) {
-      yield* Console.log(
-        `⚠️  Package ${pkgName}@${stdout.trim()} already exists on npm, skipping registration`,
-      );
-      return;
-    }
-
-    // Also check specifically for 0.0.0
-    const { code: code2 } = yield* exec(
-      "npm",
-      ["view", `${pkgName}@0.0.0`, "version"],
-      { ignoreError: true },
-    );
-
-    if (code2 === 0) {
-      yield* Console.log(
-        `⚠️  Package ${pkgName}@0.0.0 already exists on npm, skipping registration`,
-      );
-      return;
-    }
-
-    // Create a temporary directory for the placeholder package
-    const tmpDir = path.join(root, ".ai-workspace", `npm-register-${name}`);
-    yield* fs.makeDirectory(tmpDir, { recursive: true });
-
-    const placeholderPkg = {
-      name: pkgName,
-      version: "0.0.0",
-      description: `${capitalize(name)} SDK for Effect (placeholder)`,
-      type: "module",
-      main: "index.js",
-      files: ["index.js"],
-      repository: {
-        type: "git",
-        url: "https://github.com/alchemy-run/alchemy-effect",
-        directory: `projects/distilled/packages/${name}`,
-      },
-      license: "MIT",
-    };
-
-    yield* fs.writeFileString(
-      path.join(tmpDir, "package.json"),
-      JSON.stringify(placeholderPkg, null, 2),
-    );
-    yield* fs.writeFileString(
-      path.join(tmpDir, "index.js"),
-      `// Placeholder — this package will be replaced by the generated SDK.\nexport {};\n`,
-    );
-
-    const { code: publishCode } = yield* execInteractive(
-      "npm",
-      ["publish", "--access", "public"],
-      { cwd: tmpDir },
-    );
-
-    if (publishCode === 0) {
-      yield* Console.log(`✅ Published ${pkgName}@0.0.0`);
-    } else {
-      yield* Console.log(
-        `⚠️  npm publish exited with code ${publishCode} — package may already exist or auth was cancelled. Continuing...`,
-      );
-    }
-  });
-
-// ============================================================================
-// Step 2: Setup Specs (Submodule or Spec Mirror Repo)
+// Step 1: Setup Specs (Submodule or Spec Mirror Repo)
 // ============================================================================
 
 interface SpecInfo {
@@ -894,7 +781,7 @@ const scaffoldPackage = (
         pkgJsonPath,
         JSON.stringify(
           {
-            name: `@distilled.cloud/${name}`,
+            name: `@oddlynew/distilled-${name}`,
             version: "0.2.0-alpha",
             repository: {
               type: "git",
@@ -959,7 +846,6 @@ const scaffoldPackage = (
               lint: "oxlint --fix src",
               check: "tsgo && oxlint src && oxfmt --check src",
               test: "bunx vitest run test --passWithNoTests",
-              "publish:npm": "bun run build && bun publish --access public",
               generate:
                 "bun run scripts/generate.ts && oxlint --fix src && oxfmt --write src && oxfmt --write src",
               "specs:fetch":
@@ -968,11 +854,11 @@ const scaffoldPackage = (
                 specsUpdateCmds.join(" && ") || "echo 'No specs configured'",
             },
             dependencies: {
-              "@distilled.cloud/core": "workspace:*",
+              "@oddlynew/distilled-core": "workspace:*",
               effect: "catalog:",
             },
             devDependencies: {
-              "@alchemy.run/typescript-config": "workspace:*",
+              "@oddlynew/alchemy-typescript-config": "workspace:*",
               "@types/bun": "catalog:",
               "@types/node": "catalog:",
               dotenv: "catalog:",
@@ -999,7 +885,7 @@ const scaffoldPackage = (
         tsconfigPath,
         JSON.stringify(
           {
-            extends: "@alchemy.run/typescript-config/node.json",
+            extends: "@oddlynew/alchemy-typescript-config/node.json",
             include: ["src/**/*.ts"],
             compilerOptions: {
               outDir: "./lib",
@@ -1027,7 +913,7 @@ const scaffoldPackage = (
         tsconfigTestPath,
         JSON.stringify(
           {
-            extends: "@alchemy.run/typescript-config/node.json",
+            extends: "@oddlynew/alchemy-typescript-config/node.json",
             include: ["src/**/*.ts", "test/**/*.ts"],
             compilerOptions: {
               rootDir: ".",
@@ -1072,17 +958,17 @@ export default {
     // --- Source files ---
     yield* writeIfNotExists(
       path.join(srcDir, "traits.ts"),
-      `/**\n * Re-export the shared traits system from sdk-core.\n */\nexport * from "@distilled.cloud/core/traits";\n`,
+      `/**\n * Re-export the shared traits system from sdk-core.\n */\nexport * from "@oddlynew/distilled-core/traits";\n`,
     );
 
     yield* writeIfNotExists(
       path.join(srcDir, "category.ts"),
-      `/**\n * Re-export the shared category system from sdk-core.\n */\nexport * from "@distilled.cloud/core/category";\n`,
+      `/**\n * Re-export the shared category system from sdk-core.\n */\nexport * from "@oddlynew/distilled-core/category";\n`,
     );
 
     yield* writeIfNotExists(
       path.join(srcDir, "sensitive.ts"),
-      `/**\n * Re-export sensitive data schemas from sdk-core.\n */\nexport * from "@distilled.cloud/core/sensitive";\n`,
+      `/**\n * Re-export sensitive data schemas from sdk-core.\n */\nexport * from "@oddlynew/distilled-core/sensitive";\n`,
     );
 
     // --- src/errors.ts ---
@@ -1112,11 +998,11 @@ export {
   HTTP_STATUS_MAP,
   DEFAULT_ERRORS,
   API_ERRORS,
-} from "@distilled.cloud/core/errors";
-export type { DefaultErrors } from "@distilled.cloud/core/errors";
+} from "@oddlynew/distilled-core/errors";
+export type { DefaultErrors } from "@oddlynew/distilled-core/errors";
 
 import * as Schema from "effect/Schema";
-import * as Category from "@distilled.cloud/core/category";
+import * as Category from "@oddlynew/distilled-core/category";
 
 // Unknown ${capitalName} error - returned when an error code is not recognized
 export class Unknown${capitalName}Error extends Schema.TaggedErrorClass<Unknown${capitalName}Error>()(
@@ -1145,7 +1031,7 @@ export class ${capitalName}ParseError extends Schema.TaggedErrorClass<${capitalN
       `import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as ServiceMap from "effect/ServiceMap";
-import { ConfigError } from "@distilled.cloud/core/errors";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 
 // TODO: set this to the real base URL after reading the vendor spec/docs.
 export const DEFAULT_API_BASE_URL = "";
@@ -1187,8 +1073,8 @@ export const CredentialsFromEnv = Layer.effect(
  */
 import * as Effect from "effect/Effect";
 import * as Schema from "effect/Schema";
-import { makeAPI } from "@distilled.cloud/core/client";
-import { parseRetryAfterForStatus } from "@distilled.cloud/core/retry-after";
+import { makeAPI } from "@oddlynew/distilled-core/client";
+import { parseRetryAfterForStatus } from "@oddlynew/distilled-core/retry-after";
 import { HTTP_STATUS_MAP, Unknown${capitalName}Error, ${capitalName}ParseError } from "./errors.ts";
 
 // Re-export for backwards compatibility
@@ -1276,8 +1162,8 @@ export {
   capped,
   throttlingOptions,
   transientOptions,
-} from "@distilled.cloud/core/retry";
-import type { Policy } from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
+import type { Policy } from "@oddlynew/distilled-core/retry";
 
 /**
  * Context tag for configuring retry behavior of ${capitalName} API calls.
@@ -1307,7 +1193,7 @@ export const none = Effect.provide(
  *
  * @example
  * \\\`\\\`\\\`ts
- * import * as ${capitalName} from "@distilled.cloud/${name}";
+ * import * as ${capitalName} from "@oddlynew/distilled-${name}";
  * \\\`\\\`\\\`
  */
 export * from "./credentials.ts";
@@ -1336,9 +1222,9 @@ export { SensitiveString, SensitiveNullableString } from "./sensitive.ts";
  * TODO: This is a placeholder. You must update this file to work with the
  * actual spec format found in the specs/ submodule(s).
  *
- * If the spec is OpenAPI, use generateFromOpenAPI from @distilled.cloud/core/openapi/generate.
+ * If the spec is OpenAPI, use generateFromOpenAPI from @oddlynew/distilled-core/openapi/generate.
  * If the spec is GraphQL (introspection JSON), use generateFromGraphQL from
- * @distilled.cloud/core/graphql/generate.
+ * @oddlynew/distilled-core/graphql/generate.
  * If it's another format (TypeScript SDK, Smithy, protobuf, Go types, etc.),
  * write a custom generator. See packages/cloudflare/ and packages/aws/ for examples
  * of non-OpenAPI generators.
@@ -1885,8 +1771,8 @@ The submodule could contain ANY of these formats:
 Your FIRST action must be to recursively list the contents of every submodule directory under packages/${name}/specs/ to understand the structure. Use \`find\` or \`ls -R\` on each submodule. Look for .json, .yaml, .yml, .ts, .go, .proto, .graphql, .gql, .smithy, and .md files. Read the first few lines of candidates to understand what they contain.
 
 After you understand the format:
-- If it's OpenAPI → use \`generateFromOpenAPI\` from \`@distilled.cloud/core/openapi/generate\`
-- If it's a GraphQL introspection JSON or live endpoint → use \`generateFromGraphQL\` from \`@distilled.cloud/core/graphql/generate\` (one operation per Query field + one per Mutation field). If the submodule only has SDL (.graphql), use \`introspectEndpoint\` from the same module against a live endpoint to produce introspection JSON, OR pre-convert SDL to introspection JSON via any GraphQL tool — the generator only consumes introspection JSON.
+- If it's OpenAPI → use \`generateFromOpenAPI\` from \`@oddlynew/distilled-core/openapi/generate\`
+- If it's a GraphQL introspection JSON or live endpoint → use \`generateFromGraphQL\` from \`@oddlynew/distilled-core/graphql/generate\` (one operation per Query field + one per Mutation field). If the submodule only has SDL (.graphql), use \`introspectEndpoint\` from the same module against a live endpoint to produce introspection JSON, OR pre-convert SDL to introspection JSON via any GraphQL tool — the generator only consumes introspection JSON.
 - If it's a TypeScript SDK → study packages/cloudflare/scripts/generate.ts for how to extract types from TS source
 - If it's Smithy models → study packages/aws/scripts/generate.ts
 - If it's something else → write a custom generator that parses the format and generates Effect operations
@@ -1911,8 +1797,8 @@ After you figure out the spec format in Step 0:
 
 The scaffolded generate.ts is a placeholder that throws an error. Based on what you found in Step 0, **rewrite it entirely** with a working generator for the spec format you found.
 
-- If OpenAPI: use \`generateFromOpenAPI\` from \`@distilled.cloud/core/openapi/generate\` (see packages/neon/scripts/generate.ts for an example)
-- If GraphQL: use \`generateFromGraphQL\` from \`@distilled.cloud/core/graphql/generate\`. Pass \`schemaPath\` pointing to an introspection JSON file. The generator emits one operation file per Query field and per Mutation field, baking the GraphQL document into the input schema via the \`T.GraphQLOp\` trait — the runtime client wraps variables and unwraps \`data.<operationName>\` automatically.
+- If OpenAPI: use \`generateFromOpenAPI\` from \`@oddlynew/distilled-core/openapi/generate\` (see packages/neon/scripts/generate.ts for an example)
+- If GraphQL: use \`generateFromGraphQL\` from \`@oddlynew/distilled-core/graphql/generate\`. Pass \`schemaPath\` pointing to an introspection JSON file. The generator emits one operation file per Query field and per Mutation field, baking the GraphQL document into the input schema via the \`T.GraphQLOp\` trait — the runtime client wraps variables and unwraps \`data.<operationName>\` automatically.
 - If TypeScript SDK: study packages/cloudflare/scripts/generate.ts
 - If Smithy: study packages/aws/scripts/generate.ts
 - If something else: write a custom generator
@@ -1954,9 +1840,9 @@ If the spec defines custom error types beyond standard HTTP status codes, add th
 
 Create a README.md at packages/${name}/README.md following the pattern of other SDKs (see packages/neon/README.md for a good example). The README must include:
 
-1. **Title & description** — \`# @distilled.cloud/${name}\` followed by a one-line description of what the SDK covers and where the spec comes from
-2. **Installation** — \`npm install @distilled.cloud/${name} effect\`
-3. **Quick Start** — a working example using \`Effect.gen\`, importing an operation from \`@distilled.cloud/${name}/operations\`, using \`CredentialsFromEnv\`, and providing \`FetchHttpClient.layer\`
+1. **Title & description** — \`# @oddlynew/distilled-${name}\` followed by a one-line description of what the SDK covers and where the spec comes from
+2. **Installation** — \`npm install @oddlynew/distilled-${name} effect\`
+3. **Quick Start** — a working example using \`Effect.gen\`, importing an operation from \`@oddlynew/distilled-${name}/operations\`, using \`CredentialsFromEnv\`, and providing \`FetchHttpClient.layer\`
 4. **Configuration** — list the environment variable(s) from credentials.ts (e.g. \`${envVarName}\`)
 5. **Error Handling** — a code example showing \`Effect.catchTags\` with a typed error (e.g. \`NotFound\`) and the Unknown error class
 6. **Services** — a bullet list of the key operation areas (group related operations, e.g. "Machines — create, start, stop, delete")
@@ -2070,12 +1956,6 @@ const createSdk = Command.make(
       ),
       Flag.atLeast(0),
     ),
-    registerPackage: Flag.boolean("register-package").pipe(
-      Flag.withDefault(false),
-      Flag.withDescription(
-        "Publish a 0.0.0 placeholder to npm as @distilled.cloud/<name>",
-      ),
-    ),
     note: Flag.string("note").pipe(
       Flag.withDefault(""),
       Flag.withDescription(
@@ -2089,50 +1969,45 @@ const createSdk = Command.make(
       const root = path.resolve(import.meta.dir, "..");
       const note = config.note.trim();
 
-      yield* Console.log(`\n🚀 Creating SDK: @distilled.cloud/${config.name}`);
+      yield* Console.log(
+        `\n🚀 Creating SDK: @oddlynew/distilled-${config.name}`,
+      );
       yield* Console.log(
         `   Specs: ${config.specs.length > 0 ? Array.from(config.specs).join(", ") : "(none)"}`,
       );
-      yield* Console.log(`   Register package: ${config.registerPackage}`);
       if (note) yield* Console.log(`   Note: ${note}`);
 
-      // Step 1: Register npm package
-      if (config.registerPackage) {
-        yield* registerNpmPackage(root, config.name);
-      }
-
-      // Step 2: Setup specs (submodule or mirror repo)
+      // Step 1: Setup specs (submodule or mirror repo)
       const specInfo = yield* setupSpecs(
         root,
         config.name,
         Array.from(config.specs),
       );
 
-      // Step 3: Scaffold the SDK package
+      // Step 2: Scaffold the SDK package
       yield* scaffoldPackage(root, config.name, specInfo, note);
 
-      // Step 4: Update CI workflows
+      // Step 3: Update CI workflows
       yield* updateTestYml(root, config.name);
       yield* updatePkgPrYml(root, config.name);
       yield* updateReleaseYml(root, config.name);
       yield* updateNukeYml(root, config.name);
 
-      // Step 5: Install dependencies and run generator
+      // Step 4: Install dependencies and run generator
       yield* installAndGenerate(root, config.name);
 
-      // Step 6: Refine with Claude agent
+      // Step 5: Refine with Claude agent
       const stats = new AgentStatsAccumulator();
       yield* refineWithClaude(root, config.name, specInfo, stats, note);
 
-      // Step 7: Wire test env vars into test.yml now that credentials.ts is final
+      // Step 6: Wire test env vars into test.yml now that credentials.ts is final
       yield* wireTestEnvVars(root, config.name);
 
       yield* Console.log(`
 ✨ SDK package created successfully!
 
-  Package: @distilled.cloud/${config.name}
+  Package: @oddlynew/distilled-${config.name}
   Location: packages/${config.name}/
-  ${config.registerPackage ? `NPM: https://www.npmjs.com/package/@distilled.cloud/${config.name}` : ""}
 
 Next steps:
   1. Review the generated code in packages/${config.name}/src/
@@ -2157,11 +2032,6 @@ Next steps:
       command:
         "bun scripts/create-sdk.ts stripe --specs https://github.com/stripe/openapi.git",
       description: "Git repo → adds as direct submodule",
-    },
-    {
-      command:
-        "bun scripts/create-sdk.ts stripe --specs https://github.com/stripe/openapi.git --register-package",
-      description: "Git repo + register placeholder on npm",
     },
   ]),
 );

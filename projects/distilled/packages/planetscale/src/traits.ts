@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import * as T from "@distilled.cloud/planetscale/traits";
+ * import * as T from "@oddlynew/distilled-planetscale/traits";
  * ```
  */
-export * from "@distilled.cloud/core/traits";
+export * from "@oddlynew/distilled-core/traits";

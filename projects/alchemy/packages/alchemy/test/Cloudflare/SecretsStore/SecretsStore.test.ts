@@ -4,8 +4,8 @@ import * as Test from "@/Test/Vitest";
 import {
   Credentials,
   apiTokenCredentials,
-} from "@distilled.cloud/cloudflare/Credentials";
-import * as secretsStore from "@distilled.cloud/cloudflare/secrets-store";
+} from "@oddlynew/distilled-cloudflare/Credentials";
+import * as secretsStore from "@oddlynew/distilled-cloudflare/secrets-store";
 import { expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -21,7 +21,7 @@ const { test } = Test.make({ providers: Cloudflare.providers() });
  * (Cloudflare's `secrets_store/stores` POST receiving an array body
  * and rejecting it with `invalid_json_body`) was invisible to the type
  * system because the upstream SDK schema modeled the body as
- * `{ name }[]`. The fix is to upgrade `@distilled.cloud/cloudflare` to
+ * `{ name }[]`. The fix is to upgrade `@oddlynew/distilled-cloudflare` to
  * a release with the corrected single-object schema; these tests pin
  * the wire format so a future SDK regression is caught immediately.
  */
@@ -112,7 +112,7 @@ it.live(
 
       // Cloudflare's REST API expects `{"name": "..."}` and rejects
       // `[{"name": "..."}]` with code 1001 `invalid_json_body`.
-      // Earlier `@distilled.cloud/cloudflare` releases sent the array
+      // Earlier `@oddlynew/distilled-cloudflare` releases sent the array
       // shape; this test pins the corrected single-object body.
       expect(sent.bodyJson).toEqual({ name: "default_secrets_store" });
       expect(Array.isArray(sent.bodyJson)).toBe(false);

@@ -36,7 +36,7 @@ import { DurableObjectState } from "./DurableObjectState.ts";
  * `DurableObjectChatPersistence` underneath and every entry is stored
  * in the DO's `state.storage` under the `alchemy.chat:` prefix.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import { Chat, LanguageModel } from "effect/unstable/ai";

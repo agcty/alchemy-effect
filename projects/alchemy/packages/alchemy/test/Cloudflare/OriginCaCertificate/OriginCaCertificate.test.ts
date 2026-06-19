@@ -2,7 +2,7 @@ import { adopt } from "@/AdoptPolicy";
 import * as Cloudflare from "@/Cloudflare";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as originCa from "@distilled.cloud/cloudflare/origin-ca-certificates";
+import * as originCa from "@oddlynew/distilled-cloudflare/origin-ca-certificates";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

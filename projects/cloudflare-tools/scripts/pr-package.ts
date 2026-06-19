@@ -26,7 +26,7 @@ console.log(`Checking for changes in ${cwd}`);
 const json = (await pkg.json()) as PackageJson;
 
 async function replaceDependency(obj: Record<string, string>, name: Package) {
-  const key = `@distilled.cloud/${name}`;
+  const key = `@oddlynew/distilled-${name}`;
   const url = `https://pkg.distilled.cloud/${name}/${SHORT_SHA}`;
   if (!(key in obj)) {
     return;

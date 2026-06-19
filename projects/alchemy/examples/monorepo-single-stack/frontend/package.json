@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo-single-stack/frontend",
+  "name": "@oddlynew/alchemy-example-monorepo-single-stack-frontend",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -11,8 +11,8 @@
   "dependencies": {
     "@types/react-dom": "^19.2.3",
     "@types/react": "^19.2.14",
-    "alchemy": "workspace:*",
-    "@monorepo-single-stack/backend": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
+    "@oddlynew/alchemy-example-monorepo-single-stack-backend": "workspace:*",
     "effect": "catalog:",
     "react-dom": "^19.2.6",
     "react": "^19.2.6",
@@ -27,6 +27,6 @@
     "test": "bun test"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

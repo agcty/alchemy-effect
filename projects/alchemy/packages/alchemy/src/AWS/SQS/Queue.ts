@@ -1,4 +1,4 @@
-import * as sqs from "@distilled.cloud/aws/sqs";
+import * as sqs from "@oddlynew/distilled-aws/sqs";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
@@ -163,7 +163,7 @@ export interface Queue extends Resource<
  * @section Creating Queues
  * @example Standard Queue
  * ```typescript
- * import * as SQS from "alchemy/AWS/SQS";
+ * import * as SQS from "@oddlynew/alchemy/AWS/SQS";
  *
  * const queue = yield* SQS.Queue("OrdersQueue");
  * ```

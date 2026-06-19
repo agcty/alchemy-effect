@@ -1,4 +1,4 @@
-import * as cloudwatch from "@distilled.cloud/aws/cloudwatch";
+import * as cloudwatch from "@oddlynew/distilled-aws/cloudwatch";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { Unowned } from "../../AdoptPolicy.ts";

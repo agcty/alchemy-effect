@@ -1,4 +1,4 @@
-import * as vectorize from "@distilled.cloud/cloudflare/vectorize";
+import * as vectorize from "@oddlynew/distilled-cloudflare/vectorize";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

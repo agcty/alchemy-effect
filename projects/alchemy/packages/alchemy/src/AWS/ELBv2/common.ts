@@ -1,4 +1,4 @@
-import type * as elbv2 from "@distilled.cloud/aws/elastic-load-balancing-v2";
+import type * as elbv2 from "@oddlynew/distilled-aws/elastic-load-balancing-v2";
 import type { TargetGroupArn } from "./TargetGroup.ts";
 
 /**

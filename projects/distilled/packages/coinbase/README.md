@@ -1,11 +1,11 @@
-# @distilled.cloud/coinbase
+# @oddlynew/distilled-coinbase
 
 Effect-native Coinbase Developer Platform SDK generated from the [CDP SDK](https://github.com/coinbase/cdp-sdk) specification. Manage EVM and Solana wallets, sign transactions, swap tokens, request faucets, manage policies, and more with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/coinbase effect
+npm install @oddlynew/distilled-coinbase effect
 ```
 
 ## Quick Start
@@ -14,8 +14,8 @@ npm install @distilled.cloud/coinbase effect
 import { Effect, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { listEvmAccounts } from "@distilled.cloud/coinbase/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/coinbase";
+import { listEvmAccounts } from "@oddlynew/distilled-coinbase/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-coinbase";
 
 const program = Effect.gen(function* () {
   const accounts = yield* listEvmAccounts({});
@@ -46,7 +46,7 @@ Create an API key in the [Coinbase Developer Platform](https://portal.cdp.coinba
 Coinbase returns structured errors with an `errorType` field. All 40+ error types are mapped to typed error classes:
 
 ```typescript
-import { createEvmAccount } from "@distilled.cloud/coinbase/Operations";
+import { createEvmAccount } from "@oddlynew/distilled-coinbase/Operations";
 
 createEvmAccount({ name: "my-wallet" }).pipe(
   Effect.catchTags({

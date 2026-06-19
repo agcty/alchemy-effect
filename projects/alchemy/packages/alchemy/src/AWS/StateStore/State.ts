@@ -1,6 +1,6 @@
-import type { Credentials } from "@distilled.cloud/aws/Credentials";
-import type { Region } from "@distilled.cloud/aws/Region";
-import * as s3 from "@distilled.cloud/aws/s3";
+import type { Credentials } from "@oddlynew/distilled-aws/Credentials";
+import type { Region } from "@oddlynew/distilled-aws/Region";
+import * as s3 from "@oddlynew/distilled-aws/s3";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Schedule from "effect/Schedule";
@@ -86,8 +86,8 @@ type S3Deps = Credentials | HttpClient | Region;
  *
  * @example Default bucket
  * ```typescript
- * import * as Alchemy from "alchemy";
- * import * as AWS from "alchemy/AWS";
+ * import * as Alchemy from "@oddlynew/alchemy";
+ * import * as AWS from "@oddlynew/alchemy/AWS";
  *
  * const Stack = Alchemy.Stack(
  *   "my-stack",

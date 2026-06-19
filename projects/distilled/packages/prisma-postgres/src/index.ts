@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as PrismaPostgres from "@distilled.cloud/prisma-postgres";
+ * import * as PrismaPostgres from "@oddlynew/distilled-prisma-postgres";
  * ```
  */
 export * from "./credentials.ts";

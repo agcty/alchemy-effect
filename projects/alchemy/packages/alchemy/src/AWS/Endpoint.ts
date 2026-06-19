@@ -1,4 +1,4 @@
-import { Endpoint } from "@distilled.cloud/aws";
+import { Endpoint } from "@oddlynew/distilled-aws";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { AWSEnvironment } from "./Environment.ts";

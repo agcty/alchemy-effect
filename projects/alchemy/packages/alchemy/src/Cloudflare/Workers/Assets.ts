@@ -1,5 +1,5 @@
-import createIgnore from "@alchemy.run/node-utils/ignore";
-import * as workers from "@distilled.cloud/cloudflare/workers";
+import createIgnore from "@oddlynew/alchemy-node-utils/ignore";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

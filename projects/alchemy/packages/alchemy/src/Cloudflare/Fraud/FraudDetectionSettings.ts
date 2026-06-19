@@ -1,4 +1,4 @@
-import * as fraud from "@distilled.cloud/cloudflare/fraud";
+import * as fraud from "@oddlynew/distilled-cloudflare/fraud";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

@@ -1,4 +1,4 @@
-import * as kms from "@distilled.cloud/aws/kms";
+import * as kms from "@oddlynew/distilled-aws/kms";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";
@@ -13,7 +13,11 @@ import type { RegionID } from "../Region.ts";
 export type KeyId = string;
 export type KeyArn = `arn:aws:kms:${RegionID}:${AccountID}:key/${KeyId}`;
 
-export type { KeySpec, KeyState, KeyUsageType } from "@distilled.cloud/aws/kms";
+export type {
+  KeySpec,
+  KeyState,
+  KeyUsageType,
+} from "@oddlynew/distilled-aws/kms";
 
 export interface KeyProps {
   /**
@@ -99,7 +103,7 @@ export interface Key extends Resource<
  * @section Creating Keys
  * @example Symmetric Encryption Key
  * ```typescript
- * import * as KMS from "alchemy/AWS/KMS";
+ * import * as KMS from "@oddlynew/alchemy/AWS/KMS";
  *
  * const key = yield* KMS.Key("AppKey", {
  *   description: "Application encryption key",

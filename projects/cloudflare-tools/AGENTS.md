@@ -15,10 +15,10 @@ runtime conventions.
 Code must pass linting, formatting, and typechecking. Use Nx from the repository root for validation:
 
 ```bash
-bun nx build @distilled.cloud/cloudflare-runtime
-bun nx typecheck @distilled.cloud/cloudflare-runtime
-bun nx lint @distilled.cloud/cloudflare-runtime
-bun nx test @distilled.cloud/cloudflare-runtime
+bun nx build @oddlynew/distilled-cloudflare-runtime
+bun nx typecheck @oddlynew/distilled-cloudflare-runtime
+bun nx lint @oddlynew/distilled-cloudflare-runtime
+bun nx test @oddlynew/distilled-cloudflare-runtime
 ```
 
 For broad changes, use the production affected helper from the root:
@@ -61,7 +61,7 @@ import * as MyWorker from "worker:./MyWorker.worker.ts"; // type: { modules: Rec
 
 We use `tsdown` to resolve the `worker:` imports into bundled modules that can be passed into `workerd`.
 
-> **Important:** Re-run `bun nx build @distilled.cloud/cloudflare-runtime` after editing any internal
+> **Important:** Re-run `bun nx build @oddlynew/distilled-cloudflare-runtime` after editing any internal
 > worker.
 
 ## Adding a new binding type to `cloudflare-runtime`
@@ -134,7 +134,7 @@ Create `.worker.ts` files in `workers-sdk/packages/miniflare/src/workers/<bindin
 
 The upstream worker implementations may be more complex than we need, so you may not want to simply copy and paste. Instead, aim to match the upstream implementation as closely as possible while avoiding unnecessary abstractions and creating as few files as possible.
 
-Some more complex workers are imported from a shared package in the `workers-sdk` monorepo. In this case, use the instructions in `packages/vendor/README.md` to vendor the package into our monorepo. One example of this is the assets binding: this uses `@cloudflare/workers-shared`, which is vendored in as `@distilled.cloud/vendor-workers-shared`.
+Some more complex workers are imported from a shared package in the `workers-sdk` monorepo. In this case, use the instructions in `packages/vendor/README.md` to vendor the package into our monorepo. One example of this is the assets binding: this uses `@cloudflare/workers-shared`, which is vendored in as `@oddlynew/distilled-vendor-workers-shared`.
 
 ### 5. Implement tests
 

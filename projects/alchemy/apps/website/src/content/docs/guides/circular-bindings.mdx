@@ -46,7 +46,7 @@ identifier you can `yield*` from anywhere.
 
 ```typescript
 // src/A.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export class A extends Cloudflare.Worker<A>()("A", {
   main: import.meta.filename,
@@ -63,7 +63,7 @@ Do the same for `B`. Both files only declare identity at this point.
 
 ```typescript
 // src/B.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 
 export class B extends Cloudflare.Worker<B>()("B", {
   main: import.meta.filename,
@@ -81,7 +81,7 @@ will dispatch to B's deployed URL at runtime.
 
 ```diff lang="typescript"
   // src/A.ts
-  import * as Cloudflare from "alchemy/Cloudflare";
+  import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 + import * as Effect from "effect/Effect";
 + import { B } from "./B.ts";
 
@@ -112,7 +112,7 @@ binds it.
 
 ```diff lang="typescript"
   // src/B.ts
-  import * as Cloudflare from "alchemy/Cloudflare";
+  import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 + import * as Effect from "effect/Effect";
 + import { A } from "./A.ts";
 
@@ -144,8 +144,8 @@ the Layers to the generator so the Tags resolve to real Workers.
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import ALive, { A } from "./src/A.ts";

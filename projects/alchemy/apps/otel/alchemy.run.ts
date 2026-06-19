@@ -1,7 +1,7 @@
-import * as Alchemy from "alchemy";
-import * as Axiom from "alchemy/Axiom";
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as GitHub from "alchemy/GitHub";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Axiom from "@oddlynew/alchemy/Axiom";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as GitHub from "@oddlynew/alchemy/GitHub";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 

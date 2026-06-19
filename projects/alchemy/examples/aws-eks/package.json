@@ -1,5 +1,5 @@
 {
-  "name": "aws-eks-example",
+  "name": "@oddlynew/alchemy-example-aws-eks",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -15,12 +15,12 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
-    "@distilled.cloud/aws": "catalog:",
+    "@oddlynew/distilled-aws": "workspace:*",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

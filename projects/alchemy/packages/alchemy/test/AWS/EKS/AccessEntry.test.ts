@@ -2,7 +2,7 @@ import * as AWS from "@/AWS";
 import { AccessEntry } from "@/AWS/EKS";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as iam from "@distilled.cloud/aws/iam";
+import * as iam from "@oddlynew/distilled-aws/iam";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

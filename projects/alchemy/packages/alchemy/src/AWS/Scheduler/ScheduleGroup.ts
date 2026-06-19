@@ -1,4 +1,4 @@
-import * as scheduler from "@distilled.cloud/aws/scheduler";
+import * as scheduler from "@oddlynew/distilled-aws/scheduler";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";

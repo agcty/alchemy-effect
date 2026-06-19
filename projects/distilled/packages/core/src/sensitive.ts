@@ -6,7 +6,7 @@
  *
  * @example
  * ```ts
- * import { SensitiveString, SensitiveOutputString } from "@distilled.cloud/core/sensitive";
+ * import { SensitiveString, SensitiveOutputString } from "@oddlynew/distilled-core/sensitive";
  *
  * // Inputs: use Sensitive* — accepts plain string OR Redacted (convenience).
  * const CreateInput = Schema.Struct({ plain_text: SensitiveString });

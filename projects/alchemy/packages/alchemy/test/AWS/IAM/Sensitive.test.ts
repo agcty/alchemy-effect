@@ -1,7 +1,7 @@
 import * as AWS from "@/AWS";
 import { AccessKey, LoginProfile, User } from "@/AWS/IAM";
 import * as Test from "@/Test/Vitest";
-import * as IAM from "@distilled.cloud/aws/iam";
+import * as IAM from "@oddlynew/distilled-aws/iam";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

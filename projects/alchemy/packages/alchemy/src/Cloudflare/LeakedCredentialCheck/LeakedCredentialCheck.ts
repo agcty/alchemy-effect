@@ -1,4 +1,4 @@
-import * as lcc from "@distilled.cloud/cloudflare/leaked-credential-checks";
+import * as lcc from "@oddlynew/distilled-cloudflare/leaked-credential-checks";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

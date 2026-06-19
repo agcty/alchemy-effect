@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/nx-r2-cache-worker",
+  "name": "@oddlynew/alchemy-nx-r2-cache-worker",
   "version": "0.0.0",
   "private": true,
   "description": "Self-hosted Nx remote cache Worker backed by Cloudflare R2",
@@ -34,10 +34,10 @@
   "devDependencies": {
     "@cloudflare/workers-types": "catalog:",
     "@effect/vitest": "catalog:",
-    "@alchemy.run/oxlint-config": "workspace:*",
-    "@alchemy.run/typescript-config": "workspace:*",
+    "@oddlynew/alchemy-oxlint-config": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/bun": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:",
     "tsdown": "catalog:",
     "typescript": "catalog:",

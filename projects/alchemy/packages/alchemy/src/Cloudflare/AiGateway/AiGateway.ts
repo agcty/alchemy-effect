@@ -1,4 +1,4 @@
-import * as aiGateway from "@distilled.cloud/cloudflare/ai-gateway";
+import * as aiGateway from "@oddlynew/distilled-cloudflare/ai-gateway";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";
@@ -279,7 +279,7 @@ export const isAiGateway = (value: unknown): value is AiGateway =>
  * Worker's Init phase. Provide `Cloudflare.AiGatewayBindingLive` once at the
  * bottom of the Init layer chain so every `bind(...)` resolves at runtime.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import { Gateway } from "./AiGateway.ts";
  *

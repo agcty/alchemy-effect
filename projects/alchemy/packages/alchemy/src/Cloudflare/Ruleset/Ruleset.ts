@@ -1,4 +1,4 @@
-import * as rulesets from "@distilled.cloud/cloudflare/rulesets";
+import * as rulesets from "@oddlynew/distilled-cloudflare/rulesets";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";

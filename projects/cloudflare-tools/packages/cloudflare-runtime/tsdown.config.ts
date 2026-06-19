@@ -1,8 +1,8 @@
 import {
   InternalWorkerExportPlugin,
   InternalWorkerImportPlugin,
-} from "@distilled.cloud/build-utils";
-import cloudflare from "@distilled.cloud/cloudflare-rolldown-plugin";
+} from "@oddlynew/distilled-build-utils";
+import cloudflare from "@oddlynew/distilled-cloudflare-rolldown-plugin";
 import { defineConfig } from "tsdown";
 
 export default defineConfig([

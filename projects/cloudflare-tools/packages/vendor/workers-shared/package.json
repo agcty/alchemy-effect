@@ -1,5 +1,5 @@
 {
-  "name": "@distilled.cloud/vendor-workers-shared",
+  "name": "@oddlynew/distilled-vendor-workers-shared",
   "version": "0.0.0",
   "private": true,
   "description": "Vendored TypeScript source of @cloudflare/workers-shared.",
@@ -19,10 +19,10 @@
     "typecheck": "tsc"
   },
   "devDependencies": {
-    "@alchemy.run/node-utils": "catalog:",
-    "@alchemy.run/typescript-config": "workspace:*",
     "@cloudflare/vitest-pool-workers": "^0.13.0",
     "@cloudflare/workers-types": "catalog:workers",
+    "@oddlynew/alchemy-node-utils": "workspace:*",
+    "@oddlynew/alchemy-typescript-config": "workspace:*",
     "@types/node": "*",
     "effect": "catalog:effect",
     "mime": "^4.0.7",

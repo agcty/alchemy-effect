@@ -1,5 +1,5 @@
-import * as Cloudflare from "alchemy/Cloudflare";
-import { Stack } from "alchemy/Stack";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";
 import * as HttpServerRequest from "effect/unstable/http/HttpServerRequest";

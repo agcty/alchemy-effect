@@ -3,7 +3,7 @@ import * as Cloudflare from "@/Cloudflare";
 import { CloudflareEnvironment } from "@/Cloudflare/CloudflareEnvironment";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as resourceTagging from "@distilled.cloud/cloudflare/resource-tagging";
+import * as resourceTagging from "@oddlynew/distilled-cloudflare/resource-tagging";
 import { expect } from "@effect/vitest";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";

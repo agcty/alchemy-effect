@@ -1,4 +1,4 @@
-import * as cloudConnector from "@distilled.cloud/cloudflare/cloud-connector";
+import * as cloudConnector from "@oddlynew/distilled-cloudflare/cloud-connector";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

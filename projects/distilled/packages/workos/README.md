@@ -1,11 +1,11 @@
-# @distilled.cloud/workos
+# @oddlynew/distilled-workos
 
 Effect-native WorkOS SDK generated from the [WorkOS OpenAPI specification](https://workos.com/docs/reference). Manage organizations, directories, SSO connections, user management, audit logs, and more — with exhaustive error typing.
 
 ## Installation
 
 ```bash
-npm install @distilled.cloud/workos effect
+npm install @oddlynew/distilled-workos effect
 ```
 
 ## Quick Start
@@ -13,8 +13,8 @@ npm install @distilled.cloud/workos effect
 ```typescript
 import { Effect, Layer } from "effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import { OrganizationsControllerList } from "@distilled.cloud/workos/Operations";
-import { CredentialsFromEnv } from "@distilled.cloud/workos";
+import { OrganizationsControllerList } from "@oddlynew/distilled-workos/Operations";
+import { CredentialsFromEnv } from "@oddlynew/distilled-workos";
 
 const program = Effect.gen(function* () {
   const result = yield* OrganizationsControllerList({});
@@ -42,7 +42,7 @@ Create an API key in the [WorkOS dashboard](https://dashboard.workos.com) under 
 
 ```typescript
 import { Effect } from "effect";
-import { OrganizationsControllerFind } from "@distilled.cloud/workos/Operations";
+import { OrganizationsControllerFind } from "@oddlynew/distilled-workos/Operations";
 
 OrganizationsControllerFind({ id: "org_missing" }).pipe(
   Effect.catchTags({

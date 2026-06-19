@@ -1,7 +1,7 @@
 import * as Cloudflare from "@/Cloudflare";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as ddos from "@distilled.cloud/cloudflare/ddos-protection";
+import * as ddos from "@oddlynew/distilled-cloudflare/ddos-protection";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

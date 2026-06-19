@@ -1,7 +1,7 @@
 import * as AWS from "@/AWS";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as Lambda from "@distilled.cloud/aws/lambda";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
 import { expect } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";

@@ -17,11 +17,11 @@ export {
   HTTP_STATUS_MAP,
   DEFAULT_ERRORS,
   API_ERRORS,
-} from "@distilled.cloud/core/errors";
-import type { DefaultErrors as CoreDefaultErrors } from "@distilled.cloud/core/errors";
+} from "@oddlynew/distilled-core/errors";
+import type { DefaultErrors as CoreDefaultErrors } from "@oddlynew/distilled-core/errors";
 
 import * as Schema from "effect/Schema";
-import * as Category from "@distilled.cloud/core/category";
+import * as Category from "@oddlynew/distilled-core/category";
 
 // Schema parse error wrapper
 export class CloudflareParseError extends Schema.TaggedErrorClass<CloudflareParseError>()(

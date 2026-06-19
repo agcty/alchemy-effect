@@ -1,4 +1,4 @@
-import * as rum from "@distilled.cloud/cloudflare/rum";
+import * as rum from "@oddlynew/distilled-cloudflare/rum";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";

@@ -1,4 +1,4 @@
-import * as ecr from "@distilled.cloud/aws/ecr";
+import * as ecr from "@oddlynew/distilled-aws/ecr";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { Unowned } from "../../AdoptPolicy.ts";

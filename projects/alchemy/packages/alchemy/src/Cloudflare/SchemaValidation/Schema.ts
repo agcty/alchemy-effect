@@ -1,4 +1,4 @@
-import * as schemaValidation from "@distilled.cloud/cloudflare/schema-validation";
+import * as schemaValidation from "@oddlynew/distilled-cloudflare/schema-validation";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

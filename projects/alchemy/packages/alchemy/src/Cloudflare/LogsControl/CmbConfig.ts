@@ -1,4 +1,4 @@
-import * as logs from "@distilled.cloud/cloudflare/logs";
+import * as logs from "@oddlynew/distilled-cloudflare/logs";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

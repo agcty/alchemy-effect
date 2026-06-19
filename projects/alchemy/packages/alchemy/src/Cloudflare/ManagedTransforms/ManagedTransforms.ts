@@ -1,4 +1,4 @@
-import * as managedTransforms from "@distilled.cloud/cloudflare/managed-transforms";
+import * as managedTransforms from "@oddlynew/distilled-cloudflare/managed-transforms";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

@@ -1,4 +1,4 @@
-import * as ddos from "@distilled.cloud/cloudflare/ddos-protection";
+import * as ddos from "@oddlynew/distilled-cloudflare/ddos-protection";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

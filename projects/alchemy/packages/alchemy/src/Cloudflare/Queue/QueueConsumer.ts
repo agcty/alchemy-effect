@@ -1,4 +1,4 @@
-import * as queues from "@distilled.cloud/cloudflare/queues";
+import * as queues from "@oddlynew/distilled-cloudflare/queues";
 import * as Effect from "effect/Effect";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as Option from "effect/Option";

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Kubernetes from "@distilled.cloud/kubernetes";
+ * import * as Kubernetes from "@oddlynew/distilled-kubernetes";
  * ```
  */
 export * from "./credentials.ts";

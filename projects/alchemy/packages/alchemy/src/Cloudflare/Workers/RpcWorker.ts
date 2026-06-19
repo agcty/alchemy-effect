@@ -310,7 +310,7 @@ const bind = <Self, Rpcs extends Rpc.Any>(
  * group and returns the `RpcServer.toHttpEffect(schema)`-piped Effect
  * directly.
  * ```typescript
- * import * as Cloudflare from "alchemy/Cloudflare";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -423,8 +423,8 @@ const bind = <Self, Rpcs extends Rpc.Any>(
  * URL and calls procedures directly.
  * ```typescript
  * import { expect } from "@effect/vitest";
- * import * as Cloudflare from "alchemy/Cloudflare";
- * import * as Test from "alchemy/Test/Vitest";
+ * import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+ * import * as Test from "@oddlynew/alchemy/Test/Vitest";
  * import * as Effect from "effect/Effect";
  * import * as Layer from "effect/Layer";
  * import * as Schedule from "effect/Schedule";

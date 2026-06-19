@@ -3,7 +3,7 @@ import { AWSEnvironment } from "@/AWS/Environment";
 import { Task } from "@/AWS/ECS/Task.ts";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as ecs from "@distilled.cloud/aws/ecs";
+import * as ecs from "@oddlynew/distilled-aws/ecs";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 

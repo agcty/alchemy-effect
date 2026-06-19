@@ -70,7 +70,7 @@ all import. Both ends share the same schema.
 
 ```typescript
 // src/worker.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import { TaskRpcs } from "./rpcs.ts";
 
@@ -90,7 +90,7 @@ which carries the `RpcGroup`.
 ## Wire the handlers
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
  import { TaskRpcs } from "./rpcs.ts";
 
@@ -113,7 +113,7 @@ and return type.
 ## Return the piped Effect
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
 +import * as Layer from "effect/Layer";
 +import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
@@ -140,8 +140,8 @@ directly** — no `{ fetch }` wrapper.
 
 ```typescript
 // alchemy.run.ts
-import * as Alchemy from "alchemy";
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import Worker from "./src/worker.ts";
 
@@ -162,8 +162,8 @@ Yielding the class returns the underlying `Worker` resource;
 
 ```typescript
 // test/worker.test.ts
-import * as Cloudflare from "alchemy/Cloudflare";
-import * as Test from "alchemy/Test/Vitest";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import * as Test from "@oddlynew/alchemy/Test/Vitest";
 
 const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
   providers: Cloudflare.providers(),
@@ -179,8 +179,8 @@ to the alchemy deploy/destroy lifecycle.
 ## Deploy the stack once for the file
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
- import * as Test from "alchemy/Test/Vitest";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+ import * as Test from "@oddlynew/alchemy/Test/Vitest";
 +import Stack from "../alchemy.run.ts";
 
  const { test, beforeAll, afterAll, deploy, destroy } = Test.make({
@@ -298,7 +298,7 @@ handler. Start with a bare class:
 
 ```typescript
 // src/caller.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -320,7 +320,7 @@ A regular Worker — same shape as any other `Cloudflare.Worker`.
 ## Bind the typed client at init
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
  import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 +import TaskWorker from "./worker.ts";

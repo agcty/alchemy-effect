@@ -115,7 +115,7 @@ const ENV_SERVER_RETRY_HINT_CAP_MS = "DISTILLED_SERVER_RETRY_HINT_CAP_MS";
  * ```
  */
 export const ServerRetryHintCapMs = Context.Service<number>(
-  "@distilled.cloud/core/ServerRetryHintCapMs",
+  "@oddlynew/distilled-core/ServerRetryHintCapMs",
 );
 
 /**

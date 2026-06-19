@@ -1,4 +1,4 @@
-import * as rds from "@distilled.cloud/aws/rds";
+import * as rds from "@oddlynew/distilled-aws/rds";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import * as Stream from "effect/Stream";

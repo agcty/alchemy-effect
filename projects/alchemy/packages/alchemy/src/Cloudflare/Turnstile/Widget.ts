@@ -1,4 +1,4 @@
-import * as turnstile from "@distilled.cloud/cloudflare/turnstile";
+import * as turnstile from "@oddlynew/distilled-cloudflare/turnstile";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

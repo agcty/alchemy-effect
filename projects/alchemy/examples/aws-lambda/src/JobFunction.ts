@@ -1,5 +1,5 @@
-import * as AWS from "alchemy/AWS";
-import { Stack } from "alchemy/Stack";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";

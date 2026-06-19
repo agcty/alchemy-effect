@@ -1,4 +1,4 @@
-import * as pageRules from "@distilled.cloud/cloudflare/page-rules";
+import * as pageRules from "@oddlynew/distilled-cloudflare/page-rules";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

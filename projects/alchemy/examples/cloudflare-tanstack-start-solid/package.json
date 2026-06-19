@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-tanstack-start-solid-example",
+  "name": "@oddlynew/alchemy-example-cloudflare-tanstack-start-solid",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -20,7 +20,7 @@
   "dependencies": {
     "@tanstack/solid-router": "^1.170.4",
     "@tanstack/solid-start": "^1.168.6",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "effect": "catalog:",
     "solid-js": "^1.9.12"
   },
@@ -30,6 +30,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "^2.11.12",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

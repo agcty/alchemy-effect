@@ -1,4 +1,4 @@
-import * as tokenValidation from "@distilled.cloud/cloudflare/token-validation";
+import * as tokenValidation from "@oddlynew/distilled-cloudflare/token-validation";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

@@ -3,7 +3,7 @@ import { AWSEnvironment } from "@/AWS/Environment";
 import * as Output from "@/Output";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as ag from "@distilled.cloud/aws/api-gateway";
+import * as ag from "@oddlynew/distilled-aws/api-gateway";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { TestFunction, TestFunctionLive } from "../Lambda/handler.ts";

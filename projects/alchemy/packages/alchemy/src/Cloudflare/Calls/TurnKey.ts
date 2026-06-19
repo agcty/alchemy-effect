@@ -1,4 +1,4 @@
-import * as calls from "@distilled.cloud/cloudflare/calls";
+import * as calls from "@oddlynew/distilled-cloudflare/calls";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

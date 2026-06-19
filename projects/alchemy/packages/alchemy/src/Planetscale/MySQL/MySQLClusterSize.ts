@@ -1,4 +1,4 @@
-import * as ops from "@distilled.cloud/planetscale/Operations";
+import * as ops from "@oddlynew/distilled-planetscale/Operations";
 import * as Effect from "effect/Effect";
 import { pollUntil } from "../Util.ts";
 

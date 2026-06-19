@@ -1,5 +1,5 @@
-import type * as Cloudflare from "alchemy/Cloudflare";
-import type { RuntimeContext } from "alchemy/RuntimeContext";
+import type * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
+import type { RuntimeContext } from "@oddlynew/alchemy/RuntimeContext";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";

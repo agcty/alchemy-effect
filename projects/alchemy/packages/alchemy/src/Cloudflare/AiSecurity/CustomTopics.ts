@@ -1,4 +1,4 @@
-import * as aiSecurity from "@distilled.cloud/cloudflare/ai-security";
+import * as aiSecurity from "@oddlynew/distilled-cloudflare/ai-security";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

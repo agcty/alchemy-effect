@@ -1,4 +1,4 @@
-import * as speed from "@distilled.cloud/cloudflare/speed";
+import * as speed from "@oddlynew/distilled-cloudflare/speed";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

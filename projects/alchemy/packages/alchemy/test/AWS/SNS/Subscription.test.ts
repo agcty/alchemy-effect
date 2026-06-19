@@ -2,7 +2,7 @@ import * as AWS from "@/AWS";
 import { Subscription } from "@/AWS/SNS";
 import * as Provider from "@/Provider";
 import * as Test from "@/Test/Vitest";
-import * as SNS from "@distilled.cloud/aws/sns";
+import * as SNS from "@oddlynew/distilled-aws/sns";
 import { expect } from "@effect/vitest";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

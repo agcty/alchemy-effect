@@ -1,4 +1,4 @@
-import * as elbv2 from "@distilled.cloud/aws/elastic-load-balancing-v2";
+import * as elbv2 from "@oddlynew/distilled-aws/elastic-load-balancing-v2";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";

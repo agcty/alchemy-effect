@@ -1,4 +1,4 @@
-import * as Axiom from "@distilled.cloud/axiom";
+import * as Axiom from "@oddlynew/distilled-axiom";
 import * as Effect from "effect/Effect";
 import { isResolved } from "../Diff.ts";
 import * as Provider from "../Provider.ts";

@@ -9,8 +9,8 @@ import {
   Credentials,
   DEFAULT_API_BASE_URL,
   fromApiToken,
-} from "@distilled.cloud/cloudflare/Credentials";
-import * as Workers from "@distilled.cloud/cloudflare/workers";
+} from "@oddlynew/distilled-cloudflare/Credentials";
+import * as Workers from "@oddlynew/distilled-cloudflare/workers";
 
 // =============================================================================
 // Config

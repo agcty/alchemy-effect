@@ -1,4 +1,4 @@
-import * as customNameservers from "@distilled.cloud/cloudflare/custom-nameservers";
+import * as customNameservers from "@oddlynew/distilled-cloudflare/custom-nameservers";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

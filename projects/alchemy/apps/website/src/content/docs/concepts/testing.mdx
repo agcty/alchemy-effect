@@ -283,9 +283,9 @@ For a full walkthrough using a real custom provider, see
 The two adapters expose the **same API**:
 
 ```diff lang="typescript"
--import * as Test from "alchemy/Test/Bun";
+-import * as Test from "@oddlynew/alchemy/Test/Bun";
 -import { expect } from "bun:test";
-+import * as Test from "alchemy/Test/Vitest";
++import * as Test from "@oddlynew/alchemy/Test/Vitest";
 +import { expect } from "@effect/vitest";
 
 const { test, beforeAll, afterAll, deploy, destroy } = Test.make({

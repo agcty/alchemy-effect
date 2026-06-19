@@ -1,4 +1,4 @@
-import { Credentials } from "@distilled.cloud/aws/Credentials";
+import { Credentials } from "@oddlynew/distilled-aws/Credentials";
 import { AwsClient } from "aws4fetch";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";

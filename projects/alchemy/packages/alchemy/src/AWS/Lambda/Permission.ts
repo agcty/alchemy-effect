@@ -1,5 +1,5 @@
-import type * as lambda from "@distilled.cloud/aws/lambda";
-import * as Lambda from "@distilled.cloud/aws/lambda";
+import type * as lambda from "@oddlynew/distilled-aws/lambda";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { isResolved } from "../../Diff.ts";
@@ -8,7 +8,7 @@ import * as Provider from "../../Provider.ts";
 import { Resource } from "../../Resource.ts";
 import type { Providers } from "../Providers.ts";
 
-export type { FunctionUrlAuthType } from "@distilled.cloud/aws/lambda";
+export type { FunctionUrlAuthType } from "@oddlynew/distilled-aws/lambda";
 
 export interface PermissionProps {
   /**

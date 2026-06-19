@@ -9,7 +9,7 @@ import {
   type DurableObjectNamespace as RuntimeDurableObjectNamespace,
   type QueueConsumer as RuntimeQueueConsumer,
   type RuntimeServices,
-} from "@distilled.cloud/cloudflare-runtime";
+} from "@oddlynew/distilled-cloudflare-runtime";
 import {
   Ai,
   AiSearch,
@@ -39,9 +39,9 @@ import {
   WasmModule,
   WorkerLoader,
   Workflows,
-} from "@distilled.cloud/cloudflare-runtime/bindings";
-import type { ContainerImage } from "@distilled.cloud/cloudflare-runtime/Docker";
-import * as WorkerProxy from "@distilled.cloud/cloudflare-runtime/proxy/WorkerProxy";
+} from "@oddlynew/distilled-cloudflare-runtime/bindings";
+import type { ContainerImage } from "@oddlynew/distilled-cloudflare-runtime/Docker";
+import * as WorkerProxy from "@oddlynew/distilled-cloudflare-runtime/proxy/WorkerProxy";
 import * as Cause from "effect/Cause";
 import * as Effect from "effect/Effect";
 import * as Equal from "effect/Equal";
@@ -412,7 +412,7 @@ export const LocalWorkerProvider = () =>
       ) {
         const proxy = yield* maybeStartProxy(worker.id, worker.dev);
         yield* proxy.unset().pipe(Effect.forkChild);
-        // Loaded lazily: `./Vite.ts` pulls in `@distilled.cloud/cloudflare-vite-plugin`
+        // Loaded lazily: `./Vite.ts` pulls in `@oddlynew/distilled-cloudflare-vite-plugin`
         // (~0.5s); only needed when running a vite dev server.
         const Vite = yield* Effect.promise(() => import("./Vite.ts"));
         const devServer = yield* Vite.viteDev(

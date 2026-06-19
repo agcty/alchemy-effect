@@ -1,4 +1,4 @@
-import type * as cloudfront from "@distilled.cloud/aws/cloudfront";
+import type * as cloudfront from "@oddlynew/distilled-aws/cloudfront";
 import * as Effect from "effect/Effect";
 import * as Construct from "../../Construct.ts";
 import type { Input } from "../../Input.ts";

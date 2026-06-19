@@ -1,4 +1,4 @@
-import * as registrar from "@distilled.cloud/cloudflare/registrar";
+import * as registrar from "@oddlynew/distilled-cloudflare/registrar";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

@@ -1,4 +1,4 @@
-import * as autoscaling from "@distilled.cloud/aws/auto-scaling";
+import * as autoscaling from "@oddlynew/distilled-aws/auto-scaling";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";

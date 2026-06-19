@@ -1,10 +1,10 @@
-import * as STS from "@distilled.cloud/aws/sts";
-import * as Alchemy from "alchemy";
-import * as AWS from "alchemy/AWS";
-import * as EC2 from "alchemy/AWS/EC2";
-import * as EKS from "alchemy/AWS/EKS";
-import * as Kubernetes from "alchemy/Kubernetes";
-import * as Output from "alchemy/Output";
+import * as STS from "@oddlynew/distilled-aws/sts";
+import * as Alchemy from "@oddlynew/alchemy";
+import * as AWS from "@oddlynew/alchemy/AWS";
+import * as EC2 from "@oddlynew/alchemy/AWS/EC2";
+import * as EKS from "@oddlynew/alchemy/AWS/EKS";
+import * as Kubernetes from "@oddlynew/alchemy/Kubernetes";
+import * as Output from "@oddlynew/alchemy/Output";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";

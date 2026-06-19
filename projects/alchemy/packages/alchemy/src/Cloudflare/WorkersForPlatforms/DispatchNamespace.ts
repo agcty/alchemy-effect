@@ -1,4 +1,4 @@
-import * as wfp from "@distilled.cloud/cloudflare/workers-for-platforms";
+import * as wfp from "@oddlynew/distilled-cloudflare/workers-for-platforms";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

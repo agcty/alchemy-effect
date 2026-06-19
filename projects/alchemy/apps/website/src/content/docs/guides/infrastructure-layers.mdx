@@ -16,7 +16,7 @@ Start with the abstract contract — no infrastructure, no cloud.
 
 ```typescript
 // src/JobService.ts
-import * as Alchemy from "alchemy";
+import * as Alchemy from "@oddlynew/alchemy";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 
@@ -74,7 +74,7 @@ it inside the Layer attaches it to whichever Stack consumes the
 Layer.
 
 ```diff lang="typescript"
-+import * as Cloudflare from "alchemy/Cloudflare";
++import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
  import * as Layer from "effect/Layer";
  import { JobService, type Job } from "./JobService.ts";
@@ -138,7 +138,7 @@ placeholder. Init and runtime closures are both empty.
 
 ```typescript
 // src/Api.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 
@@ -161,7 +161,7 @@ Yield `JobService` in the init closure to get a typed handle, then
 call it from `fetch`:
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
  import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 +import { JobService } from "./JobService.ts";
@@ -192,7 +192,7 @@ requirements but nothing satisfies it.
 KV namespace resource into the Stack:
 
 ```diff lang="typescript"
- import * as Cloudflare from "alchemy/Cloudflare";
+ import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
  import * as Effect from "effect/Effect";
 +import * as Layer from "effect/Layer";
  import { HttpServerRequest } from "effect/unstable/http/HttpServerRequest";
@@ -265,7 +265,7 @@ change. Drop a second implementation alongside `JobService.KV.ts`:
 
 ```typescript
 // src/JobService.R2.ts
-import * as Cloudflare from "alchemy/Cloudflare";
+import * as Cloudflare from "@oddlynew/alchemy/Cloudflare";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { JobService, type Job } from "./JobService.ts";

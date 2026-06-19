@@ -1,5 +1,5 @@
-import * as iam from "@distilled.cloud/aws/iam";
-import * as s3 from "@distilled.cloud/aws/s3";
+import * as iam from "@oddlynew/distilled-aws/iam";
+import * as s3 from "@oddlynew/distilled-aws/s3";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -216,15 +216,15 @@ export const createEc2HostedSupport = ({
           virtualEntryPlugin(
             (importPath) => `
 import { NodeServices } from "@effect/platform-node";
-import { Stack } from "alchemy/Stack";
+import { Stack } from "@oddlynew/alchemy/Stack";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
-import * as Credentials from "@distilled.cloud/aws/Credentials";
+import * as Credentials from "@oddlynew/distilled-aws/Credentials";
 import * as Effect from "effect/Effect";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import * as Region from "@distilled.cloud/aws/Region";
+import * as Region from "@oddlynew/distilled-aws/Region";
 
 import { ${handler} as handler } from ${JSON.stringify(importPath)};
 

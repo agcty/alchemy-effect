@@ -1,4 +1,4 @@
-import * as logpush from "@distilled.cloud/cloudflare/logpush";
+import * as logpush from "@oddlynew/distilled-cloudflare/logpush";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Stream from "effect/Stream";

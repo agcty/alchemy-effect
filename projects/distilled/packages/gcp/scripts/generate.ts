@@ -541,7 +541,7 @@ function generateService(doc: DiscoveryDoc, patches: ServicePatch): string {
   if (code.includes("DurationSchema")) {
     code = code.replace(
       "__DURATION_SCHEMA_IMPORT__",
-      'import { DurationSchema } from "@distilled.cloud/core/errors";',
+      'import { DurationSchema } from "@oddlynew/distilled-core/errors";',
     );
   } else {
     code = code.replace("__DURATION_SCHEMA_IMPORT__\n", "");

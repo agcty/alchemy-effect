@@ -5,7 +5,7 @@ import { normalizeEndpoint } from "@/Cloudflare/ApiShield/Operation";
 import * as Provider from "@/Provider";
 import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Test from "@/Test/Vitest";
-import * as apiGateway from "@distilled.cloud/cloudflare/api-gateway";
+import * as apiGateway from "@oddlynew/distilled-cloudflare/api-gateway";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

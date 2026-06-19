@@ -8,7 +8,7 @@
  *
  * @example
  * ```ts
- * import * as Cloudflare from "@distilled.cloud/cloudflare";
+ * import * as Cloudflare from "@oddlynew/distilled-cloudflare";
  *
  * myEffect.pipe(Cloudflare.Retry.transient);
  * Effect.provide(myEffect, Layer.succeed(Cloudflare.Retry.Retry, customPolicy));
@@ -21,7 +21,7 @@ import {
   type Policy,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 export {
   type Options,
@@ -34,7 +34,7 @@ export {
   transientOptions,
   throttlingFactory,
   transientFactory,
-} from "@distilled.cloud/core/retry";
+} from "@oddlynew/distilled-core/retry";
 
 /** Context tag for configuring retry behavior of Cloudflare API calls. */
 export class Retry extends Context.Service<Retry, Policy>()(

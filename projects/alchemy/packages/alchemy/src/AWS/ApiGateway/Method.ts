@@ -1,4 +1,4 @@
-import * as ag from "@distilled.cloud/aws/api-gateway";
+import * as ag from "@oddlynew/distilled-aws/api-gateway";
 import * as Effect from "effect/Effect";
 import * as Stream from "effect/Stream";
 import { deepEqual, isResolved } from "../../Diff.ts";
@@ -132,7 +132,7 @@ export interface MethodType extends Resource<
  *
  * @example ANY method with Lambda AWS_PROXY integration
  * ```typescript
- * import * as Output from "alchemy/Output";
+ * import * as Output from "@oddlynew/alchemy/Output";
  *
  * const invokeUri = Output.map(
  *   fn.functionArn,

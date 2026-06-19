@@ -5,7 +5,7 @@ import { findZoneByName } from "@/Cloudflare/Zone/lookup";
 import * as Provider from "@/Provider";
 import * as RemovalPolicy from "@/RemovalPolicy";
 import * as Test from "@/Test/Vitest";
-import * as rulesets from "@distilled.cloud/cloudflare/rulesets";
+import * as rulesets from "@oddlynew/distilled-cloudflare/rulesets";
 import { expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import { MinimumLogLevel } from "effect/References";

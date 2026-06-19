@@ -1,4 +1,4 @@
-import * as planetscale from "@distilled.cloud/planetscale";
+import * as planetscale from "@oddlynew/distilled-planetscale";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { pollUntil, waitForBranchReady } from "../Util.ts";

@@ -1,4 +1,4 @@
-import * as intel from "@distilled.cloud/cloudflare/intel";
+import * as intel from "@oddlynew/distilled-cloudflare/intel";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 

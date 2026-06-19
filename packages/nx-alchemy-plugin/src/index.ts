@@ -235,7 +235,7 @@ function createTargets(
 
 // Export as default plugin object
 export default {
-  name: "@alchemy.run/nx-alchemy-plugin",
+  name: "@oddlynew/alchemy-nx-alchemy-plugin",
   createNodes: createNodesFunction,
 };
 

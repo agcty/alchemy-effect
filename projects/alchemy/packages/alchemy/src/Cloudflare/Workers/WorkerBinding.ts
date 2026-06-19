@@ -1,4 +1,4 @@
-import type * as workers from "@distilled.cloud/cloudflare/workers";
+import type * as workers from "@oddlynew/distilled-cloudflare/workers";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Redacted from "effect/Redacted";

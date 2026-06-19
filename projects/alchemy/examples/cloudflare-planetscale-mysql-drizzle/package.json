@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-planetscale-mysql-drizzle",
+  "name": "@oddlynew/alchemy-example-cloudflare-planetscale-mysql-drizzle",
   "version": "0.0.0",
   "private": true,
   "license": "Apache-2.0",
@@ -20,13 +20,13 @@
     "@cloudflare/workers-types": "catalog:",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
-    "alchemy": "workspace:*",
+    "@oddlynew/alchemy": "workspace:*",
     "drizzle-orm": "1.0.0-rc.1",
     "effect": "catalog:",
     "mysql2": "^3.15.3"
   },
   "devDependencies": {
     "drizzle-kit": "1.0.0-rc.1",
-    "@alchemy.run/typescript-config": "workspace:*"
+    "@oddlynew/alchemy-typescript-config": "workspace:*"
   }
 }

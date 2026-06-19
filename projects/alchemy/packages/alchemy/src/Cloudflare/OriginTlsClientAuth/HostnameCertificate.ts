@@ -1,4 +1,4 @@
-import * as originTls from "@distilled.cloud/cloudflare/origin-tls-client-auth";
+import * as originTls from "@oddlynew/distilled-cloudflare/origin-tls-client-auth";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Redacted from "effect/Redacted";

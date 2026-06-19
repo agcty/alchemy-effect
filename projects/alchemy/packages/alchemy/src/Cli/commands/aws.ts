@@ -1,4 +1,4 @@
-import * as Auth from "@distilled.cloud/aws/Auth";
+import * as Auth from "@oddlynew/distilled-aws/Auth";
 import * as ConfigProvider from "effect/ConfigProvider";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";

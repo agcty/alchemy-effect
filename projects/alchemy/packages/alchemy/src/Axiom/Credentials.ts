@@ -1,5 +1,5 @@
-import { Credentials } from "@distilled.cloud/axiom/Credentials";
-import { ConfigError } from "@distilled.cloud/core/errors";
+import { Credentials } from "@oddlynew/distilled-axiom/Credentials";
+import { ConfigError } from "@oddlynew/distilled-core/errors";
 import * as Config from "effect/Config";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
@@ -16,7 +16,7 @@ export {
   Credentials,
   CredentialsFromEnv,
   DEFAULT_API_BASE_URL,
-} from "@distilled.cloud/axiom/Credentials";
+} from "@oddlynew/distilled-axiom/Credentials";
 
 /**
  * Build a `Credentials` layer that resolves Axiom credentials via the Alchemy

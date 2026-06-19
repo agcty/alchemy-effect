@@ -1,7 +1,7 @@
-// required to avoid this error in consumers: "The inferred type of 'Records' cannot be named without a reference to '../../@distilled.cloud/aws/node_modules/@types/aws-lambda'. This is likely not portable. A type annotation is necessary.ts(2742)"
+// required to avoid this error in consumers: "The inferred type of 'Records' cannot be named without a reference to '../../@oddlynew/distilled-aws/node_modules/@types/aws-lambda'. This is likely not portable. A type annotation is necessary.ts(2742)"
 export type * as lambda from "aws-lambda";
 
-import * as kinesis from "@distilled.cloud/aws/kinesis";
+import * as kinesis from "@oddlynew/distilled-aws/kinesis";
 import type * as lambda from "aws-lambda";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
@@ -179,7 +179,7 @@ export interface Stream extends Resource<
  * @section Creating Streams
  * @example On-Demand Stream
  * ```typescript
- * import * as Kinesis from "alchemy/AWS/Kinesis";
+ * import * as Kinesis from "@oddlynew/alchemy/AWS/Kinesis";
  *
  * const stream = yield* Kinesis.Stream("OrdersStream");
  * ```

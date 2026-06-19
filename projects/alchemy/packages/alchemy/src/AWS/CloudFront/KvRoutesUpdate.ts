@@ -1,4 +1,4 @@
-import * as kvs from "@distilled.cloud/aws/cloudfront-keyvaluestore";
+import * as kvs from "@oddlynew/distilled-aws/cloudfront-keyvaluestore";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import type { HttpClient } from "effect/unstable/http/HttpClient";

@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Fly-io from "@distilled.cloud/fly-io";
+ * import * as Fly-io from "@oddlynew/distilled-fly-io";
  * ```
  */
 export * from "./credentials.ts";

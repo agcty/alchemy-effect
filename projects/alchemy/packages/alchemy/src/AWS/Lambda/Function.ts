@@ -1,9 +1,9 @@
-import * as logs from "@distilled.cloud/aws/cloudwatch-logs";
-import type { Credentials } from "@distilled.cloud/aws/Credentials";
-import * as iam from "@distilled.cloud/aws/iam";
-import type { CreateFunctionRequest } from "@distilled.cloud/aws/lambda";
-import * as Lambda from "@distilled.cloud/aws/lambda";
-import { Region } from "@distilled.cloud/aws/Region";
+import * as logs from "@oddlynew/distilled-aws/cloudwatch-logs";
+import type { Credentials } from "@oddlynew/distilled-aws/Credentials";
+import * as iam from "@oddlynew/distilled-aws/iam";
+import type { CreateFunctionRequest } from "@oddlynew/distilled-aws/lambda";
+import * as Lambda from "@oddlynew/distilled-aws/lambda";
+import { Region } from "@oddlynew/distilled-aws/Region";
 import type * as lambda from "aws-lambda";
 import * as Context from "effect/Context";
 import * as Duration from "effect/Duration";
@@ -235,7 +235,7 @@ const normalizeFunctionUrl = (
  * @example Defining an async Lambda in your stack
  * ```typescript
  * // alchemy.run.ts
- * import * as AWS from "alchemy/AWS";
+ * import * as AWS from "@oddlynew/alchemy/AWS";
  *
  * const func = yield* AWS.Lambda.Function("ApiFunction", {
  *   main: "./src/handler.ts",
@@ -767,16 +767,16 @@ export const FunctionProvider = () =>
               virtualEntryPlugin(
                 (importPath) => `
 import { layer as nodeServicesLayer } from "@effect/platform-node/NodeServices";
-import { Stack } from "alchemy/Stack";
-import { makeEntrypointLayer } from "alchemy/Runtime";
+import { Stack } from "@oddlynew/alchemy/Stack";
+import { makeEntrypointLayer } from "@oddlynew/alchemy/Runtime";
 import * as Config from "effect/Config";
 import * as ConfigProvider from "effect/ConfigProvider";
-import * as Credentials from "@distilled.cloud/aws/Credentials";
+import * as Credentials from "@oddlynew/distilled-aws/Credentials";
 import * as Effect from "effect/Effect";
 import { layer as fetchHttpClientLayer } from "effect/unstable/http/FetchHttpClient";
 import * as Layer from "effect/Layer";
 import * as Logger from "effect/Logger";
-import * as Region from "@distilled.cloud/aws/Region";
+import * as Region from "@oddlynew/distilled-aws/Region";
 import * as Context from "effect/Context";
 import { MinimumLogLevel } from "effect/References";
 

@@ -1,4 +1,4 @@
-import * as eks from "@distilled.cloud/aws/eks";
+import * as eks from "@oddlynew/distilled-aws/eks";
 import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";

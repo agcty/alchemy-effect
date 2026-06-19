@@ -1,5 +1,5 @@
 {
-  "name": "@alchemy.run/typescript-config",
+  "name": "@oddlynew/alchemy-typescript-config",
   "version": "0.0.0",
   "private": true,
   "description": "Shared TypeScript configs for the Alchemy monorepo",
@@ -17,7 +17,7 @@
     "@types/bun": "catalog:"
   },
   "nx": {
-    "name": "@alchemy.run/typescript-config",
+    "name": "@oddlynew/alchemy-typescript-config",
     "tags": [
       "type:config",
       "scope:alchemy"

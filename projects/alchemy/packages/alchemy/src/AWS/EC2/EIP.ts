@@ -1,4 +1,4 @@
-import * as ec2 from "@distilled.cloud/aws/ec2";
+import * as ec2 from "@oddlynew/distilled-aws/ec2";
 import * as Effect from "effect/Effect";
 import * as Schedule from "effect/Schedule";
 import { isResolved } from "../../Diff.ts";

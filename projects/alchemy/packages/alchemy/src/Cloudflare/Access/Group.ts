@@ -1,4 +1,4 @@
-import * as zeroTrust from "@distilled.cloud/cloudflare/zero-trust";
+import * as zeroTrust from "@oddlynew/distilled-cloudflare/zero-trust";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Predicate from "effect/Predicate";
@@ -17,7 +17,7 @@ import type { Providers } from "../Providers.ts";
  * `everyone`, `ip`, `geo`, `serviceToken`, etc.) and whose value carries the
  * rule's parameters.
  *
- * Re-exported from `@distilled.cloud/cloudflare/zero-trust`'s
+ * Re-exported from `@oddlynew/distilled-cloudflare/zero-trust`'s
  * `CreateAccessGroupForAccountRequest` so the full Cloudflare rule surface is
  * available without re-declaring the union.
  */

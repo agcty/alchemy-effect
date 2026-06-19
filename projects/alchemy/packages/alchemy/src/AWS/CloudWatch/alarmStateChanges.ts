@@ -1,4 +1,4 @@
-import type { StateValue } from "@distilled.cloud/aws/cloudwatch";
+import type { StateValue } from "@oddlynew/distilled-aws/cloudwatch";
 
 export interface AlarmStateChangesOptions {
   alarmNames?: string[];

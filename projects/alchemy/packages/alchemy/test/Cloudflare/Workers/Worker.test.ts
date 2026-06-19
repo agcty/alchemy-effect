@@ -7,7 +7,7 @@ import * as Output from "@/Output";
 import { Stack } from "@/Stack";
 import { State } from "@/State";
 import * as Test from "@/Test/Vitest";
-import * as workers from "@distilled.cloud/cloudflare/workers";
+import * as workers from "@oddlynew/distilled-cloudflare/workers";
 import { describe, expect } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";

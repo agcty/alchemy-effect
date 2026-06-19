@@ -3,12 +3,12 @@
  *
  * Cloudflare-specific schemas live here. The cloud-agnostic raw-binary HTTP
  * body schemas (`BinaryBodySchema`, `BinaryStreamResponseSchema`,
- * `Uint8ArraySchema`, etc.) live in `@distilled.cloud/core/schemas` and are
+ * `Uint8ArraySchema`, etc.) live in `@oddlynew/distilled-core/schemas` and are
  * re-exported below for convenience.
  */
 
 import * as Schema from "effect/Schema";
-import { BlobSchema } from "@distilled.cloud/core/schemas";
+import { BlobSchema } from "@oddlynew/distilled-core/schemas";
 
 export {
   ArrayBufferSchema,
@@ -19,7 +19,7 @@ export {
   StreamSchema,
   Uint8ArraySchema,
   type BinaryBody,
-} from "@distilled.cloud/core/schemas";
+} from "@oddlynew/distilled-core/schemas";
 
 // =============================================================================
 // File Upload Schemas (multipart form-data)

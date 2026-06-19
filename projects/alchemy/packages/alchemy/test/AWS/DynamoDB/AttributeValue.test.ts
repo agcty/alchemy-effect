@@ -8,7 +8,7 @@ import {
   toAttributeType,
   toAttributeValue,
 } from "@/AWS/DynamoDB/AttributeValue";
-import type { AttributeValue } from "@distilled.cloud/aws/dynamodb";
+import type { AttributeValue } from "@oddlynew/distilled-aws/dynamodb";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
 

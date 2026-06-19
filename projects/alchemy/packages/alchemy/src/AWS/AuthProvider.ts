@@ -1,6 +1,6 @@
-import * as DistilledAuth from "@distilled.cloud/aws/Auth";
-import { Credentials } from "@distilled.cloud/aws/Credentials";
-import * as STS from "@distilled.cloud/aws/sts";
+import * as DistilledAuth from "@oddlynew/distilled-aws/Auth";
+import { Credentials } from "@oddlynew/distilled-aws/Credentials";
+import * as STS from "@oddlynew/distilled-aws/sts";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
@@ -474,7 +474,7 @@ const loginSSO = (config: Extract<AwsAuthConfig, { method: "sso" }>) =>
 
 /**
  * `aws sso logout` only clears AWS CLI's own caches — it does not know about the
- * `<sha1(sso_session)>.credentials.json` file that `@distilled.cloud/aws`
+ * `<sha1(sso_session)>.credentials.json` file that `@oddlynew/distilled-aws`
  * writes alongside the SSO token. Without this cleanup, `loadProfileCredentials`
  * short-circuits on the stale distilled cache file after logout and appears to
  * stay logged in until the role creds hit their TTL.

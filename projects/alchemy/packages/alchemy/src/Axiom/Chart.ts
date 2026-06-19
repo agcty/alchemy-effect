@@ -3,7 +3,7 @@
  *
  * Axiom's `CreateDashboardInput` declares
  * `dashboard.charts: ReadonlyArray<unknown>` (see
- * `@distilled.cloud/axiom/.../v2/createDashboard.ts`); these
+ * `@oddlynew/distilled-axiom/.../v2/createDashboard.ts`); these
  * interfaces give callers compile-time safety when building the
  * payload by hand.
  *

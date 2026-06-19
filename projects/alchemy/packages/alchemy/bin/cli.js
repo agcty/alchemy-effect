@@ -19,7 +19,7 @@
 // exports point at .ts source), but consumers install into `node_modules/`,
 // so the path check sends them to the bundled `alchemy.js` regardless.
 //
-// We use @alchemy.run/node-utils' foreground-child so we can pipe the
+// We use @oddlynew/alchemy-node-utils' foreground-child so we can pipe the
 // child's stderr through a filter — upstream hardcodes stdio = [0, 1, 2],
 // so the only way to drop bun's hard-coded watcher warning ("warn: File
 // <path> is not in the project directory and will not be watched", which is
@@ -28,7 +28,7 @@
 // forwarding — matches upstream.
 import { fileURLToPath } from "node:url";
 import path from "pathe";
-import { foregroundChild } from "@alchemy.run/node-utils";
+import { foregroundChild } from "@oddlynew/alchemy-node-utils";
 
 const execpath = (process.env.npm_execpath ?? "").toLowerCase();
 const userAgent = (process.env.npm_config_user_agent ?? "").toLowerCase();

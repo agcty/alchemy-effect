@@ -3,7 +3,7 @@
  *
  * @example
  * ```ts
- * import * as Turso from "@distilled.cloud/turso";
+ * import * as Turso from "@oddlynew/distilled-turso";
  * ```
  */
 export * from "./credentials.ts";
