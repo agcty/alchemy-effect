@@ -13,9 +13,6 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "publishConfig": {
-    "access": "public"
-  },
   "exports": {
     "./category": {
       "types": "./lib/category.d.ts",
@@ -75,6 +72,9 @@
       "bun": "./scripts/generate-graphql.ts",
       "default": "./scripts/generate-graphql.ts"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "typecheck": "tsgo",

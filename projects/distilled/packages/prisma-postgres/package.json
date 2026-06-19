@@ -13,9 +13,6 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "publishConfig": {
-    "access": "public"
-  },
   "module": "src/index.ts",
   "exports": {
     ".": {
@@ -63,6 +60,9 @@
       "bun": "./src/traits.ts",
       "default": "./lib/traits.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "typecheck": "tsgo",
