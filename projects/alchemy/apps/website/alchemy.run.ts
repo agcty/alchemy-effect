@@ -61,7 +61,7 @@ export default Alchemy.Stack(
           **URL:** ${website.url}
 
           Built from commit ${
-            // `BUILD_SHA` is set by .github/workflows/deploy.yml to the
+            // `BUILD_SHA` is set by .github/workflows/website.yml to the
             // PR head SHA (or `github.sha` for push deploys). The
             // ambient `GITHUB_SHA` would point at the synthetic merge
             // commit on `pull_request` events, which is not what

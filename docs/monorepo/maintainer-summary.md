@@ -57,8 +57,9 @@ graph, one cached validation path, and one release plan.
 The GitHub `release` workflow uses the same release groups. It defaults to dry-run and uses
 continuation defaults by group: `alchemy` continues the beta prerelease line, while `distilled` and
 `cloudflare-tools` continue stable patch releases. Its `first-release: auto` mode adds
-`--first-release` for the first imported Distilled and Cloudflare Tools monorepo releases. Disabling
-dry-run is the explicit approval for the workflow to publish.
+`--first-release` only while the selected imported group has no matching monorepo release tags yet.
+Disabling dry-run is the explicit approval for the workflow to publish, and the workflow refuses
+non-dry releases from any branch other than `main`.
 
 ## Source Layout
 

@@ -27,7 +27,7 @@ Effect-native SDKs with exhaustive error typing. We use a TDD-driven approach to
 ```
 projects/distilled/
 ├── packages/
-│   ├── core/             # @distilled.cloud/sdk-core — shared client, traits, errors, categories
+│   ├── core/             # @distilled.cloud/core — shared client, traits, errors, categories
 │   ├── aws/              # @distilled.cloud/aws — AWS SDK from Smithy models
 │   ├── cloudflare/       # @distilled.cloud/cloudflare — Cloudflare SDK from TypeScript SDK
 │   ├── coinbase/         # @distilled.cloud/coinbase — Coinbase CDP SDK from OpenAPI spec
@@ -41,7 +41,7 @@ projects/distilled/
 │   ├── supabase/         # @distilled.cloud/supabase — Supabase SDK from OpenAPI spec
 │   └── turso/            # @distilled.cloud/turso — Turso SDK from OpenAPI spec
 ├── scripts/              # Root-level scripts (create-sdk.ts, bump.ts, etc.)
-├── .github/workflows/    # CI (test.yml) and preview publishing (pkg-pr.yml)
+├── AGENTS.md             # Distilled-specific agent notes
 └── AGENTS.md             # This file
 ```
 
@@ -65,7 +65,7 @@ projects/distilled/packages/{name}/
 
 ### Core Package
 
-`projects/distilled/packages/core` (`@distilled.cloud/sdk-core`) contains shared infrastructure used by all SDKs:
+`projects/distilled/packages/core` (`@distilled.cloud/core`) contains shared infrastructure used by all SDKs:
 
 - `client.ts` — `API.make()` and `API.makePaginated()` factories that create Effect operations from annotated schemas
 - `traits.ts` — Schema annotations for HTTP bindings (`T.Http`, `T.PathParam`, `T.HttpHeader`, `T.JsonName`, etc.)
@@ -76,7 +76,7 @@ projects/distilled/packages/{name}/
 - `sensitive.ts` — Sensitive data schemas
 - `json-patch.ts` — JSON Patch (RFC 6902) implementation for spec patching
 
-All other packages depend on core via `@distilled.cloud/sdk-core` workspace dependency.
+All other packages depend on core via the `@distilled.cloud/core` workspace dependency.
 
 ## Tools
 
@@ -110,10 +110,9 @@ bun nx build @distilled.cloud/core
 bun nx build @distilled.cloud/stripe
 ```
 
-Core must be built before other packages because they resolve `@distilled.cloud/sdk-core/*` via the
-`types` export condition pointing to `lib/*.d.ts`. Nx models that dependency ordering through the
-project graph, so use `bun nx build <project>` or the affected production helper instead of the old
-standalone root build.
+Core must be built before other packages because provider packages depend on its emitted
+declarations. Nx models that dependency ordering through the project graph, so use
+`bun nx build <project>` or the affected production helper instead of the old standalone root build.
 
 ### Scaffolding a New SDK
 

@@ -1374,6 +1374,13 @@ const updateTestYml = (
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
     const testYmlPath = path.join(root, ".github", "workflows", "test.yml");
+    const exists = yield* fs.exists(testYmlPath);
+    if (!exists) {
+      yield* Console.log(
+        "\n⚠️  standalone test.yml not found; root Nx validation owns CI in the monorepo, skipping",
+      );
+      return;
+    }
     let content = yield* fs.readFileString(testYmlPath);
 
     if (content.includes(`ci-${name}:`)) {
@@ -1506,6 +1513,13 @@ const wireTestEnvVars = (
     }
 
     const testYmlPath = path.join(root, ".github", "workflows", "test.yml");
+    const exists = yield* fs.exists(testYmlPath);
+    if (!exists) {
+      yield* Console.log(
+        "\n⚠️  standalone test.yml not found; root Nx validation owns CI in the monorepo, skipping test env wiring",
+      );
+      return;
+    }
     let content = yield* fs.readFileString(testYmlPath);
 
     // Find the `ci-{name}:` job block. It runs from `  ci-{name}:` (2-space
@@ -1582,6 +1596,13 @@ const updatePkgPrYml = (
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
     const ymlPath = path.join(root, ".github", "workflows", "pr-package.yml");
+    const exists = yield* fs.exists(ymlPath);
+    if (!exists) {
+      yield* Console.log(
+        "\n⚠️  standalone pr-package.yml not found; root pr-package workflow owns previews in the monorepo, skipping",
+      );
+      return;
+    }
     let content = yield* fs.readFileString(ymlPath);
 
     // The new pr-package.yml uses a matrix driven by the paths-filter output,
@@ -1640,6 +1661,13 @@ const updateReleaseYml = (
     const path = yield* Path.Path;
     const fs = yield* FileSystem.FileSystem;
     const ymlPath = path.join(root, ".github", "workflows", "release.yml");
+    const exists = yield* fs.exists(ymlPath);
+    if (!exists) {
+      yield* Console.log(
+        "\n⚠️  standalone release.yml not found; add the package to the root Nx release group if it should publish, skipping",
+      );
+      return;
+    }
     let content = yield* fs.readFileString(ymlPath);
 
     const matrixLine = `          - ${name}\n`;

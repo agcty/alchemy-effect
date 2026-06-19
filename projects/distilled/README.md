@@ -19,17 +19,24 @@ const functions =
   Lambda.listFunctions.items({}).pipe(Stream.take(10), Stream.runCollect);
 ```
 
-## Generating SDKS
+## Generating SDKs
 
-To generate an SDK just clone the distilled repo. run bun install then run the create-sdk-full command.
+Distilled now lives inside the Alchemy monorepo. From the repository root, install dependencies once
+with `bun install`, then run the SDK generator from `projects/distilled`.
 
-Every SDK has all of its sources as git submodules; you can either supply a git repo or an http url to an openapi (and a repo that updates nightly based on that http url will be generated). It's also reccommended you use --note to specify where the openapi spec is in the repo (agents will struggly to find it on their own).
+Every SDK has all of its sources as git submodules; you can either supply a git repo or an HTTP URL
+to an OpenAPI spec. Use `--note` to specify where the OpenAPI spec lives in the repo when it is not
+obvious.
 
-e.g. bun scripts/create-sdk-full.ts discord https://github.com/discord/discord-api-spec --note "use the spec is in /specs/openapi.json from the provided repo"
+```bash
+cd projects/distilled
+bun scripts/create-sdk.ts discord https://github.com/discord/discord-api-spec --note "use /specs/openapi.json from the provided repo"
+```
 
-⚠️: this will use your local claude code with Opus 4.7. you must be signed in (highly reccomend max 20x plan since generating an SDK + test suite + nuke script is quite expensive). Please do not try and use other coding agents, or manually prompting you way to an SDK.
+This workflow uses local Claude Code. You must be signed in before running it.
 
-For larger SDKs its very likely you hit 5hr limits on claude, you can just run the command again when your limits are refershed and it will skip over what its already done on its own. (or if you want you can force skip over certain steps using cli flags see bun ./scripts/create-sdk-full --help)
+For larger SDKs, rerun the command after limits refresh; the generator is designed to continue from
+existing work. Use `bun scripts/create-sdk.ts --help` for skip/resume flags.
 
 ## Packages
 
@@ -161,21 +168,27 @@ bun run specs:update   # run inside a package directory
 
 ### Preview Packages
 
-Preview packages are automatically published on every PR and push to `main` via [pkg-pr-new](https://github.com/nicolo-ribaudo/pkg-pr-new) (`.github/workflows/pkg-pr.yml`).
+The root `pr-package` workflow republishes Alchemy preview packages when Distilled or Cloudflare
+Tools changes affect what Alchemy bundles. Distilled packages themselves are released through the
+root Nx release workflow.
 
 ### NPM Releases
 
-To publish a release to npm, manually trigger the **Release NPM Packages** workflow from the [GitHub Actions UI](../../actions/workflows/release.yml):
+To publish Distilled packages to npm, manually trigger the root **release** workflow from the
+GitHub Actions UI:
 
-1. Go to **Actions** → **Release NPM Packages** → **Run workflow**
-2. Choose a bump type (`patch` or `minor`) or provide an exact version override
-3. The workflow will bump all package versions, commit, tag, create a GitHub release, build, and publish to npm
+1. Go to **Actions** -> **release** -> **Run workflow**.
+2. Select the `distilled` release group.
+3. Keep `dry-run` enabled for previews; disable it only on `main` when publishing intentionally.
 
-The release workflow uses npm's OIDC trusted publishing — no npm tokens needed.
+The workflow bumps all Distilled package versions together, writes package changelogs, builds the
+release artifacts, publishes to npm, and pushes the release commit/tags.
 
 ### CI
 
-The CI workflow (`.github/workflows/test.yml`) runs typecheck + lint + format + tests for each package that has changed files.
+Root CI uses Nx affected validation. For broad local checks, run
+`.github/scripts/run-affected-production-target.ts typecheck --parallel=6` and the matching `lint`
+or `build` target from the repository root.
 
 ## Contributing
 

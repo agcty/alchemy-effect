@@ -13,6 +13,9 @@
   ],
   "type": "module",
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     "./*": {
       "types": "./lib/services/*.d.ts",

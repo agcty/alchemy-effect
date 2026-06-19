@@ -83,9 +83,8 @@ jobs:
         working-directory: projects/alchemy/apps/website
         run: bun run build
 
-      # Secrets (Cloudflare credentials, etc.) are injected by
-      # `doppler run` from the `alchemy-v2` project — `prod` config on
-      # main, `dev` config everywhere else.
+      # Cloudflare credentials are passed explicitly so PR previews do not need
+      # a broader secret manager context.
       - name: Deploy
         working-directory: projects/alchemy/apps/website
         run: bun alchemy deploy --stage "$STAGE" --yes
@@ -136,6 +135,8 @@ jobs:
           doppler run --project "$DOPPLER_PROJECT" --config "$DOPPLER_CONFIG"
           -- bun alchemy destroy --stage "$STAGE" --yes
         env:
+          DOPPLER_PROJECT: alchemy-v2
+          DOPPLER_CONFIG: dev
           DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
           PULL_REQUEST: ${{ github.event.number }}
           GITHUB_TOKEN: ${{ steps.bot-token.outputs.token }}

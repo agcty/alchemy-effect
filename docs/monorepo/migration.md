@@ -201,10 +201,11 @@ credentials are intentionally wired for the monorepo.
 
 The `release` GitHub workflow exposes the same release groups as a manual workflow dispatch. It
 defaults to dry-run, chooses the same continuation specifier by group unless maintainers override it,
-and uses `first-release: auto` so imported groups get `--first-release` for the first monorepo
-release. Disabling dry-run is the explicit approval for the workflow to pass `--yes` to Nx release
-and publish through each package's `nx-release-publish` target after its `build` target has produced
-publishable `lib` / `dist` artifacts.
+and uses `first-release: auto` to add `--first-release` only when the selected imported group has no
+matching monorepo release tags yet. Non-dry releases are refused unless the workflow is dispatched
+from `main`; when they do run, the workflow passes `--yes` to Nx release, publishes through each
+package's `nx-release-publish` target after its `build` target has produced publishable `lib` /
+`dist` artifacts, and pushes the release commit/tags.
 
 ## Remote Cache
 

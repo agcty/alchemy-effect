@@ -47,6 +47,8 @@ permissions:
 
 env:
   NODE_VERSION: "24"
+  RELEASE_BRANCH: main
+  NPM_CONFIG_PROVENANCE: "true"
 
 jobs:
   release:
@@ -67,6 +69,11 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      - name: Configure release git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Run Nx release
         shell: bash
         env:
@@ -77,6 +84,11 @@ jobs:
           PREID: ${{ inputs.preid }}
         run: |
           set -euo pipefail
+
+          if [ "${DRY_RUN}" != "true" ] && [ "${GITHUB_REF}" != "refs/heads/${RELEASE_BRANCH}" ]; then
+            echo "Refusing to publish ${RELEASE_GROUP} from ${GITHUB_REF}; non-dry releases must run from ${RELEASE_BRANCH}." >&2
+            exit 1
+          fi
 
           if [ -z "${SPECIFIER}" ]; then
             case "${RELEASE_GROUP}" in
@@ -91,6 +103,16 @@ jobs:
 
           args=(release "${SPECIFIER}" "--groups=${RELEASE_GROUP}")
 
+          first_release_tag_pattern=""
+          case "${RELEASE_GROUP}" in
+            distilled)
+              first_release_tag_pattern="distilled-v*"
+              ;;
+            cloudflare-tools)
+              first_release_tag_pattern="cloudflare-tools-v*"
+              ;;
+          esac
+
           if [ "${DRY_RUN}" = "true" ]; then
             args+=(--dry-run --skip-publish)
           else
@@ -102,7 +124,7 @@ jobs:
               args+=(--first-release)
               ;;
             auto)
-              if [ "${RELEASE_GROUP}" != "alchemy" ]; then
+              if [ -n "${first_release_tag_pattern}" ] && ! git tag --list "${first_release_tag_pattern}" | grep -q .; then
                 args+=(--first-release)
               fi
               ;;
@@ -114,8 +136,12 @@ jobs:
               ;;
           esac
 
-          if [ -n "${PREID}" ]; then
+          if [ -n "${PREID}" ] && [ "${SPECIFIER}" = "prerelease" ]; then
             args+=(--preid "${PREID}")
           fi
 
           bun nx "${args[@]}"
+
+          if [ "${DRY_RUN}" != "true" ]; then
+            git push origin "HEAD:${GITHUB_REF_NAME}" --follow-tags
+          fi

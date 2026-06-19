@@ -3,9 +3,10 @@
 This note defines the target shape for a production replacement repository that maintainers can
 adopt as the new home for `alchemy-effect`, `distilled`, and `cloudflare-tools`.
 
-The current `codex/monorepo-production-migration` branch is a working prototype. The desired cutover
-branch should be rebuilt from deterministic, prefix-rewritten histories so the result is also clean
-as a long-term Git repository.
+The current `codex/monorepo-clean-history` branch is the production-shaped rebuild. It starts from
+the real `alchemy-run/alchemy-effect` `main` commit, moves Alchemy into `projects/alchemy` with a
+normal rename commit, and imports Distilled and Cloudflare Tools with deterministic prefix-rewritten
+histories.
 
 ## Target Invariant
 
@@ -20,32 +21,35 @@ packages/...                 # shared monorepo infrastructure only
 ```
 
 For imported product code, `git log --follow` and GitHub file history should naturally walk through
-the old repository history under the final path. A maintainer should not need to know about temporary
-import paths such as `distilled/` or `cloudflare-tools/`.
+the old repository history under the final path. For Alchemy specifically, the branch must keep the
+original upstream commits as ancestors so GitHub compares it as ahead of `alchemy-run/main`, not as a
+separate unrelated history.
 
 ## Why Rebuild Instead Of Patch
 
-The prototype imported repositories with subtree commits and then moved files into the final layout.
-That preserves commit objects, but the file-history UX is not ideal: GitHub and ordinary
-`git log --follow projects/distilled/...` do not always walk cleanly into the imported repository
-history.
+The first linear-history attempt prefix-rewrote Alchemy itself. That made the file history look
+clean, but it changed every Alchemy commit SHA. GitHub therefore had no common Alchemy commit
+identity to compare against and reported the branch as both far ahead and far behind upstream.
 
-The production branch should instead rewrite each source repository into its final subdirectory
-before merging it into the monorepo. That makes the final paths the only paths those files ever had
-inside the replacement repository.
+The production branch should preserve Alchemy commit identities and only rewrite the histories that
+come from separate repositories. That gives both properties maintainers need:
+
+- GitHub sees the branch as ahead-only from `alchemy-run/alchemy-effect:main`.
+- Distilled and Cloudflare Tools files live at their final paths for their imported history.
 
 ## Branch Strategy
 
-Keep the prototype branch as a reference:
+Keep the earlier prototype branches as references only:
 
 ```text
 codex/monorepo-production-migration
+codex/monorepo-linear-history
 ```
 
-Create a new cutover branch for the clean history rebuild:
+Use the clean rebuild branch for the replacement path:
 
 ```text
-codex/monorepo-linear-history
+codex/monorepo-clean-history
 ```
 
 The new branch should be force-updatable while it is being prepared. Do not open it as the final PR
@@ -54,9 +58,9 @@ verified.
 
 ## Rebuild Procedure
 
-Use source mirrors plus fresh filtered clones. Treat filtered clones as disposable: `git
-filter-repo` rewrites history and may remove remotes as a safety measure, so do not use a filtered
-clone as the long-lived upstream checkout.
+Use source mirrors plus fresh filtered clones. Treat filtered clones as disposable:
+`git-filter-repo` rewrites history and may remove remotes as a safety measure, so do not use a
+filtered clone as the long-lived upstream checkout.
 
 Example shape:
 
@@ -66,10 +70,7 @@ git clone --mirror git@github.com:alchemy-run/alchemy-effect.git /tmp/alchemy-ef
 git clone --mirror git@github.com:alchemy-run/distilled.git /tmp/distilled-source.git
 git clone --mirror git@github.com:alchemy-run/cloudflare-tools.git /tmp/cloudflare-tools-source.git
 
-# filtered working histories
-git clone /tmp/alchemy-effect-source.git /tmp/alchemy-effect-prefix
-git -C /tmp/alchemy-effect-prefix filter-repo --to-subdirectory-filter projects/alchemy
-
+# filtered working histories for imported repositories only
 git clone /tmp/distilled-source.git /tmp/distilled-prefix
 git -C /tmp/distilled-prefix filter-repo --to-subdirectory-filter projects/distilled
 
@@ -84,12 +85,17 @@ different repositories cannot collide on generic tags such as `v0.25.2`.
 Then create the replacement branch by merging the rewritten histories:
 
 ```bash
-git init /tmp/alchemy-monorepo-linear
-cd /tmp/alchemy-monorepo-linear
+git clone /tmp/alchemy-effect-source.git /tmp/alchemy-monorepo-clean
+cd /tmp/alchemy-monorepo-clean
 
-git remote add alchemy-prefix /tmp/alchemy-effect-prefix
-git fetch alchemy-prefix
-git switch -c codex/monorepo-linear-history alchemy-prefix/main
+git switch -c codex/monorepo-clean-history origin/main
+
+mkdir -p projects/alchemy
+git ls-tree -z --name-only HEAD |
+  while IFS= read -r -d '' entry; do
+    git mv "$entry" projects/alchemy/
+  done
+git commit -m "refactor(alchemy): move source into project folder"
 
 git remote add distilled-prefix /tmp/distilled-prefix
 git fetch distilled-prefix
@@ -122,13 +128,23 @@ process must be deterministic and repeatable.
 For each source repo:
 
 1. Fetch the latest upstream branch.
-2. Re-run the same prefix rewrite into the same final path.
-3. Fetch that rewritten history into the monorepo cutover worktree.
-4. Merge the rewritten branch into `codex/monorepo-linear-history`.
-5. Resolve conflicts only where the monorepo branch and upstream both touched the same files.
-6. Run affected validation and release dry-runs.
+2. For Alchemy, merge the upstream branch directly into `codex/monorepo-clean-history`.
+3. For Distilled and Cloudflare Tools, re-run the same prefix rewrite into the same final path, then
+   merge the rewritten branch into `codex/monorepo-clean-history`.
+4. Resolve conflicts only where the monorepo branch and upstream both touched the same files.
+5. Run affected validation and release dry-runs.
 
-For Distilled, for example:
+For Alchemy, preserve the upstream remote and merge normally:
+
+```bash
+git fetch origin main
+git merge origin/main
+```
+
+Git's rename detection should carry root-path changes into `projects/alchemy/...`. If upstream and
+the monorepo branch both edited the same file, resolve the conflict at the final monorepo path.
+
+For Distilled, re-run the deterministic prefix rewrite. For example:
 
 ```bash
 git -C /tmp/distilled-source.git fetch origin main
@@ -137,7 +153,7 @@ rm -rf /tmp/distilled-prefix
 git clone /tmp/distilled-source.git /tmp/distilled-prefix
 git -C /tmp/distilled-prefix filter-repo --to-subdirectory-filter projects/distilled
 
-cd /tmp/alchemy-monorepo-linear
+cd /tmp/alchemy-monorepo-clean
 git fetch distilled-prefix
 git merge distilled-prefix/main
 ```
@@ -153,7 +169,7 @@ The replacement repository should preserve current release lines:
 ```text
 alchemy:          2.0.0-beta.56 -> 2.0.0-beta.57
 distilled:        0.25.2        -> 0.25.3
-cloudflare-tools: 0.11.0        -> 0.11.1
+cloudflare-tools: 0.11.2        -> 0.11.3
 ```
 
 The cutover branch should either import or create baseline tags that match the new release groups:
@@ -161,7 +177,7 @@ The cutover branch should either import or create baseline tags that match the n
 ```text
 v2.0.0-beta.56
 distilled-v0.25.2
-cloudflare-tools-v0.11.0
+cloudflare-tools-v0.11.2
 ```
 
 Those baselines preserve the release-line intent, but this branch still uses `--first-release` for
@@ -174,6 +190,8 @@ previous changelog range from the imported standalone repository tags. After the
 
 The cutover branch is ready to show as a replacement repository when all of these are true:
 
+- `git merge-base --is-ancestor origin/main HEAD` succeeds.
+- `git rev-list --left-right --count origin/main...HEAD` prints `0 <ahead-count>`.
 - `git log --follow -- projects/distilled/packages/core/package.json` walks into Distilled release
   history.
 - `git log --follow -- projects/cloudflare-tools/packages/cloudflare-runtime/package.json` walks into
@@ -194,6 +212,27 @@ bun nx release patch --groups=cloudflare-tools --dry-run --first-release --skip-
 
 - A newly landed upstream commit from Distilled or Cloudflare-tools can be synced through the
   documented prefix-rewrite flow.
+
+## Maintainer Cutover Runbook
+
+Use this only after the branch topology and validation checks pass:
+
+1. Announce a short write freeze on `alchemy-effect`, `distilled`, and `cloudflare-tools`.
+2. Fetch each source repository and perform one final sync into `codex/monorepo-clean-history`.
+3. Re-run the topology, history, Nx, and release dry-run checks above.
+4. Decide whether the replacement lives in the existing `alchemy-effect` repository or a new repo.
+5. Configure repository settings before opening the branch for normal work:
+   - default branch target;
+   - branch protection and required checks for the Nx validation workflow;
+   - Actions permissions for `contents: write` and OIDC;
+   - repository/environment secrets for npm trusted publishing, Cloudflare, Doppler, and Nx R2
+     cache;
+   - repository variables for the Nx cache Worker URL and any deployment account IDs.
+6. Configure npm trusted publishing for each public package against the final GitHub repository and
+   `release` workflow.
+7. Push the clean branch and make it the default branch only after the final validation run passes.
+8. Keep the old standalone Distilled and Cloudflare Tools repositories read-only until the first
+   monorepo release succeeds, then archive or redirect them.
 
 ## Non-Goals For The First Cutover
 

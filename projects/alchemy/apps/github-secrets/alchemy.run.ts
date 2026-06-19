@@ -52,9 +52,9 @@ export default Alchemy.Stack(
       accountId: TEST_CLOUDFLARE_ACCOUNT_ID,
     });
 
-    // GitHub OIDC trust for AWS — lets `.github/workflows/test.yml` (and any
-    // future workflow) assume an IAM role via `aws-actions/configure-aws-credentials`
-    // with no long-lived AWS_ACCESS_KEY_ID secrets in the repo.
+    // GitHub OIDC trust for AWS — lets validation workflows assume an IAM role
+    // via `aws-actions/configure-aws-credentials` with no long-lived
+    // AWS_ACCESS_KEY_ID secrets in the repo.
     const oidc = yield* AWS.IAM.OpenIDConnectProvider("GitHubOidc", {
       url: "https://token.actions.githubusercontent.com",
       clientIDList: ["sts.amazonaws.com"],
