@@ -126,8 +126,8 @@ export const FeatureProvider = () =>
             ? undefined
             : ({ action: "update" } as const);
         }),
-        reconcile: Effect.fn(function* ({ id, fqn, news, output }) {
-          const ownership = yield* currentOwnership(id, fqn);
+        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
+          const ownership = yield* currentOwnership(id, instanceId);
           const metadata = withOwnershipMetadata(news.metadata, ownership);
           const observed = output?.id
             ? yield* client
@@ -175,7 +175,7 @@ export const FeatureProvider = () =>
             metadata,
           ).pipe(Effect.map(toAttributes));
         }),
-        read: Effect.fn(function* ({ id, fqn, olds, output }) {
+        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
           const feature = output?.id
             ? yield* client
                 .getFeature(output.id)
@@ -188,7 +188,7 @@ export const FeatureProvider = () =>
           if (!feature) return undefined;
 
           const attrs = toAttributes(feature);
-          const ownership = yield* currentOwnership(id, fqn);
+          const ownership = yield* currentOwnership(id, instanceId);
           if (!isOwnedBy(feature.metadata, ownership)) return Unowned(attrs);
           const activeFeature = yield* rejectInactiveFeature(feature);
           return toAttributes(activeFeature);

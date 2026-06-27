@@ -17,14 +17,14 @@ export interface Ownership {
   readonly id: string;
 }
 
-export const currentOwnership = (id: string, fqn = id) =>
+export const currentOwnership = (id: string, instanceId = id) =>
   Effect.gen(function* () {
     const stack = yield* Stack;
     const stage = yield* Stage;
     return {
       stack: stack.name,
       stage,
-      id: fqn,
+      id: instanceId,
     } satisfies Ownership;
   });
 

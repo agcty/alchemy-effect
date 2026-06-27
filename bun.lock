@@ -797,6 +797,7 @@
         "@distilled.cloud/core": "workspace:*",
         "@distilled.cloud/neon": "workspace:*",
         "@distilled.cloud/planetscale": "workspace:*",
+        "@distilled.cloud/stripe": "workspace:*",
         "@effect/vitest": "catalog:",
         "@libsql/client": "catalog:",
         "@octokit/rest": "^22.0.1",

@@ -39,6 +39,9 @@
       "path": "../../distilled/packages/neon/tsconfig.json"
     },
     {
+      "path": "../../distilled/packages/stripe/tsconfig.json"
+    },
+    {
       "path": "../../distilled/packages/axiom/tsconfig.json"
     }
   ]

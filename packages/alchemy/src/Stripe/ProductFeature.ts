@@ -107,13 +107,13 @@ const findAttachment = (product: string, feature: StripeFeature) =>
 
 const stackOwnsAttachment = (
   logicalId: string,
-  fqn: string,
+  instanceId: string,
   productId: string,
   feature: StripeFeature,
 ) =>
   Effect.gen(function* () {
     const client = yield* StripeClient;
-    const ownership = yield* currentOwnership(logicalId, fqn);
+    const ownership = yield* currentOwnership(logicalId, instanceId);
     const product = yield* client
       .getProduct(productId)
       .pipe(Effect.catchIf(isStripeNotFound, () => Effect.succeed(undefined)));
@@ -155,7 +155,7 @@ export const ProductFeatureProvider = () =>
             ? undefined
             : ({ action: "replace" } as const);
         }),
-        reconcile: Effect.fn(function* ({ id, fqn, news, output }) {
+        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
           const feature = yield* resolveFeature(news.feature);
           if (!feature.active) {
             return yield* Effect.fail(
@@ -180,7 +180,7 @@ export const ProductFeatureProvider = () =>
               output === undefined &&
               !(yield* stackOwnsAttachment(
                 id,
-                fqn,
+                instanceId,
                 news.product,
                 observed.entitlement_feature,
               ))
@@ -209,7 +209,7 @@ export const ProductFeatureProvider = () =>
           });
           return toAttributes(news.product, created);
         }),
-        read: Effect.fn(function* ({ id, fqn, olds, output }) {
+        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
           if (output?.id) {
             return yield* client
               .getProductFeature(output.product, output.id)
@@ -227,7 +227,7 @@ export const ProductFeatureProvider = () =>
           const attrs = toAttributes(olds.product, observed);
           return (yield* stackOwnsAttachment(
             id,
-            fqn,
+            instanceId,
             olds.product,
             observed.entitlement_feature,
           ))

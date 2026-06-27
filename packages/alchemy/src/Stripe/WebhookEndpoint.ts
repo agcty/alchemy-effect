@@ -210,8 +210,8 @@ export const WebhookEndpointProvider = () =>
             ? undefined
             : ({ action: "update" } as const);
         }),
-        reconcile: Effect.fn(function* ({ id, fqn, news, output }) {
-          const ownership = yield* currentOwnership(id, fqn);
+        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
+          const ownership = yield* currentOwnership(id, instanceId);
           const fingerprint = yield* createMetadataFingerprint(
             immutableShape(news),
           );
@@ -317,8 +317,8 @@ export const WebhookEndpointProvider = () =>
           }
           return toAttributes(next, output?.secret);
         }),
-        read: Effect.fn(function* ({ id, fqn, olds, output }) {
-          const ownership = yield* currentOwnership(id, fqn);
+        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
+          const ownership = yield* currentOwnership(id, instanceId);
           const fingerprint = yield* createMetadataFingerprint(
             immutableShape(olds),
           );

@@ -314,8 +314,8 @@ export const PriceProvider = () =>
             ? undefined
             : ({ action: "update" } as const);
         }),
-        reconcile: Effect.fn(function* ({ id, fqn, news, output }) {
-          const ownership = yield* currentOwnership(id, fqn);
+        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
+          const ownership = yield* currentOwnership(id, instanceId);
           const fingerprint = yield* createMetadataFingerprint(
             immutableShape(news),
           );
@@ -427,7 +427,7 @@ export const PriceProvider = () =>
           }
           return toAttributes(updated);
         }),
-        read: Effect.fn(function* ({ id, fqn, olds, output }) {
+        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
           const fingerprint = yield* createMetadataFingerprint(
             immutableShape(olds),
           );
@@ -443,7 +443,7 @@ export const PriceProvider = () =>
           if (!price) return undefined;
 
           const attrs = toAttributes(price);
-          const ownership = yield* currentOwnership(id, fqn);
+          const ownership = yield* currentOwnership(id, instanceId);
           if (!isOwnedBy(price.metadata, ownership)) return Unowned(attrs);
           if (
             output === undefined &&
