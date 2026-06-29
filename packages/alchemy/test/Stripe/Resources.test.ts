@@ -531,7 +531,7 @@ const providers = Layer.effect(
 const { test } = Test.make({ providers });
 
 test(
-  "accepts Stripe boolean delete responses from the raw delete wrapper",
+  "accepts Stripe boolean delete responses through the Distilled delete operation",
   Effect.acquireUseRelease(
     Effect.sync(() => {
       const calls: CapturedStripeFetchCall[] = [];
@@ -572,7 +572,7 @@ test(
 );
 
 test(
-  "encodes Stripe product clears through the raw form update wrapper",
+  "encodes Stripe product clears through the Distilled product update operation",
   Effect.acquireUseRelease(
     Effect.sync(() => {
       const calls: CapturedStripeFetchCall[] = [];
@@ -649,7 +649,7 @@ test(
 );
 
 test(
-  "encodes nested Stripe price list filters through the raw lookup-key path",
+  "encodes nested Stripe price list filters through the Distilled list operation",
   Effect.acquireUseRelease(
     Effect.sync(() => {
       const calls: CapturedStripeFetchCall[] = [];
@@ -659,7 +659,12 @@ test(
       ) => {
         calls.push(await captureStripeFetchCall(input, init));
         return new Response(
-          JSON.stringify({ data: [], has_more: false, object: "list" }),
+          JSON.stringify({
+            data: [],
+            has_more: false,
+            object: "list",
+            url: "/v1/prices",
+          }),
           {
             status: 200,
             headers: { "content-type": "application/json" },

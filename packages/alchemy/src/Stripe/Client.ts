@@ -1,20 +1,21 @@
 import type * as StripeClientModule from "@distilled.cloud/stripe/Client";
 import * as StripeCredentials from "@distilled.cloud/stripe/Credentials";
-import {
-  InvalidRequestError,
-  NotFound,
-  UnknownStripeError,
-} from "@distilled.cloud/stripe/Errors";
+import { UnknownStripeError } from "@distilled.cloud/stripe/Errors";
 import type {
   API_ERRORS,
   ApiError,
   CardError,
   ExternalDependencyFailed,
   IdempotencyError,
+  InvalidRequestError,
+  NotFound,
   PaymentError,
   StripeParseError,
 } from "@distilled.cloud/stripe/Errors";
 import {
+  DeleteProductsId,
+  DeleteProductsProductFeaturesId,
+  DeleteWebhookEndpointsWebhookEndpoint,
   GetEntitlementsFeatures,
   GetEntitlementsFeaturesId,
   GetPrices,
@@ -30,6 +31,7 @@ import {
   PostPrices,
   PostPricesPrice,
   PostProducts,
+  PostProductsId,
   PostProductsProductFeatures,
   PostWebhookEndpoints,
   PostWebhookEndpointsWebhookEndpoint,
@@ -62,12 +64,7 @@ import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as Predicate from "effect/Predicate";
-import * as Redacted from "effect/Redacted";
 import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
-import * as HttpClient from "effect/unstable/http/HttpClient";
-import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import * as UrlParams from "effect/unstable/http/UrlParams";
 
 export const DEFAULT_STRIPE_API_VERSION = "2026-03-25.dahlia";
 
@@ -211,7 +208,7 @@ const toDistilledOptions = (
   options: StripeRequestOptions | undefined,
 ): DistilledStripeRequestOptions => ({
   apiVersion: options?.apiVersion ?? DEFAULT_STRIPE_API_VERSION,
-  ...(options?.idempotencyKey === undefined
+  ...(Predicate.isUndefined(options?.idempotencyKey)
     ? {}
     : { idempotencyKey: options.idempotencyKey }),
 });
@@ -253,230 +250,15 @@ const collectPaginated = <TItem extends { readonly id: string }, TInput>(
 
 type StripeCredentialsConfig = StripeCredentials.Config;
 
-const stripeApiUrl = (config: StripeCredentialsConfig, path: string) =>
-  `${config.apiBaseUrl.replace(/\/$/, "")}${path}`;
-
-const stripeHeaders = (
-  config: StripeCredentialsConfig,
-  options?: StripeRequestOptions,
-): Record<string, string> => ({
-  Authorization: `Bearer ${Redacted.value(config.apiKey)}`,
-  "Stripe-Version": options?.apiVersion ?? DEFAULT_STRIPE_API_VERSION,
-  ...(options?.idempotencyKey === undefined
-    ? {}
-    : { "Idempotency-Key": options.idempotencyKey }),
-});
-
-const readJsonBody = (response: HttpClientResponse.HttpClientResponse) =>
-  response.text.pipe(
-    Effect.map((text) => {
-      if (text.length === 0) return {};
-      try {
-        return JSON.parse(text) as unknown;
-      } catch {
-        return { _nonJsonError: true, body: text };
-      }
-    }),
-    Effect.mapError((error) => new UnknownStripeError({ body: error })),
-  );
-
-const stripeErrorDetails = (body: unknown) => {
-  if (
-    typeof body === "object" &&
-    body !== null &&
-    "error" in body &&
-    typeof (body as { readonly error?: unknown }).error === "object" &&
-    (body as { readonly error?: unknown }).error !== null
-  ) {
-    const error = (body as { readonly error: Record<string, unknown> }).error;
-    return {
-      type: typeof error.type === "string" ? error.type : undefined,
-      code: typeof error.code === "string" ? error.code : undefined,
-      message:
-        typeof error.message === "string"
-          ? error.message
-          : "Stripe request failed.",
-      param: typeof error.param === "string" ? error.param : undefined,
-      doc_url: typeof error.doc_url === "string" ? error.doc_url : undefined,
-      request_log_url:
-        typeof error.request_log_url === "string"
-          ? error.request_log_url
-          : undefined,
-    };
-  }
-  return { message: "Stripe request failed." };
+const toGetPricesInput = (
+  input: ListPricesInput | undefined,
+): Omit<GetPricesInput, "starting_after"> => {
+  const { lookupKeys, ...rest } = input ?? {};
+  return {
+    ...rest,
+    ...(Predicate.isUndefined(lookupKeys) ? {} : { lookup_keys: lookupKeys }),
+  } as Omit<GetPricesInput, "starting_after">;
 };
-
-const failStripeResponse = (status: number, body: unknown) => {
-  const error = stripeErrorDetails(body);
-  if (error.type === "invalid_request_error" || status === 400) {
-    return Effect.fail(new InvalidRequestError(error));
-  }
-  if (status === 404) {
-    return Effect.fail(new NotFound({ message: error.message }));
-  }
-  return Effect.fail(new UnknownStripeError({ body }));
-};
-
-const executeStripeRequest = (request: HttpClientRequest.HttpClientRequest) =>
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient;
-    return yield* client.execute(request).pipe(
-      Effect.scoped,
-      Effect.mapError((error) => new UnknownStripeError({ body: error })),
-    );
-  });
-
-const stripeRequestJson = <A>(
-  config: StripeCredentialsConfig,
-  path: string,
-): Effect.Effect<A, StripeClientError, HttpClient.HttpClient> =>
-  Effect.gen(function* () {
-    const response = yield* executeStripeRequest(
-      HttpClientRequest.get(stripeApiUrl(config, path)).pipe(
-        HttpClientRequest.setHeaders(stripeHeaders(config)),
-      ),
-    );
-    const body = yield* readJsonBody(response);
-    if (response.status >= 400) {
-      return yield* failStripeResponse(response.status, body);
-    }
-    return body as A;
-  });
-
-const stripeRequestForm = <A>(
-  config: StripeCredentialsConfig,
-  path: string,
-  params: URLSearchParams,
-  options: StripeRequestOptions | undefined,
-): Effect.Effect<A, StripeClientError, HttpClient.HttpClient> =>
-  Effect.gen(function* () {
-    const response = yield* executeStripeRequest(
-      HttpClientRequest.post(stripeApiUrl(config, path)).pipe(
-        HttpClientRequest.setHeaders(stripeHeaders(config, options)),
-        HttpClientRequest.bodyUrlParams(params),
-      ),
-    );
-    const body = yield* readJsonBody(response);
-    if (response.status >= 400) {
-      return yield* failStripeResponse(response.status, body);
-    }
-    return body as A;
-  });
-
-const deleteStripeObject = (config: StripeCredentialsConfig, path: string) =>
-  Effect.gen(function* () {
-    const response = yield* executeStripeRequest(
-      HttpClientRequest.delete(stripeApiUrl(config, path)).pipe(
-        HttpClientRequest.setHeaders(stripeHeaders(config)),
-      ),
-    );
-    if (response.status < 400) return;
-    const body = yield* readJsonBody(response);
-    return yield* failStripeResponse(response.status, body);
-  });
-
-const pathPart = (value: string) => encodeURIComponent(value);
-
-type RawListPricesInput = ListPricesInput & {
-  readonly starting_after?: string;
-  readonly limit?: number;
-};
-
-const appendFormValue = (
-  params: URLSearchParams,
-  key: string,
-  value: unknown,
-) => {
-  if (value !== undefined) params.append(key, String(value));
-};
-
-const appendMetadataForm = (params: URLSearchParams, metadata: unknown) => {
-  if (!Predicate.isObject(metadata)) return;
-  for (const [key, value] of Object.entries(metadata)) {
-    if (typeof value !== "string") continue;
-    params.append(`metadata[${key}]`, value);
-  }
-};
-
-const appendStringArrayForm = (
-  params: URLSearchParams,
-  key: string,
-  value: readonly string[] | "" | undefined,
-) => {
-  if (value === undefined) return;
-  if (value === "" || value.length === 0) {
-    params.append(key, "");
-    return;
-  }
-  for (const item of value) {
-    params.append(`${key}[]`, item);
-  }
-};
-
-const appendMarketingFeaturesForm = (
-  params: URLSearchParams,
-  value: readonly { readonly name?: string }[] | "" | undefined,
-) => {
-  if (value === undefined) return;
-  if (value === "" || value.length === 0) {
-    params.append("marketing_features", "");
-    return;
-  }
-  value.forEach((feature, index) => {
-    if (feature.name !== undefined) {
-      params.append(`marketing_features[${index}][name]`, feature.name);
-    }
-  });
-};
-
-const productUpdateForm = (input: UpdateProductInput) => {
-  const params = new URLSearchParams();
-  appendFormValue(params, "active", input.active);
-  appendFormValue(params, "default_price", input.default_price);
-  appendFormValue(params, "description", input.description);
-  appendStringArrayForm(params, "images", input.images);
-  appendMetadataForm(params, input.metadata);
-  appendMarketingFeaturesForm(params, input.marketing_features);
-  appendFormValue(params, "name", input.name);
-  appendFormValue(params, "shippable", input.shippable);
-  appendFormValue(params, "statement_descriptor", input.statement_descriptor);
-  appendFormValue(params, "tax_code", input.tax_code);
-  appendFormValue(params, "unit_label", input.unit_label);
-  appendFormValue(params, "url", input.url);
-  return params;
-};
-
-const rawListPrices = (
-  config: StripeCredentialsConfig,
-  input: RawListPricesInput,
-) => {
-  const params = new URLSearchParams(
-    UrlParams.toString(
-      UrlParams.fromInput({
-        active: input.active,
-        created: input.created,
-        currency: input.currency,
-        ending_before: input.ending_before,
-        limit: input.limit,
-        product: input.product,
-        starting_after: input.starting_after,
-        type: input.type,
-      }),
-    ),
-  );
-  for (const lookupKey of input.lookupKeys ?? []) {
-    params.append("lookup_keys[]", lookupKey);
-  }
-  const query = params.size === 0 ? "" : `?${params.toString()}`;
-  return stripeRequestJson<{
-    readonly data: readonly StripePrice[];
-    readonly has_more: boolean;
-  }>(config, `/v1/prices${query}`);
-};
-
-const shouldUseRawListPrices = (input: ListPricesInput | undefined) =>
-  input?.lookupKeys !== undefined || Predicate.isObject(input?.created);
 
 export const makeStripeClient = (
   config: StripeCredentialsConfig,
@@ -498,11 +280,8 @@ export const makeStripeClient = (
       ),
     updateProduct: (input, options) =>
       run(
-        stripeRequestForm<StripeProduct>(
-          config,
-          `/v1/products/${pathPart(input.id)}`,
-          productUpdateForm(input),
-          options,
+        generatedStripeEffect<StripeProduct>(
+          PostProductsId(input, toDistilledOptions(options)),
         ),
       ),
     getProduct: (id) =>
@@ -524,7 +303,11 @@ export const makeStripeClient = (
         ),
       ),
     deleteProduct: (id) =>
-      run(deleteStripeObject(config, `/v1/products/${pathPart(id)}`)),
+      run(
+        generatedStripeEffect(
+          DeleteProductsId({ id }, toDistilledOptions(undefined)),
+        ),
+      ).pipe(Effect.asVoid),
 
     createPrice: (input, options) =>
       run(
@@ -545,62 +328,17 @@ export const makeStripeClient = (
         ),
       ),
     listPrices: (input) =>
-      !shouldUseRawListPrices(input)
-        ? Effect.sync(() => {
-            const { created, lookupKeys: _lookupKeys, ...rest } = input ?? {};
-            return {
-              ...rest,
-              ...(created === undefined
-                ? {}
-                : { created: created as GetPricesInput["created"] }),
-            } satisfies Omit<GetPricesInput, "starting_after">;
-          }).pipe(
-            Effect.flatMap((generatedInput) =>
-              run(
-                collectPaginated<StripePrice, GetPricesInput>(
-                  (cursor) =>
-                    ({
-                      ...generatedInput,
-                      limit: 100,
-                      ...(cursor === undefined
-                        ? {}
-                        : { starting_after: cursor }),
-                    }) satisfies GetPricesInput,
-                  GetPrices,
-                ),
-              ),
-            ),
-          )
-        : run(
-            Effect.gen(function* () {
-              const prices: StripePrice[] = [];
-              let cursor: string | undefined;
-
-              do {
-                const page = yield* rawListPrices(config, {
-                  ...input,
-                  limit: 100,
-                  ...(cursor === undefined ? {} : { starting_after: cursor }),
-                });
-                prices.push(...page.data);
-                cursor = page.has_more
-                  ? paginationCursor(page.data)
-                  : undefined;
-                if (page.has_more && cursor === undefined) {
-                  return yield* Effect.fail(
-                    new UnknownStripeError({
-                      body: {
-                        message:
-                          "Stripe pagination returned has_more without a cursor.",
-                      },
-                    }),
-                  );
-                }
-              } while (cursor !== undefined);
-
-              return prices;
-            }),
-          ),
+      run(
+        collectPaginated<StripePrice, GetPricesInput>(
+          (cursor) =>
+            ({
+              ...toGetPricesInput(input),
+              limit: 100,
+              ...(cursor === undefined ? {} : { starting_after: cursor }),
+            }) satisfies GetPricesInput,
+          GetPrices,
+        ),
+      ),
 
     createFeature: (input, options) =>
       run(
@@ -662,11 +400,13 @@ export const makeStripeClient = (
       ),
     deleteProductFeature: (product, id) =>
       run(
-        deleteStripeObject(
-          config,
-          `/v1/products/${pathPart(product)}/features/${pathPart(id)}`,
+        generatedStripeEffect(
+          DeleteProductsProductFeaturesId(
+            { product, id },
+            toDistilledOptions(undefined),
+          ),
         ),
-      ),
+      ).pipe(Effect.asVoid),
 
     createWebhookEndpoint: (input, options) =>
       run(
@@ -705,7 +445,14 @@ export const makeStripeClient = (
         ),
       ),
     deleteWebhookEndpoint: (id) =>
-      run(deleteStripeObject(config, `/v1/webhook_endpoints/${pathPart(id)}`)),
+      run(
+        generatedStripeEffect(
+          DeleteWebhookEndpointsWebhookEndpoint(
+            { webhook_endpoint: id },
+            toDistilledOptions(undefined),
+          ),
+        ),
+      ).pipe(Effect.asVoid),
   };
 };
 
