@@ -18,7 +18,9 @@ import {
   currentOwnership,
   createIdempotencyKey,
   isOwnedByStackStage,
+  isStripeAlreadyExists,
   isStripeNotFound,
+  waitForStripeObserved,
 } from "./Util.ts";
 
 export interface ProductFeatureProps {
@@ -165,7 +167,7 @@ export const ProductFeatureProvider = () =>
               }),
             );
           }
-          const observed = output?.id
+          let observed = output?.id
             ? yield* client
                 .getProductFeature(news.product, output.id)
                 .pipe(
@@ -175,39 +177,67 @@ export const ProductFeatureProvider = () =>
                 )
             : yield* findAttachment(news.product, feature);
 
-          if (observed) {
-            if (
-              output === undefined &&
-              !(yield* stackOwnsAttachment(
-                id,
-                instanceId,
+          if (!observed) {
+            const createInput = {
+              product: news.product,
+              entitlement_feature: feature.id,
+            };
+            const createdOrObserved = yield* client
+              .createProductFeature(createInput, {
+                idempotencyKey: yield* createIdempotencyKey(
+                  "product-feature",
+                  id,
+                  createInput,
+                ),
+              })
+              .pipe(
+                Effect.map(
+                  (productFeature) =>
+                    ({ _tag: "Created", productFeature }) as const,
+                ),
+                Effect.catchIf(isStripeAlreadyExists, (error) =>
+                  waitForStripeObserved(
+                    findAttachment(news.product, feature),
+                    `Stripe product feature for product '${news.product}' and feature '${feature.id}'`,
+                  ).pipe(
+                    Effect.flatMap((productFeature) =>
+                      productFeature === undefined
+                        ? Effect.fail(error)
+                        : Effect.succeed({
+                            _tag: "Observed",
+                            productFeature,
+                          } as const),
+                    ),
+                  ),
+                ),
+              );
+            if (createdOrObserved._tag === "Created") {
+              return toAttributes(
                 news.product,
-                observed.entitlement_feature,
-              ))
-            ) {
-              return yield* Effect.fail(
-                new ResourceNotOwnedError({
-                  resourceType: "Stripe.ProductFeature",
-                  resourceId: observed.id,
-                  message: `Stripe product feature '${observed.id}' exists but its product or feature is not owned by this stack.`,
-                }),
+                createdOrObserved.productFeature,
               );
             }
-            return toAttributes(news.product, observed);
+            observed = createdOrObserved.productFeature;
           }
 
-          const createInput = {
-            product: news.product,
-            entitlement_feature: feature.id,
-          };
-          const created = yield* client.createProductFeature(createInput, {
-            idempotencyKey: yield* createIdempotencyKey(
-              "product-feature",
+          if (
+            output === undefined &&
+            !(yield* stackOwnsAttachment(
               id,
-              createInput,
-            ),
-          });
-          return toAttributes(news.product, created);
+              instanceId,
+              news.product,
+              observed.entitlement_feature,
+            ))
+          ) {
+            return yield* Effect.fail(
+              new ResourceNotOwnedError({
+                resourceType: "Stripe.ProductFeature",
+                resourceId: observed.id,
+                message: `Stripe product feature '${observed.id}' exists but its product or feature is not owned by this stack.`,
+              }),
+            );
+          }
+          return toAttributes(news.product, observed);
         }),
         read: Effect.fn(function* ({ id, instanceId, olds, output }) {
           if (output?.id) {

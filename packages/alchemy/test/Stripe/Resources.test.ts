@@ -22,6 +22,8 @@ import * as Test from "../../src/Test/Vitest.js";
 const notFound = (id: string) => new NotFound({ message: `Missing ${id}` });
 const invalidRequest = (message: string) =>
   new InvalidRequestError({ message });
+const resourceAlreadyExists = (message: string) =>
+  new InvalidRequestError({ code: "resource_already_exists", message });
 
 const timestamp = 1_787_059_200;
 
@@ -148,12 +150,25 @@ const marketingFeatures = (
       })
     : [];
 
+const consumeCount = <K>(counts: Map<K, number>, key: K) => {
+  const current = counts.get(key) ?? 0;
+  if (current <= 0) return false;
+  if (current === 1) {
+    counts.delete(key);
+  } else {
+    counts.set(key, current - 1);
+  }
+  return true;
+};
+
 const makeFakeStripe = () => {
   const products = new Map<string, StripeProduct>();
   const prices = new Map<string, StripePrice>();
   const features = new Map<string, StripeFeature>();
   const productFeatures = new Map<string, Map<string, StripeProductFeature>>();
   const webhookEndpoints = new Map<string, StripeWebhookEndpoint>();
+  const productGetNotFoundCounts = new Map<string, number>();
+  const productFeatureListEmptyCounts = new Map<string, number>();
   let priceCounter = 0;
   let featureCounter = 0;
   let productFeatureCounter = 0;
@@ -166,6 +181,8 @@ const makeFakeStripe = () => {
     features.clear();
     productFeatures.clear();
     webhookEndpoints.clear();
+    productGetNotFoundCounts.clear();
+    productFeatureListEmptyCounts.clear();
     createIdempotencyKeys.length = 0;
     priceCounter = 0;
     featureCounter = 0;
@@ -175,10 +192,15 @@ const makeFakeStripe = () => {
 
   const service: StripeClientService = {
     createProduct: (input, options) =>
-      Effect.sync(() => {
+      Effect.gen(function* () {
         if (options?.idempotencyKey)
           createIdempotencyKeys.push(options.idempotencyKey);
         const id = input.id ?? `prod_${products.size + 1}`;
+        if (products.has(id)) {
+          return yield* Effect.fail(
+            resourceAlreadyExists(`Product '${id}' already exists.`),
+          );
+        }
         const product: StripeProduct = {
           active: input.active ?? true,
           created: timestamp,
@@ -250,6 +272,9 @@ const makeFakeStripe = () => {
       }),
     getProduct: (id) =>
       Effect.gen(function* () {
+        if (consumeCount(productGetNotFoundCounts, id)) {
+          return yield* Effect.fail(notFound(id));
+        }
         const product = products.get(id);
         return product ?? (yield* Effect.fail(notFound(id)));
       }),
@@ -400,6 +425,20 @@ const makeFakeStripe = () => {
         const feature = features.get(input.entitlement_feature);
         if (!feature)
           return yield* Effect.fail(notFound(input.entitlement_feature));
+        const byProduct =
+          productFeatures.get(input.product) ??
+          new Map<string, StripeProductFeature>();
+        if (
+          [...byProduct.values()].some(
+            (row) => row.entitlement_feature.id === feature.id,
+          )
+        ) {
+          return yield* Effect.fail(
+            resourceAlreadyExists(
+              `Product '${input.product}' already has feature '${feature.id}'.`,
+            ),
+          );
+        }
         const id = `prodfeat_${++productFeatureCounter}`;
         const attachment: StripeProductFeature = {
           entitlement_feature: feature,
@@ -407,9 +446,6 @@ const makeFakeStripe = () => {
           livemode: false,
           object: "product_feature",
         };
-        const byProduct =
-          productFeatures.get(input.product) ??
-          new Map<string, StripeProductFeature>();
         byProduct.set(id, attachment);
         productFeatures.set(input.product, byProduct);
         return attachment;
@@ -420,7 +456,11 @@ const makeFakeStripe = () => {
         return attachment ?? (yield* Effect.fail(notFound(id)));
       }),
     listProductFeatures: (product) =>
-      Effect.succeed([...(productFeatures.get(product)?.values() ?? [])]),
+      Effect.sync(() =>
+        consumeCount(productFeatureListEmptyCounts, product)
+          ? []
+          : [...(productFeatures.get(product)?.values() ?? [])],
+      ),
     deleteProductFeature: (product, id) =>
       Effect.gen(function* () {
         const byProduct = productFeatures.get(product);
@@ -498,6 +538,8 @@ const makeFakeStripe = () => {
     features,
     productFeatures,
     webhookEndpoints,
+    productGetNotFoundCounts,
+    productFeatureListEmptyCounts,
     createIdempotencyKeys,
     reset,
     layer: Layer.succeed(StripeClient, service),
@@ -506,27 +548,35 @@ const makeFakeStripe = () => {
 
 const fake = makeFakeStripe();
 
-const providers = Layer.effect(
-  Stripe.Providers,
-  Provider.collection([
-    Stripe.Feature,
-    Stripe.Price,
-    Stripe.Product,
-    Stripe.ProductFeature,
-    Stripe.WebhookEndpoint,
-  ]),
-).pipe(
-  Layer.provide(
-    Layer.mergeAll(
-      Stripe.FeatureProvider(),
-      Stripe.PriceProvider(),
-      Stripe.ProductProvider(),
-      Stripe.ProductFeatureProvider(),
-      Stripe.WebhookEndpointProvider(),
+const makeProviders = (stripeFake: ReturnType<typeof makeFakeStripe>) =>
+  Layer.effect(
+    Stripe.Providers,
+    Provider.collection([
+      Stripe.Feature,
+      Stripe.Price,
+      Stripe.Product,
+      Stripe.ProductFeature,
+      Stripe.WebhookEndpoint,
+    ]),
+  ).pipe(
+    Layer.provide(
+      Layer.mergeAll(
+        Stripe.FeatureProvider(),
+        Stripe.PriceProvider(),
+        Stripe.ProductProvider(),
+        Stripe.ProductFeatureProvider(),
+        Stripe.WebhookEndpointProvider(),
+      ),
     ),
-  ),
-  Layer.provideMerge(fake.layer),
-);
+    Layer.provideMerge(stripeFake.layer),
+  );
+
+const providers = makeProviders(fake);
+
+const consistencyFake = makeFakeStripe();
+const { test: consistencyTest } = Test.make({
+  providers: makeProviders(consistencyFake),
+});
 
 const { test } = Test.make({ providers });
 
@@ -876,6 +926,92 @@ test.provider(
       expect(fake.products.get("prod_generated_previous")?.metadata.plan).toBe(
         "pro",
       );
+    }),
+);
+
+consistencyTest.provider(
+  "recovers Stripe create conflicts after read and list lag",
+  (stack) =>
+    Effect.gen(function* () {
+      consistencyFake.reset();
+      yield* stack.deploy(
+        Stripe.Product("ProProduct", {
+          id: "prod_pro",
+          name: "Pro",
+        }),
+      );
+      consistencyFake.productGetNotFoundCounts.set("prod_pro", 3);
+
+      const recovered = yield* stack.deploy(
+        Stripe.Product("ProProduct", {
+          id: "prod_pro",
+          name: "Pro Plus",
+          metadata: { plan: "pro" },
+        }),
+      );
+
+      expect(recovered.id).toBe("prod_pro");
+      expect(recovered.name).toBe("Pro Plus");
+      expect(consistencyFake.products.size).toBe(1);
+      expect(consistencyFake.products.get("prod_pro")?.metadata.plan).toBe(
+        "pro",
+      );
+      expect(
+        consistencyFake.productGetNotFoundCounts.get("prod_pro"),
+      ).toBeUndefined();
+
+      yield* stack.destroy();
+
+      consistencyFake.reset();
+      consistencyFake.products.set(
+        "prod_pro",
+        fakeProduct({
+          id: "prod_pro",
+          metadata: {
+            alchemy_stack: stack.name,
+            alchemy_stage: "test",
+            alchemy_id: "ProProduct",
+          },
+        }),
+      );
+      const feature = fakeFeature({
+        id: "feat_existing",
+        lookup_key: "documents.search",
+        metadata: {
+          alchemy_stack: stack.name,
+          alchemy_stage: "test",
+          alchemy_id: "DocumentsSearch",
+        },
+      });
+      consistencyFake.features.set(feature.id, feature);
+      consistencyFake.productFeatures.set(
+        "prod_pro",
+        new Map([
+          [
+            "prodfeat_existing",
+            {
+              entitlement_feature: feature,
+              id: "prodfeat_existing",
+              livemode: false,
+              object: "product_feature",
+            },
+          ],
+        ]),
+      );
+      consistencyFake.productFeatureListEmptyCounts.set("prod_pro", 2);
+
+      const recoveredAttachment = yield* stack.deploy(
+        Stripe.ProductFeature("ProDocumentsSearch", {
+          product: "prod_pro",
+          feature: "documents.search",
+        }),
+      );
+
+      expect(recoveredAttachment.id).toBe("prodfeat_existing");
+      expect(consistencyFake.productFeatures.get("prod_pro")?.size).toBe(1);
+      expect(
+        consistencyFake.productFeatureListEmptyCounts.get("prod_pro"),
+      ).toBeUndefined();
     }),
 );
 

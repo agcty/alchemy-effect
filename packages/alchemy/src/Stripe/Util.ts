@@ -1,4 +1,7 @@
 import * as Effect from "effect/Effect";
+import * as Data from "effect/Data";
+import * as Duration from "effect/Duration";
+import * as Schedule from "effect/Schedule";
 import { Stack } from "../Stack.ts";
 import { Stage } from "../Stage.ts";
 import { sha256 } from "../Util/sha256.ts";
@@ -99,6 +102,61 @@ export const isStripeInvalidRequest = (
   error !== null &&
   "_tag" in error &&
   (error as { readonly _tag?: unknown })._tag === "InvalidRequestError";
+
+export const isStripeAlreadyExists = (
+  error: unknown,
+): error is {
+  readonly _tag: "InvalidRequestError";
+  readonly code?: string;
+  readonly message?: string;
+} => {
+  if (!isStripeInvalidRequest(error)) return false;
+  const code = (error as { readonly code?: unknown }).code;
+  const message = (error as { readonly message?: unknown }).message;
+  return (
+    code === "resource_already_exists" ||
+    (typeof message === "string" &&
+      /already exists|already attached|already been attached/i.test(message))
+  );
+};
+
+class StripeConsistencyPending extends Data.TaggedError(
+  "StripeConsistencyPending",
+)<{
+  readonly resource: string;
+}> {}
+
+const stripeConsistencySchedule = Schedule.exponential(
+  Duration.millis(100),
+  1.5,
+).pipe(Schedule.both(Schedule.recurs(5)));
+
+const isStripeConsistencyPending = (
+  error: unknown,
+): error is { readonly _tag: "StripeConsistencyPending" } =>
+  typeof error === "object" &&
+  error !== null &&
+  "_tag" in error &&
+  (error as { readonly _tag?: unknown })._tag === "StripeConsistencyPending";
+
+export const waitForStripeObserved = <A, E, R>(
+  observe: Effect.Effect<A | undefined, E, R>,
+  resource: string,
+): Effect.Effect<A | undefined, E, R> =>
+  observe.pipe(
+    Effect.flatMap((value) =>
+      value === undefined
+        ? Effect.fail(new StripeConsistencyPending({ resource }))
+        : Effect.succeed(value),
+    ),
+    Effect.retry({
+      while: isStripeConsistencyPending,
+      schedule: stripeConsistencySchedule,
+    }),
+    Effect.catchTag("StripeConsistencyPending", () =>
+      Effect.succeed(undefined),
+    ),
+  );
 
 export const createIdempotencyKey = (
   type: string,

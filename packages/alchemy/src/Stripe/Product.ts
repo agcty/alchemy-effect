@@ -19,6 +19,7 @@ import {
   defined,
   getMetadataFingerprint,
   isOwnedBy,
+  isStripeAlreadyExists,
   isStripeInvalidRequest,
   isStripeNotFound,
   metadataForUpdate,
@@ -26,6 +27,7 @@ import {
   stripOwnershipMetadata,
   stripeObjectId,
   type StripeMetadata,
+  waitForStripeObserved,
   withOwnershipMetadata,
 } from "./Util.ts";
 import * as Effect from "effect/Effect";
@@ -212,6 +214,25 @@ const findOwnedProduct = (
       ),
     );
 
+const observeProduct = (
+  client: Pick<StripeClientService, "getProduct" | "listProducts">,
+  productId: string,
+  ownership: Ownership,
+  props: ProductProps,
+  fingerprint: string,
+) =>
+  Effect.gen(function* () {
+    const observedById = yield* client
+      .getProduct(productId)
+      .pipe(Effect.catchIf(isStripeNotFound, () => Effect.succeed(undefined)));
+    return (
+      observedById ??
+      (props.id === undefined
+        ? yield* findOwnedProduct(client, ownership, props, fingerprint)
+        : undefined)
+    );
+  });
+
 export const ProductProvider = () =>
   Provider.effect(
     Product,
@@ -293,16 +314,13 @@ export const ProductProvider = () =>
             fingerprint,
           });
           const lookupProductId = output?.id ?? productId;
-          const observedById = yield* client
-            .getProduct(lookupProductId)
-            .pipe(
-              Effect.catchIf(isStripeNotFound, () => Effect.succeed(undefined)),
-            );
-          const observed =
-            observedById ??
-            (news.id === undefined
-              ? yield* findOwnedProduct(client, ownership, news, fingerprint)
-              : undefined);
+          let observed = yield* observeProduct(
+            client,
+            lookupProductId,
+            ownership,
+            news,
+            fingerprint,
+          );
 
           if (observed === undefined) {
             const createInput = {
@@ -320,18 +338,53 @@ export const ProductProvider = () =>
               unit_label: news.unitLabel,
               url: news.url,
             };
-            const created = yield* client.createProduct(createInput, {
-              idempotencyKey: yield* createIdempotencyKey(
-                "product",
-                id,
-                createInput,
-              ),
-            });
-            return toAttributes(
-              news.defaultPrice
-                ? yield* updateProduct(created.id, news, created, metadata)
-                : created,
-            );
+            const createdOrObserved = yield* client
+              .createProduct(createInput, {
+                idempotencyKey: yield* createIdempotencyKey(
+                  "product",
+                  id,
+                  createInput,
+                ),
+              })
+              .pipe(
+                Effect.map(
+                  (product) => ({ _tag: "Created", product }) as const,
+                ),
+                Effect.catchIf(isStripeAlreadyExists, (error) =>
+                  waitForStripeObserved(
+                    observeProduct(
+                      client,
+                      productId,
+                      ownership,
+                      news,
+                      fingerprint,
+                    ),
+                    `Stripe product '${productId}'`,
+                  ).pipe(
+                    Effect.flatMap((product) =>
+                      product === undefined
+                        ? Effect.fail(error)
+                        : Effect.succeed({
+                            _tag: "Observed",
+                            product,
+                          } as const),
+                    ),
+                  ),
+                ),
+              );
+            if (createdOrObserved._tag === "Created") {
+              return toAttributes(
+                news.defaultPrice
+                  ? yield* updateProduct(
+                      createdOrObserved.product.id,
+                      news,
+                      createdOrObserved.product,
+                      metadata,
+                    )
+                  : createdOrObserved.product,
+              );
+            }
+            observed = createdOrObserved.product;
           }
 
           if (
