@@ -86,7 +86,7 @@ describe.skipIf(!process.env.PLANETSCALE_TEST)("Branch", () => {
     (stack) =>
       Effect.gen(function* () {
         const dbName = process.env.PLANETSCALE_BRANCH_REPLICA_DATABASE!;
-        const branchName = "replica-target";
+        const branchName = `replica-target-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
         const { organization } = yield* yield* Planetscale.Credentials;
 
         yield* Effect.gen(function* () {
