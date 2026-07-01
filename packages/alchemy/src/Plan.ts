@@ -31,6 +31,7 @@ import {
 import { parseFqn } from "./FQN.ts";
 import { generateInstanceId, InstanceId } from "./InstanceId.ts";
 import * as Output from "./Output.ts";
+import { ResourceFqn } from "./ResourceFqn.ts";
 import {
   findProviderByType,
   Provider,
@@ -1312,16 +1313,17 @@ const providePlanScope =
   (fqn: string, instanceId: string) =>
   <A, E, R>(
     effect: Effect.Effect<A, E, R>,
-  ): Effect.Effect<A, E, Exclude<R, InstanceId | Artifacts>> =>
+  ): Effect.Effect<A, E, Exclude<R, InstanceId | ResourceFqn | Artifacts>> =>
     Effect.serviceOption(ArtifactStore).pipe(
       Effect.map(Option.getOrElse(createArtifactStore)),
       Effect.flatMap((store) =>
         effect.pipe(
           Effect.provideService(Artifacts, makeScopedArtifacts(store, fqn)),
+          Effect.provideService(ResourceFqn, fqn),
           Effect.provideService(InstanceId, instanceId),
         ),
       ),
-    ) as Effect.Effect<A, E, Exclude<R, InstanceId | Artifacts>>;
+    ) as Effect.Effect<A, E, Exclude<R, InstanceId | ResourceFqn | Artifacts>>;
 
 export class DeleteResourceHasDownstreamDependencies extends Data.TaggedError(
   "DeleteResourceHasDownstreamDependencies",

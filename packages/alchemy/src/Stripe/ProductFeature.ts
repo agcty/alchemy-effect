@@ -107,15 +107,10 @@ const findAttachment = (product: string, feature: StripeFeature) =>
     return attachments.find((row) => row.entitlement_feature.id === feature.id);
   });
 
-const stackOwnsAttachment = (
-  logicalId: string,
-  instanceId: string,
-  productId: string,
-  feature: StripeFeature,
-) =>
+const stackOwnsAttachment = (productId: string, feature: StripeFeature) =>
   Effect.gen(function* () {
     const client = yield* StripeClient;
-    const ownership = yield* currentOwnership(logicalId, instanceId);
+    const ownership = yield* currentOwnership();
     const product = yield* client
       .getProduct(productId)
       .pipe(Effect.catchIf(isStripeNotFound, () => Effect.succeed(undefined)));
@@ -157,7 +152,7 @@ export const ProductFeatureProvider = () =>
             ? undefined
             : ({ action: "replace" } as const);
         }),
-        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
+        reconcile: Effect.fn(function* ({ id, news, output }) {
           const feature = yield* resolveFeature(news.feature);
           if (!feature.active) {
             return yield* Effect.fail(
@@ -223,8 +218,6 @@ export const ProductFeatureProvider = () =>
           if (
             output === undefined &&
             !(yield* stackOwnsAttachment(
-              id,
-              instanceId,
               news.product,
               observed.entitlement_feature,
             ))
@@ -239,7 +232,7 @@ export const ProductFeatureProvider = () =>
           }
           return toAttributes(news.product, observed);
         }),
-        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
+        read: Effect.fn(function* ({ olds, output }) {
           if (output?.id) {
             return yield* client
               .getProductFeature(output.product, output.id)
@@ -256,8 +249,6 @@ export const ProductFeatureProvider = () =>
           if (!observed) return undefined;
           const attrs = toAttributes(olds.product, observed);
           return (yield* stackOwnsAttachment(
-            id,
-            instanceId,
             olds.product,
             observed.entitlement_feature,
           ))

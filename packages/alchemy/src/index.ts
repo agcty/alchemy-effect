@@ -29,6 +29,7 @@ export * from "./Random.ts";
 export * from "./Ref.ts";
 export * as RemovalPolicy from "./RemovalPolicy.ts";
 export * from "./Resource.ts";
+export * from "./ResourceFqn.ts";
 export * as Schema from "./Schema.ts";
 export * as Server from "./Server/index.ts";
 export * as Serverless from "./Serverless/index.ts";

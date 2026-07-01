@@ -9,6 +9,7 @@ import type { Diff } from "./Diff.ts";
 import type { Input } from "./Input.ts";
 import type { InstanceId } from "./InstanceId.ts";
 import type { Platform } from "./Platform.ts";
+import type { ResourceFqn } from "./ResourceFqn.ts";
 import type {
   ResourceBinding,
   ResourceClass,
@@ -58,7 +59,7 @@ export interface Provider<
   >;
 }
 
-type LifecycleServices = InstanceId | Artifacts;
+type LifecycleServices = InstanceId | ResourceFqn | Artifacts;
 
 export const Provider = <R extends ResourceLike>(
   type: R["Type"],

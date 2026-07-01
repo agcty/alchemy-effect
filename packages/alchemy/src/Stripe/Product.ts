@@ -304,8 +304,8 @@ export const ProductProvider = () =>
             ? ({ action: "update" } as const)
             : undefined;
         }),
-        reconcile: Effect.fn(function* ({ id, instanceId, news, output }) {
-          const ownership = yield* currentOwnership(id, instanceId);
+        reconcile: Effect.fn(function* ({ id, news, output }) {
+          const ownership = yield* currentOwnership();
           const productId = yield* createProductId(id, news.id);
           const fingerprint = yield* createMetadataFingerprint(
             immutableShape(news),
@@ -416,8 +416,8 @@ export const ProductProvider = () =>
             metadata,
           ).pipe(Effect.map(toAttributes));
         }),
-        read: Effect.fn(function* ({ id, instanceId, olds, output }) {
-          const ownership = yield* currentOwnership(id, instanceId);
+        read: Effect.fn(function* ({ id, olds, output }) {
+          const ownership = yield* currentOwnership();
           const productId =
             output?.id ?? (yield* createProductId(id, olds?.id));
           const productById = yield* client

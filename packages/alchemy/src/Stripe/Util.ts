@@ -1,7 +1,9 @@
 import * as Effect from "effect/Effect";
 import * as Data from "effect/Data";
 import * as Duration from "effect/Duration";
+import * as Predicate from "effect/Predicate";
 import * as Schedule from "effect/Schedule";
+import { ResourceFqn } from "../ResourceFqn.ts";
 import { Stack } from "../Stack.ts";
 import { Stage } from "../Stage.ts";
 import { sha256 } from "../Util/sha256.ts";
@@ -20,14 +22,15 @@ export interface Ownership {
   readonly id: string;
 }
 
-export const currentOwnership = (id: string, instanceId = id) =>
+export const currentOwnership = () =>
   Effect.gen(function* () {
+    const resourceFqn = yield* ResourceFqn;
     const stack = yield* Stack;
     const stage = yield* Stage;
     return {
       stack: stack.name,
       stage,
-      id: instanceId,
+      id: resourceFqn,
     } satisfies Ownership;
   });
 
@@ -36,13 +39,13 @@ export const withOwnershipMetadata = (
   ownership: Ownership,
   options?: { readonly fingerprint?: string },
 ): StripeMetadata => ({
-  ...(metadata ?? {}),
+  ...metadata,
   [OWNERSHIP_STACK]: ownership.stack,
   [OWNERSHIP_STAGE]: ownership.stage,
   [OWNERSHIP_ID]: ownership.id,
-  ...(options?.fingerprint === undefined
-    ? {}
-    : { [OWNERSHIP_FINGERPRINT]: options.fingerprint }),
+  ...(options?.fingerprint !== undefined && {
+    [OWNERSHIP_FINGERPRINT]: options.fingerprint,
+  }),
 });
 
 export const stripOwnershipMetadata = (
@@ -133,11 +136,8 @@ const stripeConsistencySchedule = Schedule.exponential(
 
 const isStripeConsistencyPending = (
   error: unknown,
-): error is { readonly _tag: "StripeConsistencyPending" } =>
-  typeof error === "object" &&
-  error !== null &&
-  "_tag" in error &&
-  (error as { readonly _tag?: unknown })._tag === "StripeConsistencyPending";
+): error is StripeConsistencyPending =>
+  Predicate.isTagged(error, "StripeConsistencyPending");
 
 export const waitForStripeObserved = <A, E, R>(
   observe: Effect.Effect<A | undefined, E, R>,
