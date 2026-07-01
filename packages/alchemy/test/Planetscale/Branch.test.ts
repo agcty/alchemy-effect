@@ -78,6 +78,64 @@ test.provider("diff tracks Postgres branch replica intent", () =>
 );
 
 describe.skipIf(!process.env.PLANETSCALE_TEST)("Branch", () => {
+  test.provider.skipIf(!process.env.PLANETSCALE_BRANCH_REPLICA_TEST)(
+    "Postgres branch persists replica intent and plans no-op once converged",
+    (stack) =>
+      Effect.gen(function* () {
+        const dbName = "alchemy-pg-branch-replicas";
+        const branchName = "replica-target";
+
+        yield* stack.destroy();
+
+        const program = Effect.gen(function* () {
+          const database = yield* Planetscale.PostgresDatabase("ReplicaDb", {
+            name: dbName,
+            region: { slug: "us-east" },
+            clusterSize: "PS_10",
+            replicas: 0,
+            arch: "arm",
+          });
+          const branch = yield* Planetscale.PostgresBranch("ReplicaBranch", {
+            name: branchName,
+            database,
+            parentBranch: "main",
+            clusterSize: "PS_10",
+            replicas: 0,
+          });
+
+          return { database, branch };
+        });
+
+        const { database, branch } = yield* stack.deploy(program);
+
+        expect(branch).toMatchObject({
+          name: branchName,
+          database: dbName,
+          desiredReplicas: 0,
+          hasReplicas: false,
+          hasReadOnlyReplicas: false,
+        });
+
+        const live = yield* ops.getBranch({
+          organization: database.organization,
+          database: dbName,
+          branch: branchName,
+        });
+
+        expect(live.has_replicas).toBe(false);
+        expect(live.has_read_only_replicas).toBe(false);
+
+        const plan = yield* stack.plan(program);
+        expect(plan.resources.ReplicaBranch).toMatchObject({
+          action: "noop",
+        });
+
+        yield* stack.destroy();
+        yield* waitForDatabaseToBeDeleted(dbName, database.organization);
+      }).pipe(logLevel),
+    5_000_000,
+  );
+
   // Canonical `list()` test (PARENT FAN-OUT): branches live under a database
   // within the credentialed organization. `list()` enumerates every database
   // in the org, lists each database's branches, and keeps only the engine's
