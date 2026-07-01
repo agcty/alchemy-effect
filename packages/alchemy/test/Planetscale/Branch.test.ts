@@ -78,60 +78,63 @@ test.provider("diff tracks Postgres branch replica intent", () =>
 );
 
 describe.skipIf(!process.env.PLANETSCALE_TEST)("Branch", () => {
-  test.provider.skipIf(!process.env.PLANETSCALE_BRANCH_REPLICA_TEST)(
+  test.provider.skipIf(
+    !process.env.PLANETSCALE_BRANCH_REPLICA_TEST ||
+      !process.env.PLANETSCALE_BRANCH_REPLICA_DATABASE,
+  )(
     "Postgres branch persists replica intent and plans no-op once converged",
     (stack) =>
       Effect.gen(function* () {
-        const dbName = "alchemy-pg-branch-replicas";
+        const dbName = process.env.PLANETSCALE_BRANCH_REPLICA_DATABASE!;
         const branchName = "replica-target";
+        const { organization } = yield* yield* Planetscale.Credentials;
 
-        yield* stack.destroy();
+        yield* Effect.gen(function* () {
+          yield* stack.destroy();
+          yield* deleteBranchIfExists(dbName, branchName, organization);
 
-        const program = Effect.gen(function* () {
-          const database = yield* Planetscale.PostgresDatabase("ReplicaDb", {
-            name: dbName,
-            region: { slug: "us-east" },
-            clusterSize: "PS_10",
-            replicas: 0,
-            arch: "arm",
+          const program = Effect.gen(function* () {
+            const branch = yield* Planetscale.PostgresBranch("ReplicaBranch", {
+              name: branchName,
+              database: dbName,
+              parentBranch: "main",
+              replicas: 0,
+            });
+
+            return { branch };
           });
-          const branch = yield* Planetscale.PostgresBranch("ReplicaBranch", {
+
+          const { branch } = yield* stack.deploy(program);
+
+          expect(branch).toMatchObject({
             name: branchName,
-            database,
-            parentBranch: "main",
-            clusterSize: "PS_10",
-            replicas: 0,
+            database: dbName,
+            desiredReplicas: 0,
+            hasReplicas: false,
+            hasReadOnlyReplicas: false,
           });
 
-          return { database, branch };
-        });
+          const live = yield* ops.getBranch({
+            organization,
+            database: dbName,
+            branch: branchName,
+          });
 
-        const { database, branch } = yield* stack.deploy(program);
+          expect(live.has_replicas).toBe(false);
+          expect(live.has_read_only_replicas).toBe(false);
 
-        expect(branch).toMatchObject({
-          name: branchName,
-          database: dbName,
-          desiredReplicas: 0,
-          hasReplicas: false,
-          hasReadOnlyReplicas: false,
-        });
+          const plan = yield* stack.plan(program);
+          expect(plan.resources.ReplicaBranch).toMatchObject({
+            action: "noop",
+          });
 
-        const live = yield* ops.getBranch({
-          organization: database.organization,
-          database: dbName,
-          branch: branchName,
-        });
-
-        expect(live.has_replicas).toBe(false);
-        expect(live.has_read_only_replicas).toBe(false);
-
-        const plan = yield* stack.plan(program);
-        expect(plan.resources.ReplicaBranch).toMatchObject({
-          action: "noop",
-        });
-
-        yield* stack.destroy();
-        yield* waitForDatabaseToBeDeleted(dbName, database.organization);
+          yield* stack.destroy();
+          yield* waitForBranchToBeDeleted(dbName, branchName, organization);
+        }).pipe(
+          Effect.ensuring(
+            deleteBranchIfExists(dbName, branchName, organization),
+          ),
+        );
       }).pipe(logLevel),
     5_000_000,
   );
@@ -224,4 +227,39 @@ const waitForDatabaseToBeDeleted = Effect.fn(function* (
     );
 });
 
+const waitForBranchToBeDeleted = Effect.fn(function* (
+  database: string,
+  branch: string,
+  organization: string,
+) {
+  yield* ops
+    .getBranch({
+      organization,
+      database,
+      branch,
+    })
+    .pipe(
+      Effect.flatMap(() => Effect.fail(new BranchStillExists())),
+      Effect.retry({
+        while: (e): e is BranchStillExists => e instanceof BranchStillExists,
+        schedule: Schedule.exponential(100),
+      }),
+      Effect.catchTag("NotFound", () => Effect.void),
+    );
+});
+
+const deleteBranchIfExists = (
+  database: string,
+  branch: string,
+  organization: string,
+) =>
+  ops.deleteBranch({ organization, database, branch }).pipe(
+    Effect.catchTag("NotFound", () => Effect.void),
+    Effect.flatMap(() =>
+      waitForBranchToBeDeleted(database, branch, organization),
+    ),
+    Effect.ignore,
+  );
+
+class BranchStillExists extends Data.TaggedError("BranchStillExists") {}
 class DatabaseStillExists extends Data.TaggedError("DatabaseStillExists") {}
