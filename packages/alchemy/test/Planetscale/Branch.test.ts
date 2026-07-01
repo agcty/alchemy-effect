@@ -14,6 +14,69 @@ const logLevel = Effect.provideService(
   process.env.DEBUG ? "Debug" : "Info",
 );
 
+const branchOutput = (
+  overrides: Partial<Planetscale.PostgresBranchAttributes> = {},
+): Planetscale.PostgresBranchAttributes => ({
+  name: "branch",
+  organization: "org",
+  database: "database",
+  parentBranch: "main",
+  production: false,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+  htmlUrl: "https://planetscale.com/org/database/branch/branch",
+  region: { slug: "us-east" },
+  migrationsDir: undefined,
+  migrationsTable: undefined,
+  migrationsHashes: {},
+  importHashes: {},
+  desiredReplicas: undefined,
+  hasReplicas: undefined,
+  hasReadOnlyReplicas: undefined,
+  ...overrides,
+});
+
+test.provider("diff tracks Postgres branch replica intent", () =>
+  Effect.gen(function* () {
+    const provider = yield* Provider.findProvider(Planetscale.PostgresBranch);
+    const props = (replicas: number): Planetscale.PostgresBranchProps => ({
+      database: "database",
+      parentBranch: "main",
+      replicas,
+    });
+
+    const alreadyConvergedToNonHa = yield* provider.diff!({
+      id: "Branch",
+      instanceId: "instance",
+      olds: props(0),
+      news: props(0),
+      oldBindings: [],
+      newBindings: [],
+      output: branchOutput({
+        desiredReplicas: 0,
+        hasReplicas: false,
+        hasReadOnlyReplicas: false,
+      }),
+    });
+    expect(alreadyConvergedToNonHa).toBeUndefined();
+
+    const exactHaCountChanged = yield* provider.diff!({
+      id: "Branch",
+      instanceId: "instance",
+      olds: props(2),
+      news: props(3),
+      oldBindings: [],
+      newBindings: [],
+      output: branchOutput({
+        desiredReplicas: 2,
+        hasReplicas: true,
+        hasReadOnlyReplicas: false,
+      }),
+    });
+    expect(exactHaCountChanged).toEqual({ action: "update" });
+  }),
+);
+
 describe.skipIf(!process.env.PLANETSCALE_TEST)("Branch", () => {
   // Canonical `list()` test (PARENT FAN-OUT): branches live under a database
   // within the credentialed organization. `list()` enumerates every database
