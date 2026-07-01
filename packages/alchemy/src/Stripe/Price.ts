@@ -2,7 +2,11 @@ import { Unowned } from "../AdoptPolicy.ts";
 import { deepEqual, isResolved } from "../Diff.ts";
 import * as Provider from "../Provider.ts";
 import { Resource } from "../Resource.ts";
-import { StripeClient, type StripePrice } from "./Client.ts";
+import {
+  StripeClient,
+  type StripeClientService,
+  type StripePrice,
+} from "./Client.ts";
 import type { Providers } from "./Providers.ts";
 import {
   currentOwnership,
@@ -36,7 +40,7 @@ export interface PriceTier {
   readonly flat_amount_decimal?: string;
   readonly unit_amount?: number;
   readonly unit_amount_decimal?: string;
-  readonly up_to: unknown;
+  readonly up_to: "inf" | number;
 }
 
 export interface PriceProps {
@@ -105,6 +109,9 @@ export type Price = Resource<
  */
 export const Price = Resource<Price>("Stripe.Price");
 
+type CreatePriceInput = Parameters<StripeClientService["createPrice"]>[0];
+type CreatePriceTier = NonNullable<CreatePriceInput["tiers"]>[number];
+
 const toRecurringInput = (recurring: PriceRecurring | undefined) =>
   recurring === undefined
     ? undefined
@@ -115,6 +122,19 @@ const toRecurringInput = (recurring: PriceRecurring | undefined) =>
         trial_period_days: recurring.trialPeriodDays,
         usage_type: recurring.usageType,
       };
+
+const toPriceTierInput = (tier: PriceTier): CreatePriceTier => ({
+  flat_amount: tier.flat_amount,
+  flat_amount_decimal: tier.flat_amount_decimal,
+  unit_amount: tier.unit_amount,
+  unit_amount_decimal: tier.unit_amount_decimal,
+  up_to: tier.up_to,
+});
+
+const toPriceTiersInput = (
+  tiers: readonly PriceTier[] | undefined,
+): CreatePriceInput["tiers"] =>
+  tiers === undefined ? undefined : tiers.map(toPriceTierInput);
 
 const toAttributes = (price: StripePrice): PriceAttributes => ({
   id: price.id,
@@ -343,7 +363,7 @@ export const PriceProvider = () =>
               nickname: news.nickname,
               recurring: toRecurringInput(news.recurring),
               tax_behavior: news.taxBehavior,
-              tiers: news.tiers,
+              tiers: toPriceTiersInput(news.tiers),
               tiers_mode: news.tiersMode,
               transfer_lookup_key: news.transferLookupKey ?? true,
               transform_quantity: news.transformQuantity
@@ -393,7 +413,7 @@ export const PriceProvider = () =>
               nickname: news.nickname,
               recurring: toRecurringInput(news.recurring),
               tax_behavior: news.taxBehavior,
-              tiers: news.tiers,
+              tiers: toPriceTiersInput(news.tiers),
               tiers_mode: news.tiersMode,
               transfer_lookup_key: news.transferLookupKey ?? true,
               transform_quantity: news.transformQuantity

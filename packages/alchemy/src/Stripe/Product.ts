@@ -103,6 +103,9 @@ export type Product = Resource<
  */
 export const Product = Resource<Product>("Stripe.Product");
 
+type CreateProductInput = Parameters<StripeClientService["createProduct"]>[0];
+type UpdateProductInput = Parameters<StripeClientService["updateProduct"]>[0];
+
 const createProductId = (id: string, physicalId: string | undefined) =>
   Effect.gen(function* () {
     return (
@@ -130,6 +133,26 @@ const toAttributes = (product: StripeProduct): ProductAttributes => ({
   created: product.created,
   updated: product.updated,
 });
+
+const toProductImagesInput = (
+  images: readonly string[] | undefined,
+): CreateProductInput["images"] =>
+  images === undefined ? undefined : [...images];
+
+const toMarketingFeaturesInput = (
+  features: readonly { readonly name: string }[] | undefined,
+): CreateProductInput["marketing_features"] =>
+  features === undefined ? undefined : features.map(({ name }) => ({ name }));
+
+const clearableMarketingFeaturesForUpdate = (
+  current: StripeProduct["marketing_features"],
+  desired: ProductProps["marketingFeatures"],
+): UpdateProductInput["marketing_features"] =>
+  desired === undefined
+    ? current.length === 0
+      ? undefined
+      : ""
+    : desired.map(({ name }) => ({ name }));
 
 const mutablePropsChanged = (
   olds: ProductProps | undefined,
@@ -255,7 +278,7 @@ export const ProductProvider = () =>
           ),
           metadata: metadataForUpdate(current.metadata, metadata),
           images: clearableArrayForUpdate(current.images, props.images),
-          marketing_features: clearableArrayForUpdate(
+          marketing_features: clearableMarketingFeaturesForUpdate(
             current.marketing_features,
             props.marketingFeatures,
           ),
@@ -329,8 +352,10 @@ export const ProductProvider = () =>
               active: news.active ?? true,
               description: news.description,
               metadata,
-              images: news.images,
-              marketing_features: news.marketingFeatures,
+              images: toProductImagesInput(news.images),
+              marketing_features: toMarketingFeaturesInput(
+                news.marketingFeatures,
+              ),
               shippable: news.shippable,
               statement_descriptor: news.statementDescriptor,
               tax_code: news.taxCode,

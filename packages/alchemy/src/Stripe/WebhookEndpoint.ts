@@ -115,7 +115,7 @@ const toAttributes = (
 });
 
 const toGeneratedEnabledEvents = (events: readonly string[]) =>
-  [...events] as readonly StripeWebhookEnabledEvent[];
+  [...events] as StripeWebhookEnabledEvent[];
 
 const toGeneratedApiVersion = (apiVersion: string) =>
   apiVersion as StripeWebhookApiVersion;

@@ -96,7 +96,7 @@ export type UpdateProductInput = Omit<
   "images" | "marketing_features" | "shippable"
 > & {
   readonly images?: readonly string[] | "";
-  readonly marketing_features?: readonly { readonly name?: string }[] | "";
+  readonly marketing_features?: readonly { name: string }[] | "";
   readonly shippable?: boolean | "";
 };
 export type StripeCreatedRangeFilter = {

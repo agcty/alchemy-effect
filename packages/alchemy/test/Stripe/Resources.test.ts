@@ -130,6 +130,48 @@ const stringOrNull = (value: unknown) =>
 const booleanOrNull = (value: unknown) =>
   typeof value === "boolean" ? value : null;
 
+const priceCustomUnitAmount = (
+  value:
+    | {
+        readonly maximum?: number;
+        readonly minimum?: number;
+        readonly preset?: number;
+      }
+    | null
+    | undefined,
+): StripePrice["custom_unit_amount"] =>
+  value
+    ? {
+        maximum: value.maximum ?? null,
+        minimum: value.minimum ?? null,
+        preset: value.preset ?? null,
+      }
+    : null;
+
+const priceRecurring = (
+  value:
+    | {
+        readonly interval: NonNullable<StripePrice["recurring"]>["interval"];
+        readonly interval_count?: number;
+        readonly meter?: string;
+        readonly trial_period_days?: number;
+        readonly usage_type?: NonNullable<
+          StripePrice["recurring"]
+        >["usage_type"];
+      }
+    | null
+    | undefined,
+): StripePrice["recurring"] =>
+  value
+    ? {
+        interval: value.interval,
+        interval_count: value.interval_count ?? 1,
+        meter: value.meter ?? null,
+        trial_period_days: value.trial_period_days ?? null,
+        usage_type: value.usage_type ?? "licensed",
+      }
+    : null;
+
 const stringList = (value: unknown) =>
   Array.isArray(value)
     ? value.filter((item): item is string => typeof item === "string")
@@ -301,21 +343,22 @@ const makeFakeStripe = () => {
           }
         }
         const id = `price_${++priceCounter}`;
+        const product = input.product ?? input.product_data?.id ?? `prod_${id}`;
         const price: StripePrice = {
           active: input.active ?? true,
           billing_scheme: input.billing_scheme ?? "per_unit",
           created: timestamp,
           currency: input.currency,
           currency_options: undefined,
-          custom_unit_amount: input.custom_unit_amount ?? null,
+          custom_unit_amount: priceCustomUnitAmount(input.custom_unit_amount),
           id,
           livemode: false,
           lookup_key: input.lookup_key ?? null,
           metadata: stringMetadata(input.metadata),
           nickname: input.nickname ?? null,
           object: "price",
-          product: input.product,
-          recurring: input.recurring ?? null,
+          product,
+          recurring: priceRecurring(input.recurring),
           tax_behavior: input.tax_behavior ?? null,
           tiers: undefined,
           tiers_mode: input.tiers_mode ?? null,
@@ -483,7 +526,7 @@ const makeFakeStripe = () => {
           livemode: false,
           metadata: stringMetadata(input.metadata),
           object: "webhook_endpoint",
-          secret: `whsec_${webhookCounter}`,
+          secret: Redacted.make(`whsec_${webhookCounter}`),
           status: "enabled",
           url: input.url,
         };
@@ -1045,6 +1088,8 @@ describe.sequential("Stripe resources", () => {
           recurring: {
             interval: "month",
             interval_count: 1,
+            meter: null,
+            trial_period_days: null,
             usage_type: "licensed",
           },
           tax_behavior: null,
